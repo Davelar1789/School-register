@@ -73,15 +73,17 @@ app.use((err, req, res, next) => {
 
 // Connect to MongoDB and start the server
 connectToMongoDb().then(() => {
-  app.listen(PORT, () => {
+  const server = app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
+  });
+
+  // Graceful Shutdown
+  process.on("SIGTERM", () => {
+    console.log("SIGTERM signal received: closing HTTP server");
+    server.close(() => {
+      console.log("HTTP server closed");
+      process.exit(0); // Exit process after closing the server
+    });
   });
 });
 
-// Graceful Shutdown
-process.on("SIGTERM", () => {
-  console.log("SIGTERM signal received: closing HTTP server");
-  server.close(() => {
-    console.log("HTTP server closed");
-  });
-});
