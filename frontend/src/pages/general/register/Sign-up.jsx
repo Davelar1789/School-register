@@ -64,7 +64,7 @@ function SignUp() {
 
   return (
     <div className="signup-container">
-      <Toaster position="top-center" reverseOrder={false} /> {/* ✅ Add Toaster */}
+      <Toaster position="top-right" reverseOrder={false} /> {/* ✅ Add Toaster */}
 
       {/* Back Button */}
       <div className="back-button" onClick={() => navigate("/")}>
