@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaUserGraduate, FaClipboardList, FaChartLine, FaComments, FaSchool, FaUniversity, FaBookReader, FaStar } from "react-icons/fa";
 import Header from "../../../components/Header.jsx";
@@ -41,7 +41,7 @@ function Home() {
     return () => clearInterval(interval);
   }, []);
 
-  
+
   return (
     <div className="home-page">
       <Header />
