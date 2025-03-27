@@ -34,7 +34,7 @@ function SignUp() {
     setError("");
 
     try {
-      const response = await api.post("/register", formData);
+      const response = await api.post("/api/schools/register", formData);
       console.log("Registration Success:", response.data);
       navigate("/dashboard"); // Redirect to dashboard after success
     } catch (err) {
