@@ -131,6 +131,20 @@ function Home() {
           </Link>
         </div>
       </section>
+      <section className="testimonials">
+      <h2 className="testimonials-title">What Our Clients Say</h2>
+      <div className="testimonial-card">
+        <img src={testimonials[currentIndex].image} alt={testimonials[currentIndex].name} className="testimonial-img" />
+        <p className="testimonial-feedback">"{testimonials[currentIndex].feedback}"</p>
+        <div className="testimonial-rating">
+          {[...Array(testimonials[currentIndex].rating)].map((_, i) => (
+            <FaStar key={i} className="star-icon" />
+          ))}
+        </div>
+        <h3 className="testimonial-name">{testimonials[currentIndex].name}</h3>
+        <p className="testimonial-role">{testimonials[currentIndex].role}</p>
+      </div>
+    </section>
 
       <Footer />
     </div>
