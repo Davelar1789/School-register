@@ -13,21 +13,21 @@ const testimonials = [
   {
     name: "Principal Smith",
     role: "Principal, Greenfield Academy",
-    image: Image2,
+    image: "../../../assets/images/head2.jpg",
     rating: 5,
     feedback: "This system has completely transformed how we manage our school. It's intuitive and highly efficient!"
   },
   {
     name: "Karen Thompson",
     role: "Head of Admissions, Bright Future High",
-    image: Image1,
+    image: "../../../assets/images/head1.jpg",
     rating: 4,
     feedback: "A fantastic tool! Our administrative processes have never been smoother. Highly recommended."
   },
   {
     name: "Michael Davis",
     role: "Director, Elite College",
-    image: Image3,
+    image: "../../../assets/images/head3.jpg",
     rating: 5,
     feedback: "An all-in-one solution that has streamlined our student tracking and communications perfectly!"
   }
