@@ -51,8 +51,8 @@ function SignUp() {
       console.log("Registration Success:", response.data);
       toast.success("School registered successfully!");
       navigate("/sign-in"); // Redirect after success
-    } catch (err) {
-      console.error("Registration Error:", err);
+    } catch (error) {
+      console.error("Registration Error:", error);
       toast.error("Registration failed. Please try again.");
     } finally {
       setLoading(false);
