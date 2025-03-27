@@ -11,7 +11,6 @@ const schoolSchema = new mongoose.Schema(
     state: { type: String, required: true },
     country: { type: String, required: true },
     website: { type: String },
-    establishedYear: { type: Number },
     numberOfStudents: { type: Number },
   },
   { timestamps: true }
