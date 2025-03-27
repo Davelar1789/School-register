@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { FaUserGraduate, FaClipboardList, FaChartLine, FaComments } from "react-icons/fa";
 import Header from "../../../components/Header.jsx";
 import Footer from "../../../components/Footer.jsx";
 import "./HomePage.modules.css";
