@@ -27,10 +27,14 @@
   align-items: center;
 }
 
-.logo {
-  height: 60px;
-  width: auto;
+.logoText {
+  font-family: Arial, sans-serif; /* Choose a font you like */
+  font-size: 24px; /* Adjust font size to your liking */
+  font-weight: bold; /* Optional: add boldness to the text */
+  color: #4169E1; /* Your desired text color */
+  letter-spacing: 1px; /* Optional: add some spacing between letters */
 }
+
 
 /* Navigation */
 .nav {

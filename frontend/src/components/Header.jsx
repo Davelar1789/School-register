@@ -7,8 +7,9 @@ const Header = () => {
     <header className="header">
       {/* Logo */}
       <div className="logoContainer">
-        <img src={logo} alt="School Management System Logo" className="logo" />
+        <span className="logoText">School Management System</span>
       </div>
+
 
       {/* Navigation Menu */}
       <nav className="nav">
