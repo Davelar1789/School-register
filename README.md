@@ -1,2 +1,2 @@
-# School-register
-This is a repository for a school management system where multiple schools can register onto the website
+# **Codewhiz Tech School Management System (SMS) 📚🏫**
+Welcome to the Web-Based School Management System (SMS), a comprehensive platform designed to streamline school operations and improve communication between administrators, teachers, students, and parents. This system covers everything from student enrollment and attendance tracking to grade management, fee tracking, and more!
