@@ -9,6 +9,7 @@ import teacher from "./routes/teacher/teacher.js";
 import products from "./routes/general/product.js";
 import students from "./routes/general/student.js";
 import schoolRoutes from "./routes/SchoolRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 import events from "./routes/general/event.js";
 
@@ -47,6 +48,8 @@ app.use("/api/", products);
 app.use("/api/", students);
 app.use("/api/", events);
 app.use("/api/schools", schoolRoutes);
+app.use("/api/users", userRoutes);
+
 
 
 app.get('/ping', (req, res) => {

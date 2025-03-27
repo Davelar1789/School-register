@@ -35,7 +35,7 @@ Welcome to the Web-Based School Management System (SMS), a comprehensive platfor
 - Role Assignment: Assign different access levels to administrators, teachers, students, and parents.
 - Profile Management: Allow users to update their personal information.
 
-Page Structures 🖱️
+## **Page Structures 🖱️**
 1. Login Page 🔐
 Fields for username and password.
 Options for password recovery.
