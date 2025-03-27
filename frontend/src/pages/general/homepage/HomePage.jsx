@@ -111,7 +111,7 @@ function Home() {
       </section>
 
        {/* Solutions Section */}
-       <section className="solutions">
+       <section id="solutions" className="solutions">
         <h2 className="solutions-title">Tailored Solutions for Every Educational Level</h2>
         <div className="solutions-grid">
           {/* Primary Schools */}
