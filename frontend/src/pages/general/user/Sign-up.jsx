@@ -2,23 +2,19 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import api from "../../../api/axios";
-import { toast, Toaster } from 'react-hot-toast'; // ✅ Import both
+import { toast } from "react-hot-toast";
 import "./Signup.modules.css";
 
-function SignUp() {
+function UserSignUp() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    schoolName: "",
+    fullName: "",
     email: "",
-    phone: "",
-    address: "",
-    headmasterName: "",
     password: "",
     confirmPassword: "",
   });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -27,36 +23,24 @@ function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match!");
-      toast.error("Passwords do not match!"); // ✅ Toast notification
+      toast.error("Passwords do not match!");
       return;
     }
 
     setLoading(true);
-    setError("");
 
     try {
-      const response = await api.post("/api/schools/register", {
-        name: formData.schoolName,
-        headmaster: formData.headmasterName,
+      const response = await api.post("/api/users/signup", {
+        fullName: formData.fullName,
         email: formData.email,
-        phone: formData.phone,
-        address: formData.address,
-        city: "N/A",
-        state: "N/A",
-        country: "N/A",
-        website: "N/A",
-        establishedYear: "N/A",
-        numberOfStudents: 0,
+        password: formData.password,
       });
 
-      console.log("Registration Success:", response.data);
-      toast.success("Registration successful! 🎉");
-      navigate("/sign-in"); // Redirect after success
+      toast.success("Account created successfully! Redirecting to login...");
+      setTimeout(() => navigate("/login"), 2000);
     } catch (err) {
-      console.error("Registration Error:", err);
-      setError("Registration failed. Please try again.");
-      toast.error("Registration failed. Please try again."); // ✅ Show error toast
+      console.error("Signup Error:", err);
+      toast.error("Signup failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -64,29 +48,22 @@ function SignUp() {
 
   return (
     <div className="signup-container">
-      <Toaster position="top-right" reverseOrder={false} /> {/* ✅ Add Toaster */}
-
       {/* Back Button */}
       <div className="back-button" onClick={() => navigate("/")}>
         <FaArrowLeft className="back-icon" /> Back
       </div>
 
       <div className="signup-form-container">
-        <h2 className="signup-title">Register Your School</h2>
-        <p className="signup-subtitle">
-          Enter your school's details to get started.
-        </p>
-
-        {error && <p className="error-message">{error}</p>}
+        <h2 className="signup-title">Create Your Account</h2>
+        <p className="signup-subtitle">Sign up to start managing schools.</p>
 
         <form onSubmit={handleSubmit} className="signup-form">
-          {/* Left Column */}
           <div className="input-group">
-            <label>School Name</label>
+            <label>Full Name</label>
             <input
               type="text"
-              name="schoolName"
-              value={formData.schoolName}
+              name="fullName"
+              value={formData.fullName}
               onChange={handleChange}
               required
             />
@@ -98,40 +75,6 @@ function SignUp() {
               type="email"
               name="email"
               value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="input-group">
-            <label>Phone Number</label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="input-group">
-            <label>School Address</label>
-            <input
-              type="text"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          {/* Right Column */}
-          <div className="input-group">
-            <label>Headmaster's Name</label>
-            <input
-              type="text"
-              name="headmasterName"
-              value={formData.headmasterName}
               onChange={handleChange}
               required
             />
@@ -159,9 +102,8 @@ function SignUp() {
             />
           </div>
 
-          {/* Submit Button (Full Width) */}
           <button type="submit" className="signup-button" disabled={loading}>
-            {loading ? "Registering..." : "Register"}
+            {loading ? "Signing Up..." : "Sign Up"}
           </button>
         </form>
 
@@ -173,4 +115,4 @@ function SignUp() {
   );
 }
 
-export default SignUp;
+export default UserSignUp;
