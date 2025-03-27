@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import api from "../../../api/axios";
-import { toast } from 'react-hot-toast';
+import { toast } from "react-hot-toast";
 import "./Signup.modules.css";
 
 function SignUp() {
@@ -18,7 +18,6 @@ function SignUp() {
   });
 
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -26,14 +25,14 @@ function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match!");
+      toast.error("Passwords do not match!");
       return;
     }
-  
+
     setLoading(true);
-    setError("");
-  
+
     try {
       const response = await api.post("/api/schools/register", {
         name: formData.schoolName,        // ✅ Matches backend
@@ -41,19 +40,20 @@ function SignUp() {
         email: formData.email,
         phone: formData.phone,
         address: formData.address,
-        city: "N/A",   // Add default values if frontend doesn't collect them
+        city: "N/A",   // Default values
         state: "N/A",
         country: "N/A",
         website: "N/A",
         establishedYear: "N/A",
         numberOfStudents: 0,
       });
-  
+
       console.log("Registration Success:", response.data);
-      navigate("/sign-in"); // Redirect to dashboard after success
+      toast.success("School registered successfully!");
+      navigate("/sign-in"); // Redirect after success
     } catch (err) {
       console.error("Registration Error:", err);
-      setError("Registration failed. Please try again.");
+      toast.error("Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
