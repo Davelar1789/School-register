@@ -30,7 +30,7 @@ function UserSignUp() {
     setLoading(true);
 
     try {
-      const response = await api.post("/api/users/signup", {
+      const response = await api.post("/api/users/register", {
         fullName: formData.fullName,
         email: formData.email,
         password: formData.password,
