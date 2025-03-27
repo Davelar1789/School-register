@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaUserGraduate, FaClipboardList, FaChartLine, FaComments } from "react-icons/fa";
+import { FaUserGraduate, FaClipboardList, FaChartLine, FaComments, FaSchool, FaUniversity, FaBookReader } from "react-icons/fa";
 import Header from "../../../components/Header.jsx";
 import Footer from "../../../components/Footer.jsx";
 import "./HomePage.modules.css";
@@ -66,6 +66,33 @@ function Home() {
             <h3>Communication Portals</h3>
             <p>Enhance collaboration with direct messaging, announcements, and parent-teacher interactions.</p>
           </div>
+        </div>
+      </section>
+
+       {/* Solutions Section */}
+       <section className="solutions">
+        <h2 className="solutions-title">Tailored Solutions for Every Educational Level</h2>
+        <div className="solutions-grid">
+          {/* Primary Schools */}
+          <Link to="/solutions/primary" className="solution-card primary">
+            <FaSchool className="solution-icon" />
+            <h3>Primary Schools</h3>
+            <p>Structured for foundational learning institutions to enhance engagement and management.</p>
+          </Link>
+
+          {/* High Schools */}
+          <Link to="/solutions/highschool" className="solution-card highschool">
+            <FaUniversity className="solution-icon" />
+            <h3>High Schools</h3>
+            <p>Optimized for student performance tracking, attendance monitoring, and administrative efficiency.</p>
+          </Link>
+
+          {/* Colleges */}
+          <Link to="/solutions/college" className="solution-card college">
+            <FaBookReader className="solution-icon" />
+            <h3>Colleges & Universities</h3>
+            <p>Comprehensive tools for academic planning, resource management, and student engagement.</p>
+          </Link>
         </div>
       </section>
 
