@@ -1,96 +1,154 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import login from "../../../assets/images/loginimage.jpg";
-import api from "../../../api/axios"; // Importing the centralized API configuration
-import toast from "react-hot-toast";
-import "./Signup.modules.css"; 
+import { FaArrowLeft } from "react-icons/fa";
+import api from "../../../api/axios";
+import "./SignUp.modules.css";
 
-export default function SignUp() {
+function SignUp() {
   const navigate = useNavigate();
-  const [data, setData] = useState({
+  const [formData, setFormData] = useState({
+    schoolName: "",
     email: "",
-    username: "",
+    phone: "",
+    address: "",
+    headmasterName: "",
     password: "",
     confirmPassword: "",
   });
-  const [loading, setLoading] = useState(false); // Loading state
 
-  const handleSignUp = async (e) => {
-    e.preventDefault();
-    if (data.password !== data.confirmPassword) {
-      return toast.error("Passwords do not match");
-    }
-
-    setLoading(true); // Start loading
-    try {
-      await api.post("/api/auth/register", data);
-      toast.success("Sign up successful");
-      navigate("/sign-in");
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Sign up failed");
-    } finally {
-      setLoading(false); // Stop loading
-    }
-  };
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
-    const { id, value } = e.target;
-    setData((prev) => ({ ...prev, [id]: value }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (formData.password !== formData.confirmPassword) {
+      setError("Passwords do not match!");
+      return;
+    }
+    
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await api.post("/register", formData);
+      console.log("Registration Success:", response.data);
+      navigate("/dashboard"); // Redirect to dashboard after success
+    } catch (err) {
+      console.error("Registration Error:", err);
+      setError("Registration failed. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div 
-      className="signup-page"
-      style={{
-        backgroundImage: `url(${login})`,
-        backgroundPosition: "center",
-        backgroundSize: "cover",
-        backgroundRepeat: "no-repeat",
-        backgroundColor: "rgba(0, 0, 0, 0.5)", // Dark overlay
-        backgroundBlendMode: "darken",
-      }}
-    >
-      <div className="signup-card">
-        <p className="welcome">Create an Account With Us</p>
-        <form onSubmit={handleSignUp} className="signup-form">
-          <input
-            type="email"
-            placeholder="Email"
-            id="email"
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="text"
-            placeholder="Username"
-            id="username"
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            id="password"
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Confirm Password"
-            id="confirmPassword"
-            onChange={handleChange}
-            required
-          />
-          <button 
-            type="submit" 
-            className="signup-button" 
-            disabled={loading} // Disable button when loading
-          >
-            {loading ? "Loading..." : "Sign Up"} {/* Change button text */}
+    <div className="signup-container">
+      {/* Back Button */}
+      <div className="back-button" onClick={() => navigate("/")}>
+        <FaArrowLeft className="back-icon" /> Back
+      </div>
+
+      <div className="signup-form-container">
+        <h2 className="signup-title">Register Your School</h2>
+        <p className="signup-subtitle">
+          Enter your school's details to get started.
+        </p>
+
+        {error && <p className="error-message">{error}</p>}
+
+        <form onSubmit={handleSubmit} className="signup-form">
+          <div className="input-group">
+            <label>School Name</label>
+            <input
+              type="text"
+              name="schoolName"
+              value={formData.schoolName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <label>Email Address</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <label>Phone Number</label>
+            <input
+              type="tel"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <label>School Address</label>
+            <input
+              type="text"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <label>Headmaster's Name</label>
+            <input
+              type="text"
+              name="headmasterName"
+              value={formData.headmasterName}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <label>Password</label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <label>Confirm Password</label>
+            <input
+              type="password"
+              name="confirmPassword"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <button type="submit" className="signup-button" disabled={loading}>
+            {loading ? "Registering..." : "Register"}
           </button>
         </form>
-        <p>Already have an account? <Link to="/sign-in" className="signin-link">Sign In</Link></p>
+
+        <p className="login-link">
+          Already have an account? <Link to="/login">Login here</Link>
+        </p>
       </div>
     </div>
   );
 }
+
+export default SignUp;
