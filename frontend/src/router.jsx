@@ -14,7 +14,7 @@ import TEditGrades from "./pages/teacher/manage_students/EditGrades";
 import TAttendance from "./pages/teacher/attendance/Attendance";
 import TReportCard from "./pages/teacher/manage_students/ReportCard";
 import TGradeBook from "./pages/teacher/manage_students/Gradebook";
-import SignUp from "./pages/general/register/Sign-up";
+import SignUp from "./pages/general/user/Sign-up";
 import Products from "./pages/AllProducts";
 import Inbox from "./pages/admin/inbox/Inbox";
 import Settings from "./pages/admin2/setting/Settings";
