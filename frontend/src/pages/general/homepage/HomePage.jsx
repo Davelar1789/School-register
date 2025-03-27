@@ -77,7 +77,7 @@ function Home() {
       </section>
 
       {/* Features Overview Section */}
-      <section className="features">
+      <section id="features" className="features">
         <h2 className="features-title">Powerful Features to Elevate Your Institution</h2>
         <div className="features-grid">
           {/* Feature 1: Student Management */}
@@ -136,7 +136,7 @@ function Home() {
           </Link>
         </div>
       </section>
-      <section className="testimonials">
+      <section id="testimonials" className="testimonials">
       <h2 className="testimonials-title">What Our Clients Say</h2>
       <div className="testimonial-card">
         <img src={testimonials[currentIndex].image} alt={testimonials[currentIndex].name} className="testimonial-img" />
