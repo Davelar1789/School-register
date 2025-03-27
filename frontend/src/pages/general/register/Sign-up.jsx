@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import api from "../../../api/axios";
-import { toast } from "react-hot-toast";
+import { toast, Toaster } from 'react-hot-toast'; // ✅ Import both
 import "./Signup.modules.css";
 
 function SignUp() {
@@ -18,6 +18,7 @@ function SignUp() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -25,22 +26,23 @@ function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match!");
+      setError("Passwords do not match!");
+      toast.error("Passwords do not match!"); // ✅ Toast notification
       return;
     }
 
     setLoading(true);
+    setError("");
 
     try {
       const response = await api.post("/api/schools/register", {
-        name: formData.schoolName,        // ✅ Matches backend
-        headmaster: formData.headmasterName, // ✅ Matches backend
+        name: formData.schoolName,
+        headmaster: formData.headmasterName,
         email: formData.email,
         phone: formData.phone,
         address: formData.address,
-        city: "N/A",   // Default values
+        city: "N/A",
         state: "N/A",
         country: "N/A",
         website: "N/A",
@@ -49,18 +51,21 @@ function SignUp() {
       });
 
       console.log("Registration Success:", response.data);
-      toast.success("School registered successfully!");
+      toast.success("Registration successful! 🎉");
       navigate("/sign-in"); // Redirect after success
-    } catch (error) {
-      console.error("Registration Error:", error);
-      toast.error("Registration failed. Please try again.");
+    } catch (err) {
+      console.error("Registration Error:", err);
+      setError("Registration failed. Please try again.");
+      toast.error("Registration failed. Please try again."); // ✅ Show error toast
     } finally {
       setLoading(false);
     }
   };
-  
+
   return (
     <div className="signup-container">
+      <Toaster position="top-center" reverseOrder={false} /> {/* ✅ Add Toaster */}
+
       {/* Back Button */}
       <div className="back-button" onClick={() => navigate("/")}>
         <FaArrowLeft className="back-icon" /> Back
