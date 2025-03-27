@@ -36,12 +36,7 @@ app.post("/api/", (req, res) => {
   res.send("JBA Server is UP and Running");
 });
 
-app.use("/api/auth", auth);
-app.use("/api/admin", authToken, admin); // Protected admin routes// app.use("/api", product);
-app.use("/api/teacher", authToken, teacher);
-app.use("/api/", products);
-app.use("/api/", students);
-app.use("/api/", events);
+
 app.use("/api/schools", schoolRoutes);
 app.use("/api/users", userRoutes);
 
