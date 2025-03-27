@@ -1,23 +1,32 @@
 import jwt from "jsonwebtoken";
-import User from "../models/User.model.js";
 
-export const protect = async (req, res, next) => {
-  let token;
+export const authToken = (req, res, next) => {
+  try {
+    const token = req.cookies?.token;
 
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    try {
-      token = req.headers.authorization.split(" ")[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-      req.user = await User.findById(decoded.id).select("-password"); // Exclude password
-      next();
-    } catch (error) {
-      res.status(401).json({ message: "Not authorized, invalid token" });
+    if (!token) {
+      return res.status(401).json({ message: "User not logged in" });
     }
-  } else {
-    res.status(401).json({ message: "Not authorized, no token" });
+
+    
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      if (err) {
+        if (err.name === "TokenExpiredError") {
+          console.error("Token Expired:", err.message);
+          return res.status(401).json({ message: "Token has expired" });
+        }
+    
+        console.error("Token Authentication Error:", err.message);
+        return res.status(403).json({ message: "Invalid or tampered token" });
+      }
+    
+      req.userId = decoded.id;
+      next();
+    });
+    
+    
+  } catch (error) {
+    console.error("Error in authToken middleware:", error.message);
+    res.status(500).json({ message: "Internal server error" });
   }
 };

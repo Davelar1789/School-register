@@ -1,6 +1,6 @@
 import express from "express";
 import { registerSchool, getAllSchools, getSchoolById, updateSchool, deleteSchool } from "../controllers/schoolController.js";
-import { protect } from "../middleware/authToken.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 
 const router = express.Router();

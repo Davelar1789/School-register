@@ -3,15 +3,10 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
-import auth from "./routes/general/auth.js";
-import admin from "./routes/admin/admin.js";
-import teacher from "./routes/teacher/teacher.js";
-import products from "./routes/general/product.js";
-import students from "./routes/general/student.js";
+
 import schoolRoutes from "./routes/SchoolRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 
-import events from "./routes/general/event.js";
 
 import { authToken } from "./middleware/authToken.js";
 import { verifyAdmin } from "./middleware/verifyAdmin.js";
