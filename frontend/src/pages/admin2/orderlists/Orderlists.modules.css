@@ -1,0 +1,87 @@
+/* Orderlists.module.css */
+.products-page2 {
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .products-content2 {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .main-content {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .header4 {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    width: 100%;
+  }
+  
+  .search-bar {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex-grow: 1;
+  }
+  
+  .products-list {
+    margin-top: 20px;
+    width: 100%;
+    overflow-x: auto;
+  }
+  
+  .order-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .order-table th,
+  .order-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+  }
+  
+  .order-table th {
+    background-color: #f2f2f2;
+  }
+  
+  .completed {
+    color: green;
+  }
+  
+  .processing {
+    color: orange;
+  }
+  
+  .rejected {
+    color: red;
+  }
+  
+  /* Hide specific columns on screens smaller than 860px */
+  @supports (display: grid) {
+    .hidden-column {
+      display: none;
+    }
+  
+    @media (min-width: 860px) {
+      .hidden-column {
+        display: table-cell;
+      }
+    }
+  }
+  

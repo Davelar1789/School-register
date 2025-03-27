@@ -1,0 +1,138 @@
+.report-card-page {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+
+.header-section2 {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding-bottom: 10px;
+}
+
+.school-logo {
+  margin-right: 20px;
+}
+
+.school-logo img {
+  height: 100px;
+}
+
+.school-info {
+  flex-grow: 1;
+  text-align: center;
+  margin-left: -150px;
+}
+
+.school-info p {
+  font-size: 12px;
+  margin: 2px 0;
+}
+
+.report3 {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.form-section {
+  margin-top: 20px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding-right: 20px;
+}
+
+.form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.form-group label {
+  margin-right: 10px;
+  min-width: 150px;
+  text-align: left;
+}
+
+.l2 {
+  margin-top: 12px;
+  margin-right: 5px;
+}
+
+.form-group input,
+.form-group select {
+  padding: 5px;
+  width: 200px;
+}
+
+.form-group-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.fees-table {
+  width: 100%;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  border-collapse: collapse;
+}
+
+.fees-table th,
+.fees-table td {
+  border: 1px solid black;
+  padding: 10px;
+  text-align: center;
+}
+
+.report-section {
+  margin-top: 20px;
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.report-table th,
+.report-table td {
+  border: 1px solid black;
+  padding: 10px;
+  text-align: center;
+}
+
+.additional-info-section .form-group-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.additional-info-section .form-group {
+  display: flex;
+  align-items: center;
+}
+
+.additional-info-section .form-group input {
+  width: 100%;
+}
+
+.print-button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.print-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.print-button:hover {
+  background-color: #45a049;
+}

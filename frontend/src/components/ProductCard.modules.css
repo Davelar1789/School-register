@@ -1,0 +1,59 @@
+/* ProductCard.css */
+.product-card {
+    width: 23%; /* 4 cards fit on the screen width */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    overflow: hidden;
+    margin: 10px;
+    position: relative;
+    flex-shrink: 0; /* Ensure cards don't shrink */
+    height: 320px;
+    cursor: pointer;
+  }
+  
+  .discount-tag {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #6787C0;
+    color: white;
+    padding: 5px;
+    border-radius: 5px;
+    font-size: 12px;
+  }
+  
+  .product-image {
+    width: 100%;
+    height: 200px;
+    background-color: #f0f0f0;
+  }
+  
+  .product-details {
+    padding: 10px;
+    text-align: left;
+    margin-left: 10px;
+  }
+  
+  .product-details h3 {
+    font-size: 20px;
+    margin: 10px 0 5px;
+  }
+  
+  .product-details p {
+    margin: 5px 0;
+    color: #555;
+    font-size: 17px;
+  }
+
+  
+  @media (max-width: 768px) {
+    .product-card {
+      width: 41%; /* 4 cards fit on the screen width */
+    }
+  }
+
+  @media (max-width: 480px) {
+    .product-card {
+      width: 68%; /* 4 cards fit on the screen width */
+    }
+  }

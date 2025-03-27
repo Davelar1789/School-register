@@ -1,0 +1,40 @@
+// AdmissionsPage.js
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import './AdmissionsPage.modules.css';
+import Header from '../../../components/Header';
+
+const AdmissionsPage = () => {
+    const navigate = useNavigate();
+
+    const handleStudentApply = () => {
+        navigate('/apply-student');
+    };
+
+    const handleTeacherApply = () => {
+        navigate('/apply-teacher');
+    };
+
+    return (
+            <div className='admissions-page'>
+            <Header />
+            <section className="hero-admissions">
+                <div className="hero-content-admissions">
+                    <h1>Admissions</h1>
+                    <p>Choose your role and apply to join Joyful Brains Academy.</p>
+                    <div className="admissions-options">
+                        <div className="admission-box" onClick={handleStudentApply}>
+                            <h3>Apply as Student</h3>
+                        </div>
+                        <div className="admission-box" onClick={handleTeacherApply}>
+                            <h3>Apply as Teacher</h3>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        
+    );
+};
+
+export default AdmissionsPage;

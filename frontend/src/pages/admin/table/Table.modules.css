@@ -1,0 +1,126 @@
+.table-page {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .table-content {
+    display: flex;
+  }
+  
+  .main-content {
+    flex-grow: 1;
+    padding: 20px;
+  }
+  
+  h2 {
+    margin-bottom: 20px;
+  }
+  
+  .table-wrapper {
+    width: 100%;
+  }
+  
+  .divider {
+    border: none;
+    border-top: 1px solid #ccc;
+    margin: 0;
+    width: 100%;
+  }
+  
+  .table-container {
+    margin-top: 20px;
+  }
+  
+  .data-table, .product-table {
+    width: 100%;
+    border-collapse: collapse; /* Changed to collapse to include borders */
+    margin-bottom: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .data-table th, .data-table td, .product-table th, .product-table td {
+    border: 1px solid #ddd; /* Ensure borders are applied to all cells */
+    padding: 16px 8px; /* Increase padding to increase row height */
+    text-align: left;
+  }
+  
+  .data-table th, .product-table th {
+    background-color: #f2f2f2;
+  }
+  
+  .data-table .status-cell {
+    text-align: center;
+    padding: 16px; /* Ensure padding is consistent */
+    position: relative; /* Enable positioning */
+  }
+  
+  .status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background-color: transparent; /* Set initial background color to transparent */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Center the status box */
+  }
+  
+  .status-completed {
+    background-color: rgba(0, 182, 155, 0.2);
+    color: #00B69B;
+  }
+  
+  .status-processing {
+    background-color: rgba(98, 38, 239, 0.2);
+    color: #6226EF;
+  }
+  
+  .status-rejected {
+    background-color: rgba(239, 56, 38, 0.2);
+    color: #EF3826;
+  }
+  
+  .color {
+    display: inline-block;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    margin-right: 5px;
+  }
+  
+  .color.black {
+    background-color: black;
+  }
+  
+  .color.grey {
+    background-color: grey;
+  }
+  
+  .color.red {
+    background-color: red;
+  }
+  
+  .color.pink {
+    background-color: pink;
+  }
+  
+  .color.yellow {
+    background-color: yellow;
+  }
+  
+  .color.blue {
+    background-color: blue;
+  }
+  
+  .edit-button, .delete-button {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+  }
+  
+  .edit-button:hover, .delete-button:hover {
+    text-decoration: underline;
+  }
+  

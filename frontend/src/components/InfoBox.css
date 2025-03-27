@@ -1,0 +1,98 @@
+.info-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  margin: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  width: 200px;
+  transition: all 0.3s ease;
+}
+
+.info-content {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: left;
+}
+
+.info-title-icon {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.info-title {
+  margin-top: -25px;
+  font-size: 11px;
+}
+
+.info-value {
+  margin-top: -10px;
+  margin-bottom: 25px;
+}
+
+.info-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10px;
+}
+
+.info-icon img {
+  max-height: 60px;
+  width: auto;
+}
+
+h3 {
+  margin: 0;
+  font-size: 1.2em;
+  display: inline;
+}
+
+p {
+  margin: 10px 0;
+  font-size: 1.5em;
+}
+
+.percentage-container {
+  display: flex;
+  align-items: center;
+}
+
+.percentage {
+  font-size: 1em;
+  font-weight: bold;
+}
+
+.increase {
+  color: #00B69B;
+}
+
+.decrease {
+  color: #F93C65;
+}
+
+.percentage-text {
+  color: black;
+  margin-left: 5px;
+}
+
+/* Tablet view adjustments */
+@media (max-width: 768px) {
+  .info-box {
+    width: 45%;
+    margin: 10px;
+  }
+
+  .info-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+}

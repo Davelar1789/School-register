@@ -1,0 +1,26 @@
+.section2 {
+    margin: 20px 0;
+  }
+  
+  .section2 h2 {
+    font-size: 32px;
+    margin-bottom: 20px;
+    margin-left: 20px;
+  }
+  
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Adjust minmax value for card width */
+    gap: 10px; /* Adjust the gap between cards */
+    padding: 0 20px; /* Add horizontal padding */
+  }
+  
+  .product-grid::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .product-grid {
+    -ms-overflow-style: none; /* for Internet Explorer and Edge */
+    scrollbar-width: none; /* for Firefox */
+  }
+  

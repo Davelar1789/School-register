@@ -1,0 +1,79 @@
+/* General Styles */
+.enrolled-courses-page {
+  display: flex; /* Use flexbox for horizontal layout */
+  min-height: 100vh; /* Ensure it takes the full height of the viewport */
+  background-color: #f9f9f9;
+}
+  
+  /* Search Bar Styling */
+  .search-bar-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  
+  .main-content {
+    flex: 1; /* Take up remaining space */
+    padding: 2rem;
+    background-color: #f9f9f9;
+  }
+  
+  .search-bar {
+    width: 100%;
+    max-width: 400px;
+    padding: 0.75rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  
+  .search-bar:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 4px rgba(0, 123, 255, 0.5);
+  }
+  
+  /* Table Styling */
+  .enrolled-courses-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+  
+  .enrolled-courses-table th, 
+  .enrolled-courses-table td {
+    text-align: left;
+    padding: 1rem;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .enrolled-courses-table th {
+    background: #f1f1f1;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #555;
+  }
+  
+  .enrolled-courses-table tr:hover {
+    background: #f9f9f9;
+  }
+  
+  .enrolled-courses-table td.options-column {
+    text-align: center;
+  }
+  
+  /* Delete Icon */
+  .delete-icon {
+    font-size: 1.25rem;
+    color: #ff4d4f;
+    cursor: pointer;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+  
+  .delete-icon:hover {
+    color: #d9363e;
+    transform: scale(1.2);
+  }
+  

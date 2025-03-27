@@ -1,0 +1,53 @@
+/* AdmissionsPage.modules.css */
+.admi {
+    background-color: #1a2038;
+}
+
+.admissions-page {
+    background-color: #1a2038;
+    color: #fff;
+    font-family: Arial, sans-serif;
+}
+
+.hero-admissions {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 100px 0;
+    text-align: center;
+}
+
+.hero-content-admissions h1 {
+    font-size: 48px;
+    color: #fff;
+    margin-bottom: 20px;
+}
+
+.hero-content-admissions p {
+    font-size: 18px;
+    margin-bottom: 40px;
+}
+
+.admissions-options {
+    display: flex;
+    gap: 30px;
+}
+
+.admission-box {
+    background-color: #7e3af2;
+    padding: 20px 40px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+.admission-box:hover {
+    background-color: #5e2ebf;
+}
+
+.admission-box h3 {
+    color: #fff;
+    font-size: 24px;
+}

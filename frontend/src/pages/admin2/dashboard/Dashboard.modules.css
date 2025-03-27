@@ -1,0 +1,194 @@
+/* Dashboard general styles */
+.dashboard {
+  padding: 20px;
+  background-color: #f5f6fa;
+}
+
+.main-content {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.greeting {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+  text-align: left; /* Align greeting to the left */
+}
+
+/* Info Box styles */
+.info-box {
+  background-color: #f0f4ff;
+  border: 1px solid #dce1ff;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+/* Recent Applications */
+.recent-applications-box {
+  border: 1px solid #dce1ff;
+  padding: 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  width: 100%; /* Full width of the container */
+}
+
+.recent-applications-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.see-all-link {
+  font-size: 14px;
+  font-weight: 500;
+  color: #0056b3;
+  cursor: pointer;
+  position: absolute;
+  top: 20px; /* Align at the top */
+  right: 20px; /* Align to the right */
+}
+
+.see-all-link .arrow {
+  margin-left: 4px;
+}
+
+.applications-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.application-item {
+  padding: 8px 0;
+  border-bottom: 1px solid #e3e6f0;
+  font-size: 14px;
+}
+
+.application-item:last-child {
+  border-bottom: none;
+}
+
+/* Calendar and events section */
+.calendar-and-events {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.calendar-section {
+  flex: 0.4; /* Left side should be smaller */
+  background-color: #f9fbff;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.events-section {
+  flex: 0.6; /* Right side should be larger */
+  background-color: #f9fbff;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.events-section h3 {
+  margin-bottom: 20px; /* Increased space between the header and items */
+}
+
+.events-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.event-item {
+  padding: 16px;
+  border-radius: 8px;
+  margin-bottom: 20px; /* Space between event boxes */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: background 0.3s ease;
+  border-left: 5px solid;
+  background: linear-gradient(90deg, var(--start-color) 0%, #ffffff 100%);
+}
+
+/* Alternate box colors */
+.cream-box {
+  --start-color: #f9f5e7; /* Cream */
+  border-left-color: #f9f5e7;
+}
+
+.green-box {
+  --start-color: #e6f4ea; /* Light green */
+  border-left-color: #e6f4ea;
+}
+
+/* Event item contents */
+.event-day {
+  font-weight: bold;
+  font-size: 16px;
+  color: #333;
+}
+
+.event-description {
+  font-size: 14px;
+  color: #555;
+}
+
+.event-date {
+  font-size: 12px;
+  color: #777;
+  text-align: right;
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+
+/* Adjust the fading effect */
+.cream-box:hover, .green-box:hover {
+  background: linear-gradient(90deg, var(--start-color) 0%, #fff 100%);
+  border-right: 1px solid transparent; /* Fades out on the right */
+}
+
+/* Blue and yellow line styling */
+.info-box, .recent-applications-box, .calendar-section, .events-section {
+  border-top: 3px solid #0056b3; /* Blue top border */
+}
+
+.calendar-section, .events-section {
+  border-right: 4px solid #ffc107; /* Blue top border */
+}
+
+.recent-applications-box {
+  border-right: 4px solid #ffc107; /* Yellow left border for table rows */
+}
+
+@media (max-width: 768px) {
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .calendar-and-events {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 768px) {
+  .events-section, .calendar-section {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-section {
+    display: none;
+  }
+}

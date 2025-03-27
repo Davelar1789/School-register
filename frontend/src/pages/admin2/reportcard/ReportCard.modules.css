@@ -1,0 +1,99 @@
+.report-card-page {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid black;
+  padding-bottom: 10px;
+}
+
+.school-logo img {
+  height: 100px;
+}
+
+.school-info h1 {
+  font-size: 24px;
+  margin: 0;
+}
+
+.school-info p {
+  margin: 2px 0;
+}
+
+h2 {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.form-section {
+  margin-top: 20px;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding-right: 20px;
+}
+
+.form-group {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.form-group label {
+  margin-right: 10px;
+  min-width: 150px;
+}
+
+.form-group input,
+.form-group select {
+  padding: 5px;
+  width: 200px;
+}
+
+.fees-table {
+  width: 100%;
+  margin-top: 20px;
+  border-collapse: collapse;
+}
+
+.fees-table th,
+.fees-table td {
+  border: 1px solid black;
+  padding: 10px;
+  text-align: center;
+}
+
+.report-section {
+  margin-top: 20px;
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.report-table th,
+.report-table td {
+  border: 1px solid black;
+  padding: 10px;
+  text-align: center;
+}
+
+.additional-info {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.additional-info .form-group {
+  display: flex;
+  align-items: center;
+}
+
+.additional-info .form-group input {
+  width: 100%;
+}

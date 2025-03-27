@@ -1,0 +1,267 @@
+/* Main Layout Container */
+.profile-page {
+    display: flex; /* Places sidebar and profile side by side */
+    gap: 20px; /* Adds space between sidebar and profile */
+  }
+  
+  /* Profile Content beside the Sidebar */
+  .profile-container {
+    flex: 1; /* Takes up the remaining space next to the sidebar */
+    max-width: none; /* Ensures it stretches fully */
+    margin: 20px 0; /* Removes auto-centering from margin */
+    padding: 20px;
+    font-family: 'Arial', sans-serif;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    background-color: #ffffff;
+  }
+  
+  /* Header Section */
+  .profile-header {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .profile-picture-container {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .profile-picture {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid #4CAF50;
+  }
+  
+  .profile-header-details {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .profile-name {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #333333;
+    border: none;
+    outline: none;
+    background: none;
+    cursor: text;
+  }
+  
+  .profile-xp {
+    font-size: 1.2rem;
+    color: #4CAF50;
+  }
+  
+  /* Divider */
+  .divider {
+    margin: 20px 0;
+    border: none;
+    height: 1px;
+    background-color: #dddddd;
+  }
+  
+  /* Fields Section */
+  .profile-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .field-group label {
+    font-size: 0.9rem;
+    color: #666666;
+  }
+  
+  .field-group input {
+    font-size: 1rem;
+    padding: 8px 12px;
+    border: 1px solid #dddddd;
+    border-radius: 5px;
+    outline: none;
+  }
+  
+  .field-group input:focus {
+    border-color: #4CAF50;
+  }
+  
+  /* Stats Box */
+  .stats-box {
+    margin-top: 30px;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: #f0f8ff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .stats-box h2 {
+    margin-bottom: 15px;
+    color: #4CAF50;
+  }
+  
+  .stats-box p {
+    font-size: 1rem;
+    color: #555555;
+    margin: 8px 0;
+  }
+  
+  /* Save Button */
+.save-button {
+    display: inline-block;
+    background-color: #4CAF50; /* Green background */
+    color: #fff; /* White text */
+    font-size: 1.1rem; /* Slightly larger text */
+    font-weight: bold; /* Bold text */
+    padding: 12px 24px; /* Spacious padding */
+    border: none; /* No border */
+    border-radius: 10px; /* Smooth rounded corners */
+    cursor: pointer; /* Pointer cursor for interactivity */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Smooth hover effect */
+    margin-top: 5px;
+  }
+
+  .xp-card2 {
+    display: inline-block;
+    padding: 12px 24px; /* Slightly larger padding for better visual impact */
+    border-radius: 20px; /* More rounded edges */
+    background: linear-gradient(145deg, #6D28D9, #8B5CF6); /* Gradient with your primary color */
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37); /* Glass effect shadow */
+    backdrop-filter: blur(10px); /* Blurring effect for glassmorphism */
+    -webkit-backdrop-filter: blur(10px); /* Safari compatibility */
+    border: 1px solid rgba(255, 255, 255, 0.18); /* Subtle border for glass look */
+    font-size: 1rem; /* Font size */
+    font-weight: bold; /* Bold text */
+    color: #ffffff; /* White text color */
+    margin-right: 25px; /* Space before the notification bell */
+    text-align: center; /* Centered text */
+    transition: transform 0.3s ease; /* Smooth scaling effect on hover */
+  }
+  
+  .xp-card2:hover {
+    transform: scale(1.05); /* Slight scaling effect on hover */
+  }
+  
+  .rank-card {
+    background: #f8f9fa;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #333;
+  }
+  
+  .save-button:hover {
+    background-color: #45a049; /* Darker green on hover */
+    transform: translateY(-2px); /* Slight lift on hover */
+  }
+  
+  .save-button:active {
+    background-color: #388e3c; /* Even darker green on click */
+    transform: translateY(0); /* Reset lift on click */
+  }
+  
+  .save-button:focus {
+    outline: 2px solid #2e7d32; /* Focus outline for accessibility */
+  }
+
+  .extra-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    margin-top: 2rem;
+  }
+  
+  .referrals, .leaderboard {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  h2 {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .underline {
+    height: 4px;
+    background-color: #6D28D9;
+    width: 80%;
+    margin: 0 auto 1rem;
+  }
+  
+  .referral-button, .leaderboard-button {
+    background-color: #6D28D9;
+    color: white;
+    border: none;
+    padding: 0.7rem 1.5rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 1rem;
+  }
+  
+  .referral-button:hover, .leaderboard-button:hover {
+    background-color: #4C1D95;
+  }
+  
+  @media (max-width: 768px) {
+    .extra-section {
+      gap: 1.5rem;
+    }
+  
+    .referral-button, .leaderboard-button {
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+    }
+  }
+  
+  
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .profile-page {
+      flex-direction: column; /* Stacks sidebar and profile vertically */
+    }
+  
+    .profile-header {
+      flex-direction: column;
+      align-items: center; /* Centers all items horizontally */
+    }
+  
+    .profile-header-details {
+      display: flex; /* Ensures proper layout for child elements */
+      flex-direction: column; /* Stacks children vertically */
+      align-items: center; /* Centers children horizontally */
+      text-align: center; /* Centers text content */
+    }
+  
+    .xp-card2 {
+      margin-top: 10px; /* Adds some spacing between username and XP card */
+      margin-left: 15px;
+      text-align: center; /* Ensures text inside XP card is centered */
+      display: flex; /* Enables flexbox layout */
+      justify-content: center; /* Centers content horizontally */
+      align-items: center; /* Centers content vertically */
+      width: fit-content; /* Ensures the card fits its content */
+    }
+  }
+  
+
+  @media (min-width: 768px) {
+    .profile-container {
+      margin-left: 270px;
+    }
+  }
+  

@@ -1,0 +1,323 @@
+/* Calendar.modules.css */
+.calendar-page {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+  }
+  
+  .calendar-content {
+    display: flex;
+    flex: 1;
+  }
+  
+  .main-content {
+    flex: 1;
+    padding: 20px;
+    background-color: #f5f7fa;
+  }
+  
+  .calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  
+  .calendar-title {
+    font-size: 24px;
+    flex-grow: 1;
+  }
+  
+  .view-buttons {
+    display: flex;
+    margin-bottom: 20px;
+  }
+  
+  .today-btn {
+    background: white;
+    border: 1px solid #3b82f6;
+    padding: 10px 20px;
+    cursor: pointer;
+  }
+  
+  .today-btn:hover {
+    background-color: #3b82f6;
+    color: white;
+  }
+  
+  .all-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+  }
+  
+  .view-buttons button {
+    background: white;
+    border: 1px solid #ccc;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-left: none;
+  }
+  
+  .view-buttons button:first-child {
+    border-left: 1px solid #ccc;
+  }
+  
+  .view-buttons .active {
+    background: #3b82f6;
+    color: white;
+  }
+  
+  .calendar-main-content {
+    display: flex;
+    height: calc(100vh - 120px);
+  }
+  
+  .calendar-sidebar {
+    width: 180px;
+    height: 100%;
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+  
+  .add-event-btn {
+    background-color: #4c6ef5;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-bottom: 20px;
+  }
+  
+  .events-list {
+    flex: 1;
+    overflow-y: auto;
+  }
+  
+  .event-item {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .calendar-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    margin-left: 20px;
+  }
+  
+  .custom-calendar {
+    width: 100%;
+    max-width: 800px;
+    border: none;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .custom-calendar .react-calendar__navigation button {
+    color: #3b82f6;
+  }
+  
+  .custom-calendar .react-calendar__navigation {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.5em;
+  }
+  
+  .custom-calendar .react-calendar__tile {
+    max-width: 100%;
+    padding: 20px 10px;
+    background: none;
+    border: 1px solid #e0e0e0;
+  }
+  
+  .custom-calendar .react-calendar__tile--now {
+    background: #3b82f6;
+    color: white;
+  }
+  
+  .custom-calendar .react-calendar__tile--active {
+    background: #3b82f6 !important;
+    color: white !important;
+  }
+  
+  .custom-calendar .react-calendar__tile--now:enabled:hover,
+  .custom-calendar .react-calendar__tile--active:enabled:hover {
+    background: #3b82f6 !important;
+  }
+  
+  .custom-calendar .react-calendar__month-view__days__day--neighboringMonth {
+    color: #d3d3d3;
+  }
+  
+  .custom-calendar .react-calendar__tile--now:enabled:focus,
+  .custom-calendar .react-calendar__tile--active:enabled:focus {
+    background: #3b82f6 !important;
+  }
+  
+  .custom-calendar .react-calendar__tile:disabled {
+    background: none;
+  }
+  
+  .custom-calendar .react-calendar__month-view__weekdays {
+    display: flex;
+    justify-content: space-between;
+    text-transform: uppercase;
+    font-weight: bold;
+    text-align: center;
+  }
+  
+  .custom-calendar .react-calendar__month-view__weekdays__weekday {
+    flex: 1;
+  }
+  
+  .day-name {
+    display: none;
+  }
+  
+  .custom-calendar .react-calendar__month-view__days__day {
+    text-align: center;
+  }
+  
+  .text-center {
+    text-align: center;
+    margin-top: 20px;
+  }
+  
+  .bold {
+    font-weight: bold;
+  }
+  
+  .cal-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    margin-left: 20px;
+    transition: height 0.3s ease;
+  }
+  
+  .cal-content.expanded {
+    height: auto;
+  }
+  
+  .add-event-form {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto;
+  }
+  
+  .add-event-form h2 {
+    margin-bottom: 20px;
+  }
+  
+  .form-group {
+    margin-bottom: 15px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .form-group input,
+  .form-group textarea {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 5px;
+    font-size: 16px;
+  }
+  
+  .form-group textarea {
+    resize: vertical;
+    height: 100px;
+  }
+  
+  .event-image-preview {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-top: 10px;
+    border-radius: 5px;
+  }
+  
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+  }
+  
+  .save-button,
+  .cancel-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .save-button {
+    background-color: #3b82f6;
+    color: #fff;
+  }
+  
+  .cancel-button {
+    background-color: #e5e7eb;
+    color: #000;
+  }
+  
+  @media (max-width: 860px) {
+    .calendar-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .view-buttons {
+      flex-direction: column;
+      width: 100%;
+      margin-bottom: 10px;
+    }
+  
+    .view-buttons button {
+      margin-bottom: 5px;
+      width: 100%;
+      border-left: 1px solid #ccc;
+    }
+  
+    .calendar-main-content {
+      flex-direction: column;
+    }
+  
+    .calendar-sidebar {
+      width: 100%;
+      margin-bottom: 20px;
+      box-shadow: none;
+      padding: 10px;
+    }
+  
+    .calendar-container {
+      margin-left: 0;
+    }
+  
+    .custom-calendar {
+      max-width: 100%;
+    }
+  
+    .cal-content {
+      margin-left: 0;
+    }
+  }
+  

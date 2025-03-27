@@ -1,0 +1,71 @@
+.notifications-page {
+    max-width: 800px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .notifications-title {
+    font-size: 2rem;
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .loading {
+    text-align: center;
+    color: #6d28d9;
+    font-size: 1.2rem;
+  }
+  
+  .no-notifications {
+    text-align: center;
+    color: #999;
+    font-size: 1.1rem;
+  }
+  
+  .notifications-list {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .notification-item {
+    border-bottom: 1px solid #ddd;
+    padding: 15px 0;
+  }
+  
+  .notification-item:last-child {
+    border-bottom: none;
+  }
+  
+  .notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .notification-header h2 {
+    font-size: 1.2rem;
+    color: #333;
+    margin: 0;
+  }
+  
+  .notification-date {
+    font-size: 0.9rem;
+    color: #999;
+  }
+  
+  .notification-item p {
+    margin: 10px 0 0;
+    color: #555;
+    line-height: 1.5;
+  }
+  
+
+@media (min-width: 768px) {
+    .n-p {
+        margin-left: 270px;
+    }
+}

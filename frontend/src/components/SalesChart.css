@@ -1,0 +1,33 @@
+.sales-chart {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 20px 0;
+  height: 450px; /* Ensure there's enough height for the chart and labels */
+}
+
+.sales-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.sales-chart h2 {
+  margin-top: -5px;
+  margin-bottom: 0; /* Remove bottom margin */
+}
+
+.month-selector select {
+  padding: 5px 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #fff;
+  cursor: pointer;
+}
+
+@media (max-width: 480px){
+  
+}

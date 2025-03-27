@@ -1,0 +1,101 @@
+.banner2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: left;
+  background-color: #6888C1;
+  padding: 20px;
+  width: 93%;
+  margin: 0 auto;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.6); /* Add shadow to the right and bottom */
+}
+
+.banner2-content {
+  color: #000;
+  margin-left: 60px; /* Shift text to the right */
+}
+
+.banner2 h2 {
+  margin: 0;
+  color: #FBC42B;
+  font-size: 40px; /* Increase font size */
+  margin-bottom: 30px;
+  margin-top: 50px;
+  text-align: center;
+}
+
+.banner2 p {
+  margin: 20px 0 0; /* Increase space between h2 and p */
+  font-size: 39px; /* Increase font size */
+  font-weight: bold;
+  text-align: center;
+}
+
+.banner2-image {
+  max-height: 200px; /* Limit the height of the image */
+  width: auto; /* Maintain aspect ratio */
+  margin-right: 2px; /* Reduce the right margin */
+  flex-shrink: 0; /* Prevent image from shrinking */
+  margin-top: 40px;
+}
+
+@media (max-width: 768px) {
+  .banner2 {
+      padding: 10px; /* Reduce padding */
+  }
+
+  .banner2-content {
+      margin-left: 0px; /* Reduce left margin */
+  }
+
+  .banner2 h2 {
+      font-size: 28px; /* Reduce font size for tablets */
+      margin-left: 0px;
+      margin-bottom: 20px; /* Adjust margin */
+      text-align: center; /* Align text to the left */
+  }
+
+  .banner2 p {
+      font-size: 24px; /* Reduce font size for tablets */
+      margin: 10px 0; /* Adjust margin */
+      text-align: center; /* Align text to the left */
+  }
+
+  .banner2-image {
+      max-height: 200px; /* Reduce image height for tablets */
+      margin-right: 0px; /* Reduce right margin */
+      margin-top: 0; /* Adjust top margin */
+      margin-left: -90px;
+  }
+}
+
+@media (max-width: 480px) {
+  .banner2 {
+      padding: 10px; /* Reduce padding */
+  }
+
+  .banner2-content {
+      margin-left: 10px; /* Adjust left margin */
+      text-align: left; /* Align text to the left */
+  }
+
+  .banner2 h2 {
+      font-size: 20px; /* Reduce font size for mobile */
+      margin: 5px 0; /* Adjust margin */
+      margin-top: 30px;
+  }
+
+  .banner2 p {
+      font-size: 16px; /* Reduce font size for mobile */
+      margin: 5px 0; /* Adjust margin */
+  }
+
+  .banner2-image {
+      max-height: 120px; /* Reduce image height for mobile */
+      margin-right: 10px; /* Adjust right margin */
+      margin-left: 10px; /* Adjust left margin */
+      flex-shrink: 1; /* Allow image to shrink */
+      margin-top: 20px;
+  }
+}
