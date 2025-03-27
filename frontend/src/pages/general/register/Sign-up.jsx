@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import api from "../../../api/axios";
+import { toast } from 'react-hot-toast';
 import "./Signup.modules.css";
 
 function SignUp() {
@@ -26,7 +27,7 @@ function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match!");
+      toast.error("Passwords do not match!");
       return;
     }
   
@@ -48,13 +49,12 @@ function SignUp() {
         numberOfStudents: 0,
       });
   
-      console.log("Registration Success:", response.data);
-      navigate("/dashboard"); // Redirect to dashboard after success
-    } catch (err) {
-      console.error("Registration Error:", err);
-      setError("Registration failed. Please try again.");
-    } finally {
-      setLoading(false);
+      toast.success("Registration successful!");
+    navigate("/sign-in");
+  } catch (err) {
+    toast.error("Registration failed. Please try again.");
+  } finally {
+    setLoading(false);
     }
   };
   
