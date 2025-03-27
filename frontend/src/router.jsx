@@ -39,6 +39,8 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import NotFound from "./components/NotFound";
 import ManageTeachers from "./pages/admin2/manage_teachers/ManageTeachers";
 import ManageStudents from "./pages/admin2/manage_students/ManageStudents";
+import Welcome from "./pages/head/dashboard/Dashboard";
+
 
 
 const router = createBrowserRouter([
@@ -53,6 +55,10 @@ const router = createBrowserRouter([
       {
         path: "",
         element: <HomePage />,
+      },
+      {
+        path: "dashboard",
+        element: <Welcome />,
       },
       {
         path: "sign-up",
