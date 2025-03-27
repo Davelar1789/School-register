@@ -29,12 +29,25 @@ function SignUp() {
       setError("Passwords do not match!");
       return;
     }
-
+  
     setLoading(true);
     setError("");
-
+  
     try {
-      const response = await api.post("/api/schools/register", formData);
+      const response = await api.post("/api/schools/register", {
+        name: formData.schoolName,        // ✅ Matches backend
+        headmaster: formData.headmasterName, // ✅ Matches backend
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        city: "N/A",   // Add default values if frontend doesn't collect them
+        state: "N/A",
+        country: "N/A",
+        website: "N/A",
+        establishedYear: "N/A",
+        numberOfStudents: 0,
+      });
+  
       console.log("Registration Success:", response.data);
       navigate("/dashboard"); // Redirect to dashboard after success
     } catch (err) {
@@ -44,7 +57,7 @@ function SignUp() {
       setLoading(false);
     }
   };
-
+  
   return (
     <div className="signup-container">
       {/* Back Button */}
