@@ -149,6 +149,11 @@ function Home() {
       </div>
     </section>
 
+    <section className="cta-banner">
+      <h2 className="cta-text">Join the Future of School Management Today!</h2>
+      <Link to="/signup" className="cta-button">Get Started Now</Link>
+    </section>
+
       <Footer />
     </div>
   );
