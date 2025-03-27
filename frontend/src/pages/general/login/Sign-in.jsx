@@ -83,7 +83,7 @@ function UserLogin() {
         </form>
 
         <p className="signup-link">
-          Don't have an account? <Link to="/signup">Sign up here</Link>
+          Don't have an account? <Link to="/sign-up">Sign up here</Link>
         </p>
       </div>
     </div>
