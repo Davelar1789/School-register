@@ -3,29 +3,31 @@ import { Link } from "react-router-dom";
 import { FaUserGraduate, FaClipboardList, FaChartLine, FaComments, FaSchool, FaUniversity, FaBookReader, FaStar } from "react-icons/fa";
 import Header from "../../../components/Header.jsx";
 import Footer from "../../../components/Footer.jsx";
-import Image1 from "../../../assets/images/school1.jpg";
+import Image1 from "../../../assets/images/head1.jpg";
+import Image2 from "../../../assets/images/head2.jpg";
+import Image3 from "../../../assets/images/head3.jpg";
 import "./HomePage.modules.css";
 
 
 const testimonials = [
   {
-    name: "John Doe",
+    name: "Principal Smith",
     role: "Principal, Greenfield Academy",
-    image: Image1,
+    image: Image2,
     rating: 5,
     feedback: "This system has completely transformed how we manage our school. It's intuitive and highly efficient!"
   },
   {
-    name: "Sarah Johnson",
+    name: "Karen Thompson",
     role: "Head of Admissions, Bright Future High",
     image: Image1,
     rating: 4,
     feedback: "A fantastic tool! Our administrative processes have never been smoother. Highly recommended."
   },
   {
-    name: "Michael Brown",
+    name: "Michael Davis",
     role: "Director, Elite College",
-    image: Image1,
+    image: Image3,
     rating: 5,
     feedback: "An all-in-one solution that has streamlined our student tracking and communications perfectly!"
   }
