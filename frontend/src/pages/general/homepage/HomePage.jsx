@@ -47,7 +47,7 @@ function Home() {
 
   return (
     <div className="home-page">
-      {/* <Header /> */}
+      <Header />
 
       {/* Hero Section */}
       <section className="hero">
