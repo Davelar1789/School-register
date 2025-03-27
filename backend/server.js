@@ -8,6 +8,8 @@ import admin from "./routes/admin/admin.js";
 import teacher from "./routes/teacher/teacher.js";
 import products from "./routes/general/product.js";
 import students from "./routes/general/student.js";
+import schoolRoutes from "./routes/SchoolRoutes.js";
+
 import events from "./routes/general/event.js";
 
 import { authToken } from "./middleware/authToken.js";
@@ -44,6 +46,8 @@ app.use("/api/teacher", authToken, teacher);
 app.use("/api/", products);
 app.use("/api/", students);
 app.use("/api/", events);
+app.use("/api/schools", schoolRoutes);
+
 
 app.get('/ping', (req, res) => {
   res.status(200).send('Pong!');
