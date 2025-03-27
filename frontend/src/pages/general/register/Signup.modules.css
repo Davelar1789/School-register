@@ -6,6 +6,7 @@
   align-items: center;
   justify-content: center;
   background: linear-gradient(to right, #4169E1, #32CD32);
+  padding: 20px;
 }
 
 /* Back Button */
@@ -31,10 +32,10 @@
 
 /* Form Container */
 .signup-form-container {
-  width: 400px;
+  width: 700px;
   background: white;
   padding: 30px;
-  border-radius: 10px;
+  border-radius: 15px;
   box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
   text-align: center;
 }
@@ -59,9 +60,16 @@
   margin-bottom: 15px;
 }
 
-/* Input Groups */
+/* Form Layout: Two Columns */
+.signup-form {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 15px;
+}
+
 .input-group {
-  margin-bottom: 15px;
+  width: 48%; /* Two columns with a small gap */
   text-align: left;
 }
 
@@ -86,7 +94,7 @@
   border: 1px solid #4169E1;
 }
 
-/* Submit Button */
+/* Submit Button (Full Width) */
 .signup-button {
   width: 100%;
   padding: 12px;
@@ -98,6 +106,7 @@
   border-radius: 5px;
   cursor: pointer;
   transition: background 0.3s ease-in-out;
+  margin-top: 15px;
 }
 
 .signup-button:hover {

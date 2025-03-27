@@ -29,7 +29,7 @@ function SignUp() {
       setError("Passwords do not match!");
       return;
     }
-    
+
     setLoading(true);
     setError("");
 
@@ -61,6 +61,7 @@ function SignUp() {
         {error && <p className="error-message">{error}</p>}
 
         <form onSubmit={handleSubmit} className="signup-form">
+          {/* Left Column */}
           <div className="input-group">
             <label>School Name</label>
             <input
@@ -105,6 +106,7 @@ function SignUp() {
             />
           </div>
 
+          {/* Right Column */}
           <div className="input-group">
             <label>Headmaster's Name</label>
             <input
@@ -138,6 +140,7 @@ function SignUp() {
             />
           </div>
 
+          {/* Submit Button (Full Width) */}
           <button type="submit" className="signup-button" disabled={loading}>
             {loading ? "Registering..." : "Register"}
           </button>
