@@ -27,7 +27,7 @@ function SignUp() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match!");
+      setError("Passwords do not match!");
       return;
     }
   
@@ -49,12 +49,13 @@ function SignUp() {
         numberOfStudents: 0,
       });
   
-      toast.success("Registration successful!");
-    navigate("/sign-in");
-  } catch (err) {
-    toast.error("Registration failed. Please try again.");
-  } finally {
-    setLoading(false);
+      console.log("Registration Success:", response.data);
+      navigate("/sign-in"); // Redirect to dashboard after success
+    } catch (err) {
+      console.error("Registration Error:", err);
+      setError("Registration failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
   
