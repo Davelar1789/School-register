@@ -388,8 +388,7 @@
     transform: translateX(0);
   }
 }
-
-/* Animate Sections */
+/* Remove default hiding of sections */
 .hero,
 .features,
 .solutions,
@@ -400,10 +399,12 @@
   transition: opacity 0.8s ease-out, transform 0.8s ease-out;
 }
 
+/* When "animate" class is added, make it visible */
 .animate {
-  opacity: 1;
-  transform: translateY(0);
+  opacity: 1 !important;
+  transform: translateY(0) !important;
 }
+
 
 /* Hero Animations */
 .hero-content {

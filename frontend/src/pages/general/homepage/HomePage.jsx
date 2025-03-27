@@ -45,6 +45,31 @@ function Home() {
   }, []);
 
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("animate");
+          } else {
+            entry.target.classList.remove("animate"); // Ensures smooth re-triggering
+          }
+        });
+      },
+      { threshold: 0.2 }
+    );
+  
+    // Ensure all sections are observed
+    sectionsRef.current.forEach((section) => {
+      if (section) observer.observe(section);
+    });
+  
+    return () => {
+      sectionsRef.current.forEach((section) => observer.unobserve(section));
+    };
+  }, []);
+  
+
   return (
     <div className="home-page">
       <Header />

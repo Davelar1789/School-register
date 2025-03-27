@@ -10,3 +10,7 @@ Welcome to the Web-Based School Management System (SMS), a comprehensive platfor
 ### **2. Student Information Management 👩‍🎓👨‍🎓**
 - Student Profiles: Manage detailed records with personal info, academic history, attendance, and disciplinary actions.
 - Enrollment Management: Handle admissions, class assignments, and grade promotions.
+
+### **3. Attendance Tracking 📝**
+- Attendance Records: Interface for teachers to mark daily attendance and generate reports.
+- Absentee Notifications: Automated notifications to parents about student absences.
