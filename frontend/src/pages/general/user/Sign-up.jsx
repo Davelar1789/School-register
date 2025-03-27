@@ -108,7 +108,7 @@ function UserSignUp() {
         </form>
 
         <p className="login-link">
-          Already have an account? <Link to="/login">Login here</Link>
+          Already have an account? <Link to="/sign-in">Login here</Link>
         </p>
       </div>
     </div>
