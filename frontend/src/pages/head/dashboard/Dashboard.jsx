@@ -22,46 +22,33 @@ const Dashboard = () => {
 
         {/* Dashboard Content */}
         <div className="dashboard-content">
-          <h2 className="dashboard-welcome">Welcome, Admin</h2>
-
-          {/* Stats Overview */}
-          <div className="stats-container">
-            <div className="stat-box students">
-              <h3>Total Students</h3>
-              <p>1,240</p>
-            </div>
-            <div className="stat-box schools">
-              <h3>Total Schools</h3>
-              <p>35</p>
-            </div>
-            <div className="stat-box teachers">
-              <h3>Total Teachers</h3>
-              <p>215</p>
-            </div>
-            <div className="stat-box admins">
-              <h3>Administrators</h3>
-              <p>12</p>
-            </div>
+          {/* Overview Cards */}
+          <div className="overview-section">
+            <div className="overview-card">Total Students: 1,200</div>
+            <div className="overview-card">Total Teachers: 80</div>
+            <div className="overview-card">Active Classes: 40</div>
+            <div className="overview-card">Pending Requests: 5</div>
           </div>
 
           {/* Recent Activities */}
           <div className="recent-activities">
             <h3>Recent Activities</h3>
             <ul>
-              <li>✅ New school registered: Bright Future Academy</li>
-              <li>✅ Headmaster of Royal Academy updated profile</li>
-              <li>✅ 10 new students added to Greenfield School</li>
+              <li>New student enrolled: John Doe</li>
+              <li>Teacher application received: Mr. Kwame</li>
+              <li>Upcoming PTA meeting scheduled</li>
+              <li>New event: Science Fair on April 15</li>
             </ul>
           </div>
 
-          {/* Quick Actions */}
-          <div className="quick-actions">
-            <h3>Quick Actions</h3>
-            <div className="actions-grid">
-              <button className="action-btn add-school">➕ Add School</button>
-              <button className="action-btn manage-students">📚 Manage Students</button>
-              <button className="action-btn view-reports">📊 View Reports</button>
-              <button className="action-btn settings">⚙️ Settings</button>
+          {/* Quick Links */}
+          <div className="quick-links">
+            <h3>Quick Links</h3>
+            <div className="links-grid">
+              <button className="quick-link">Manage Students</button>
+              <button className="quick-link">Manage Teachers</button>
+              <button className="quick-link">View Reports</button>
+              <button className="quick-link">School Settings</button>
             </div>
           </div>
         </div>
