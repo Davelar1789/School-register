@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { FaUserGraduate, FaClipboardList, FaChartLine, FaComments, FaSchool, FaUniversity, FaBookReader, FaStar } from "react-icons/fa";
 import Header from "../../../components/Header.jsx";
@@ -7,6 +7,8 @@ import Image1 from "../../../assets/images/head1.jpg";
 import Image2 from "../../../assets/images/head2.jpg";
 import Image3 from "../../../assets/images/head3.jpg";
 import "./HomePage.modules.css";
+
+const sectionsRef = useRef([]); 
 
 
 const testimonials = [
@@ -75,7 +77,7 @@ function Home() {
       <Header />
 
       {/* Hero Section */}
-      <section className="hero">
+      <section ref={(el) => (sectionsRef.current[0] = el)} className="hero">
         {/* Background Image Slider */}
         <div className="hero-slider">
           <div className="hero-slide"></div> {/* The slides will be handled in CSS */}
@@ -100,7 +102,7 @@ function Home() {
       </section>
 
       {/* Features Overview Section */}
-      <section className="features">
+      <section ref={(el) => (sectionsRef.current[1] = el)} className="features">
         <h2 className="features-title">Powerful Features to Elevate Your Institution</h2>
         <div className="features-grid">
           {/* Feature 1: Student Management */}
