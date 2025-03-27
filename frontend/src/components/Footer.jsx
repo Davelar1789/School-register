@@ -1,6 +1,6 @@
 import React from "react";
 import "./Footer.modules.css"; // Importing the stylesheet as per your requirement
-import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaFacebook, FaTwitter, FaLinkedin } from "react-icons/fa";
+import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaFacebook, FaWhatsapp, FaLinkedin, FaWhatsapp } from "react-icons/fa";
 
 const Footer = () => {
   return (
@@ -32,7 +32,7 @@ const Footer = () => {
           <h3>Follow Us</h3>
           <div className="socialIcons">
             <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="socialIcon facebook"><FaFacebook /></a>
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="socialIcon twitter"><FaTwitter /></a>
+            <a href="https://wa.me/+233557625112?text=Hello" target="_blank" rel="noopener noreferrer" className="socialIcon twitter"><FaWhatsapp /></a>
             <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="socialIcon linkedin"><FaLinkedin /></a>
           </div>
         </div>
@@ -50,7 +50,7 @@ const Footer = () => {
 
       {/* Copyright Section */}
       <div className="footerBottom">
-        <p>&copy; 2025 School Management System. All rights reserved.</p>
+        <p>&copy; 2025 Codewhiz Schools. All rights reserved.</p>
       </div>
     </footer>
   );
