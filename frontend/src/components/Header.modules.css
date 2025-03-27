@@ -1,184 +1,94 @@
+/* Color Scheme */
+:root {
+  --primary-blue: #4169E1;  /* Royal Blue */
+  --accent-orange: #FF4500; /* Sunset Orange */
+  --highlight-green: #32CD32; /* Lime Green */
+  --text-white: #FFFFFF;
+}
+
+/* Header Styling */
 .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 5%;
+  background-color: var(--primary-blue);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 20px;
-  background: #1a2038;
-  height: 60px;
   z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  box-sizing: border-box;
-  padding-bottom: 10px;
 }
 
-body {
- 
-  box-sizing: border-box;
-}
-
-/* Styling for Navigation Links */
-.nav-links {
-  list-style: none;
+/* Logo */
+.logoContainer {
   display: flex;
-  gap: 20px;
-  padding: 0;
-  margin: 0;
+  align-items: center;
 }
-
-.nav-links li {
-  display: inline-block;
-}
-
-.nav-links a {
-  text-decoration: none;
-  color: #f5f5f5;
-  font-size: 16px;
-  font-weight: 500;
-  padding: 10px 15px;
-  border-radius: 5px;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.nav-links a:hover {
-  background-color: #4a5b97;
-  color: #ffffff;
-  transform: scale(1.05);
-}
-
-/* Active link styling */
-.nav-links a.active {
-  background-color: #6881c1;
-  color: #ffffff;
-  font-weight: bold;
-}
-
 
 .logo {
-  height: 42px;
+  height: 60px;
+  width: auto;
 }
 
-.search-box {
+/* Navigation */
+.nav {
+  flex-grow: 1;
   display: flex;
-  align-items: center;
-  width: 100%;
-  max-width: 600px;
-  background-color: white;
-  border: 1px solid #ccc;
-  border-radius: 9px;
-  overflow: hidden;
-  height: 40px;
+  justify-content: flex-end;
 }
 
-.search-icon {
-  height: 20px;
-  margin: 0 10px;
+.navList {
+  list-style: none;
+  display: flex;
+  gap: 2rem;
+  margin: 0;
+  padding: 0;
 }
 
-.search-input {
-  width: 100%;
-  padding: 5px;
-  font-size: 16px;
-  border: none;
-  outline: none;
-}
-
-.header-right {
+.navItem {
   position: relative;
-  display: flex;
-  align-items: center;
 }
 
-.header-right .icon {
-  height: 40px;
-  margin-left: 20px;
-  cursor: pointer;
+/* Navigation Links */
+.navLink {
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--text-white);
+  transition: color 0.3s ease-in-out;
+  text-transform: uppercase;
 }
 
-.header-right .menu-icon {
-  display: none;
+.navLink:hover {
+  color: var(--accent-orange);
 }
 
-.login-box {
+/* Underline Hover Effect */
+.navLink::after {
+  content: '';
+  display: block;
+  width: 0;
+  height: 2px;
+  background: var(--highlight-green);
+  transition: width 0.3s;
   position: absolute;
-  top: 70px;
-  right: 0;
-  background: linear-gradient(to right, #6881C1, #8b9dc3);
-  border-radius: 10px;
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 200px;
-  z-index: 1001;
+  bottom: -5px;
+  left: 0;
 }
 
-.login-button,
-.signup-button {
-  background: white;
-  border: none;
-  border-radius: 20px;
-  padding: 10px 20px;
-  margin: 5px 0;
-  cursor: pointer;
-  font-size: 16px;
-  color: #3b5998;
-  width: 150px;
+.navLink:hover::after {
+  width: 100%;
 }
 
-.login-button:hover,
-.signup-button:hover {
-  background: #f5f5f5;
-}
-
-@media (max-width: 768px) {
-  .search-input {
-    display: none;
+/* Responsive Design */
+@media screen and (max-width: 768px) {
+  .nav {
+    display: none; /* Hide nav on small screens for now */
   }
 
-  .search-box {
-    background-color: #6881C1;
-    border: 1px solid #6881C1;
-  }
-
-  .header-right .language-text,
-  .header-right .down-arrow {
-    display: none;
-  }
-
-  .header-right .normal-icon {
-    display: block;
-  }
-
-  .header-right .menu-icon {
-    display: block;
-  }
-
-  @media (max-width: 768px) {
-    .nav-links {
-      flex-direction: column;
-      gap: 10px;
-      align-items: center;
-    }
-  
-    .nav-links a {
-      padding: 8px 12px;
-      font-size: 14px;
-    }
-  }
-  
-}
-
-@media (max-width: 480px) {
-  .logo {
-    height: 60px;
-  }
-
-  .header-right .icon {
-    height: 30px;
-    margin-left: 10px;
+  .header {
+    padding: 1rem 3%;
   }
 }

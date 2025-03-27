@@ -6,3 +6,7 @@ Welcome to the Web-Based School Management System (SMS), a comprehensive platfor
     - Upcoming events 🎉
     - Recent announcements 📢
     - Quick links to various modules 🔗
+
+### **2. Student Information Management 👩‍🎓👨‍🎓**
+- Student Profiles: Manage detailed records with personal info, academic history, attendance, and disciplinary actions.
+- Enrollment Management: Handle admissions, class assignments, and grade promotions.
