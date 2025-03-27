@@ -32,7 +32,7 @@ const Footer = () => {
           <h3>Follow Us</h3>
           <div className="socialIcons">
             <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="socialIcon facebook"><FaFacebook /></a>
-            <a href="https://wa.me/+233557625112?text=Hello" target="_blank" rel="noopener noreferrer" className="socialIcon twitter"><FaWhatsapp /></a>
+            <a href="https://wa.me/+233557625112?text=Hello%20there" target="_blank" rel="noopener noreferrer" className="socialIcon twitter"><FaWhatsapp /></a>
             <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="socialIcon linkedin"><FaLinkedin /></a>
           </div>
         </div>
