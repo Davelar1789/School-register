@@ -1,83 +1,93 @@
-import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import login from "../../../assets/images/loginimage.jpg";
-import api from "../../../api/axios"; // Importing the centralized API configuration
-import toast from "react-hot-toast";
-import './Sign-in.modules.css';
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { FaArrowLeft } from "react-icons/fa";
+import api from "../../../api/axios";
+import { toast } from "react-hot-toast";
+import "./Sign-in.modules.css";
 
-export default function SignIn() {
+function UserLogin() {
   const navigate = useNavigate();
-  const [data, setData] = useState({ email: '', password: '' });
-  const [loading, setLoading] = useState(false); // State to manage loading
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
 
-  const handleSignIn = async (e) => {
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true); // Set loading to true when the button is clicked
+
+    setLoading(true);
+
     try {
-      const response = await api.post("/api/auth/login", data);
+      const response = await api.post("/api/users/login", {
+        email: formData.email,
+        password: formData.password,
+      });
+
+      toast.success("Login successful! Redirecting...");
+      
+      // Save token to localStorage (or context)
       localStorage.setItem("token", response.data.token);
-      toast.success("Sign in successful");
-      navigate("/admin/");
+
+      setTimeout(() => navigate("/dashboard"), 2000);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Login failed");
+      console.error("Login Error:", err);
+      toast.error("Invalid email or password.");
     } finally {
-      setLoading(false); // Set loading back to false after request completes
+      setLoading(false);
     }
   };
 
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setData((prev) => ({ ...prev, [id]: value }));
-  };
-
   return (
-    <div className="signin-page"
-    style={{
-      backgroundImage: `url(${login})`,
-      backgroundPosition: 'center',
-      backgroundSize: 'cover',
-      backgroundRepeat: 'no-repeat',
-      backgroundColor: "rgba(0, 0, 0, 0.5)", // Dark overlay
-        backgroundBlendMode: "darken",
-    }}>
-      <div className="signin-card">
-        <p className='welcome'>Welcome Back</p>
-        <form onSubmit={handleSignIn} className="signin-form">
-          <input
-            type="email"
-            placeholder="Email"
-            id="email"
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            id="password"
-            onChange={handleChange}
-            required
-          />
-          <button
-            type="submit"
-            className="signin-button"
-            disabled={loading} // Disable the button when loading
-          >
-            {loading ? "Loading..." : "Sign In"} {/* Change button text */}
+    <div className="login-container">
+      {/* Back Button */}
+      <div className="back-button" onClick={() => navigate("/")}>
+        <FaArrowLeft className="back-icon" /> Back
+      </div>
+
+      <div className="login-form-container">
+        <h2 className="login-title">Welcome Back!</h2>
+        <p className="login-subtitle">Log in to manage your account.</p>
+
+        <form onSubmit={handleSubmit} className="login-form">
+          <div className="input-group">
+            <label>Email Address</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="input-group">
+            <label>Password</label>
+            <input
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <button type="submit" className="login-button" disabled={loading}>
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
-        <p
-          className="forgot-password"
-          onClick={() => navigate("/forgot-password")}
-        >
-          Forgot password?
-        </p>
-        <p>
-          Don't have an account?{" "}
-          <Link to="/sign-up" className="signup-link">
-            Sign Up
-          </Link>
+
+        <p className="signup-link">
+          Don't have an account? <Link to="/signup">Sign up here</Link>
         </p>
       </div>
     </div>
   );
 }
+
+export default UserLogin;

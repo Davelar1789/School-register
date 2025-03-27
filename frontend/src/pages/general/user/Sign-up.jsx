@@ -37,7 +37,7 @@ function UserSignUp() {
       });
 
       toast.success("Account created successfully! Redirecting to login...");
-      setTimeout(() => navigate("/login"), 2000);
+      setTimeout(() => navigate("/sign-in"), 3000);
     } catch (err) {
       console.error("Signup Error:", err);
       toast.error("Signup failed. Please try again.");
