@@ -1,11 +1,11 @@
-/* Dashboard Layout */
+/* 🌟 Dashboard Layout */
 .dashboard-container {
     display: flex;
     height: 100vh;
     background-color: #f4f7fc;
   }
   
-  /* Main Content Section */
+  /* 🌟 Main Content */
   .dashboard-main {
     flex: 1;
     display: flex;
@@ -17,15 +17,15 @@
     padding: 20px;
   }
   
-  /* Welcome Message */
+  /* 🌟 Welcome Message */
   .dashboard-welcome {
-    font-size: 24px;
+    font-size: 26px;
     font-weight: bold;
     color: royalblue;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
   }
   
-  /* Stats Overview */
+  /* 🌟 Stats Overview */
   .stats-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -41,29 +41,36 @@
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     font-size: 18px;
     font-weight: bold;
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .stat-box:hover {
+    transform: scale(1.05);
   }
   
   .stat-box p {
-    font-size: 22px;
+    font-size: 24px;
     margin-top: 10px;
+    font-weight: bold;
   }
   
-  .students { background-color: lightblue; }
-  .schools { background-color: lightgreen; }
-  .teachers { background-color: lightcoral; }
-  .admins { background-color: gold; }
+  /* 🌟 Color Codes for Stats */
+  .students { background-color: #4a90e2; color: white; }
+  .schools { background-color: #50b848; color: white; }
+  .teachers { background-color: #f5a623; color: white; }
+  .admins { background-color: #d0021b; color: white; }
   
-  /* Recent Activities */
+  /* 🌟 Recent Activities */
   .recent-activities {
     background: white;
-    padding: 15px;
+    padding: 20px;
     border-radius: 10px;
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
     margin-bottom: 30px;
   }
   
   .recent-activities h3 {
-    font-size: 20px;
+    font-size: 22px;
     margin-bottom: 10px;
   }
   
@@ -74,10 +81,15 @@
   
   .recent-activities li {
     font-size: 16px;
-    padding: 5px 0;
+    padding: 8px 0;
+    border-bottom: 1px solid #ddd;
   }
   
-  /* Quick Actions */
+  .recent-activities li:last-child {
+    border-bottom: none;
+  }
+  
+  /* 🌟 Quick Actions */
   .quick-actions {
     background: white;
     padding: 20px;
@@ -86,32 +98,34 @@
   }
   
   .quick-actions h3 {
-    font-size: 20px;
+    font-size: 22px;
     margin-bottom: 15px;
   }
   
   .actions-grid {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: 15px;
   }
   
+  /* 🌟 Action Buttons */
   .action-btn {
-    flex: 1;
-    padding: 12px;
+    padding: 14px;
     border: none;
     font-size: 16px;
     font-weight: bold;
     cursor: pointer;
     border-radius: 5px;
-    transition: background 0.3s;
+    transition: all 0.3s ease;
   }
   
   .add-school { background-color: royalblue; color: white; }
-  .manage-students { background-color: sunsetorange; color: white; }
+  .manage-students { background-color: #ff6600; color: white; }
   .view-reports { background-color: limegreen; color: white; }
   .settings { background-color: gray; color: white; }
   
   .action-btn:hover {
-    opacity: 0.8;
+    opacity: 0.85;
+    transform: translateY(-2px);
   }
   
