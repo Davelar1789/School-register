@@ -3,11 +3,21 @@ import School from "../models/School.model.js";
 // Register a school
 export const registerSchool = async (req, res) => {
   try {
+    console.log("📩 Incoming Request to Register School");
+    console.log("Request Body:", req.body); // Log the received data
+
     const { name, headmaster, email, phone, address, city, state, country, website, establishedYear, numberOfStudents } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !phone || !address || !headmaster) {
+      console.log("⚠️ Missing required fields!");
+      return res.status(400).json({ message: "Please fill all required fields" });
+    }
 
     // Check if the school already exists
     const existingSchool = await School.findOne({ email });
     if (existingSchool) {
+      console.log("⛔ School already exists:", existingSchool);
       return res.status(400).json({ message: "School already registered" });
     }
 
@@ -18,20 +28,27 @@ export const registerSchool = async (req, res) => {
       email,
       phone,
       address,
-      city,
-      state,
-      country,
-      website,
-      establishedYear,
-      numberOfStudents,
+      city: city || "N/A",  // Provide default values if missing
+      state: state || "N/A",
+      country: country || "N/A",
+      website: website || "N/A",
+      establishedYear: establishedYear || "N/A",
+      numberOfStudents: numberOfStudents || 0,
     });
 
+    console.log("✅ Saving new school:", school);
+
     await school.save();
+
+    console.log("🎉 School Registered Successfully!");
     res.status(201).json({ message: "School registered successfully", school });
+
   } catch (error) {
+    console.log("❌ Error Registering School:", error.message);
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // Get all schools
 export const getAllSchools = async (req, res) => {
