@@ -1,11 +1,47 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaUserGraduate, FaClipboardList, FaChartLine, FaComments, FaSchool, FaUniversity, FaBookReader } from "react-icons/fa";
+import { FaUserGraduate, FaClipboardList, FaChartLine, FaComments, FaSchool, FaUniversity, FaBookReader, FaStar } from "react-icons/fa";
 import Header from "../../../components/Header.jsx";
 import Footer from "../../../components/Footer.jsx";
 import "./HomePage.modules.css";
 
+
+const testimonials = [
+  {
+    name: "John Doe",
+    role: "Principal, Greenfield Academy",
+    image: "https://via.placeholder.com/100",
+    rating: 5,
+    feedback: "This system has completely transformed how we manage our school. It's intuitive and highly efficient!"
+  },
+  {
+    name: "Sarah Johnson",
+    role: "Head of Admissions, Bright Future High",
+    image: "https://via.placeholder.com/100",
+    rating: 4,
+    feedback: "A fantastic tool! Our administrative processes have never been smoother. Highly recommended."
+  },
+  {
+    name: "Michael Brown",
+    role: "Director, Elite College",
+    image: "https://via.placeholder.com/100",
+    rating: 5,
+    feedback: "An all-in-one solution that has streamlined our student tracking and communications perfectly!"
+  }
+];  
+
+
 function Home() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
+
+  
   return (
     <div className="home-page">
       <Header />
