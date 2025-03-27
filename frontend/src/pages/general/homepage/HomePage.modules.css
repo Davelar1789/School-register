@@ -239,7 +239,7 @@
 .testimonials {
   padding: 4rem 5%;
   text-align: center;
-  background: linear-gradient(135deg, rgba(65, 105, 225, 0.9), rgba(255, 69, 0, 0.9)), url('../../../assets/testimonial-bg.jpg') no-repeat center/cover;
+  background: linear-gradient(45deg, rgba(255, 69, 0, 0.7), rgba(50, 205, 50, 0.7)) , url('../../../assets/testimonial-bg.jpg') no-repeat center/cover;
   color: white;
 }
 
