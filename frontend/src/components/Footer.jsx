@@ -1,6 +1,6 @@
 import React from "react";
 import "./Footer.modules.css"; // Importing the stylesheet as per your requirement
-import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaFacebook, FaWhatsapp, FaLinkedin, FaWhatsapp } from "react-icons/fa";
+import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaFacebook, FaLinkedin, FaWhatsapp } from "react-icons/fa";
 
 const Footer = () => {
   return (
