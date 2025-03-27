@@ -3,16 +3,17 @@ import School from "../models/School.model.js";
 // Register a school
 export const registerSchool = async (req, res) => {
   try {
+    console.log("User ID:", req.user._id); // Log authenticated user ID
+
     const { name, headmaster, email, phone, address, city, state, country, website, establishedYear, numberOfStudents } = req.body;
 
-    // Check if the school already exists
     const existingSchool = await School.findOne({ email });
     if (existingSchool) {
       return res.status(400).json({ message: "School already registered" });
     }
 
-    // Create new school
     const school = new School({
+      user: req.user._id,  // Assign school to logged-in user
       name,
       headmaster,
       email,

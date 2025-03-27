@@ -2,16 +2,18 @@ import mongoose from "mongoose";
 
 const schoolSchema = new mongoose.Schema(
   {
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true }, // Link to User model
     name: { type: String, required: true },
     headmaster: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     phone: { type: String, required: true },
     address: { type: String, required: true },
-    city: { type: String, required: true },
-    state: { type: String, required: true },
-    country: { type: String, required: true },
+    city: { type: String },
+    state: { type: String },
+    country: { type: String },
     website: { type: String },
-    numberOfStudents: { type: Number },
+    establishedYear: { type: String },
+    numberOfStudents: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
