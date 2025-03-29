@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import Header2 from "../../../components/Header2";
 import Sidebar from "../../../components/Sidebar";
-import Form from "../../general/register/Sign-up"; // Import the School Registration Form
+import Form from "../../general/register/Sign-up"; // Import School Registration Form
 import "./Dashboard.modules.css";
 
 const Dashboard = () => {
@@ -33,27 +33,18 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
+      {/* Sidebar */}
+      <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
 
-       <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+      {/* Main Content */}
+      <div className="dashboard-main">
+        {/* Header */}
+        <Header2 toggleSidebar={toggleSidebar} />
 
-       <div className="dashboard-main">
-            {/* Header */}
-            <Header2 toggleSidebar={toggleSidebar} />
-        </div>
-        
-      {/* If user has no schoolId, show registration form */}
-      {user.schoolId ? (
-        <>
-          {/* Sidebar */}
-          <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
-
-          {/* Main Content */}
-          <div className="dashboard-main">
-            {/* Header */}
-            <Header2 toggleSidebar={toggleSidebar} />
-
-            {/* Dashboard Content */}
-            <div className="dashboard-content">
+        {/* Conditional Rendering: Show Dashboard or School Registration Form */}
+        <div className="dashboard-content">
+          {user.schoolId ? (
+            <>
               {/* Overview Cards */}
               <div className="overview-section">
                 <div className="overview-card">Total Students: 1,200</div>
@@ -83,16 +74,18 @@ const Dashboard = () => {
                   <button className="quick-link">School Settings</button>
                 </div>
               </div>
+            </>
+          ) : (
+            <div className="register-school-section">
+              <h2 className="register-title">Register Your School</h2>
+              <p className="register-subtitle">
+                You need to register a school before accessing the dashboard.
+              </p>
+              <Form />
             </div>
-          </div>
-        </>
-      ) : (
-        // If user is not associated with a school, show the school registration form
-        <div className="register-school-container">
-          <h2>You need to register a school first</h2>
-          <Form />
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 };
