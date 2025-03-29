@@ -1,19 +1,18 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { UserProvider } from "../../context/userContext.jsx";
+import { useUserContext } from "../../context/userContext.jsx"; // ✅ Use the correct hook
 import { Toaster } from "react-hot-toast";
 
 function SuperAdmin() {
-  const { fetchUserDetails, currentUser } = UserProvider();
+  const { fetchUserDetails, currentUser } = useUserContext(); // ✅ Correct way
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchUserDetails();
   }, []);
 
-  console.log("Current User:", currentUser);
+  console.log("Current User:", currentUser); // ✅ Now this should log to the console
 
-  // ✅ Fix: Use useEffect for navigation to prevent infinite re-renders
   useEffect(() => {
     if (currentUser && currentUser.role !== "superadmin") {
       navigate("/"); // Redirect if not superadmin
