@@ -19,34 +19,59 @@ const SuperAdmin = () => {
 
   const fetchPendingSchools = async () => {
     try {
-      const response = await api.get("/api/superschool/pending");
+      const token = localStorage.getItem("token"); // Get token from localStorage
+      if (!token) throw new Error("No authentication token found");
+  
+      const response = await api.get("/api/superschool/pending", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
       setPendingSchools(response.data);
     } catch (error) {
       console.error("Error fetching pending schools:", error);
     }
   };
-
+  
   const fetchApprovedSchools = async () => {
     try {
-      const response = await api.get("/api/superschool/approved");
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No authentication token found");
+  
+      const response = await api.get("/api/superschool/approved", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
       setApprovedSchools(response.data);
     } catch (error) {
       console.error("Error fetching approved schools:", error);
     }
   };
-
+  
   const fetchUserCount = async () => {
     try {
-      const response = await api.get("/api/users/count");
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No authentication token found");
+  
+      const response = await api.get("/api/users/count", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
       setTotalUsers(response.data.count);
     } catch (error) {
       console.error("Error fetching user count:", error);
     }
   };
+  
 
   const handleApprove = async (schoolId) => {
     try {
-      await api.put(`/api/superschool/approve/${schoolId}`);
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No authentication token found");
+  
+      await api.put(`/api/superschool/approve/${schoolId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
       toast.success("School approved successfully!");
       fetchPendingSchools();
       fetchApprovedSchools();
@@ -55,10 +80,16 @@ const SuperAdmin = () => {
       console.error("Approval error:", error);
     }
   };
-
+  
   const handleReject = async (schoolId) => {
     try {
-      await api.delete(`/api/superschool/reject/${schoolId}`);
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No authentication token found");
+  
+      await api.delete(`/api/superschool/reject/${schoolId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
       toast.success("School rejected and removed.");
       fetchPendingSchools();
     } catch (error) {
@@ -66,6 +97,7 @@ const SuperAdmin = () => {
       console.error("Rejection error:", error);
     }
   };
+  
 
   return (
     <div className="superadmin-container">
