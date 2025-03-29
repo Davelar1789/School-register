@@ -24,7 +24,6 @@ import ProductDisplay from "./pages/ProductDisplay";
 // import TeamForm from "./pages/admin2/stuff/TeamForm";
 // import Cart from "./pages/client/cart/CartPage";
 // import Checkout from "./pages/client/checkout/Checkout";
-import ContactUs from "./components/ContactUs";
 // import Contact from "./pages/admin2/contact/Contact";
 // import Invoice from "./pages/admin2/invoice/Invoice";
 import App from "./App";
