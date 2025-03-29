@@ -82,3 +82,57 @@ export const deleteSchool = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+// Get pending schools (status = "pending")
+export const getPendingSchools = async (req, res) => {
+  try {
+    const pendingSchools = await School.find({ status: "pending" });
+    res.json(pendingSchools);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching pending schools." });
+  }
+};
+
+// Get approved schools (status = "approved")
+export const getApprovedSchools = async (req, res) => {
+  try {
+    const approvedSchools = await School.find({ status: "approved" });
+    res.json(approvedSchools);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching approved schools." });
+  }
+};
+
+// Approve a school (update status to "approved")
+export const approveSchool = async (req, res) => {
+  try {
+    const school = await School.findById(req.params.id);
+    if (!school) {
+      return res.status(404).json({ message: "School not found." });
+    }
+
+    school.status = "approved";
+    await school.save();
+
+    res.json({ message: "School approved successfully!" });
+  } catch (error) {
+    res.status(500).json({ message: "Error approving school." });
+  }
+};
+
+// Reject a school (delete from database)
+export const rejectSchool = async (req, res) => {
+  try {
+    const school = await School.findById(req.params.id);
+    if (!school) {
+      return res.status(404).json({ message: "School not found." });
+    }
+
+    await school.deleteOne();
+
+    res.json({ message: "School rejected and removed." });
+  } catch (error) {
+    res.status(500).json({ message: "Error rejecting school." });
+  }
+};
+

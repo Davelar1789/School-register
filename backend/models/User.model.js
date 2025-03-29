@@ -7,6 +7,7 @@ const userSchema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     schoolId: { type: mongoose.Schema.Types.ObjectId, ref: "School", default: null }, // Tracks the school
+    role: { type: String, enum: ["user", "superadmin", "admin", "teacher"], default: "user" },
   },
   { timestamps: true }
 );
