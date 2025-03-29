@@ -1,7 +1,7 @@
 import "./styles/App.css";
 import { Outlet } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { useUserContext } from "./context/userContext";
+import { useUserContext } from "./context/userContextProvider.jsx";
 import { useEffect } from "react";
 
 function App() {
