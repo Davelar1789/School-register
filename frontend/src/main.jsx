@@ -4,12 +4,12 @@ import App from "./App.jsx";
 import "./index.css";
 import { RouterProvider } from "react-router-dom";
 import router from "./router.jsx";
-import UserContextProvider from "./context/userContextProvider.jsx";
+import { UserProvider } from "./context/userContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <UserContextProvider>
+    <UserProvider>
       <RouterProvider router={router} />
-    </UserContextProvider>
+    </UserProvider>
   </React.StrictMode>
 );
