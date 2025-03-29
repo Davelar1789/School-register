@@ -32,7 +32,7 @@ function UserLogin() {
       toast.success("Login successful! Redirecting...");
       
       // Save token to localStorage (or context)
-      localStorage.setItem("token", response.data.token);
+      localStorage.setItem("token", response.data.user.token);
 
       setTimeout(() => navigate("/dashboard"), 2000);
     } catch (err) {
