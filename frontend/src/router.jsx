@@ -15,10 +15,8 @@ import ApplyS from "./pages/general/admission/ApplyStudent";
 // import TReportCard from "./pages/teacher/manage_students/ReportCard";
 // import TGradeBook from "./pages/teacher/manage_students/Gradebook";
 import SignUp from "./pages/general/user/Sign-up";
-import Products from "./pages/AllProducts";
 // import Inbox from "./pages/admin/inbox/Inbox";
 // import Settings from "./pages/admin2/setting/Settings";
-import ProductDisplay from "./pages/ProductDisplay";
 // import OrderLists from "./pages/admin2/reportcard/ReportCard";
 // import Table from "./pages/admin/table/Table";
 // import TeamForm from "./pages/admin2/stuff/TeamForm";
@@ -32,7 +30,6 @@ import App from "./App";
 // import Teacher from "./pages/teacher/Teacher";
 // import TopSellers from "./pages/admin2/top_sellers/TopSellers";
 import SignIn from "./pages/general/login/Sign-in";
-import AllProducts from "./pages/AllProducts";
 // import Stuff from "./pages/admin2/stuff/Stuff";
 import ErrorBoundary from "./components/ErrorBoundary";
 import NotFound from "./components/NotFound";
@@ -87,14 +84,7 @@ const router = createBrowserRouter([
       //   path: "checkout",
       //   element: <Checkout />,
       // },
-      {
-        path: "products",
-        element: <Products />,
-      },
-      {
-        path: "product/:id",
-        element: <ProductDisplay />,
-      },
+      
       {
         path: "*",
         element: <NotFound />,

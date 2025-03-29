@@ -37,16 +37,16 @@ Welcome to the Web-Based School Management System (SMS), a comprehensive platfor
 
 ## **Page Structures 🖱️**
 1. Login Page 🔐
-Fields for username and password.
-Options for password recovery.
+- Fields for username and password.
+- Options for password recovery.
 2. Dashboard Page 📊
-Overview widgets displaying key metrics.
-Navigation links to all modules.
+- Overview widgets displaying key metrics.
+- Navigation links to all modules.
 3. Student Profile Page 👩‍🏫
-Sections for personal details, academic records, attendance history, and disciplinary notes.
+- Sections for personal details, academic records, attendance history, and disciplinary notes.
 4. Attendance Page 📅
-Class roster with checkboxes for marking attendance.
-Date selector and summary of attendance statistics.
+- Class roster with checkboxes for marking attendance.
+- Date selector and summary of attendance statistics.
 5. Gradebook Page 📑
 Table displaying student names with input fields for grades.
 Options to calculate averages and generate reports.
