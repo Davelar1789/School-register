@@ -1,6 +1,6 @@
 import React from "react";
 import { FaHome, FaUser, FaCog, FaSchool, FaSignOutAlt } from "react-icons/fa";
-import "./Sidebar.modules.css"; // Import global CSS
+import "./Sidebar2.modules.css"; // Import global CSS
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
   return (
@@ -10,8 +10,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       <ul className="sidebar-nav">
         <li><FaHome /> Dashboard</li>
         <li><FaUser /> Profile</li>
-        <li><FaSchool /> Students</li>
-        <li><FaSchool /> Teachers</li>
+        <li><FaSchool /> Schools</li>
         <li><FaCog /> Settings</li>
         <li className="sidebar-logout"><FaSignOutAlt /> Logout</li>
       </ul>

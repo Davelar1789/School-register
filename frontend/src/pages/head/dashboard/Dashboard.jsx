@@ -11,6 +11,7 @@ const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [school, setSchool] = useState(null);
+  const [schoolName, setSchoolName] = useState(""); // Store the school name
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -62,7 +63,7 @@ const Dashboard = () => {
       {/* Main Content */}
       <div className="dashboard-main">
         {/* Header */}
-        <Header2 toggleSidebar={toggleSidebar} />
+        <Header2 toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} schoolName={schoolName} />
 
         {/* Show Dashboard if school exists, else show Registration Form */}
         <div className="dashboard-content">
