@@ -1,10 +1,23 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 import Header2 from "../../../components/Header2";
 import Sidebar from "../../../components/Sidebar";
 import "./Dashboard.modules.css";
 
 const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Check if token exists in local storage
+    const token = localStorage.getItem("token");
+    
+    if (!token) {
+      toast.error("Please login first.");
+      navigate("/sign-in");
+    }
+  }, [navigate]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
