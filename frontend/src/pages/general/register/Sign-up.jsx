@@ -68,7 +68,6 @@ function SignUp() {
 
     
       <div className="signup-form-container">
-        <h2 className="signup-title">Register Your School</h2>
         <p className="signup-subtitle">
           Enter your school's details to get started.
         </p>
