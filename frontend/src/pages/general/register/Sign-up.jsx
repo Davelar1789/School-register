@@ -36,19 +36,29 @@ function SignUp() {
     setError("");
 
     try {
-      const response = await api.post("/api/schools/register", {
-        name: formData.schoolName,
-        headmaster: formData.headmasterName,
-        email: formData.email,
-        phone: formData.phone,
-        address: formData.address,
-        city: "N/A",
-        state: "N/A",
-        country: "N/A",
-        website: "N/A",
-        establishedYear: "N/A",
-        numberOfStudents: 0,
-      });
+      const token = localStorage.getItem("token"); // Get the token
+const response = await api.post(
+  "/api/schools/register",
+  {
+    name: formData.schoolName,
+    headmaster: formData.headmasterName,
+    email: formData.email,
+    phone: formData.phone,
+    address: formData.address,
+    city: "N/A",
+    state: "N/A",
+    country: "N/A",
+    website: "N/A",
+    establishedYear: "N/A",
+    numberOfStudents: 0,
+  },
+  {
+    headers: {
+      Authorization: `Bearer ${token}`, // Attach the token
+    },
+  }
+);
+
 
       console.log("Registration Success:", response.data);
       toast.success("Registration successful! 🎉");
