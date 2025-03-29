@@ -61,6 +61,21 @@ export const registerSchool = async (req, res) => {
   }
 };
 
+export const getSchoolByUserId = async (req, res) => {
+  try {
+    const school = await School.findOne({ user: req.params.userId });
+
+    if (!school) {
+      return res.status(404).json({ message: "No school found for this user" });
+    }
+
+    res.status(200).json({ school });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
 
 
 // Get all schools

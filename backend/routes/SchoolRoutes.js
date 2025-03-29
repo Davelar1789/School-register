@@ -1,5 +1,5 @@
 import express from "express";
-import { registerSchool, getAllSchools, getSchoolById, updateSchool, deleteSchool } from "../controllers/schoolController.js";
+import { registerSchool, getAllSchools, getSchoolById, updateSchool, deleteSchool, getSchoolByUserId } from "../controllers/schoolController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
 
@@ -10,5 +10,7 @@ router.get("/", getAllSchools);
 router.get("/:id", getSchoolById);
 router.put("/:id", updateSchool);
 router.delete("/:id", deleteSchool);
+router.get("/user/:userId", protect, getSchoolByUserId);
+
 
 export default router;

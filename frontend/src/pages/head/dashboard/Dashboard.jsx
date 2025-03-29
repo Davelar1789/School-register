@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
+import api from "../../../api/axios"; // Ensure this is the correct API instance
 import Header2 from "../../../components/Header2";
 import Sidebar from "../../../components/Sidebar";
-import Form from "../../general/register/Sign-up"; // Import School Registration Form
+import Form from "../../general/register/Sign-up"; // School Registration Form
 import "./Dashboard.modules.css";
 
 const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
+  const [school, setSchool] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check for user data in local storage
+    // Get user from local storage
     const storedUser = localStorage.getItem("user");
-
     if (!storedUser) {
       toast.error("Please login first.");
       navigate("/sign-in");
@@ -23,7 +24,19 @@ const Dashboard = () => {
 
     const parsedUser = JSON.parse(storedUser);
     setUser(parsedUser);
+
+    // ✅ Fetch school based on user ID instead of relying on schoolId
+    fetchSchool(parsedUser._id);
   }, [navigate]);
+
+  const fetchSchool = async (userId) => {
+    try {
+      const response = await api.get(`/api/schools/user/${userId}`); // Fetch school for this user
+      setSchool(response.data.school);
+    } catch (error) {
+      console.error("Error fetching school:", error);
+    }
+  };
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -41,9 +54,9 @@ const Dashboard = () => {
         {/* Header */}
         <Header2 toggleSidebar={toggleSidebar} />
 
-        {/* Conditional Rendering: Show Dashboard or School Registration Form */}
+        {/* Show Dashboard if school exists, else show Registration Form */}
         <div className="dashboard-content">
-          {user.schoolId ? (
+          {school ? (
             <>
               {/* Overview Cards */}
               <div className="overview-section">
