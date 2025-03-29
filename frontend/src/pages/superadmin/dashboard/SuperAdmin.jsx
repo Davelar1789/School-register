@@ -46,7 +46,7 @@ const SuperAdmin = () => {
 
   const handleApprove = async (schoolId) => {
     try {
-      await api.put(`/api/schools/approve/${schoolId}`);
+      await api.put(`/api/superschool/approve/${schoolId}`);
       toast.success("School approved successfully!");
       fetchPendingSchools();
       fetchApprovedSchools();
@@ -58,7 +58,7 @@ const SuperAdmin = () => {
 
   const handleReject = async (schoolId) => {
     try {
-      await api.delete(`/api/schools/reject/${schoolId}`);
+      await api.delete(`/api/superschool/reject/${schoolId}`);
       toast.success("School rejected and removed.");
       fetchPendingSchools();
     } catch (error) {
