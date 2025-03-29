@@ -1,10 +1,10 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { useUserContext } from "../../context/userContextProvider.jsx";
+import { UserProvider } from "./context/userContext";
 import { Toaster } from "react-hot-toast";
 
 function SuperAdmin() {
-  const { fetchUserDetails, currentUser } = useUserContext();
+  const { fetchUserDetails, currentUser } = UserProvider();
   const navigate = useNavigate();
 
   useEffect(() => {

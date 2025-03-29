@@ -1,11 +1,11 @@
 import "./styles/App.css";
 import { Outlet } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { useUserContext } from "./context/userContextProvider.jsx";
+import { UserProvider } from "./context/userContext";
 import { useEffect } from "react";
 
 function App() {
-  const { fetchUserDetails } = useUserContext();
+  const { fetchUserDetails } = UserProvider();
 
   useEffect(() => {
     fetchUserDetails();
