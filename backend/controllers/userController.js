@@ -1,5 +1,7 @@
 import User from "../models/User.model.js";
 import jwt from "jsonwebtoken";
+import asyncHandler from "express-async-handler";
+
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -70,3 +72,18 @@ export const getUserCount = async (req, res) => {
     res.status(500).json({ message: "Error fetching user count." });
   }
 };
+
+// ✅ Fetch user profile (requires authentication)
+export const getUserProfile = asyncHandler(async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});

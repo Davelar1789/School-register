@@ -36,7 +36,6 @@ app.post("/api/", (req, res) => {
   res.send("JBA Server is UP and Running");
 });
 
-
 app.use("/api/schools", schoolRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/superschool", saRoutes);

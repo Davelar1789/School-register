@@ -8,17 +8,18 @@ function SuperAdmin() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchUserDetails(); // Fetch user details when the component mounts
+    fetchUserDetails();
   }, []);
 
+  // ✅ Fix: Use useEffect for navigation to prevent infinite re-renders
   useEffect(() => {
     if (currentUser && currentUser.role !== "superadmin") {
-      navigate("/"); // Navigate away only when user data is fully loaded
+      navigate("/"); // Redirect if not superadmin
     }
   }, [currentUser, navigate]);
 
   if (!currentUser) {
-    return <div>Loading...</div>; // Prevents rendering before user data is available
+    return <p>Loading...</p>; // Show loading until user data is available
   }
 
   return (
