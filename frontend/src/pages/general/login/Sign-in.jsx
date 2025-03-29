@@ -29,12 +29,15 @@ function UserLogin() {
         password: formData.password,
       });
 
-      toast.success("Login successful! Redirecting...");
-      
-      // Save token to localStorage (or context)
-      localStorage.setItem("user", JSON.stringify(response.data.user));
-      localStorage.setItem("token", response.data.user.token);
+      const user = response.data.user;
 
+      toast.success("Login successful! Redirecting...");
+
+      // Save user info to localStorage
+      localStorage.setItem("user", JSON.stringify(user));
+      localStorage.setItem("token", user.token);
+
+      // Check user role and navigate accordingly
       setTimeout(() => {
         if (user.role === "superadmin") {
           navigate("/superadmin/");
