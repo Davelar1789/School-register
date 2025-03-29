@@ -44,6 +44,8 @@ function UserLogin() {
       // Check if user role exists and navigate accordingly
       setTimeout(() => {
         if (user?.role === "superadmin") {
+          console.log("Current User:", currentUser);
+
           navigate("/superadmin/");
         } else {
           navigate("/dashboard");
