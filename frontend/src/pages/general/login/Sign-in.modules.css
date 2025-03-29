@@ -16,6 +16,12 @@
   cursor: pointer;
   font-size: 16px;
   color: #ff5e00; /* Sunset Orange */
+  background-color: rgba(255, 255, 255, 0.2); /* Glass-like background */
+  border-radius: 5px; /* Subtle border radius */
+  padding: 8px 12px; /* Add some padding to make the button more comfortable to click */
+  border: none; /* Remove the default border */
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Add a subtle shadow to give the button some depth */
+
 }
 
 .back-icon {
