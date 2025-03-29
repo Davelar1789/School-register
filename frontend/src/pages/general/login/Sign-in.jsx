@@ -47,7 +47,7 @@ function UserLogin() {
   return (
     <div className="login-container">
       {/* Back Button */}
-      <div className="back-button" onClick={() => navigate("/")}>
+      <div className="back-button2" onClick={() => navigate("/")}>
         <FaArrowLeft className="back-icon" /> Back
       </div>
 
@@ -56,7 +56,7 @@ function UserLogin() {
         <p className="login-subtitle">Log in to manage your account.</p>
 
         <form onSubmit={handleSubmit} className="login-form">
-          <div className="input-group">
+          <div className="input-group2">
             <label>Email Address</label>
             <input
               type="email"
@@ -67,7 +67,7 @@ function UserLogin() {
             />
           </div>
 
-          <div className="input-group">
+          <div className="input-group2">
             <label>Password</label>
             <input
               type="password"
