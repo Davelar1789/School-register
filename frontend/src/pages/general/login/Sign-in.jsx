@@ -29,7 +29,11 @@ function UserLogin() {
         password: formData.password,
       });
 
-      const user = response.data.user;
+      if (!response.data || !response.data.user) {
+        throw new Error("Invalid response from server");
+      }
+
+      const user = response.data.user; // ✅ Safely extract user data
 
       toast.success("Login successful! Redirecting...");
 
@@ -37,9 +41,9 @@ function UserLogin() {
       localStorage.setItem("user", JSON.stringify(user));
       localStorage.setItem("token", user.token);
 
-      // Check user role and navigate accordingly
+      // Check if user role exists and navigate accordingly
       setTimeout(() => {
-        if (user.role === "superadmin") {
+        if (user?.role === "superadmin") {
           navigate("/superadmin/");
         } else {
           navigate("/dashboard");
