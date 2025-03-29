@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema(
     fullName: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
+    schoolId: { type: mongoose.Schema.Types.ObjectId, ref: "School", default: null }, // Tracks the school
   },
   { timestamps: true }
 );

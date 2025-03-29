@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import Header2 from "../../../components/Header2";
 import Sidebar from "../../../components/Sidebar";
+import Form from "../../general/register/Sign-up"
 import "./Dashboard.modules.css";
 
 const Dashboard = () => {

@@ -28,6 +28,7 @@ export const registerUser = async (req, res) => {
         _id: user._id,
         fullName: user.fullName,
         email: user.email,
+        schoolId: user.schoolId,  // Include schoolId
         token: generateToken(user._id),
       },
     });
