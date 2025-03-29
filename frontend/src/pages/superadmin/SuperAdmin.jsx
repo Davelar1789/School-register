@@ -1,6 +1,6 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { useUserContext } from "../../context/userContext";
+import { useUserContext } from "../../context/userContextProvider.jsx";
 import { Toaster } from "react-hot-toast";
 
 function SuperAdmin() {
