@@ -1,0 +1,33 @@
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: royalblue;
+  color: white;
+  padding: 15px 20px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.menu-icon {
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.dashboard-title {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+}
+
+.user-icon {
+  font-size: 28px;
+  margin-right: 8px;
+}
+
+.username {
+  font-size: 16px;
+}
