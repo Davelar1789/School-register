@@ -60,11 +60,11 @@ Welcome to the Web-Based School Management System (SMS), a comprehensive platfor
 - List of students with invoice statuses.
 - Buttons to generate new invoices and record payments.
 9. Library Catalog Page 📘
-Searchable list of library resources.
-Details of each book and current availability status.
+- Searchable list of library resources.
+- Details of each book and current availability status.
 10. User Management Page 👤
-List of users with roles and status.
-Options to add, edit, or deactivate users.
+- List of users with roles and status.
+- Options to add, edit, or deactivate users.
 Technologies Used 🔧
 Frontend: HTML, CSS, JavaScript (React/Vue.js)
 Backend: Node.js, Express.js
