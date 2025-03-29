@@ -3,88 +3,70 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import Header2 from "../../../components/Header2";
 import Sidebar from "../../../components/Sidebar";
-import Form from "../../general/register/Sign-up"; // Import the School Registration Form
+import Form from "../../general/register/Sign-up"
 import "./Dashboard.modules.css";
 
 const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Check for user data in local storage
-    const storedUser = localStorage.getItem("user");
-
-    if (!storedUser) {
+    // Check if token exists in local storage
+    const token = localStorage.getItem("token");
+    
+    if (!token) {
       toast.error("Please login first.");
       navigate("/sign-in");
-      return;
     }
-
-    const parsedUser = JSON.parse(storedUser);
-    setUser(parsedUser);
   }, [navigate]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
-  if (!user) return null; // Prevent rendering if user is still loading
-
   return (
     <div className="dashboard-container">
-      {/* If user has no schoolId, show registration form */}
-      {user.schoolId ? (
-        <>
-          {/* Sidebar */}
-          <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+      {/* Sidebar */}
+      <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
 
-          {/* Main Content */}
-          <div className="dashboard-main">
-            {/* Header */}
-            <Header2 toggleSidebar={toggleSidebar} />
+      {/* Main Content */}
+      <div className="dashboard-main">
+        {/* Header */}
+        <Header2 toggleSidebar={toggleSidebar} />
 
-            {/* Dashboard Content */}
-            <div className="dashboard-content">
-              {/* Overview Cards */}
-              <div className="overview-section">
-                <div className="overview-card">Total Students: 1,200</div>
-                <div className="overview-card">Total Teachers: 80</div>
-                <div className="overview-card">Active Classes: 40</div>
-                <div className="overview-card">Pending Requests: 5</div>
-              </div>
+        {/* Dashboard Content */}
+        <div className="dashboard-content">
+          {/* Overview Cards */}
+          <div className="overview-section">
+            <div className="overview-card">Total Students: 1,200</div>
+            <div className="overview-card">Total Teachers: 80</div>
+            <div className="overview-card">Active Classes: 40</div>
+            <div className="overview-card">Pending Requests: 5</div>
+          </div>
 
-              {/* Recent Activities */}
-              <div className="recent-activities">
-                <h3>Recent Activities</h3>
-                <ul>
-                  <li>New student enrolled: John Doe</li>
-                  <li>Teacher application received: Mr. Kwame</li>
-                  <li>Upcoming PTA meeting scheduled</li>
-                  <li>New event: Science Fair on April 15</li>
-                </ul>
-              </div>
+          {/* Recent Activities */}
+          <div className="recent-activities">
+            <h3>Recent Activities</h3>
+            <ul>
+              <li>New student enrolled: John Doe</li>
+              <li>Teacher application received: Mr. Kwame</li>
+              <li>Upcoming PTA meeting scheduled</li>
+              <li>New event: Science Fair on April 15</li>
+            </ul>
+          </div>
 
-              {/* Quick Links */}
-              <div className="quick-links">
-                <h3>Quick Links</h3>
-                <div className="links-grid">
-                  <button className="quick-link">Manage Students</button>
-                  <button className="quick-link">Manage Teachers</button>
-                  <button className="quick-link">View Reports</button>
-                  <button className="quick-link">School Settings</button>
-                </div>
-              </div>
+          {/* Quick Links */}
+          <div className="quick-links">
+            <h3>Quick Links</h3>
+            <div className="links-grid">
+              <button className="quick-link">Manage Students</button>
+              <button className="quick-link">Manage Teachers</button>
+              <button className="quick-link">View Reports</button>
+              <button className="quick-link">School Settings</button>
             </div>
           </div>
-        </>
-      ) : (
-        // If user is not associated with a school, show the school registration form
-        <div className="register-school-container">
-          <h2>You need to register a school first</h2>
-          <Form />
         </div>
-      )}
+      </div>
     </div>
   );
 };
