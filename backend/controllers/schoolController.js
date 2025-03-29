@@ -5,15 +5,28 @@ export const registerSchool = async (req, res) => {
   try {
     console.log("User ID:", req.user._id); // Log authenticated user ID
 
-    const { name, headmaster, email, phone, address, city, state, country, website, establishedYear, numberOfStudents } = req.body;
+    const {
+      name,
+      headmaster,
+      email,
+      phone,
+      address,
+      city,
+      state,
+      country,
+      website,
+      establishedYear,
+      numberOfStudents,
+    } = req.body;
 
     const existingSchool = await School.findOne({ email });
     if (existingSchool) {
       return res.status(400).json({ message: "School already registered" });
     }
 
+    // Create new school
     const school = new School({
-      user: req.user._id,  // Assign school to logged-in user
+      user: req.user._id, // Assign school to logged-in user
       name,
       headmaster,
       email,
@@ -28,11 +41,26 @@ export const registerSchool = async (req, res) => {
     });
 
     await school.save();
-    res.status(201).json({ message: "School registered successfully", school });
+
+    // ✅ Update the user's schoolId field
+    const updatedUser = await User.findByIdAndUpdate(
+      req.user._id, 
+      { schoolId: school._id }, 
+      { new: true } // Return updated user
+    );
+
+    console.log("Updated User:", updatedUser); // Debugging log
+
+    res.status(201).json({ 
+      message: "School registered successfully", 
+      school, 
+      user: updatedUser // Send updated user data
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // Get all schools
 export const getAllSchools = async (req, res) => {
