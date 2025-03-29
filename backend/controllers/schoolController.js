@@ -3,7 +3,7 @@ import School from "../models/School.model.js";
 // Register a school
 export const registerSchool = async (req, res) => {
   try {
-    console.log("User ID:", req.user._id); // Log authenticated user ID
+    console.log("User ID:", req.user._id); // Debugging
 
     const {
       name,
@@ -42,11 +42,11 @@ export const registerSchool = async (req, res) => {
 
     await school.save();
 
-    // ✅ Update the user's schoolId field
+    // ✅ Force User to Update by Using `{ new: true, runValidators: true }`
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id, 
-      { schoolId: school._id }, 
-      { new: true } // Return updated user
+      { $set: { schoolId: school._id } }, 
+      { new: true, runValidators: true }
     );
 
     console.log("Updated User:", updatedUser); // Debugging log
@@ -60,6 +60,7 @@ export const registerSchool = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 
 // Get all schools
