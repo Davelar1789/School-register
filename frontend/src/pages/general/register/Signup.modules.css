@@ -1,5 +1,5 @@
 /* Global container */
-.signup-container {
+.signup-container2 {
   width: 100%;
   display: flex;
   align-items: center;
@@ -9,7 +9,7 @@
 
 
 /* Form Container */
-.signup-form-container {
+.signup-form-container2 {
   width: 700px;
   background: white;
   padding: 30px;
@@ -25,7 +25,7 @@
   margin-bottom: 10px;
 }
 
-.signup-subtitle {
+.signup-subtitle2 {
   font-size: 14px;
   color: #555;
   margin-bottom: 20px;
@@ -39,26 +39,26 @@
 }
 
 /* Form Layout: Two Columns */
-.signup-form {
+.signup-form2 {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 15px;
 }
 
-.input-group {
+.input-group2 {
   width: 48%; /* Two columns with a small gap */
   text-align: left;
 }
 
-.input-group label {
+.input-group2 label {
   display: block;
   font-size: 14px;
   color: #333;
   margin-bottom: 5px;
 }
 
-.input-group input {
+.input-group2 input {
   width: 100%;
   padding: 10px;
   font-size: 14px;
@@ -68,12 +68,12 @@
   transition: border 0.3s ease-in-out;
 }
 
-.input-group input:focus {
+.input-group2 input:focus {
   border: 1px solid #4169E1;
 }
 
 /* Submit Button (Full Width) */
-.signup-button {
+.signup-button2 {
   width: 100%;
   padding: 12px;
   font-size: 16px;
@@ -87,22 +87,22 @@
   margin-top: 15px;
 }
 
-.signup-button:hover {
+.signup-button2:hover {
   background: linear-gradient(to right, #32CD32, #FF4500);
 }
 
 /* Login Link */
-.login-link {
+.login-link2 {
   font-size: 14px;
   margin-top: 15px;
 }
 
-.login-link a {
+.login-link2 a {
   color: #FF4500;
   text-decoration: none;
   font-weight: bold;
 }
 
-.login-link a:hover {
+.login-link2 a:hover {
   text-decoration: underline;
 }

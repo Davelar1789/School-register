@@ -63,20 +63,20 @@ function SignUp() {
   };
 
   return (
-    <div className="signup-container">
+    <div className="signup-container2">
       <Toaster position="top-right" reverseOrder={false} /> {/* ✅ Add Toaster */}
 
     
-      <div className="signup-form-container">
-        <p className="signup-subtitle">
+      <div className="signup-form-container2">
+        <p className="signup-subtitle2">
           Enter your school's details to get started.
         </p>
 
         {error && <p className="error-message">{error}</p>}
 
-        <form onSubmit={handleSubmit} className="signup-form">
+        <form onSubmit={handleSubmit} className="signup-form2">
           {/* Left Column */}
-          <div className="input-group">
+          <div className="input-group2">
             <label>School Name</label>
             <input
               type="text"
@@ -87,7 +87,7 @@ function SignUp() {
             />
           </div>
 
-          <div className="input-group">
+          <div className="input-group2">
             <label>Email Address</label>
             <input
               type="email"
@@ -98,7 +98,7 @@ function SignUp() {
             />
           </div>
 
-          <div className="input-group">
+          <div className="input-group2">
             <label>Phone Number</label>
             <input
               type="tel"
@@ -109,7 +109,7 @@ function SignUp() {
             />
           </div>
 
-          <div className="input-group">
+          <div className="input-group2">
             <label>School Address</label>
             <input
               type="text"
@@ -121,7 +121,7 @@ function SignUp() {
           </div>
 
           {/* Right Column */}
-          <div className="input-group">
+          <div className="input-group2">
             <label>Headmaster's Name</label>
             <input
               type="text"
@@ -132,7 +132,7 @@ function SignUp() {
             />
           </div>
 
-          <div className="input-group">
+          <div className="input-group2">
             <label>Password</label>
             <input
               type="password"
@@ -143,7 +143,7 @@ function SignUp() {
             />
           </div>
 
-          <div className="input-group">
+          <div className="input-group2">
             <label>Confirm Password</label>
             <input
               type="password"
@@ -160,7 +160,7 @@ function SignUp() {
           </button>
         </form>
 
-        <p className="login-link">
+        <p className="login-link2">
           Already have an account? <Link to="/sign-in">Login here</Link>
         </p>
       </div>
