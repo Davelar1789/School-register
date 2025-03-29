@@ -103,126 +103,126 @@ const router = createBrowserRouter([
     ],
   },
   // Admin Routes
-  {
-    path: "/admin",
-    element: (
-      <ErrorBoundary>
-        <Admin />
-      </ErrorBoundary>
-    ),
-    children: [
-      // {
-      //   path: "",
-      //   element: <Dashboard />,
-      // },
-      // {
-      //   path: "all-products",
-      //   element: <AllProducts />,
-      // },
-      // {
-      //   path: "top-sellers",
-      //   element: <TopSellers />,
-      // },
-      // {
-      //   path: "inbox",
-      //   element: <Inbox />,
-      // },
-      // {
-      //   path: "order-lists",
-      //   element: <OrderLists />,
-      // },
-      // {
-      //   path: "manage-teachers",
-      //   element: <ManageTeachers />,
-      // },
-      // {
-      //   path: "manage-students",
-      //   element: <ManageStudents />,
-      // },
-      // {
-      //   path: "calendar",
-      //   element: <Calendar />,
-      // },
-      // {
-      //   path: "contact",
-      //   element: <Contact />,
-      // },
-      // {
-      //   path: "invoice",
-      //   element: <Invoice />,
-      // },
-      // {
-      //   path: "events",
-      //   element: <Events />,
-      // },
-      // {
-      //   path: "stuff",
-      //   element: <Stuff />,
-      // },
-      // {
-      //   path: "fees",
-      //   element: <Fees />,
-      // },
-      // {
-      //   path: "cashbook",
-      //   element: <Cashbook />,
-      // },
-      // {
-      //   path: "termly-details",
-      //   element: <TermlyDetails />,
-      // },
-      // {
-      //   path: "table",
-      //   element: <Table />,
-      // },
-      // {
-      //   path: "settings",
-      //   element: <Settings />,
-      // },
-      {
-        path: "*",
-        element: <NotFound />,
-      },
-    ],
-  },
-  {
-    path: "/teacher",
-    element: (
-      <ErrorBoundary>
-        <Teacher />
-      </ErrorBoundary>
-    ),
-    children: [
-      // {
-      //   path: "",
-      //   element: <TDashboard />,
-      // },
-      // {
-      //   path: "manage-students",
-      //   element: <TManageStudents />,
-      // },
-      // {
-      //   path: "grade-book",
-      //   element: <TGradeBook />,
-      // },
-      // {
-      //   path: "edit-grades",
-      //   element: <TEditGrades />,
-      // },
-      // {
-      //   path: "report-card",
-      //   element: <TReportCard />,
-      // },
-      // {
-      //   path: "attendance",
-      //   element: <TAttendance />,
-      // },
-      {
-        path: "*",
-        element: <NotFound />,
-      },
-    ],
-  },
+  // {
+  //   path: "/admin",
+  //   element: (
+  //     <ErrorBoundary>
+  //       <Admin />
+  //     </ErrorBoundary>
+  //   ),
+  //   children: [
+  //     // {
+  //     //   path: "",
+  //     //   element: <Dashboard />,
+  //     // },
+  //     // {
+  //     //   path: "all-products",
+  //     //   element: <AllProducts />,
+  //     // },
+  //     // {
+  //     //   path: "top-sellers",
+  //     //   element: <TopSellers />,
+  //     // },
+  //     // {
+  //     //   path: "inbox",
+  //     //   element: <Inbox />,
+  //     // },
+  //     // {
+  //     //   path: "order-lists",
+  //     //   element: <OrderLists />,
+  //     // },
+  //     // {
+  //     //   path: "manage-teachers",
+  //     //   element: <ManageTeachers />,
+  //     // },
+  //     // {
+  //     //   path: "manage-students",
+  //     //   element: <ManageStudents />,
+  //     // },
+  //     // {
+  //     //   path: "calendar",
+  //     //   element: <Calendar />,
+  //     // },
+  //     // {
+  //     //   path: "contact",
+  //     //   element: <Contact />,
+  //     // },
+  //     // {
+  //     //   path: "invoice",
+  //     //   element: <Invoice />,
+  //     // },
+  //     // {
+  //     //   path: "events",
+  //     //   element: <Events />,
+  //     // },
+  //     // {
+  //     //   path: "stuff",
+  //     //   element: <Stuff />,
+  //     // },
+  //     // {
+  //     //   path: "fees",
+  //     //   element: <Fees />,
+  //     // },
+  //     // {
+  //     //   path: "cashbook",
+  //     //   element: <Cashbook />,
+  //     // },
+  //     // {
+  //     //   path: "termly-details",
+  //     //   element: <TermlyDetails />,
+  //     // },
+  //     // {
+  //     //   path: "table",
+  //     //   element: <Table />,
+  //     // },
+  //     // {
+  //     //   path: "settings",
+  //     //   element: <Settings />,
+  //     // },
+  //     {
+  //       path: "*",
+  //       element: <NotFound />,
+  //     },
+  //   ],
+  // },
+  // {
+  //   path: "/teacher",
+  //   element: (
+  //     <ErrorBoundary>
+  //       <Teacher />
+  //     </ErrorBoundary>
+  //   ),
+  //   children: [
+  //     // {
+  //     //   path: "",
+  //     //   element: <TDashboard />,
+  //     // },
+  //     // {
+  //     //   path: "manage-students",
+  //     //   element: <TManageStudents />,
+  //     // },
+  //     // {
+  //     //   path: "grade-book",
+  //     //   element: <TGradeBook />,
+  //     // },
+  //     // {
+  //     //   path: "edit-grades",
+  //     //   element: <TEditGrades />,
+  //     // },
+  //     // {
+  //     //   path: "report-card",
+  //     //   element: <TReportCard />,
+  //     // },
+  //     // {
+  //     //   path: "attendance",
+  //     //   element: <TAttendance />,
+  //     // },
+  //     {
+  //       path: "*",
+  //       element: <NotFound />,
+  //     },
+  //   ],
+  // },
 ]);
 
 export default router;
