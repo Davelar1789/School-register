@@ -26,51 +26,55 @@ function SignUp() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match!");
-      toast.error("Passwords do not match!"); // ✅ Toast notification
+      toast.error("Passwords do not match!");
       return;
     }
-
+  
     setLoading(true);
     setError("");
-
+  
     try {
-      const token = localStorage.getItem("token"); // Get the token
-const response = await api.post(
-  "/api/schools/register",
-  {
-    name: formData.schoolName,
-    headmaster: formData.headmasterName,
-    email: formData.email,
-    phone: formData.phone,
-    address: formData.address,
-    city: "N/A",
-    state: "N/A",
-    country: "N/A",
-    website: "N/A",
-    establishedYear: "N/A",
-    numberOfStudents: 0,
-  },
-  {
-    headers: {
-      Authorization: `Bearer ${token}`, // Attach the token
-    },
-  }
-);
-
-
+      const token = localStorage.getItem("token"); // Retrieve token
+      const response = await api.post(
+        "/api/schools/register",
+        {
+          name: formData.schoolName,
+          headmaster: formData.headmasterName,
+          email: formData.email,
+          phone: formData.phone,
+          address: formData.address,
+          city: "N/A",
+          state: "N/A",
+          country: "N/A",
+          website: "N/A",
+          establishedYear: "N/A",
+          numberOfStudents: 0,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Attach token
+          },
+        }
+      );
+  
       console.log("Registration Success:", response.data);
+  
+      // ✅ Update local storage with new user data
+      localStorage.setItem("user", JSON.stringify(response.data.user));
+  
       toast.success("Registration successful! 🎉");
-      navigate("/sign-in"); // Redirect after success
+      navigate("/dashboard"); // Redirect to dashboard
     } catch (err) {
       console.error("Registration Error:", err);
       setError("Registration failed. Please try again.");
-      toast.error("Registration failed. Please try again."); // ✅ Show error toast
+      toast.error("Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="signup-container2">
