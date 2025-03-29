@@ -7,7 +7,7 @@
   background: linear-gradient(to right, #4169E1, #32CD32);
 }
 
-.back-button2 {
+.back-button3 {
   position: absolute;
   top: 20px;
   left: 20px;
@@ -49,19 +49,19 @@
   margin-bottom: 20px;
 }
 
-.input-group2 {
+.input-group3 {
   display: flex;
   flex-direction: column;
   text-align: left;
   margin-bottom: 15px;
 }
 
-.input-group2 label {
+.input-group3 label {
   font-weight: bold;
   margin-bottom: 5px;
 }
 
-.input-group2 input {
+.input-group3 input {
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
