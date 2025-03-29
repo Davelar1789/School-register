@@ -33,6 +33,14 @@ const Dashboard = () => {
 
   return (
     <div className="dashboard-container">
+
+       <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+
+       <div className="dashboard-main">
+            {/* Header */}
+            <Header2 toggleSidebar={toggleSidebar} />
+        </div>
+        
       {/* If user has no schoolId, show registration form */}
       {user.schoolId ? (
         <>

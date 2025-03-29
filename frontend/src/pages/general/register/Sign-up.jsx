@@ -66,11 +66,7 @@ function SignUp() {
     <div className="signup-container">
       <Toaster position="top-right" reverseOrder={false} /> {/* ✅ Add Toaster */}
 
-      {/* Back Button */}
-      <div className="back-button" onClick={() => navigate("/")}>
-        <FaArrowLeft className="back-icon" /> Back
-      </div>
-
+    
       <div className="signup-form-container">
         <h2 className="signup-title">Register Your School</h2>
         <p className="signup-subtitle">
