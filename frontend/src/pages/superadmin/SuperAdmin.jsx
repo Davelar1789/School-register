@@ -14,6 +14,7 @@ function SuperAdmin() {
   // ✅ Fix: Use useEffect for navigation to prevent infinite re-renders
   useEffect(() => {
     if (currentUser && currentUser.role !== "superadmin") {
+        console.log("Current User:", currentUser);
       navigate("/"); // Redirect if not superadmin
     }
   }, [currentUser, navigate]);
