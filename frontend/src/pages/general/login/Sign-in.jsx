@@ -35,7 +35,13 @@ function UserLogin() {
       localStorage.setItem("user", JSON.stringify(response.data.user));
       localStorage.setItem("token", response.data.user.token);
 
-      setTimeout(() => navigate("/dashboard"), 2000);
+      setTimeout(() => {
+        if (user.role === "superadmin") {
+          navigate("/superadmin/");
+        } else {
+          navigate("/dashboard");
+        }
+      }, 2000);
     } catch (err) {
       console.error("Login Error:", err);
       toast.error("Invalid email or password.");

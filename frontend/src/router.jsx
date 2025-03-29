@@ -36,6 +36,8 @@ import NotFound from "./components/NotFound";
 // import ManageTeachers from "./pages/admin2/manage_teachers/ManageTeachers";
 // import ManageStudents from "./pages/admin2/manage_students/ManageStudents";
 import Welcome from "./pages/head/dashboard/Dashboard";
+import SuperDashboard from "./pages/superadmin/dashboard/SuperAdmin";
+import SuperAdmin from "./pages/superadmin/SuperAdmin";
 
 
 
@@ -92,88 +94,88 @@ const router = createBrowserRouter([
     ],
   },
   // Admin Routes
-  // {
-  //   path: "/admin",
-  //   element: (
-  //     <ErrorBoundary>
-  //       <Admin />
-  //     </ErrorBoundary>
-  //   ),
-  //   children: [
-  //     // {
-  //     //   path: "",
-  //     //   element: <Dashboard />,
-  //     // },
-  //     // {
-  //     //   path: "all-products",
-  //     //   element: <AllProducts />,
-  //     // },
-  //     // {
-  //     //   path: "top-sellers",
-  //     //   element: <TopSellers />,
-  //     // },
-  //     // {
-  //     //   path: "inbox",
-  //     //   element: <Inbox />,
-  //     // },
-  //     // {
-  //     //   path: "order-lists",
-  //     //   element: <OrderLists />,
-  //     // },
-  //     // {
-  //     //   path: "manage-teachers",
-  //     //   element: <ManageTeachers />,
-  //     // },
-  //     // {
-  //     //   path: "manage-students",
-  //     //   element: <ManageStudents />,
-  //     // },
-  //     // {
-  //     //   path: "calendar",
-  //     //   element: <Calendar />,
-  //     // },
-  //     // {
-  //     //   path: "contact",
-  //     //   element: <Contact />,
-  //     // },
-  //     // {
-  //     //   path: "invoice",
-  //     //   element: <Invoice />,
-  //     // },
-  //     // {
-  //     //   path: "events",
-  //     //   element: <Events />,
-  //     // },
-  //     // {
-  //     //   path: "stuff",
-  //     //   element: <Stuff />,
-  //     // },
-  //     // {
-  //     //   path: "fees",
-  //     //   element: <Fees />,
-  //     // },
-  //     // {
-  //     //   path: "cashbook",
-  //     //   element: <Cashbook />,
-  //     // },
-  //     // {
-  //     //   path: "termly-details",
-  //     //   element: <TermlyDetails />,
-  //     // },
-  //     // {
-  //     //   path: "table",
-  //     //   element: <Table />,
-  //     // },
-  //     // {
-  //     //   path: "settings",
-  //     //   element: <Settings />,
-  //     // },
-  //     {
-  //       path: "*",
-  //       element: <NotFound />,
-  //     },
-  //   ],
-  // },
+  {
+    path: "/superadmin",
+    element: (
+      <ErrorBoundary>
+        <SuperAdmin />
+      </ErrorBoundary>
+    ),
+    children: [
+      {
+        path: "",
+        element: <SuperDashboard />,
+      },
+      // {
+      //   path: "all-products",
+      //   element: <AllProducts />,
+      // },
+      // {
+      //   path: "top-sellers",
+      //   element: <TopSellers />,
+      // },
+      // {
+      //   path: "inbox",
+      //   element: <Inbox />,
+      // },
+      // {
+      //   path: "order-lists",
+      //   element: <OrderLists />,
+      // },
+      // {
+      //   path: "manage-teachers",
+      //   element: <ManageTeachers />,
+      // },
+      // {
+      //   path: "manage-students",
+      //   element: <ManageStudents />,
+      // },
+      // {
+      //   path: "calendar",
+      //   element: <Calendar />,
+      // },
+      // {
+      //   path: "contact",
+      //   element: <Contact />,
+      // },
+      // {
+      //   path: "invoice",
+      //   element: <Invoice />,
+      // },
+      // {
+      //   path: "events",
+      //   element: <Events />,
+      // },
+      // {
+      //   path: "stuff",
+      //   element: <Stuff />,
+      // },
+      // {
+      //   path: "fees",
+      //   element: <Fees />,
+      // },
+      // {
+      //   path: "cashbook",
+      //   element: <Cashbook />,
+      // },
+      // {
+      //   path: "termly-details",
+      //   element: <TermlyDetails />,
+      // },
+      // {
+      //   path: "table",
+      //   element: <Table />,
+      // },
+      // {
+      //   path: "settings",
+      //   element: <Settings />,
+      // },
+      {
+        path: "*",
+        element: <NotFound />,
+      },
+    ],
+  },
   // {
   //   path: "/teacher",
   //   element: (

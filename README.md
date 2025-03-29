@@ -48,17 +48,17 @@ Welcome to the Web-Based School Management System (SMS), a comprehensive platfor
 - Class roster with checkboxes for marking attendance.
 - Date selector and summary of attendance statistics.
 5. Gradebook Page 📑
-Table displaying student names with input fields for grades.
-Options to calculate averages and generate reports.
+- Table displaying student names with input fields for grades.
+- Options to calculate averages and generate reports.
 6. Messaging Page 📨
-Inbox and sent messages folders.
-Compose message interface with recipient selection.
+- Inbox and sent messages folders.
+- Compose message interface with recipient selection.
 7. Schedule Page 📅
-Calendar view of class and exam schedules.
-Options to add or edit events.
+- Calendar view of class and exam schedules.
+- Options to add or edit events.
 8. Fee Management Page 💳
-List of students with invoice statuses.
-Buttons to generate new invoices and record payments.
+- List of students with invoice statuses.
+- Buttons to generate new invoices and record payments.
 9. Library Catalog Page 📘
 Searchable list of library resources.
 Details of each book and current availability status.
