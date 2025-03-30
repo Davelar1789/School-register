@@ -6,7 +6,7 @@ import { protect } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 router.post("/register", protect, registerSchool);
-router.get("/", getAllSchools);
+router.get("/", protect, getAllSchools); // Get all schools
 router.get("/:id", getSchoolById);
 router.put("/:id", updateSchool);
 router.delete("/:id", deleteSchool);
