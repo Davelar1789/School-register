@@ -63,7 +63,7 @@ const Dashboard = () => {
       {/* Main Content */}
       <div className="dashboard-main">
         {/* Header */}
-        <Header2 toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} schoolName={schoolName} />
+        <Header2 toggleSidebar={toggleSidebar} />
 
         {/* Show Dashboard if school exists, else show Registration Form */}
         <div className="dashboard-content">
