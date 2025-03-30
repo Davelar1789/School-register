@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { FaBars, FaUserCircle } from "react-icons/fa";
-import api from "../../../api/axios"; // Axios instance
+import api from "../api/axios"; // Axios instance
 import "./Header2.modules.css";
 
 const Header2 = ({ toggleSidebar }) => {
