@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaBars, FaUserCircle } from "react-icons/fa";
-import api from "../../../api/axios"; // Import Axios instance
-import "./Header2.modules.css"; // Import global CSS
+import api from "../../../api/axios"; // Axios instance
+import "./Header2.modules.css";
 
 const Header2 = ({ toggleSidebar }) => {
   const [schoolName, setSchoolName] = useState("");
@@ -9,11 +9,12 @@ const Header2 = ({ toggleSidebar }) => {
   useEffect(() => {
     const fetchSchoolName = async () => {
       try {
+        // Get user from localStorage
         const storedUser = localStorage.getItem("user");
         if (!storedUser) return;
 
         const parsedUser = JSON.parse(storedUser);
-        if (!parsedUser.schoolId) return;
+        const userId = parsedUser._id; // Get logged-in user ID
 
         const token = localStorage.getItem("token");
         if (!token) {
@@ -21,11 +22,17 @@ const Header2 = ({ toggleSidebar }) => {
           return;
         }
 
-        const response = await api.get(`/api/schools/${parsedUser.schoolId}`, {
+        // Fetch all schools from the database
+        const response = await api.get("/api/schools", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-        setSchoolName(response.data.name);
+        // Find the school where user ID matches
+        const userSchool = response.data.find((school) => school.user === userId);
+
+        if (userSchool) {
+          setSchoolName(userSchool.name); // Set school name if found
+        }
       } catch (error) {
         console.error("Error fetching school name:", error);
       }
