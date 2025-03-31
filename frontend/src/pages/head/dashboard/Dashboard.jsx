@@ -44,7 +44,6 @@ const Dashboard = () => {
       setSchool(response.data.school);
     } catch (error) {
       console.error("Error fetching school:", error);
-      toast.error("Error fetching school. Please try again.");
     }
   };
   

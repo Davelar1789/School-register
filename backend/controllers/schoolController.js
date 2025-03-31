@@ -17,6 +17,8 @@ export const registerSchool = async (req, res) => {
       website,
       establishedYear,
       numberOfStudents,
+      numberOfTeachers,
+      numberOfClasses,
     } = req.body;
 
     const existingSchool = await School.findOne({ email });
@@ -38,6 +40,8 @@ export const registerSchool = async (req, res) => {
       website,
       establishedYear,
       numberOfStudents,
+      numberOfTeachers,
+      numberOfClasses,
     });
 
     await school.save();

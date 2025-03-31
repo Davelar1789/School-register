@@ -68,8 +68,6 @@ function SignUp() {
       navigate("/dashboard"); // Redirect to dashboard
     } catch (err) {
       console.error("Registration Error:", err);
-      setError("Registration failed. Please try again.");
-      toast.error("Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }

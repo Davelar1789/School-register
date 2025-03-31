@@ -14,6 +14,8 @@ const schoolSchema = new mongoose.Schema(
     website: { type: String },
     establishedYear: { type: String },
     numberOfStudents: { type: Number, default: 0 },
+    numberOfTeachers: { type: Number, default: 0 },
+    numberOfClasses: { type: Number, default: 0 },
     status: { type: String, enum: ["pending", "approved"], default: "pending" }
   },
   { timestamps: true }
