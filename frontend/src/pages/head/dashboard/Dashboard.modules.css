@@ -12,6 +12,7 @@
   display: flex;
   flex-direction: column;
   z-index: 1000; /* Ensure Sidebar stays on top */
+  border: 1px solid red;
 }
 
 /* School Logo */
