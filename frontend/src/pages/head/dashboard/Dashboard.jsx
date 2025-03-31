@@ -11,6 +11,7 @@ import "./Dashboard.modules.css";
 const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [school, setSchool] = useState(null);
+  const [schoolName, setSchoolName] = useState("Loading...");
   const [schoolStats, setSchoolStats] = useState({
     numberOfStudents: 0,
     numberOfTeachers: 0,
@@ -35,30 +36,74 @@ const Dashboard = () => {
     fetchSchool(parsedUser._id);
   }, [navigate]);
 
+  useEffect(() => {
+
+    const fetchSchoolName = async () => {
+      try {
+
+        // Get user from localStorage
+        const storedUser = localStorage.getItem("user");
+        if (!storedUser) {
+          return;
+        }
+
+        const parsedUser = JSON.parse(storedUser);
+        const userId = parsedUser._id; // Get logged-in user ID
+
+        const token = localStorage.getItem("token");
+        if (!token) {
+          return;
+        }
+
+        // Fetch all schools from the database
+        const response = await api.get("/api/schools", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+
+        // Find the school where user ID matches
+        const userSchool = response.data.find((school) => school.user.toString() === userId);
+
+        if (userSchool) {
+          setSchoolName(userSchool.name); // Set school name if found
+        } else {
+          console.log("❌ No school found for this user.");
+        }
+      } catch (error) {
+        console.error("🚨 Error fetching school name:", error);
+      }
+    };
+
+    fetchSchoolName();
+  }, []);
+
   const fetchSchool = async (userId) => {
     try {
       const token = localStorage.getItem("token"); // Get token from local storage
       if (!token) {
         throw new Error("No token found, please log in again.");
       }
-
+  
       const response = await api.get(`/api/schools/user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }, // ✅ Send token in headers
       });
-
-      if (response.data.school) {
-        setSchool(response.data.school);
+  
+      if (response.data) {
+        const schoolData = response.data.school || response.data; // Handle both API response structures
+  
+        setSchool(schoolData);
         setSchoolStats({
-          numberOfStudents: response.data.school.numberOfStudents || 0,
-          numberOfTeachers: response.data.school.numberOfTeachers || 0,
-          numberOfClasses: response.data.school.numberOfClasses || 0,
+          numberOfStudents: schoolData.numberOfStudents || 0,
+          numberOfTeachers: schoolData.numberOfTeachers || 0,
+          numberOfClasses: schoolData.numberOfClasses || 0,
         });
+        console.log("Fetched School Data:", response.data);
       }
     } catch (error) {
       console.error("Error fetching school:", error);
     }
   };
-
+  
   if (!user) return null; // Prevent rendering if user is still loading
 
   return (
@@ -67,9 +112,9 @@ const Dashboard = () => {
       <div className="sidebar">
         {/* School Logo */}
         <div className="sidebar-header">
-          <div className="logo">A</div>
-          <div className="school-name">AdminSchool</div>
-        </div>
+  <div className="logo">{school?.name ? school.name.charAt(0) : "S"}</div>
+  <div className="school-name">{school?.name || "School Dashboard"}</div>
+</div>
 
         {/* User Profile */}
         <div className="sidebar-profile">
