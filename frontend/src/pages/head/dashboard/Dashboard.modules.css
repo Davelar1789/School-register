@@ -94,6 +94,10 @@
   color: #ff4d4d;
 }
 
+body {
+  background-color: #1b1c30;
+}
+
 /* Dashboard Container */
 .dashboard-container {
   display: flex;
