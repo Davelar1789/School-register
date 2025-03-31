@@ -85,19 +85,19 @@
 
 /* Different colors for each card */
 .blue-wave::after {
-  background: rgba(0, 102, 255, 0.3);
+  background: #3d3cc5;
 }
 
 .pink-wave::after {
-  background: rgba(255, 0, 153, 0.3);
+  background: #d053cd;
 }
 
 .orange-wave::after {
-  background: rgba(255, 102, 0, 0.3);
+  background: #f26d67;
 }
 
 .green-wave::after {
-  background: rgba(0, 204, 102, 0.3);
+  background: #19daac;
 }
 
 /* Recent Activities */
