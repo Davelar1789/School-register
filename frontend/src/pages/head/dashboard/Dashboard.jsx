@@ -93,7 +93,6 @@ const Dashboard = () => {
 
       {/* Main Content - Starts After Sidebar */}
       <div className="dashboard-main">
-        <Header2 />
 
         {/* Show Dashboard if school exists, else show Registration Form */}
         <div className="dashboard-content">
