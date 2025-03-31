@@ -1,6 +1,8 @@
 import React from "react";
 import { FaHome, FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt } from "react-icons/fa";
 import "./Sidebar.modules.css";
+import api from "../api/axios"; // Axios instance
+
 
 const Sidebar = () => {
   console.log("✅ Sidebar is rendering!");
