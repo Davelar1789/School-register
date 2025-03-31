@@ -1,6 +1,6 @@
 import React from "react";
 import { FaBell, FaEnvelope, FaCog, FaUser, FaSearch } from "react-icons/fa";
-import "./Header.modules.css";
+import "./Header2.modules.css";
 
 const Header = () => {
   return (
