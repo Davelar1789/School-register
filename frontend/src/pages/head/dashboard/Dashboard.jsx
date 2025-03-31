@@ -9,7 +9,6 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./Dashboard.modules.css";
 
 const Dashboard = () => {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [school, setSchool] = useState(null);
   const [schoolStats, setSchoolStats] = useState({
@@ -60,22 +59,16 @@ const Dashboard = () => {
     }
   };
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
   if (!user) return null; // Prevent rendering if user is still loading
-
 
   return (
     <div className="dashboard-container">
-      {/* Sidebar */}
-      <Sidebar isOpen={isSidebarOpen} toggleSidebar={toggleSidebar} />
+      {/* Sidebar - Always Visible */}
+      <Sidebar />
 
-      {/* Main Content */}
+      {/* Main Content - Starts After Sidebar */}
       <div className="dashboard-main">
-        {/* Header */}
-        <Header2 toggleSidebar={toggleSidebar} />
+        <Header2 />
 
         {/* Show Dashboard if school exists, else show Registration Form */}
         <div className="dashboard-content">

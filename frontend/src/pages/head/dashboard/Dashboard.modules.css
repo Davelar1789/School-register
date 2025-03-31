@@ -1,18 +1,38 @@
-/* Dashboard Container */
 .dashboard-container {
   display: flex;
   height: 100vh;
   background-color: #f4f6f8;
 }
 
-/* Sidebar */
+/* Sidebar - Takes Fixed Width */
+.sidebar {
+  width: 250px;
+  height: 100vh;
+  background: #1b1f3b; /* Slightly lighter navy */
+  color: white;
+  padding: 20px;
+  position: fixed; /* Keep it fixed */
+  left: 0;
+  top: 0;
+  bottom: 0;
+}
+
+/* Main Dashboard Content */
 .dashboard-main {
   flex: 1;
+  margin-left: 250px; /* Push content to start after sidebar */
   display: flex;
   flex-direction: column;
 }
 
-/* Main Content */
+/* Header */
+.header {
+  background: #1b1f3b;
+  color: white;
+  padding: 15px 20px;
+}
+
+/* Dashboard Content */
 .dashboard-content {
   padding: 20px;
   display: flex;
