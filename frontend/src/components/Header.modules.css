@@ -13,7 +13,7 @@
   align-items: center;
   padding: 1rem 5%;
   background: linear-gradient(45deg, rgba(255, 69, 0, 0.7), rgba(50, 205, 50, 0.7));
-  background-color: rgba(255, 255, 255, 0.9); /* Add a white background with 90% opacity */
+  background-color: rgba(255, 255, 255, 0.9);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   position: fixed;
   top: 0;
@@ -22,7 +22,6 @@
   z-index: 1000;
 }
 
-
 /* Logo */
 .logoContainer {
   display: flex;
@@ -30,13 +29,12 @@
 }
 
 .logoText {
-  font-family: Arial, sans-serif; /* Choose a font you like */
-  font-size: 24px; /* Adjust font size to your liking */
-  font-weight: bold; /* Optional: add boldness to the text */
-  color: #4169E1; /* Your desired text color */
-  letter-spacing: 1px; /* Optional: add some spacing between letters */
+  font-family: Arial, sans-serif;
+  font-size: 24px;
+  font-weight: bold;
+  color: var(--primary-blue);
+  letter-spacing: 1px;
 }
-
 
 /* Navigation */
 .nav {
@@ -64,7 +62,6 @@
   font-weight: bold;
   color: var(--text-white);
   transition: color 0.3s ease-in-out;
-  /* text-transform: uppercase; */
 }
 
 .navLink:hover {
@@ -88,13 +85,70 @@
   width: 100%;
 }
 
+/* Mobile Menu Button */
+.menuIcon {
+  display: none;
+  font-size: 1.5rem;
+  color: var(--primary-blue);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* Mobile Menu */
+.mobileMenu {
+  position: absolute;
+  top: 60px;
+  right: 0;
+  width: 200px;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 10px;
+  animation: slideDown 0.3s ease-in-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.mobileNavList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.mobileNavList .navItem {
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+}
+
+.mobileNavList .navItem:last-child {
+  border-bottom: none;
+}
+
+.mobileNavList .navLink {
+  color: var(--primary-blue);
+  text-decoration: none;
+  font-weight: bold;
+  display: block;
+  text-align: center;
+}
+
 /* Responsive Design */
 @media screen and (max-width: 768px) {
   .nav {
-    display: none; /* Hide nav on small screens for now */
+    display: none;
   }
 
-  .header {
-    padding: 1rem 3%;
+  .menuIcon {
+    display: block;
   }
 }
