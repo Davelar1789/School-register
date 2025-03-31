@@ -3,7 +3,7 @@ import { FaBars, FaUserCircle } from "react-icons/fa";
 import api from "../api/axios"; // Axios instance
 import "./Header2.modules.css";
 
-const Header2 = ({ toggleSidebar }) => {
+const Header2 = () => {
 
   const [schoolName, setSchoolName] = useState("");
 
@@ -50,7 +50,7 @@ const Header2 = ({ toggleSidebar }) => {
 
   return (
     <header className="dashboard-header">
-      <div className="menu-icon" onClick={toggleSidebar}>
+      <div className="menu-icon">
         <FaBars />
       </div>
       <h1 className="dashboard-title">{schoolName || "School Dashboard"}</h1>
