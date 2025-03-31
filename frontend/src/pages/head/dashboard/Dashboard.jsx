@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaHome, FaUser, FaCommentDots, FaUsers, FaCalendarAlt } from "react-icons/fa";
 import { toast } from "react-hot-toast";
 import api from "../../../api/axios"; // Ensure this is the correct API instance
 import Header2 from "../../../components/Header2";
@@ -9,7 +8,7 @@ import Form from "../../general/register/Sign-up"; // School Registration Form
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import "./Dashboard.modules.css";
 
-const Dashboard = ({ schoolName = "AdminSchool" }) => {
+const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [school, setSchool] = useState(null);
   const [schoolStats, setSchoolStats] = useState({
@@ -65,34 +64,7 @@ const Dashboard = ({ schoolName = "AdminSchool" }) => {
   return (
     <div className="dashboard-container">
       {/* Sidebar - Always Visible */}
-<div className="sidebar">
-      {/* Logo Section */}
-      <div className="sidebar-logo">
-        <div className="logo-circle">{schoolName.charAt(0)}</div>
-        <div className="school-name">{schoolName}</div>
-      </div>
-
-      {/* User Profile */}
-      <div className="sidebar-profile">
-        <img src="/path-to-profile-image.jpg" alt="User" className="profile-img" />
-        <div className="profile-info">
-          <h3>Zack Foster</h3>
-          <p>Admin</p>
-        </div>
-      </div>
-
-      {/* Sidebar Menu */}
-      <ul className="sidebar-nav">
-        <li><FaHome className="icon" /> Dashboard</li>
-        <li><FaCommentDots className="icon" /> Chat</li>
-        <li className="menu-item">
-          <FaUsers className="icon" /> Student
-          <span className="counter-badge">35</span>
-        </li>
-        <li><FaUser className="icon" /> Teacher</li>
-        <li><FaCalendarAlt className="icon" /> Event</li>
-      </ul>
-    </div>
+      <Sidebar />
 
       {/* Main Content - Starts After Sidebar */}
       <div className="dashboard-main">
