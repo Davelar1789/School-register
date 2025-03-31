@@ -80,19 +80,44 @@ const Dashboard = () => {
         <div className="dashboard-content">
           {school ? (
             <>
-                 {/* Overview Cards */}
-                 <div className="overview-section">
-                <div className="overview-card">
-                  Total Students: {schoolStats.numberOfStudents}
+             <div className="overview-section">
+              <div className="overview-card students">
+                <div className="card-icon"><i className="fas fa-user-graduate"></i></div>
+                <div className="card-info">
+                  <h3>{schoolStats.numberOfStudents}</h3>
+                  <p>Total Students</p>
                 </div>
-                <div className="overview-card">
-                  Total Teachers: {schoolStats.numberOfTeachers}
-                </div>
-                <div className="overview-card">
-                  Active Classes: {schoolStats.numberOfClasses}
-                </div>
-                <div className="overview-card">Pending Requests: 5</div>
+                <div className="wave-chart blue-wave"></div>
               </div>
+
+              <div className="overview-card teachers">
+                <div className="card-icon"><i className="fas fa-user"></i></div>
+                <div className="card-info">
+                  <h3>{schoolStats.numberOfTeachers}</h3>
+                  <p>Total Teachers</p>
+                </div>
+                <div className="wave-chart pink-wave"></div>
+              </div>
+
+              <div className="overview-card classes">
+                <div className="card-icon"><i className="fas fa-users"></i></div>
+                <div className="card-info">
+                  <h3>{schoolStats.numberOfClasses}</h3>
+                  <p>Active Classes</p>
+                </div>
+                <div className="wave-chart orange-wave"></div>
+              </div>
+
+              <div className="overview-card requests">
+                <div className="card-icon"><i className="fas fa-money-check-alt"></i></div>
+                <div className="card-info">
+                  <h3>0</h3>
+                  <p>Pending Requests</p>
+                </div>
+                <div className="wave-chart green-wave"></div>
+              </div>
+            </div>
+
 
               {/* Recent Activities */}
               <div className="recent-activities">

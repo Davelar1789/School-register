@@ -20,21 +20,64 @@
   gap: 20px;
 }
 
-/* Overview Cards */
 .overview-section {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 20px;
+  margin-top: 20px;
 }
 
 .overview-card {
-  background: #ffffff;
+  background: #0b1a39; /* Dark Navy */
   padding: 20px;
-  border-radius: 8px;
+  border-radius: 12px;
   text-align: center;
-  font-weight: bold;
-  color: #333;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.card-icon {
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+.card-info h3 {
+  font-size: 28px;
+  margin: 0;
+}
+
+.card-info p {
+  font-size: 16px;
+  margin: 5px 0;
+  opacity: 0.8;
+}
+
+/* Gradient wave effect */
+.wave-chart {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 30px;
+  border-radius: 0 0 12px 12px;
+}
+
+.blue-wave {
+  background: linear-gradient(to right, #4a90e2, #0056b3);
+}
+
+.pink-wave {
+  background: linear-gradient(to right, #ff6b81, #d72638);
+}
+
+.orange-wave {
+  background: linear-gradient(to right, #ff9800, #ff5722);
+}
+
+.green-wave {
+  background: linear-gradient(to right, #4caf50, #2e7d32);
 }
 
 /* Recent Activities */
