@@ -11,7 +11,12 @@ const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [school, setSchool] = useState(null);
-  const [schoolName, setSchoolName] = useState(""); // Store the school name
+  const [schoolStats, setSchoolStats] = useState({
+    numberOfStudents: 0,
+    numberOfTeachers: 0,
+    numberOfClasses: 0,
+  });
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,7 +31,7 @@ const Dashboard = () => {
     const parsedUser = JSON.parse(storedUser);
     setUser(parsedUser);
 
-    // ✅ Fetch school based on user ID instead of relying on schoolId
+    // ✅ Fetch school based on user ID
     fetchSchool(parsedUser._id);
   }, [navigate]);
 
@@ -36,23 +41,30 @@ const Dashboard = () => {
       if (!token) {
         throw new Error("No token found, please log in again.");
       }
-  
+
       const response = await api.get(`/api/schools/user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }, // ✅ Send token in headers
       });
-  
-      setSchool(response.data.school);
+
+      if (response.data.school) {
+        setSchool(response.data.school);
+        setSchoolStats({
+          numberOfStudents: response.data.school.numberOfStudents || 0,
+          numberOfTeachers: response.data.school.numberOfTeachers || 0,
+          numberOfClasses: response.data.school.numberOfClasses || 0,
+        });
+      }
     } catch (error) {
       console.error("Error fetching school:", error);
     }
   };
-  
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
 
   if (!user) return null; // Prevent rendering if user is still loading
+
 
   return (
     <div className="dashboard-container">
@@ -68,11 +80,17 @@ const Dashboard = () => {
         <div className="dashboard-content">
           {school ? (
             <>
-              {/* Overview Cards */}
-              <div className="overview-section">
-                <div className="overview-card">Total Students: 1,200</div>
-                <div className="overview-card">Total Teachers: 80</div>
-                <div className="overview-card">Active Classes: 40</div>
+                 {/* Overview Cards */}
+                 <div className="overview-section">
+                <div className="overview-card">
+                  Total Students: {schoolStats.numberOfStudents}
+                </div>
+                <div className="overview-card">
+                  Total Teachers: {schoolStats.numberOfTeachers}
+                </div>
+                <div className="overview-card">
+                  Active Classes: {schoolStats.numberOfClasses}
+                </div>
                 <div className="overview-card">Pending Requests: 5</div>
               </div>
 
