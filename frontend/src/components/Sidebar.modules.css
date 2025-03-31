@@ -14,11 +14,6 @@
   left: 0;
 }
 
-.sidebar.large {
-  left: 0;
-  transition: none;
-}
-
 .close-btn {
   position: absolute;
   top: 15px;
@@ -28,28 +23,6 @@
   border: none;
   color: white;
   cursor: pointer;
-}
-
-.collapse-btn {
-  position: absolute;
-  top: 15px;
-  right: -35px;
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  font-size: 18px;
-}
-
-.menu-btn {
-  position: fixed;
-  top: 15px;
-  left: 15px;
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  font-size: 24px;
 }
 
 .sidebar-logo {
