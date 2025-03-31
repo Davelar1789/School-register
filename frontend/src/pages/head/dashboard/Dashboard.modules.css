@@ -1,114 +1,220 @@
+/* Dashboard Container */
 .dashboard-container {
-    display: flex;
-    height: 100vh;
-    background-color: #f4f6f8;
+  display: flex;
+  height: 100vh;
+  background-color: #f4f6f8;
+}
+
+/* Sidebar */
+.dashboard-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Main Content */
+.dashboard-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Overview Cards */
+.overview-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.overview-card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: bold;
+  color: #333;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Recent Activities */
+.recent-activities {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.recent-activities h3 {
+  margin-bottom: 10px;
+}
+
+.recent-activities ul {
+  list-style: none;
+  padding: 0;
+}
+
+.recent-activities li {
+  padding: 8px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+/* Quick Links */
+.quick-links {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.quick-links h3 {
+  margin-bottom: 10px;
+}
+
+.links-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.quick-link {
+  padding: 12px;
+  border: none;
+  background: royalblue;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.quick-link:hover {
+  background: #1e50a2;
+}
+
+/* Register School Section */
+.register-school-section {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  width: 100%;
+  max-width: 950px;
+  margin: 30px auto;
+}
+
+.register-title {
+  font-size: 26px;
+  color: #4169E1;
+  margin-bottom: 10px;
+}
+
+.register-subtitle {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+/* ✅ RESPONSIVENESS */
+
+/* Tablets (max-width: 1024px) */
+@media (max-width: 1024px) {
+  .dashboard-container {
+    flex-direction: column;
   }
-  
-  /* Sidebar */
+
   .dashboard-main {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  /* Main Content */
-  .dashboard-content {
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
-  
-  /* Overview Cards */
-  .overview-section {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-  }
-  
-  .overview-card {
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-    font-weight: bold;
-    color: #333;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Recent Activities */
-  .recent-activities {
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .recent-activities h3 {
-    margin-bottom: 10px;
-  }
-  
-  .recent-activities ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .recent-activities li {
-    padding: 8px 0;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  /* Quick Links */
-  .quick-links {
-    background: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  }
-  
-  .quick-links h3 {
-    margin-bottom: 10px;
-  }
-  
-  .links-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 10px;
-  }
-  
-  .quick-link {
-    padding: 12px;
-    border: none;
-    background: royalblue;
-    color: white;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  
-  .quick-link:hover {
-    background: #1e50a2;
-  }
-  
-  .register-school-section {
-    background: white;
-    padding: 25px;
-    border-radius: 15px;
-    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.2);
-    text-align: center;
     width: 100%;
-    max-width: 950px;
-    margin: 30px auto;
   }
-  
-  .register-title {
-    font-size: 26px;
-    color: #4169E1;
-    margin-bottom: 10px;
+
+  .overview-section {
+    grid-template-columns: repeat(2, 1fr);
   }
-  
-  .register-subtitle {
+
+  .links-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile Screens (max-width: 768px) */
+@media (max-width: 768px) {
+  .dashboard-container {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .dashboard-main {
+    width: 100%;
+  }
+
+  .dashboard-content {
+    padding: 15px;
+  }
+
+  .overview-section {
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  .overview-card {
+    padding: 15px;
     font-size: 14px;
-    color: #555;
-    margin-bottom: 20px;
   }
+
+  .recent-activities,
+  .quick-links {
+    padding: 15px;
+  }
+
+  .links-grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
+
+  .quick-link {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .register-school-section {
+    width: 90%;
+    margin: 20px auto;
+    padding: 20px;
+  }
+
+  .register-title {
+    font-size: 22px;
+  }
+
+  .register-subtitle {
+    font-size: 13px;
+  }
+}
+
+/* Extra Small Devices (max-width: 480px) */
+@media (max-width: 480px) {
+  .dashboard-content {
+    padding: 10px;
+  }
+
+  .overview-card {
+    font-size: 12px;
+    padding: 12px;
+  }
+
+  .quick-link {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .register-school-section {
+    width: 95%;
+    padding: 15px;
+  }
+
+  .register-title {
+    font-size: 20px;
+  }
+
+  .register-subtitle {
+    font-size: 12px;
+  }
+}
