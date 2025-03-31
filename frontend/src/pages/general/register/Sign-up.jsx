@@ -69,8 +69,8 @@ function SignUp() {
       toast.success("Registration successful! 🎉");
       navigate("/dashboard"); // Redirect to dashboard
     } catch (err) {
-      console.error("Registration Error:", err);
-      navigate("/dashboard"); // Redirect to dashboard
+      console.error("Registration Error:", err.response ? err.response.data : err.message);
+      toast.error(err.response?.data?.message || "Something went wrong!"); // Show error toast
     } finally {
       setLoading(false);
     }
