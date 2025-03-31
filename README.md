@@ -65,7 +65,7 @@ Welcome to the Web-Based School Management System (SMS), a comprehensive platfor
 10. User Management Page 👤
 - List of users with roles and status.
 - Options to add, edit, or deactivate users.
-Technologies Used 🔧
+## **Technologies Used 🔧**
 Frontend: HTML, CSS, JavaScript (React/Vue.js)
 Backend: Node.js, Express.js
 Database: MongoDB / MySQL
