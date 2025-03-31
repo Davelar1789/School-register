@@ -87,3 +87,12 @@ export const getUserProfile = asyncHandler(async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
+
+export const logoutUser = async (req, res) => {
+  try {
+    res.clearCookie("token"); // If using cookies
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Logout failed", error: error.message });
+  }
+};
