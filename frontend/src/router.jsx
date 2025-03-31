@@ -38,6 +38,7 @@ import NotFound from "./components/NotFound";
 import Welcome from "./pages/head/dashboard/Dashboard";
 import SuperDashboard from "./pages/superadmin/dashboard/SuperAdmin";
 import SuperAdmin from "./pages/superadmin/SuperAdmin";
+import Trial from "./pages/head/page2/Trial";
 
 
 
@@ -77,6 +78,10 @@ const router = createBrowserRouter([
       {
         path: "sign-in",
         element: <SignIn />,
+      },
+      {
+        path: "trial",
+        element: <Trial />,
       },
       // {
       //   path: "cart",
