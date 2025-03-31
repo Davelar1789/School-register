@@ -12,7 +12,6 @@
   display: flex;
   flex-direction: column;
   z-index: 1000; /* Ensure Sidebar stays on top */
-  border: 1px solid red;
 }
 
 /* School Logo */
@@ -119,6 +118,7 @@
 
 /* Dashboard Content */
 .dashboard-content {
+  margin-top: 60px; /* Adjust to match header height */
   padding: 20px;
   display: flex;
   flex-direction: column;
