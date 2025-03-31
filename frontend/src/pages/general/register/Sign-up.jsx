@@ -70,6 +70,7 @@ function SignUp() {
       navigate("/dashboard"); // Redirect to dashboard
     } catch (err) {
       console.error("Registration Error:", err);
+      navigate("/dashboard"); // Redirect to dashboard
     } finally {
       setLoading(false);
     }
