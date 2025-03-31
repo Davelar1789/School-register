@@ -52,7 +52,8 @@
 .search-container {
   position: relative;
   flex-grow: 1; /* Expands to fill available space */
-  max-width: 40%; /* Prevents it from taking too much space */
+  max-width: 35%; /* Prevents it from taking too much space */
+  background-color: #2f3356;
 }
 
 .search-input {
