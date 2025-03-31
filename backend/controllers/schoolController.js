@@ -3,7 +3,18 @@ import School from "../models/School.model.js";
 // Register a school
 export const registerSchool = async (req, res) => {
   try {
-    console.log("User ID:", req.user._id); // Debugging
+    console.log("📌 Received Request to Register School");
+    
+    // ✅ Check if user is authenticated
+    if (!req.user || !req.user._id) {
+      console.error("❌ Error: Unauthorized - No User Found in Request");
+      return res.status(401).json({ message: "Unauthorized - User not found" });
+    }
+
+    console.log("✅ Authenticated User ID:", req.user._id);
+
+    // ✅ Log Incoming Request Data
+    console.log("📌 Request Body:", req.body);
 
     const {
       name,
@@ -21,12 +32,16 @@ export const registerSchool = async (req, res) => {
       numberOfClasses,
     } = req.body;
 
+    // ✅ Check if a school with this email already exists
     const existingSchool = await School.findOne({ email });
     if (existingSchool) {
+      console.error("❌ Error: School already exists with email:", email);
       return res.status(400).json({ message: "School already registered" });
     }
 
-    // Create new school
+    console.log("✅ No existing school found. Proceeding with registration...");
+
+    // ✅ Create new school
     const school = new School({
       user: req.user._id, // Assign school to logged-in user
       name,
@@ -44,26 +59,34 @@ export const registerSchool = async (req, res) => {
       numberOfClasses,
     });
 
-    await school.save();
+    console.log("📌 New School Object Created:", school);
 
-    // ✅ Force User to Update by Using `{ new: true, runValidators: true }`
+    // ✅ Save the new school to the database
+    await school.save();
+    console.log("✅ School Registered Successfully:", school);
+
+    // ✅ Update User Model with School ID
     const updatedUser = await User.findByIdAndUpdate(
       req.user._id, 
       { $set: { schoolId: school._id } }, 
       { new: true, runValidators: true }
     );
 
-    console.log("Updated User:", updatedUser); // Debugging log
+    console.log("✅ User Updated with School ID:", updatedUser);
 
+    // ✅ Send success response
     res.status(201).json({ 
       message: "School registered successfully", 
       school, 
       user: updatedUser // Send updated user data
     });
+
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("❌ Server Error in registerSchool:", error); // ✅ Log Full Error Stack
+    res.status(500).json({ message: error.message || "Internal Server Error" });
   }
 };
+
 
 export const getSchoolByUserId = async (req, res) => {
   try {
