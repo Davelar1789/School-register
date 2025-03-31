@@ -55,6 +55,7 @@
 .card-info h3 {
   font-size: 28px;
   margin: 0;
+  color: white;
 }
 
 .card-info p {
@@ -99,6 +100,24 @@
 .green-wave::after {
   background: #19daac;
 }
+
+/* Icon Colors */
+.students .card-header i {
+  color: #3d3cc5; /* Blue */
+}
+
+.teachers .card-header i {
+  color: #d053cd; /* Pink */
+}
+
+.classes .card-header i {
+  color: #f26d67; /* Orange */
+}
+
+.requests .card-header i {
+  color: #19daac; /* Green */
+}
+
 
 /* Recent Activities */
 .recent-activities {
