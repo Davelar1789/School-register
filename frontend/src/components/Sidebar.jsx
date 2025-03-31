@@ -3,6 +3,8 @@ import { FaHome, FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, Fa
 import "./Sidebar.modules.css";
 
 const Sidebar = () => {
+  console.log("✅ Sidebar is rendering!");
+
   return (
     <div className="sidebar">
       {/* School Logo */}
