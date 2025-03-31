@@ -5,7 +5,6 @@ import User from "../models/User.model.js"; // Ensure this is correct
 // Register a school
 export const registerSchool = async (req, res) => {
   try {
-    console.log("📌 Received Request to Register School");
     
     // ✅ Check if user is authenticated
     if (!req.user || !req.user._id) {
@@ -13,10 +12,8 @@ export const registerSchool = async (req, res) => {
       return res.status(401).json({ message: "Unauthorized - User not found" });
     }
 
-    console.log("✅ Authenticated User ID:", req.user._id);
 
     // ✅ Log Incoming Request Data
-    console.log("📌 Request Body:", req.body);
 
     const {
       name,
@@ -41,7 +38,6 @@ export const registerSchool = async (req, res) => {
       return res.status(400).json({ message: "School already registered" });
     }
 
-    console.log("✅ No existing school found. Proceeding with registration...");
 
     // ✅ Create new school
     const school = new School({
@@ -61,11 +57,9 @@ export const registerSchool = async (req, res) => {
       numberOfClasses,
     });
 
-    console.log("📌 New School Object Created:", school);
 
     // ✅ Save the new school to the database
     await school.save();
-    console.log("✅ School Registered Successfully:", school);
 
     // ✅ Update User Model with School ID
     const updatedUser = await User.findByIdAndUpdate(
@@ -74,7 +68,6 @@ export const registerSchool = async (req, res) => {
       { new: true, runValidators: true }
     );
 
-    console.log("✅ User Updated with School ID:", updatedUser);
 
     // ✅ Send success response
     res.status(201).json({ 
