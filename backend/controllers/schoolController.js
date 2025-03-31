@@ -1,4 +1,6 @@
 import School from "../models/School.model.js";
+import User from "../models/User.model.js"; // Ensure this is correct
+
 
 // Register a school
 export const registerSchool = async (req, res) => {
