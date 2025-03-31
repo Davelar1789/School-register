@@ -1,21 +1,24 @@
 .dashboard-container {
   display: flex;
   height: 100vh;
-  background-color: #f4f6f8;
+  background-color: #1b1c30;
 }
 
 /* Sidebar - Takes Fixed Width */
 .sidebar {
-  width: 250px;
+  width: 250px; /* Set sidebar width */
   height: 100vh;
-  background: #1b1f3b; /* Slightly lighter navy */
+  background: #1b1f3b; /* Dark navy */
   color: white;
   padding: 20px;
-  position: fixed; /* Keep it fixed */
+  position: fixed;
   left: 0;
   top: 0;
   bottom: 0;
+  display: flex;
+  flex-direction: column;
 }
+
 
 
 
