@@ -3,7 +3,8 @@
 .header {
   position: fixed;  /* Keeps header at the top */
   top: 0;
-  left: 0;
+  left: 250px; /* Moves the header to the right to accommodate the sidebar */
+  width: calc(100% - 250px); /* Ensures the header only takes up the remaining space */
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -11,13 +12,13 @@
   background-color: #0a192f; /* Dark navy background */
   color: white;
   z-index: 1000; /* Ensures it stays above other content */
-  margin-left: 250px;
 }
 
 .header-left {
   display: flex;
   align-items: center;
   gap: 15px;
+  flex-shrink: 0; /* Prevents it from shrinking */
 }
 
 .menu-icon {
@@ -50,7 +51,8 @@
 
 .search-container {
   position: relative;
-  width: 30%;
+  flex-grow: 1; /* Expands to fill available space */
+  max-width: 40%; /* Prevents it from taking too much space */
 }
 
 .search-input {
@@ -73,6 +75,7 @@
   display: flex;
   align-items: center;
   gap: 20px;
+  flex-shrink: 0; /* Ensures icons don’t shrink */
 }
 
 .icon {
@@ -86,3 +89,5 @@
   border: none;
   cursor: pointer;
 }
+
+
