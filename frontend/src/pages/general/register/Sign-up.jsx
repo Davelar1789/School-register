@@ -51,7 +51,7 @@ function SignUp() {
           website: "N/A",
           establishedYear: "N/A",
           numberOfStudents: 0,
-          numberOfTeachers: 1,
+          numberOfTeachers: 0,
           numberOfClasses: 0,
         },
         {

@@ -7,7 +7,6 @@
   padding: 20px;
 }
 
-
 /* Form Container */
 .signup-form-container2 {
   width: 700px;
@@ -105,4 +104,49 @@
 
 .login-link2 a:hover {
   text-decoration: underline;
+}
+
+/* ✅ RESPONSIVENESS */
+@media (max-width: 768px) {
+  .signup-form-container2 {
+    width: 90%;
+    padding: 20px;
+  }
+
+  .signup-form2 {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .input-group2 {
+    width: 100%;
+  }
+
+  .signup-title {
+    font-size: 22px;
+  }
+
+  .signup-subtitle2 {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .signup-form-container2 {
+    width: 95%;
+    padding: 15px;
+  }
+
+  .signup-title {
+    font-size: 20px;
+  }
+
+  .signup-subtitle2 {
+    font-size: 12px;
+  }
+
+  .signup-button2 {
+    font-size: 14px;
+    padding: 10px;
+  }
 }
