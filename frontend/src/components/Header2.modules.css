@@ -53,7 +53,8 @@
   position: relative;
   flex-grow: 1; /* Expands to fill available space */
   max-width: 35%; /* Prevents it from taking too much space */
-  background-color: #2f3356;
+  background-color: #2f3356; /* ✅ Background color added */
+  border-radius: 20px; /* ✅ Ensures rounded edges match input */
 }
 
 .search-input {
@@ -62,6 +63,8 @@
   border-radius: 20px;
   border: none;
   outline: none;
+  background-color: transparent; /* ✅ Makes sure input blends with container */
+  color: white; /* ✅ Text color to contrast background */
 }
 
 .search-icon {
@@ -89,6 +92,6 @@
   border-radius: 20px;
   border: none;
   cursor: pointer;
+  background-color: #2f3356; /* ✅ Background color added */
+  color: white; /* ✅ Ensures text is readable */
 }
-
-
