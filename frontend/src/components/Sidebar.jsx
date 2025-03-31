@@ -1,10 +1,10 @@
 import React from "react";
-import { FaHome, FaUser, FaCog, FaSchool, FaSignOutAlt } from "react-icons/fa";
+import { FaHome, FaUser, FaCommentDots, FaUsers, FaCalendarAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import axios from "../api/axios"; // Import Axios for API call
 import "./Sidebar.modules.css";
 
-const Sidebar = ({ isOpen, toggleSidebar }) => {
+const Sidebar = ({ schoolName = "AdminSchool" }) => {
   const navigate = useNavigate();
 
   const handleLogout = async () => {
@@ -19,18 +19,32 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   };
 
   return (
-    <div className={`sidebar ${isOpen ? "open" : ""}`}>
-      <button className="close-btn" onClick={toggleSidebar}>&times;</button>
-      <h2 className="sidebar-logo">School Admin</h2>
+    <div className="sidebar">
+      {/* Logo Section */}
+      <div className="sidebar-logo">
+        <div className="logo-circle">{schoolName.charAt(0)}</div>
+        <div className="school-name">{schoolName}</div>
+      </div>
+
+      {/* User Profile */}
+      <div className="sidebar-profile">
+        <img src="/path-to-profile-image.jpg" alt="User" className="profile-img" />
+        <div className="profile-info">
+          <h3>Zack Foster</h3>
+          <p>Admin</p>
+        </div>
+      </div>
+
+      {/* Sidebar Menu */}
       <ul className="sidebar-nav">
-        <li><FaHome /> Dashboard</li>
-        <li><FaUser /> Profile</li>
-        <li><FaSchool /> Students</li>
-        <li><FaSchool /> Teachers</li>
-        <li><FaCog /> Settings</li>
-        <li className="sidebar-logout" onClick={handleLogout}>
-          <FaSignOutAlt /> Logout
+        <li><FaHome className="icon" /> Dashboard</li>
+        <li><FaCommentDots className="icon" /> Chat</li>
+        <li className="menu-item">
+          <FaUsers className="icon" /> Student
+          <span className="counter-badge">35</span>
         </li>
+        <li><FaUser className="icon" /> Teacher</li>
+        <li><FaCalendarAlt className="icon" /> Event</li>
       </ul>
     </div>
   );
