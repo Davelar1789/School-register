@@ -25,7 +25,7 @@ const Header = () => {
   };
 
   return (
-    <header className="header">
+    <header className="head56">
       {/* Logo */}
       <div className="logoContainer">
         <span className="logoText">Codewhiz Schools</span>
