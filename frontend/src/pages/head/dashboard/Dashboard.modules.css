@@ -161,17 +161,18 @@ body {
   margin-top: 20px;
 }
 
-@media screen and (max-width: 600px) {
+@media screen and (max-width: 768px) {
   .overview-section {
-    grid-template-columns: repeat(2, 1fr) !important; /* Two cards per row */
+    grid-template-columns: repeat(2, 1fr); /* Two per row on tablets */
   }
 }
 
-@media screen and (max-width: 350px) {
+@media screen and (max-width: 480px) {
   .overview-section {
-    grid-template-columns: 1fr !important; /* One card per row on very small screens */
+    grid-template-columns: 1fr; /* One per row on smaller phones */
   }
 }
+
 
 .overview-card {
   background: #23243d; /* Dark Navy */
