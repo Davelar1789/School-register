@@ -4,7 +4,7 @@ import "./Header2.modules.css";
 
 const Header = () => {
   return (
-    <header className="header">
+    <header className="header2">
       {/* Left Section: Menu Icon & Welcome */}
       <div className="header-left">
         <div className="menu-icon">
