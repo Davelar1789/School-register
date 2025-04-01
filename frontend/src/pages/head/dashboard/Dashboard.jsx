@@ -7,6 +7,7 @@ import Form from "../../general/register/Sign-up"; // School Registration Form
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { FaHome, FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt } from "react-icons/fa";
 import "./Dashboard.modules.css";
+import Image1 from "../../../assets/images/userrr.png"
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
@@ -146,9 +147,7 @@ const Dashboard = () => {
 
         {/* User Profile */}
         <div className="sidebar-profile">
-          <div className="profile-pic">
-        <i className="fas fa-user"></i>
-          </div>
+          <img src={Image1} alt="User" className="profile-pic" />
           <div>
           <h4>{userProfile.fullName}</h4>
           <p className="user-role">{userProfile.role}</p>
