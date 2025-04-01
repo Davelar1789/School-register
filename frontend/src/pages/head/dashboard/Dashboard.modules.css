@@ -113,7 +113,7 @@ body {
 
 @media screen and (max-width: 768px) {
   .dashboard-container {
-    display: block; /* Removes flex */
+    display: block !important; /* Removes flex */
   }
 }
 
@@ -123,6 +123,12 @@ body {
   margin-left: 250px; /* Ensures sidebar is accounted for */
   display: flex;
   flex-direction: column;
+}
+
+@media screen and (max-width: 768px) {
+  .dashboard-main {
+    margin-left: 0px; /* Ensures sidebar is accounted for */
+  }
 }
 
 /* Header */
