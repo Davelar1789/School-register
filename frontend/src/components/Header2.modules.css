@@ -116,6 +116,9 @@
   .icon:nth-child(3) {
     display: none; /* Hide Email & Settings Icons */
   }
+  .header2 {
+    left: 0px;
+  }
 }
 
 @media screen and (max-width: 600px) {
