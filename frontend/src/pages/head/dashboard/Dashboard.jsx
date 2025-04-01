@@ -12,6 +12,7 @@ const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [school, setSchool] = useState(null);
   const [schoolName, setSchoolName] = useState("Loading...");
+  const [userProfile, setUserProfile] = useState({ fullName: "Loading...", role: "Loading..." });
   const [schoolStats, setSchoolStats] = useState({
     numberOfStudents: 0,
     numberOfTeachers: 0,
@@ -35,6 +36,33 @@ const Dashboard = () => {
     // ✅ Fetch school based on user ID
     fetchSchool(parsedUser._id);
   }, [navigate]);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found, please log in again.");
+          return;
+        }
+  
+        const response = await api.get("/api/users/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+  
+        if (response.data) {
+          setUserProfile({
+            fullName: response.data.fullName || "Unknown",
+            role: response.data.role || "User",
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+  
+    fetchUserProfile();
+  }, []);
 
   useEffect(() => {
 
@@ -112,17 +140,17 @@ const Dashboard = () => {
       <div className="sidebar">
         {/* School Logo */}
         <div className="sidebar-header">
-  <div className="logo">{school?.name ? school.name.charAt(0) : "S"}</div>
-  <div className="school-name">{school?.name || "School Dashboard"}</div>
-</div>
+          <div className="logo">{school?.name ? school.name.charAt(0) : "S"}</div>
+          <div className="school-name">{school?.name || "School Dashboard"}</div>
+        </div>
 
         {/* User Profile */}
         <div className="sidebar-profile">
           <img src="/path-to-profile.jpg" alt="User" className="profile-pic" />
           <div>
-            <h4>Zack Foster</h4>
-            <p className="user-role">Admin</p>
-          </div>
+          <h4>{userProfile.fullName}</h4>
+          <p className="user-role">{userProfile.role}</p>
+        </div>
         </div>
 
         {/* Menu Items */}
