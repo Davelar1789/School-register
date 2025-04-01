@@ -154,6 +154,18 @@ body {
   margin-top: 20px;
 }
 
+@media screen and (max-width: 600px) {
+  .overview-section {
+    grid-template-columns: repeat(2, 1fr); /* Two cards per row */
+  }
+}
+
+@media screen and (max-width: 350px) {
+  .overview-section {
+    grid-template-columns: 1fr; /* One card per row on very small screens */
+  }
+}
+
 .overview-card {
   background: #23243d; /* Dark Navy */
   padding: 20px;
