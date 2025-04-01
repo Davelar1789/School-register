@@ -146,8 +146,9 @@ const Dashboard = () => {
 
         {/* User Profile */}
         <div className="sidebar-profile">
+          <div className="profile-pic">
         <i className="fas fa-user"></i>
-          <img src="/path-to-profile.jpg" alt="User" className="profile-pic" />
+          </div>
           <div>
           <h4>{userProfile.fullName}</h4>
           <p className="user-role">{userProfile.role}</p>
