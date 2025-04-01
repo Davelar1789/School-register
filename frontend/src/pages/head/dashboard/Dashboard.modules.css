@@ -127,7 +127,7 @@ body {
 
 @media screen and (max-width: 768px) {
   .dashboard-main {
-    margin-left: 0px; /* Ensures sidebar is accounted for */
+    margin-left: 0px !important; /* Ensures sidebar is accounted for */
   }
 }
 
