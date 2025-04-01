@@ -20,7 +20,7 @@ const Header = () => {
           <span className="bar long"></span>
           <span className="bar short"></span>
         </div>
-        {windowWidth > 600 && <span className="welcome-text">Welcome</span>}
+        <span className="welcome-text">Welcome</span>
       </div>
 
       {/* Center: Search Bar (Hidden on smaller screens) */}
