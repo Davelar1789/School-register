@@ -113,6 +113,12 @@ body {
   background-color: #1b1c30;
 }
 
+@media screen and (max-width: 768px) {
+  .dashboard-container {
+    display: block; /* Removes flex */
+  }
+}
+
 /* Main Dashboard Content */
 .dashboard-main {
   flex: 1;
