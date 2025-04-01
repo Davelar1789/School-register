@@ -122,8 +122,8 @@
   }
 }
 
-@media screen and (max-width: 600px) {
+/* @media screen and (max-width: 600px) {
   .welcome-text {
-    display: none; /* Hide "Welcome" */
+    display: none; 
   }
-}
+} */
