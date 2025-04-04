@@ -19,25 +19,26 @@ const subjectSchema = new Schema({
 
 const studentSchema = new Schema(
   {
-    name: String,
-    class: String,
-    idno: String,
-    dob: String,
-    phone: String,
-    address: String,
-    images: [String], // specify array of strings
+    name: { type: String, required: true, trim: true },
+    class: { type: String, required: true, trim: true },
+    idno: { type: String, required: true, unique: true, trim: true },
+    dob: { type: String, required: true },
+    phone: { type: String, trim: true },
+    address: { type: String, trim: true },
+    images: [{ type: String }],
     subjects: [subjectSchema],
     fees: [{
-      term: String,
-      amount: Number,
-      arrears: Number,
-      totalFees: Number
+      term: { type: String },
+      amount: { type: Number, default: 0 },
+      arrears: { type: Number, default: 0 },
+      totalFees: { type: Number, default: 0 },
+      paid: { type: Boolean, default: false }
     }],
     attendance: [attendanceSchema], // Add attendance field
     totalAttendance: Number, // Add total attendance field
     year: String, // Add year field
-    termBeginDate: String, // Add term begin date field
-    termEndDate: String // Add term end date field
+    termBeginDate: { type: Date },
+    termEndDate: { type: Date },
   },
   { timestamps: true }
 );

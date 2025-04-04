@@ -1,371 +1,92 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import "./Students.modules.css";
-import UploadStudent from "../../../components/UploadStudent";
-import api from '../../../api/axios';
+// pages/dashboard/students/Students.jsx
+
+import React, { useEffect, useState } from "react";
+import api from "../../../api/axios";
 import { MdDelete, MdEdit } from "react-icons/md";
 import Header2 from "../../../components/Header2";
-import { NavLink } from "react-router-dom";
 import toast from "react-hot-toast";
-import "@fortawesome/fontawesome-free/css/all.min.css";
-import { FaHome, FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt } from "react-icons/fa";
-import Image1 from "../../../assets/images/userrr.png"
+import "./Students.modules.css";
 
-const ManageStudents = () => {
+const Students = () => {
   const [students, setStudents] = useState([]);
-  const [toggleAddStudent, setToggleAddStudent] = useState(false);
-  const [toggleEditStudent, setToggleEditStudent] = useState(false);
-  const [studentToEditDetails, setStudentToEditDetails] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [studentToDelete, setStudentToDelete] = useState(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const studentsPerPage = 8;
-  const totalPages = Math.ceil(students?.length / studentsPerPage);
-   const [user, setUser] = useState(null);
-    const [school, setSchool] = useState(null);
-    const [schoolName, setSchoolName] = useState("Loading...");
-    const [schoolStats, setSchoolStats] = useState({
-      numberOfStudents: 0,
-      numberOfTeachers: 0,
-      numberOfClasses: 0,
-    });
-    const [userProfile, setUserProfile] = useState({ fullName: "Loading...", role: "Loading..." });
-    
-  
-    const navigate = useNavigate();
-  
-    useEffect(() => {
-      // Get user from local storage
-      const storedUser = localStorage.getItem("user");
-      if (!storedUser) {
-        toast.error("Please login first.");
-        navigate("/sign-in");
-        return;
-      }
-  
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-  
-      // ✅ Fetch school based on user ID
-      fetchSchool(parsedUser._id);
-    }, [navigate]);
-  
-    useEffect(() => {
-      const fetchUserProfile = async () => {
-        try {
-          const token = localStorage.getItem("token");
-          if (!token) {
-            console.error("No token found, please log in again.");
-            return;
-          }
-    
-          const response = await api.get("/api/users/profile", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-    
-          if (response.data) {
-            setUserProfile({
-              fullName: response.data.fullName || "Unknown",
-              role: response.data.role || "User",
-            });
-          }
-        } catch (error) {
-          console.error("Error fetching user profile:", error);
-        }
-      };
-    
-      fetchUserProfile();
-    }, []);
-  
-    useEffect(() => {
-  
-      const fetchSchoolName = async () => {
-        try {
-  
-          // Get user from localStorage
-          const storedUser = localStorage.getItem("user");
-          if (!storedUser) {
-            return;
-          }
-  
-          const parsedUser = JSON.parse(storedUser);
-          const userId = parsedUser._id; // Get logged-in user ID
-  
-          const token = localStorage.getItem("token");
-          if (!token) {
-            return;
-          }
-  
-          // Fetch all schools from the database
-          const response = await api.get("/api/schools", {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-  
-  
-          // Find the school where user ID matches
-          const userSchool = response.data.find((school) => school.user.toString() === userId);
-  
-          if (userSchool) {
-            setSchoolName(userSchool.name); // Set school name if found
-          } else {
-            console.log("❌ No school found for this user.");
-          }
-        } catch (error) {
-          console.error("🚨 Error fetching school name:", error);
-        }
-      };
-  
-      fetchSchoolName();
-    }, []);
-  
-    const fetchSchool = async (userId) => {
-      try {
-        const token = localStorage.getItem("token"); // Get token from local storage
-        if (!token) {
-          throw new Error("No token found, please log in again.");
-        }
-    
-        const response = await api.get(`/api/schools/user/${userId}`, {
-          headers: { Authorization: `Bearer ${token}` }, // ✅ Send token in headers
-        });
-    
-        if (response.data) {
-          const schoolData = response.data.school || response.data; // Handle both API response structures
-    
-          setSchool(schoolData);
-          setSchoolStats({
-            numberOfStudents: schoolData.numberOfStudents || 0,
-            numberOfTeachers: schoolData.numberOfTeachers || 0,
-            numberOfClasses: schoolData.numberOfClasses || 0,
-          });
-          console.log("Fetched School Data:", response.data);
-        }
-      } catch (error) {
-        console.error("Error fetching school:", error);
-      }
-    };
-    
-    if (!user) return null; // Prevent rendering if user is still loading
+  const fetchStudents = async () => {
+    try {
+      const res = await api.get("/students");
+      setStudents(res.data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch students");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const fetchAllStudents = async () => {
-    await api
-      .get("/api/student/get-all-students")
-      .then((res) => {
-        setStudents(res.data.data);
-      })
-      .catch((err) => console.log(err));
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this student?")) return;
+    try {
+      await api.delete(`/students/${id}`);
+      setStudents((prev) => prev.filter((student) => student._id !== id));
+      toast.success("Student deleted successfully");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete student");
+    }
   };
 
   useEffect(() => {
-    fetchAllStudents();
-  }, [toggleAddStudent]);
-
-  const indexOfLastStudent = currentPage * studentsPerPage;
-  const indexOfFirstStudent = indexOfLastStudent - studentsPerPage;
-  const currentStudents = students
-    ?.filter((student) =>
-      student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.class.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.idno.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      student.phone.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-    .slice(indexOfFirstStudent, indexOfLastStudent);
-
-  const nextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
-
-  const prevPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
-
-  const handleDeleteStudent = async () => {
-    if (studentToDelete) {
-      await api
-        .post("/api/student/manage-students/delete", { studentId: studentToDelete }, { withCredentials: true })
-        .then(() => {
-          fetchAllStudents();
-          toast.success("Student deleted successfully");
-        })
-        .catch((err) => console.log(err));
-      setShowDeleteModal(false);
-      setStudentToDelete(null);
-    }
-  };
-
-  const openDeleteModal = (studentId) => {
-    setStudentToDelete(studentId);
-    setShowDeleteModal(true);
-  };
-
-  const closeDeleteModal = () => {
-    setShowDeleteModal(false);
-    setStudentToDelete(null);
-  };
+    fetchStudents();
+  }, []);
 
   return (
-    <div className="open-page">
-         {/* Sidebar - Integrated Directly */}
-         <div className="sidebar">
-                {/* School Logo */}
-                <div className="sidebar-header">
-                  <div className="logo">{school?.name ? school.name.charAt(0) : "S"}</div>
-                  <div className="school-name">{school?.name || "School Dashboard"}</div>
-                </div>
-        
-                {/* User Profile */}
-                <div className="sidebar-profile">
-                  <img src={Image1} alt="User" className="profile-pic" />
-                  <div>
-                  <h4>{userProfile.fullName}</h4>
-                  <p className="user-role">{userProfile.role}</p>
-                </div>
-                </div>
-        
-                {/* Menu Items */}
-                <ul className="sidebar-nav">
-                <li>
-                    <NavLink to="/dashboard" className={({ isActive }) => isActive ? "active" : ""}>
-                    <FaHome className="icon" /> Dashboard
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink to="/chat" className={({ isActive }) => isActive ? "active" : ""}>
-                    <FaComments className="icon" /> Chat
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink to="/students" className={({ isActive }) => isActive ? "active" : ""}>
-                    <FaUserGraduate className="icon" /> Student <span className="badge">35</span>
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink to="/teachers" className={({ isActive }) => isActive ? "active" : ""}>
-                    <FaChalkboardTeacher className="icon" /> Teacher
-                    </NavLink>
-                </li>
-                <li>
-                    <NavLink to="/events" className={({ isActive }) => isActive ? "active" : ""}>
-                    <FaCalendar className="icon" /> Event
-                    </NavLink>
-                </li>
-                <li className="logout">
-                    <NavLink to="/logout">
-                    <FaSignOutAlt className="icon" /> Logout
-                    </NavLink>
-                </li>
-                </ul>
-              </div>
-        
-<div className="students-page">
-<Header2 />
-      <div className="students-content">
-        <main className="main-content">
-          <div className="header-section">
-            <h2>Student List</h2>
-            {!toggleEditStudent ? (
-              <button
-                onClick={() => setToggleAddStudent(!toggleAddStudent)}
-                className="add-stock-button"
-              >
-                {toggleAddStudent ? "Manage Students" : "Upload Students"}
-              </button>
-            ) : (
-              <button
-                onClick={() => setToggleEditStudent(!toggleEditStudent)}
-                className="add-stock-button"
-              >
-                Manage Students
-              </button>
-            )}
-          </div>
-          <>
-            {toggleEditStudent ? (
-              <UploadStudent student={studentToEditDetails} />
-            ) : !toggleAddStudent ? (
-              <>
-                <table className="student-table">
-                  <thead>
-                    <tr>
-                      <th>Student Name</th>
-                      <th>Class</th>
-                      <th className="hidden md:table-cell">ID Number</th>
-                      <th className="hidden md:table-cell">Date of Birth</th>
-                      <th className="hidden lg:table-cell">Phone Number</th>
-                      <th className="hidden md:table-cell">Address</th>
-                      <th>Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentStudents?.map((student) => (
-                      <tr key={student._id}>
-                        <td>{student.name}</td>
-                        <td>{student.class}</td>
-                        <td className="hidden md:table-cell">{student.idno}</td>
-                        <td className="hidden md:table-cell">{student.dob}</td>
-                        <td className="hidden lg:table-cell">{student.phone}</td>
-                        <td className="hidden md:table-cell">{student.address}</td>
-                        <td>
-                          <button
-                            onClick={() => {
-                              setStudentToEditDetails(student);
-                              setToggleEditStudent(!toggleEditStudent);
-                            }}
-                            className="mx-1"
-                          >
-                            <MdEdit />
-                          </button>
-                          <button
-                            onClick={() => openDeleteModal(student._id)}
-                            className="mx-1"
-                          >
-                            <MdDelete />
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <div className="pagination">
-                  <button onClick={prevPage} disabled={currentPage === 1}>
-                    Previous
-                  </button>
-                  <span>
-                    Showing {indexOfFirstStudent + 1}-{indexOfLastStudent} of {students?.length}
-                  </span>
-                  <button onClick={nextPage} disabled={currentPage === totalPages}>
-                    Next
-                  </button>
-                </div>
-              </>
-            ) : (
-              <UploadStudent />
-            )}
-          </>
-        </main>
-      </div>
+    <div className="students-container">
+      <Header2 title="Student Records" />
 
-      {showDeleteModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <p>Are you sure you want to delete the selected student?</p>
-            <div className="modal-actions">
-              <button onClick={handleDeleteStudent}>Yes</button>
-              <button onClick={closeDeleteModal}>No</button>
-            </div>
-          </div>
+      {loading ? (
+        <p className="students-loading">Loading students...</p>
+      ) : students.length === 0 ? (
+        <p className="students-empty">No students found.</p>
+      ) : (
+        <div className="students-tableWrapper">
+          <table className="students-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Class</th>
+                <th>ID No</th>
+                <th>DOB</th>
+                <th>Phone</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {students.map((student) => (
+                <tr key={student._id}>
+                  <td>{student.name}</td>
+                  <td>{student.class}</td>
+                  <td>{student.idno}</td>
+                  <td>{student.dob}</td>
+                  <td>{student.phone || "N/A"}</td>
+                  <td className="students-actions">
+                    <button className="students-edit">
+                      <MdEdit />
+                    </button>
+                    <button
+                      className="students-delete"
+                      onClick={() => handleDelete(student._id)}
+                    >
+                      <MdDelete />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
-    </div>
-    
   );
 };
 
-export default ManageStudents;
+export default Students;
