@@ -80,9 +80,9 @@ const ManageStudents = () => {
   };
 
   return (
-    <div className="students-page">
-        {/* Sidebar - Integrated Directly */}
-              <div className="sidebar">
+    <div className="open-page">
+         {/* Sidebar - Integrated Directly */}
+         <div className="sidebar">
                 {/* School Logo */}
                 <div className="sidebar-header">
                   <div className="logo">{school?.name ? school.name.charAt(0) : "S"}</div>
@@ -133,6 +133,7 @@ const ManageStudents = () => {
                 </ul>
               </div>
         
+<div className="students-page">
       <div className="students-content">
         <main className="main-content">
           <div className="header-section">
@@ -231,6 +232,8 @@ const ManageStudents = () => {
         </div>
       )}
     </div>
+    </div>
+    
   );
 };
 
