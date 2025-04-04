@@ -7,6 +7,7 @@ import Form from "../../general/register/Sign-up"; // School Registration Form
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { FaHome, FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt } from "react-icons/fa";
 import "./Dashboard.modules.css";
+import { NavLink } from "react-router-dom";
 import Image1 from "../../../assets/images/userrr.png"
 
 const Dashboard = () => {
@@ -156,13 +157,38 @@ const Dashboard = () => {
 
         {/* Menu Items */}
         <ul className="sidebar-nav">
-          <li><FaHome className="icon" /> Dashboard</li>
-          <li><FaComments className="icon" /> Chat</li>
-          <li><FaUserGraduate className="icon" /> Student <span className="badge">35</span></li>
-          <li><FaChalkboardTeacher className="icon" /> Teacher</li>
-          <li><FaCalendar className="icon" /> Event</li>
-          <li className="logout"><FaSignOutAlt className="icon" /> Logout</li>
-        </ul>
+  <li>
+    <NavLink to="/dashboard" className={({ isActive }) => isActive ? "active" : ""}>
+      <FaHome className="icon" /> Dashboard
+    </NavLink>
+  </li>
+  <li>
+    <NavLink to="/chat" className={({ isActive }) => isActive ? "active" : ""}>
+      <FaComments className="icon" /> Chat
+    </NavLink>
+  </li>
+  <li>
+    <NavLink to="/students" className={({ isActive }) => isActive ? "active" : ""}>
+      <FaUserGraduate className="icon" /> Student <span className="badge">35</span>
+    </NavLink>
+  </li>
+  <li>
+    <NavLink to="/teachers" className={({ isActive }) => isActive ? "active" : ""}>
+      <FaChalkboardTeacher className="icon" /> Teacher
+    </NavLink>
+  </li>
+  <li>
+    <NavLink to="/events" className={({ isActive }) => isActive ? "active" : ""}>
+      <FaCalendar className="icon" /> Event
+    </NavLink>
+  </li>
+  <li className="logout">
+    <NavLink to="/logout">
+      <FaSignOutAlt className="icon" /> Logout
+    </NavLink>
+  </li>
+</ul>
+
       </div>
 
       {/* Main Content - Starts After Sidebar */}
