@@ -26,6 +26,11 @@ const ManageStudents = () => {
    const [user, setUser] = useState(null);
     const [school, setSchool] = useState(null);
     const [schoolName, setSchoolName] = useState("Loading...");
+    const [schoolStats, setSchoolStats] = useState({
+      numberOfStudents: 0,
+      numberOfTeachers: 0,
+      numberOfClasses: 0,
+    });
     const [userProfile, setUserProfile] = useState({ fullName: "Loading...", role: "Loading..." });
     
   
@@ -130,6 +135,11 @@ const ManageStudents = () => {
           const schoolData = response.data.school || response.data; // Handle both API response structures
     
           setSchool(schoolData);
+          setSchoolStats({
+            numberOfStudents: schoolData.numberOfStudents || 0,
+            numberOfTeachers: schoolData.numberOfTeachers || 0,
+            numberOfClasses: schoolData.numberOfClasses || 0,
+          });
           console.log("Fetched School Data:", response.data);
         }
       } catch (error) {
