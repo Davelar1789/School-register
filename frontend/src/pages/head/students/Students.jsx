@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Students.modules.css";
 import UploadStudent from "../../../components/UploadStudent";
 import axios from '../../../api/axios';
@@ -6,6 +7,11 @@ import { MdDelete, MdEdit } from "react-icons/md";
 import Header2 from "../../../components/Header2";
 import { NavLink } from "react-router-dom";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import "@fortawesome/fontawesome-free/css/all.min.css";
+import { FaHome, FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt } from "react-icons/fa";
+import Image1 from "../../../assets/images/userrr.png"
 
 const ManageStudents = () => {
   const [students, setStudents] = useState([]);
@@ -24,7 +30,9 @@ const ManageStudents = () => {
     const [schoolName, setSchoolName] = useState("Loading...");
     const [userProfile, setUserProfile] = useState({ fullName: "Loading...", role: "Loading..." });
     
-    
+  
+    const navigate = useNavigate();
+  
     useEffect(() => {
       // Get user from local storage
       const storedUser = localStorage.getItem("user");
