@@ -3,6 +3,7 @@ import "./Students.modules.css";
 import UploadStudent from "../../../components/UploadStudent";
 import axios from '../../../api/axios';
 import { MdDelete, MdEdit } from "react-icons/md";
+import Header2 from "../../../components/Header2";
 import { NavLink } from "react-router-dom";
 import toast from "react-hot-toast";
 
@@ -134,6 +135,7 @@ const ManageStudents = () => {
               </div>
         
 <div className="students-page">
+<Header2 />
       <div className="students-content">
         <main className="main-content">
           <div className="header-section">

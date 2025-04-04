@@ -3,6 +3,7 @@ import HomePage from "./pages/general/homepage/HomePage";
 import Admission from "./pages/general/admission/Admission";
 import ApplyT from "./pages/general/admission/ApplyTeacher";
 import ApplyS from "./pages/general/admission/ApplyStudent";
+import Students from "./pages/head/students/Students"
 // import Dashboard from "./pages/admin2/dashboard/Dashboard";
 // import Events from "./pages/admin2/events/Events";
 // import Fees from "./pages/admin2/fees/Fees";
@@ -58,6 +59,10 @@ const router = createBrowserRouter([
       {
         path: "dashboard",
         element: <Welcome />,
+      },
+      {
+        path: "students",
+        element: <Students />,
       },
       {
         path: "sign-up",
