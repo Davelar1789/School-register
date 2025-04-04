@@ -59,7 +59,7 @@
     padding: 0;
   }
   
-  .sidebar-nav li {
+  .sidebar-nav li a {
     display: flex;
     align-items: center;
     gap: 10px;
