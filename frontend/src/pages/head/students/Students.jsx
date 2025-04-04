@@ -19,6 +19,124 @@ const ManageStudents = () => {
 
   const studentsPerPage = 8;
   const totalPages = Math.ceil(students?.length / studentsPerPage);
+   const [user, setUser] = useState(null);
+    const [school, setSchool] = useState(null);
+    const [schoolName, setSchoolName] = useState("Loading...");
+    const [userProfile, setUserProfile] = useState({ fullName: "Loading...", role: "Loading..." });
+    
+    
+    useEffect(() => {
+      // Get user from local storage
+      const storedUser = localStorage.getItem("user");
+      if (!storedUser) {
+        toast.error("Please login first.");
+        navigate("/sign-in");
+        return;
+      }
+  
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+  
+      // ✅ Fetch school based on user ID
+      fetchSchool(parsedUser._id);
+    }, [navigate]);
+  
+    useEffect(() => {
+      const fetchUserProfile = async () => {
+        try {
+          const token = localStorage.getItem("token");
+          if (!token) {
+            console.error("No token found, please log in again.");
+            return;
+          }
+    
+          const response = await api.get("/api/users/profile", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+    
+          if (response.data) {
+            setUserProfile({
+              fullName: response.data.fullName || "Unknown",
+              role: response.data.role || "User",
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+        }
+      };
+    
+      fetchUserProfile();
+    }, []);
+  
+    useEffect(() => {
+  
+      const fetchSchoolName = async () => {
+        try {
+  
+          // Get user from localStorage
+          const storedUser = localStorage.getItem("user");
+          if (!storedUser) {
+            return;
+          }
+  
+          const parsedUser = JSON.parse(storedUser);
+          const userId = parsedUser._id; // Get logged-in user ID
+  
+          const token = localStorage.getItem("token");
+          if (!token) {
+            return;
+          }
+  
+          // Fetch all schools from the database
+          const response = await api.get("/api/schools", {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+  
+  
+          // Find the school where user ID matches
+          const userSchool = response.data.find((school) => school.user.toString() === userId);
+  
+          if (userSchool) {
+            setSchoolName(userSchool.name); // Set school name if found
+          } else {
+            console.log("❌ No school found for this user.");
+          }
+        } catch (error) {
+          console.error("🚨 Error fetching school name:", error);
+        }
+      };
+  
+      fetchSchoolName();
+    }, []);
+  
+    const fetchSchool = async (userId) => {
+      try {
+        const token = localStorage.getItem("token"); // Get token from local storage
+        if (!token) {
+          throw new Error("No token found, please log in again.");
+        }
+    
+        const response = await api.get(`/api/schools/user/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` }, // ✅ Send token in headers
+        });
+    
+        if (response.data) {
+          const schoolData = response.data.school || response.data; // Handle both API response structures
+    
+          setSchool(schoolData);
+          setSchoolStats({
+            numberOfStudents: schoolData.numberOfStudents || 0,
+            numberOfTeachers: schoolData.numberOfTeachers || 0,
+            numberOfClasses: schoolData.numberOfClasses || 0,
+          });
+          console.log("Fetched School Data:", response.data);
+        }
+      } catch (error) {
+        console.error("Error fetching school:", error);
+      }
+    };
+    
+    if (!user) return null; // Prevent rendering if user is still loading
 
   const fetchAllStudents = async () => {
     await axios
