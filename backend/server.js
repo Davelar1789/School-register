@@ -7,7 +7,7 @@ import cors from "cors";
 import schoolRoutes from "./routes/SchoolRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import saRoutes from "./routes/Saschool.js";
-
+import studentRoutes from "./routes/student.js"
 import { authToken } from "./middleware/authToken.js";
 import { verifyAdmin } from "./middleware/verifyAdmin.js";
 import { verifyTeacher } from "./middleware/verifyTeacher.js";
@@ -39,6 +39,7 @@ app.post("/api/", (req, res) => {
 app.use("/api/schools", schoolRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/superschool", saRoutes);
+app.use("/api/student", studentRoutes);
 
 
 
