@@ -7,8 +7,6 @@ import { MdDelete, MdEdit } from "react-icons/md";
 import Header2 from "../../../components/Header2";
 import { NavLink } from "react-router-dom";
 import toast from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-hot-toast";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { FaHome, FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt } from "react-icons/fa";
 import Image1 from "../../../assets/images/userrr.png"
