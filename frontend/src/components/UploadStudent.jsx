@@ -66,7 +66,7 @@ const UploadStudent = ({ student }) => {
     }
 
     axios
-      .post("/api/admin/manage-students/add", studentDetails)
+      .post("/api/student/manage-students/add", studentDetails)
       .then(() => {
         setStudentDetails({
           name: "",
@@ -93,7 +93,7 @@ const UploadStudent = ({ student }) => {
     const updatedStudentDetails = { ...studentDetails, id: student._id };
   
     await axios
-      .put("/api/admin/manage-students/edit", updatedStudentDetails, {
+      .put("/api/student/manage-students/edit", updatedStudentDetails, {
         withCredentials: true,
       })
       .then(() => {

@@ -20,7 +20,7 @@ const ManageStudents = () => {
 
   const fetchAllStudents = async () => {
     await axios
-      .get("/api/get-all-students")
+      .get("/api/student/get-all-students")
       .then((res) => {
         setStudents(res.data.data);
       })
@@ -57,7 +57,7 @@ const ManageStudents = () => {
   const handleDeleteStudent = async () => {
     if (studentToDelete) {
       await axios
-        .post("/api/admin/manage-students/delete", { studentId: studentToDelete }, { withCredentials: true })
+        .post("/api/student/manage-students/delete", { studentId: studentToDelete }, { withCredentials: true })
         .then(() => {
           fetchAllStudents();
           toast.success("Student deleted successfully");

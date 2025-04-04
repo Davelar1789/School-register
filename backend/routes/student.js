@@ -1,5 +1,4 @@
 import express from "express";
-import { authToken } from "../../middleware/authToken.js";
 import {
   getAllStudents,
   getStudentDetails,
