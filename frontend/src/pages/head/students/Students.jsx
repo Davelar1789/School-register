@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Students.modules.css";
 import UploadStudent from "../../../components/UploadStudent";
-import axios from '../../../api/axios';
+import api from '../../../api/axios';
 import { MdDelete, MdEdit } from "react-icons/md";
 import Header2 from "../../../components/Header2";
 import { NavLink } from "react-router-dom";
@@ -145,7 +145,7 @@ const ManageStudents = () => {
     if (!user) return null; // Prevent rendering if user is still loading
 
   const fetchAllStudents = async () => {
-    await axios
+    await api
       .get("/api/student/get-all-students")
       .then((res) => {
         setStudents(res.data.data);
@@ -182,7 +182,7 @@ const ManageStudents = () => {
 
   const handleDeleteStudent = async () => {
     if (studentToDelete) {
-      await axios
+      await api
         .post("/api/student/manage-students/delete", { studentId: studentToDelete }, { withCredentials: true })
         .then(() => {
           fetchAllStudents();
