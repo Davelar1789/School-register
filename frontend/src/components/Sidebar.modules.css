@@ -1,3 +1,4 @@
+/* Sidebar */
 .sidebar {
   width: 250px;
   height: 100vh;
@@ -59,7 +60,7 @@
   padding: 0;
 }
 
-.sidebar-nav li {
+.sidebar-nav li a {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -68,6 +69,13 @@
   cursor: pointer;
   transition: 0.3s;
 }
+
+
+.sidebar-nav li a.active {
+  background: rgba(255, 255, 255, 0.1);
+  font-weight: bold;
+}
+
 
 .sidebar-nav li:hover {
   background: rgba(255, 255, 255, 0.1);
@@ -91,4 +99,10 @@
 .logout {
   margin-top: auto;
   color: #ff4d4d;
+}
+
+@media screen and (max-width: 768px) {
+  .sidebar {
+    display: none !important;
+  }
 }
