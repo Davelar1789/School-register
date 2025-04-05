@@ -7,7 +7,7 @@ import api from "../api/axios"; // Ensure this is the correct API instance
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
-import Image1 from "../../../assets/images/userrr.png"
+import Image1 from "../assets/images/userrr.png"
 
 
 const Sidebar = () => {
