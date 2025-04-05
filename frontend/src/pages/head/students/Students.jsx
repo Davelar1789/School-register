@@ -4,6 +4,7 @@ import { MdDelete, MdEdit } from "react-icons/md";
 import Header2 from "../../../components/Header2";
 import toast from "react-hot-toast";
 import "./Students.modules.css";
+import Sidebar from "../../../components/Sidebar";
 
 const Students = () => {
   const [students, setStudents] = useState([]);
@@ -104,6 +105,8 @@ const Students = () => {
   const uniqueClasses = [...new Set(students.map((s) => s.class))];
 
   return (
+    <div className="full-page">
+      <Sidebar />
     <div className="students-container">
       <Header2 title="Student Records" />
 
@@ -194,6 +197,7 @@ const Students = () => {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };
