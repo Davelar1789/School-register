@@ -1,4 +1,15 @@
 /* pages/dashboard/students/Students.modules.css */
+.full-page {
+  display: flex;
+  height: 100vh;
+  background-color: #1b1c30;
+}
+
+@media screen and (max-width: 768px) {
+  .full-page {
+    display: block !important; /* Removes flex */
+  }
+}
 
 .students-container {
     padding: 2rem;
