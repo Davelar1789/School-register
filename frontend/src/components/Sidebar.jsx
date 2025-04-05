@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaHome, FaUser, FaCommentDots, FaUsers, FaCalendarAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import "./Sidebar.modules.css";
+import "../pages/head/students/Students.modules.css";
 import { toast } from "react-hot-toast";
 import api from "../api/axios"; // Ensure this is the correct API instance
 import "@fortawesome/fontawesome-free/css/all.min.css";
@@ -10,7 +10,7 @@ import { NavLink } from "react-router-dom";
 import Image1 from "../assets/images/userrr.png"
 
 
-const Sidebar = () => {
+const Sidebar = ({ school, userProfile }) => {
   const [user, setUser] = useState(null);
   const [school, setSchool] = useState(null);
   const [schoolName, setSchoolName] = useState("Loading...");
