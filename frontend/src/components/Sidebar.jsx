@@ -3,7 +3,7 @@ import { FaHome, FaUser, FaCommentDots, FaUsers, FaCalendarAlt } from "react-ico
 import { useNavigate } from "react-router-dom";
 import "./Sidebar.modules.css";
 import { toast } from "react-hot-toast";
-import api from "../../../api/axios"; // Ensure this is the correct API instance
+import api from "../api/axios"; // Ensure this is the correct API instance
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
