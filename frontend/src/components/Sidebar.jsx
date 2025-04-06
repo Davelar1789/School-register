@@ -79,8 +79,8 @@ const Sidebar = () => {
             <div className="sidebar-profile">
               <img src={Image1} alt="User" className="profile-pic" />
               <div>
-              <h4>{userProfile.fullName}</h4>
-              <p className="user-role">{userProfile.role}</p>
+              <h4>{user.fullName}</h4>
+              <p className="user-role">{user.role}</p>
             </div>
             </div>
     
