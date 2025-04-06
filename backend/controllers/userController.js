@@ -1,12 +1,16 @@
 import User from "../models/User.model.js";
+import School from "../models/School.model.js"; // Make sure this path is correct
 import jwt from "jsonwebtoken";
 import asyncHandler from "express-async-handler";
 
 
 // Generate JWT Token
-const generateToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, { expiresIn: "24h" });
+const generateToken = ({ id, fullName, role, schoolName }) => {
+  return jwt.sign({ id, fullName, role, schoolName }, process.env.JWT_SECRET, {
+    expiresIn: "24h",
+  });
 };
+
 
 // Register new user
 export const registerUser = async (req, res) => {
@@ -40,28 +44,46 @@ export const registerUser = async (req, res) => {
 };
 
 export const loginUser = async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      const user = await User.findOne({ email });
-  
-      if (!user || !(await user.matchPassword(password))) {
-        return res.status(401).json({ message: "Invalid email or password" });
-      }
-  
-      res.status(200).json({
-        message: "Login successful",
-        user: {
-          _id: user._id,
-          fullName: user.fullName,
-          email: user.email,
-          token: generateToken(user._id),
-          role: user.role, // Include user role
-        },
-      });
-    } catch (error) {
-      res.status(500).json({ message: error.message });
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user || !(await user.matchPassword(password))) {
+      return res.status(401).json({ message: "Invalid email or password" });
     }
-  };
+
+    let schoolName = "Unknown School";
+
+    // Optional: If user has a schoolId, fetch the school name
+    if (user.schoolId) {
+      const school = await School.findById(user.schoolId);
+      if (school) {
+        schoolName = school.name;
+      }
+    }
+
+    const token = generateToken({
+      id: user._id,
+      fullName: user.fullName,
+      role: user.role,
+      schoolName,
+    });
+
+    res.status(200).json({
+      message: "Login successful",
+      user: {
+        _id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        role: user.role,
+        token, // Enhanced token with fullName, role, schoolName
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
   
   // Get total number of users
 export const getUserCount = async (req, res) => {
