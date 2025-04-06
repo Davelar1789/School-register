@@ -10,6 +10,7 @@ import { jwtDecode } from "jwt-decode";
 
 const Sidebar = () => {
   const [user, setUser] = useState(null);
+  const [school, setSchool] = useState(null)
   const [schoolStats, setSchoolStats] = useState({
     numberOfStudents: 0,
     numberOfTeachers: 0,
