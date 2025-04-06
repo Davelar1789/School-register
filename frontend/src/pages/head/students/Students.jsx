@@ -24,7 +24,7 @@ const Students = () => {
 
   const fetchStudents = async () => {
     try {
-      const res = await api.get("/students");
+      const res = await api.get("/api/student");
       setStudents(res.data);
       setFilteredStudents(res.data);
     } catch (err) {
