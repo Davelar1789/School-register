@@ -200,6 +200,7 @@ const Students = () => {
                 name="class"
                 onChange={handleInputChange}
                 value={newStudent.class}
+                className="students-modalInput"
               >
                 <option value="">Select Class</option>
                 <option value="Creche">Creche</option>
@@ -215,6 +216,7 @@ const Students = () => {
                 <option value="JHS 2">JHS 2</option>
                 <option value="JHS 3">JHS 3</option>
               </select>
+
              {/* Removed idno input and added date picker for dob */}
               <input
                 name="dob"
