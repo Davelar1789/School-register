@@ -21,8 +21,8 @@ const studentSchema = new Schema(
   {
     name: { type: String, required: true, trim: true },
     class: { type: String, required: true, trim: true },
-    idno: { type: String, required: true, unique: true, trim: true },
-    dob: { type: String, required: true },
+    idno: { type: String, unique: true, trim: true }, // No longer required here
+    dob: { type: Date, required: true }, // Changed from String to Date
     phone: { type: String, trim: true },
     address: { type: String, trim: true },
     images: [{ type: String }],
@@ -34,14 +34,15 @@ const studentSchema = new Schema(
       totalFees: { type: Number, default: 0 },
       paid: { type: Boolean, default: false }
     }],
-    attendance: [attendanceSchema], // Add attendance field
-    totalAttendance: Number, // Add total attendance field
-    year: String, // Add year field
+    attendance: [attendanceSchema],
+    totalAttendance: Number,
+    year: String,
     termBeginDate: { type: Date },
     termEndDate: { type: Date },
   },
   { timestamps: true }
 );
+
 
 const Students = model("students", studentSchema);
 export default Students;

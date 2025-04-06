@@ -2,16 +2,38 @@
 
 import Students from "../models/Student.model.js";
 
+const generateUniqueId = async () => {
+  let idExists = true;
+  let newId;
+
+  while (idExists) {
+    newId = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit
+    const existingStudent = await Students.findOne({ idno: newId });
+    idExists = !!existingStudent;
+  }
+
+  return newId;
+};
+
 // Create student
 export const createStudent = async (req, res) => {
   try {
-    const newStudent = new Students(req.body);
+    const idno = await generateUniqueId();
+
+    const studentData = {
+      ...req.body,
+      idno,
+    };
+
+    const newStudent = new Students(studentData);
     const savedStudent = await newStudent.save();
+
     res.status(201).json(savedStudent);
   } catch (error) {
     res.status(400).json({ message: "Error creating student", error });
   }
 };
+
 
 // Get all students
 export const getAllStudents = async (req, res) => {
