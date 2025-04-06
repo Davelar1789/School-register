@@ -3,15 +3,13 @@ import { FaHome, FaUser, FaCommentDots, FaUsers, FaCalendarAlt, FaComments, FaUs
 import { useNavigate, NavLink } from "react-router-dom";
 import "../pages/head/students/Students.modules.css";
 import { toast } from "react-hot-toast";
-import api from "../api/axios"; // Ensure this is the correct API instance
+import api from "../api/axios"; // API instance
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import Image1 from "../assets/images/userrr.png";
+import jwt_decode from "jwt-decode";
 
 const Sidebar = () => {
   const [user, setUser] = useState(null);
-  const [school, setSchool] = useState(null);
-  const [schoolName, setSchoolName] = useState("Loading...");
-  const [userProfile, setUserProfile] = useState({ fullName: "Loading...", role: "Loading..." });
   const [schoolStats, setSchoolStats] = useState({
     numberOfStudents: 0,
     numberOfTeachers: 0,
@@ -21,99 +19,27 @@ const Sidebar = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (!storedUser) {
+    const token = localStorage.getItem("token");
+
+    if (!token) {
       toast.error("Please login first.");
       navigate("/sign-in");
       return;
     }
 
-    const parsedUser = JSON.parse(storedUser);
-    setUser(parsedUser);
-    fetchSchool(parsedUser._id);
+    const decoded = jwt_decode(token);
+    setUser({
+      id: decoded.id,
+      fullName: decoded.fullName,
+      role: decoded.role,
+      schoolName: decoded.schoolName,
+    });
+
+    fetchSchool(decoded.id);
   }, [navigate]);
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("No token found, please log in again.");
-          return;
-        }
 
-        const response = await api.get("/api/users/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (response.data) {
-          setUserProfile({
-            fullName: response.data.fullName || "Unknown",
-            role: response.data.role || "User",
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      }
-    };
-
-    fetchUserProfile();
-  }, []);
-
-  useEffect(() => {
-    const fetchSchoolName = async () => {
-      try {
-        const storedUser = localStorage.getItem("user");
-        if (!storedUser) return;
-
-        const parsedUser = JSON.parse(storedUser);
-        const token = localStorage.getItem("token");
-        if (!token) return;
-
-        const response = await api.get("/api/schools", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const userSchool = response.data.find((school) => school.user.toString() === parsedUser._id);
-
-        if (userSchool) {
-          setSchoolName(userSchool.name);
-        } else {
-          console.log("❌ No school found for this user.");
-        }
-      } catch (error) {
-        console.error("🚨 Error fetching school name:", error);
-      }
-    };
-
-    fetchSchoolName();
-  }, []);
-
-  const fetchSchool = async (userId) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("No token found, please log in again.");
-
-      const response = await api.get(`/api/schools/user/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (response.data) {
-        const schoolData = response.data.school || response.data;
-        setSchool(schoolData);
-        setSchoolStats({
-          numberOfStudents: schoolData.numberOfStudents || 0,
-          numberOfTeachers: schoolData.numberOfTeachers || 0,
-          numberOfClasses: schoolData.numberOfClasses || 0,
-        });
-        console.log("Fetched School Data:", response.data);
-      }
-    } catch (error) {
-      console.error("Error fetching school:", error);
-    }
-  };
-
-  if (!user) return null; // prevent rendering until user is loaded
+  if (!user) return null;
 
   return (
     <div className="sidebar">
