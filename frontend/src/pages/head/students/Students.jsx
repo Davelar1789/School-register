@@ -196,7 +196,6 @@ const Students = () => {
             <h3>Add New Student</h3>
             <div className="students-modalForm">
               <input name="name" placeholder="Name" onChange={handleInputChange} value={newStudent.name} />
-              <input>
               <select
                 name="class"
                 onChange={handleInputChange}
@@ -217,7 +216,6 @@ const Students = () => {
                 <option value="JHS 2">JHS 2</option>
                 <option value="JHS 3">JHS 3</option>
               </select>
-              </input>
 
              {/* Removed idno input and added date picker for dob */}
               <input
