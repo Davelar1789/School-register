@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { FaHome, FaUser, FaCommentDots, FaUsers, FaCalendarAlt } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
+import { FaHome, FaUser, FaCommentDots, FaUsers, FaCalendarAlt, FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt } from "react-icons/fa";
+import { useNavigate, NavLink } from "react-router-dom";
 import "../pages/head/students/Students.modules.css";
 import { toast } from "react-hot-toast";
 import api from "../api/axios"; // Ensure this is the correct API instance
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import { FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt } from "react-icons/fa";
-import { NavLink } from "react-router-dom";
-import Image1 from "../assets/images/userrr.png"
+import Image1 from "../assets/images/userrr.png";
 
-
-const Sidebar = ({ school, userProfile }) => {
+const Sidebar = () => {
   const [user, setUser] = useState(null);
   const [school, setSchool] = useState(null);
   const [schoolName, setSchoolName] = useState("Loading...");
@@ -24,7 +21,6 @@ const Sidebar = ({ school, userProfile }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get user from local storage
     const storedUser = localStorage.getItem("user");
     if (!storedUser) {
       toast.error("Please login first.");
@@ -34,8 +30,6 @@ const Sidebar = ({ school, userProfile }) => {
 
     const parsedUser = JSON.parse(storedUser);
     setUser(parsedUser);
-
-    // ✅ Fetch school based on user ID
     fetchSchool(parsedUser._id);
   }, [navigate]);
 
@@ -47,11 +41,11 @@ const Sidebar = ({ school, userProfile }) => {
           console.error("No token found, please log in again.");
           return;
         }
-  
+
         const response = await api.get("/api/users/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
-  
+
         if (response.data) {
           setUserProfile({
             fullName: response.data.fullName || "Unknown",
@@ -62,40 +56,28 @@ const Sidebar = ({ school, userProfile }) => {
         console.error("Error fetching user profile:", error);
       }
     };
-  
+
     fetchUserProfile();
   }, []);
 
   useEffect(() => {
-
     const fetchSchoolName = async () => {
       try {
-
-        // Get user from localStorage
         const storedUser = localStorage.getItem("user");
-        if (!storedUser) {
-          return;
-        }
+        if (!storedUser) return;
 
         const parsedUser = JSON.parse(storedUser);
-        const userId = parsedUser._id; // Get logged-in user ID
-
         const token = localStorage.getItem("token");
-        if (!token) {
-          return;
-        }
+        if (!token) return;
 
-        // Fetch all schools from the database
         const response = await api.get("/api/schools", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-
-        // Find the school where user ID matches
-        const userSchool = response.data.find((school) => school.user.toString() === userId);
+        const userSchool = response.data.find((school) => school.user.toString() === parsedUser._id);
 
         if (userSchool) {
-          setSchoolName(userSchool.name); // Set school name if found
+          setSchoolName(userSchool.name);
         } else {
           console.log("❌ No school found for this user.");
         }
@@ -109,18 +91,15 @@ const Sidebar = ({ school, userProfile }) => {
 
   const fetchSchool = async (userId) => {
     try {
-      const token = localStorage.getItem("token"); // Get token from local storage
-      if (!token) {
-        throw new Error("No token found, please log in again.");
-      }
-  
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found, please log in again.");
+
       const response = await api.get(`/api/schools/user/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` }, // ✅ Send token in headers
+        headers: { Authorization: `Bearer ${token}` },
       });
-  
+
       if (response.data) {
-        const schoolData = response.data.school || response.data; // Handle both API response structures
-  
+        const schoolData = response.data.school || response.data;
         setSchool(schoolData);
         setSchoolStats({
           numberOfStudents: schoolData.numberOfStudents || 0,
@@ -133,8 +112,8 @@ const Sidebar = ({ school, userProfile }) => {
       console.error("Error fetching school:", error);
     }
   };
-  
-  if (!user) return null; // Prevent rendering if user is still loading
+
+  if (!user) return null; // prevent rendering until user is loaded
 
   return (
     <div className="sidebar">
