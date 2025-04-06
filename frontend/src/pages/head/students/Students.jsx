@@ -200,7 +200,7 @@ const Students = () => {
                 name="class"
                 onChange={handleInputChange}
                 value={newStudent.class}
-                className="students-modalInput"
+                className="students-modalForm input"
               >
                 <option value="">Select Class</option>
                 <option value="Creche">Creche</option>
