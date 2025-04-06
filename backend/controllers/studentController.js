@@ -1,6 +1,8 @@
 // controllers/studentController.js
 
 import Students from "../models/Student.model.js";
+import School from "../models/School.model.js"; // ⬅️ Import the School model if not already
+
 
 const generateUniqueId = async () => {
   let idExists = true;
@@ -15,7 +17,6 @@ const generateUniqueId = async () => {
   return newId;
 };
 
-// Create student
 export const createStudent = async (req, res) => {
   try {
     const idno = await generateUniqueId();
@@ -27,6 +28,18 @@ export const createStudent = async (req, res) => {
 
     const newStudent = new Students(studentData);
     const savedStudent = await newStudent.save();
+
+    // ✅ STEP 1: Find the school associated with this student
+    // You may pass schoolId in req.body, or find it via req.user.schoolId if user is logged in
+    const schoolId = req.body.schoolId || req.user?.schoolId;
+
+    if (schoolId) {
+      // ✅ STEP 2: Increment the numberOfStudents in that school
+      await School.findByIdAndUpdate(
+        schoolId,
+        { $inc: { numberOfStudents: 1 } }
+      );
+    }
 
     res.status(201).json(savedStudent);
   } catch (error) {
