@@ -18,6 +18,30 @@ const Sidebar = () => {
 
   const navigate = useNavigate();
 
+  const fetchSchool = async (userId) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found, please log in again.");
+  
+      const response = await api.get(`/api/schools/user/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
+      if (response.data) {
+        const schoolData = response.data.school || response.data;
+        setSchoolStats({
+          numberOfStudents: schoolData.numberOfStudents || 0,
+          numberOfTeachers: schoolData.numberOfTeachers || 0,
+          numberOfClasses: schoolData.numberOfClasses || 0,
+        });
+        console.log("Fetched School Data:", response.data);
+      }
+    } catch (error) {
+      console.error("Error fetching school:", error);
+    }
+  };
+  
+
   useEffect(() => {
     const token = localStorage.getItem("token");
 
