@@ -271,6 +271,14 @@ body {
     border: 1px solid #ddd;
     border-radius: 6px;
   }
+
+  .students-modalForm-input {
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+  }
   
   .students-modalButtons {
     display: flex;
