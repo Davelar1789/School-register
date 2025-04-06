@@ -16,11 +16,11 @@ const Students = () => {
   const [newStudent, setNewStudent] = useState({
     name: "",
     class: "",
-    idno: "",
     dob: "",
     phone: "",
     address: "",
   });
+  
 
   const fetchStudents = async () => {
     try {
@@ -73,13 +73,20 @@ const Students = () => {
   };
 
   const handleAddStudent = async () => {
-    const { name, class: studentClass, idno, dob } = newStudent;
-    if (!name || !studentClass || !idno || !dob) {
+    const { name, class: studentClass, dob } = newStudent;
+  
+    if (!name || !studentClass || !dob) {
       toast.error("Please fill in all required fields.");
       return;
     }
+  
+    const generatedId = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit ID
+  
     try {
-      const res = await api.post("/api/student", newStudent);
+      const res = await api.post("/api/student", {
+        ...newStudent,
+        idno: generatedId,
+      });
       setStudents((prev) => [...prev, res.data]);
       setFilteredStudents((prev) => [...prev, res.data]);
       toast.success("Student added successfully");
@@ -87,7 +94,6 @@ const Students = () => {
       setNewStudent({
         name: "",
         class: "",
-        idno: "",
         dob: "",
         phone: "",
         address: "",
@@ -97,6 +103,7 @@ const Students = () => {
       toast.error("Failed to add student");
     }
   };
+  
 
   useEffect(() => {
     fetchStudents();
@@ -185,8 +192,13 @@ const Students = () => {
             <div className="students-modalForm">
               <input name="name" placeholder="Name" onChange={handleInputChange} value={newStudent.name} />
               <input name="class" placeholder="Class" onChange={handleInputChange} value={newStudent.class} />
-              <input name="idno" placeholder="ID Number" onChange={handleInputChange} value={newStudent.idno} />
-              <input name="dob" placeholder="Date of Birth" onChange={handleInputChange} value={newStudent.dob} />
+             {/* Removed idno input and added date picker for dob */}
+              <input
+                name="dob"
+                type="date"
+                onChange={handleInputChange}
+                value={newStudent.dob}
+              />
               <input name="phone" placeholder="Phone (optional)" onChange={handleInputChange} value={newStudent.phone} />
               <input name="address" placeholder="Address (optional)" onChange={handleInputChange} value={newStudent.address} />
             </div>
