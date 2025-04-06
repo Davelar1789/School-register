@@ -108,6 +108,10 @@
   }
 }
 
+body {
+  background-color: #1b1c30;
+}
+
 .full-page {
   display: flex;
   height: 100vh;
@@ -125,6 +129,15 @@
     margin-top: 60px; /* Adjust to match header height */
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin-left: 250px;
+    flex: 1;
+    flex-direction: column;
+  }
+
+  @media screen and (max-width: 768px) {
+    .students-container {
+      margin-left: 0px !important; /* Ensures sidebar is accounted for */
+      display: block;
+    }
   }
   
   .students-loading,
