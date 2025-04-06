@@ -31,11 +31,17 @@ const Sidebar = () => {
   
       if (response.data) {
         const schoolData = response.data.school || response.data;
+      
+        // Save full school info
+        setSchool(schoolData);
+      
+        // Save stats
         setSchoolStats({
           numberOfStudents: schoolData.numberOfStudents || 0,
           numberOfTeachers: schoolData.numberOfTeachers || 0,
           numberOfClasses: schoolData.numberOfClasses || 0,
         });
+      
         console.log("Fetched School Data:", response.data);
       }
     } catch (error) {
