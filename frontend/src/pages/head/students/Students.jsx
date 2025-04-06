@@ -79,7 +79,7 @@ const Students = () => {
       return;
     }
     try {
-      const res = await api.post("/api/students", newStudent);
+      const res = await api.post("/api/student", newStudent);
       setStudents((prev) => [...prev, res.data]);
       setFilteredStudents((prev) => [...prev, res.data]);
       toast.success("Student added successfully");
