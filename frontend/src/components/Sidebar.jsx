@@ -6,7 +6,7 @@ import { toast } from "react-hot-toast";
 import api from "../api/axios"; // API instance
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import Image1 from "../assets/images/userrr.png";
-import jwt_decode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 const Sidebar = () => {
   const [user, setUser] = useState(null);
@@ -27,7 +27,7 @@ const Sidebar = () => {
       return;
     }
 
-    const decoded = jwt_decode(token);
+    const decoded = jwtDecode(token);
     setUser({
       id: decoded.id,
       fullName: decoded.fullName,
