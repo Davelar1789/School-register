@@ -83,10 +83,15 @@ const Students = () => {
     const generatedId = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit ID
   
     try {
+      // Truncate DOB to YYYY-MM-DD format
+      const formattedDOB = newStudent.dob.split("T")[0];
+  
       const res = await api.post("/api/student", {
         ...newStudent,
+        dob: formattedDOB,
         idno: generatedId,
       });
+  
       setStudents((prev) => [...prev, res.data]);
       setFilteredStudents((prev) => [...prev, res.data]);
       toast.success("Student added successfully");
@@ -191,7 +196,25 @@ const Students = () => {
             <h3>Add New Student</h3>
             <div className="students-modalForm">
               <input name="name" placeholder="Name" onChange={handleInputChange} value={newStudent.name} />
-              <input name="class" placeholder="Class" onChange={handleInputChange} value={newStudent.class} />
+              <select
+                name="class"
+                onChange={handleInputChange}
+                value={newStudent.class}
+              >
+                <option value="">Select Class</option>
+                <option value="Creche">Creche</option>
+                <option value="Nursery 1">Nursery 1</option>
+                <option value="Nursery 2">Nursery 2</option>
+                <option value="Primary 1">Primary 1</option>
+                <option value="Primary 2">Primary 2</option>
+                <option value="Primary 3">Primary 3</option>
+                <option value="Primary 4">Primary 4</option>
+                <option value="Primary 5">Primary 5</option>
+                <option value="Primary 6">Primary 6</option>
+                <option value="JHS 1">JHS 1</option>
+                <option value="JHS 2">JHS 2</option>
+                <option value="JHS 3">JHS 3</option>
+              </select>
              {/* Removed idno input and added date picker for dob */}
               <input
                 name="dob"
