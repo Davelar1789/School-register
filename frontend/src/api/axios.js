@@ -6,4 +6,16 @@ const api = axios.create({
   withCredentials: true, // Required if cookies are used for authentication
 });
 
+axios.interceptors.response.use(
+  response => response,
+  error => {
+    if (error.response?.status === 401 && error.response.data?.message === "Token expired. Please log in again.") {
+      // Redirect to login or logout
+      localStorage.removeItem("token");
+      window.location.href = "/login";
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;

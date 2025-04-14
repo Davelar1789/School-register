@@ -11,8 +11,11 @@ export const protect = async (req, res, next) => {
       req.user = await User.findById(decoded.id).select("-password");
       next();
     } catch (error) {
-      res.status(401).json({ message: "Not authorized, invalid token." });
-    }
+      if (error.name === "TokenExpiredError") {
+        return res.status(401).json({ message: "Token expired. Please log in again." });
+      }
+      return res.status(401).json({ message: "Not authorized, invalid token." });
+    }    
   } else {
     res.status(401).json({ message: "Not authorized, no token." });
   }
