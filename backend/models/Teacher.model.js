@@ -1,26 +1,50 @@
-import { Schema, model } from "mongoose";
+// models/Teacher.model.js
+import mongoose from "mongoose";
 
-const teacherSchema = new Schema(
-  {
-    name: String,
-    class: String,
-    salary: String,
-    description: String,
-    subject: String,
-    numberOfProductsAvailable: String,
-    department: Array,
-    images: Array,
-    quantitiesSold: Number,
-    reviews: [
-      {
-        userId: String,
-        comment: String,
-        rating: String,
-      },
-    ],
+const teacherSchema = new mongoose.Schema({
+  school: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "School",
+    required: true,
   },
-  { timestamps: true }
-);
+  name: {
+    type: String,
+    required: true,
+  },
+  staffId: {
+    type: String,
+    unique: true,
+    required: true,
+  },
+  gender: String,
+  dob: Date,
+  phone: String,
+  email: {
+    type: String,
+    unique: true,
+    sparse: true,
+  },
+  address: String,
+  qualification: String,
+  subjectSpecialization: [String],
+  classAssigned: String,
+  joinedDate: {
+    type: Date,
+    default: Date.now,
+  },
+  image: String,
+  emergencyContact: {
+    name: String,
+    relation: String,
+    phone: String,
+  },
+  status: {
+    type: String,
+    enum: ["Active", "On Leave", "Retired"],
+    default: "Active",
+  },
+}, { timestamps: true });
 
-const Teachers = model("teachers", teacherSchema);
-export default Teachers;
+const Teacher = mongoose.model("Teacher", teacherSchema);
+
+export default Teacher;
