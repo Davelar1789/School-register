@@ -39,6 +39,9 @@ const studentSchema = new Schema(
     year: String,
     termBeginDate: { type: Date },
     termEndDate: { type: Date },
+
+    schoolId: { type: Schema.Types.ObjectId, ref: "schools", required: true },
+
   },
   { timestamps: true }
 );
