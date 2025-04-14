@@ -1,5 +1,23 @@
+body {
+    background-color: #1b1c30;
+  }
+  
+  .full-page {
+    display: flex;
+    height: 100vh;
+    background-color: #1b1c30;
+  }
+  
+  @media screen and (max-width: 768px) {
+    .full-page {
+      display: block !important; /* Removes flex */
+    }
+  }
+
 .teachers-container {
     display: flex;
+    margin-left: 250px;
+    margin-top: 60px;
     flex-direction: column;
     height: 100vh;
   }
