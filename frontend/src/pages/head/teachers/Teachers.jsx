@@ -4,6 +4,8 @@ import "./Teachers.modules.css";
 import Header from "../../../components/Header2";
 import Sidebar from "../../../components/Sidebar";
 import axios from "../../../api/axios";
+import { jwtDecode } from "jwt-decode";
+
 
 const TeachersDashboard = () => {
   const [teachers, setTeachers] = useState([]);
@@ -22,66 +24,75 @@ const [filteredTeachers, setFilteredTeachers] = useState([]);
     status: "Active",
   });
 
-  const schoolId = localStorage.getItem("schoolId");
-
-  useEffect(() => {
-    fetchTeachers();
-  }, [schoolId]);
-
-  const fetchTeachers = async () => {
-    try {
-      const res = await axios.get(`/api/teachers/school/${schoolId}`);
-      setTeachers(res.data);
-    } catch (err) {
-      console.error("Failed to fetch teachers", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleInput = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleAddTeacher = async (e) => {
-    e.preventDefault();
-    try {
-      await axios.post("/api/teachers", { ...formData, schoolId });
-      fetchTeachers();
-      setShowModal(false);
-      setFormData({
-        name: "",
-        gender: "",
-        phone: "",
-        email: "",
-        subjectSpecialization: "",
-        joinedDate: "",
-        status: "Active",
-      });
-    } catch (err) {
-      console.error("Failed to add teacher", err);
-    }
-  };
-
-  useEffect(() => {
-    let filtered = teachers;
-  
-    if (searchTerm) {
-      filtered = filtered.filter((t) =>
-        `${t.name} ${t.staffId}`.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-  
-    if (selectedStatus) {
-      filtered = filtered.filter((t) => t.status === selectedStatus);
-    }
-  
-    setFilteredTeachers(filtered);
-  }, [searchTerm, selectedStatus, teachers]);
-  
-  const handleSearch = (term) => setSearchTerm(term);
-  const handleFilterStatus = (status) => setSelectedStatus(status);
+   // ✅ Decode token and extract schoolId
+   const token = localStorage.getItem("token");
+   let schoolId = null;
+   if (token) {
+     const decoded = jwtDecode(token);
+     schoolId = decoded.schoolId;
+   }
+ 
+   useEffect(() => {
+     if (schoolId) {
+       fetchTeachers();
+     }
+   }, [schoolId]);
+ 
+   const fetchTeachers = async () => {
+     try {
+       const res = await axios.get(`/api/teachers/school/${schoolId}`);
+       setTeachers(res.data);
+     } catch (err) {
+       console.error("Failed to fetch teachers", err);
+     } finally {
+       setLoading(false);
+     }
+   };
+ 
+   const handleInput = (e) => {
+     const { name, value } = e.target;
+     setFormData(prev => ({ ...prev, [name]: value }));
+   };
+ 
+   const handleAddTeacher = async (e) => {
+     e.preventDefault();
+     try {
+       await axios.post("/api/teachers", { ...formData, schoolId });
+       fetchTeachers();
+       setShowModal(false);
+       setFormData({
+         name: "",
+         gender: "",
+         phone: "",
+         email: "",
+         subjectSpecialization: "",
+         joinedDate: "",
+         status: "Active",
+       });
+     } catch (err) {
+       console.error("Failed to add teacher", err);
+     }
+   };
+ 
+   useEffect(() => {
+     let filtered = teachers;
+ 
+     if (searchTerm) {
+       filtered = filtered.filter((t) =>
+         `${t.name} ${t.staffId}`.toLowerCase().includes(searchTerm.toLowerCase())
+       );
+     }
+ 
+     if (selectedStatus) {
+       filtered = filtered.filter((t) => t.status === selectedStatus);
+     }
+ 
+     setFilteredTeachers(filtered);
+   }, [searchTerm, selectedStatus, teachers]);
+ 
+   const handleSearch = (term) => setSearchTerm(term);
+   const handleFilterStatus = (status) => setSelectedStatus(status);
+ 
 
   return (
     <div className="teachers-container">
