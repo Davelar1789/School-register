@@ -12,9 +12,9 @@ import { protect } from "../middleware/authMiddleware.js"; // if you're using JW
 const router = express.Router();
 
 // All routes use protect if needed
-router.post("/", protect, createTeacher);
-router.get("/school/:schoolId", protect, getTeachersBySchool);
-router.get("/:id", protect, getTeacherById);
+router.post("/", createTeacher);
+router.get("/school/:schoolId", getTeachersBySchool);
+router.get("/:id", getTeacherById);
 router.put("/:id", protect, updateTeacher);
 router.delete("/:id", protect, deleteTeacher);
 
