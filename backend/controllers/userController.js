@@ -1,41 +1,50 @@
 import User from "../models/User.model.js";
-import School from "../models/School.model.js"; // Make sure this path is correct
+import School from "../models/School.model.js";
 import jwt from "jsonwebtoken";
 import asyncHandler from "express-async-handler";
 
-
-// Generate JWT Token
-const generateToken = ({ id, fullName, role, schoolName }) => {
-  return jwt.sign({ id, fullName, role, schoolName }, process.env.JWT_SECRET, {
+// Generate JWT Token with schoolId
+const generateToken = ({ id, fullName, role, schoolName, schoolId }) => {
+  return jwt.sign({ id, fullName, role, schoolName, schoolId }, process.env.JWT_SECRET, {
     expiresIn: "24h",
   });
 };
-
 
 // Register new user
 export const registerUser = async (req, res) => {
   try {
     const { fullName, email, password } = req.body;
 
-    // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Create new user
     const user = new User({ fullName, email, password });
     await user.save();
 
-    // Return user info with token
+    // Try to find associated school (optional)
+    const school = await School.findOne({ user: user._id });
+    const schoolId = school?._id || null;
+    const schoolName = school?.name || "Unknown School";
+
+    const token = generateToken({
+      id: user._id,
+      fullName: user.fullName,
+      role: user.role,
+      schoolName,
+      schoolId,
+    });
+
     res.status(201).json({
       message: "User registered successfully",
       user: {
         _id: user._id,
         fullName: user.fullName,
         email: user.email,
-        schoolId: user.schoolId,  // Include schoolId
-        token: generateToken(user._id),
+        role: user.role,
+        schoolId,
+        token,
       },
     });
   } catch (error) {
@@ -43,6 +52,7 @@ export const registerUser = async (req, res) => {
   }
 };
 
+// Login user
 export const loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -53,12 +63,13 @@ export const loginUser = async (req, res) => {
     }
 
     let schoolName = "Unknown School";
+    let schoolId = null;
 
-    // Optional: If user has a schoolId, fetch the school name
     if (user.schoolId) {
       const school = await School.findById(user.schoolId);
       if (school) {
         schoolName = school.name;
+        schoolId = school._id;
       }
     }
 
@@ -67,6 +78,7 @@ export const loginUser = async (req, res) => {
       fullName: user.fullName,
       role: user.role,
       schoolName,
+      schoolId,
     });
 
     res.status(200).json({
@@ -76,7 +88,8 @@ export const loginUser = async (req, res) => {
         fullName: user.fullName,
         email: user.email,
         role: user.role,
-        token, // Enhanced token with fullName, role, schoolName
+        schoolId,
+        token,
       },
     });
   } catch (error) {
@@ -84,8 +97,7 @@ export const loginUser = async (req, res) => {
   }
 };
 
-  
-  // Get total number of users
+// Get total number of users
 export const getUserCount = async (req, res) => {
   try {
     const userCount = await User.countDocuments();
@@ -95,7 +107,7 @@ export const getUserCount = async (req, res) => {
   }
 };
 
-// ✅ Fetch user profile (requires authentication)
+// Get user profile
 export const getUserProfile = asyncHandler(async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("-password");
@@ -110,9 +122,10 @@ export const getUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
+// Logout user
 export const logoutUser = async (req, res) => {
   try {
-    res.clearCookie("token"); // If using cookies
+    res.clearCookie("token");
     res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     res.status(500).json({ message: "Logout failed", error: error.message });
