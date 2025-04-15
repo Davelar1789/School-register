@@ -10,26 +10,25 @@ function TeacherLogin() {
   const [email, setEmail] = useState("");
   const [staffId, setStaffId] = useState("");
   const [password, setPassword] = useState("");
-  const [step, setStep] = useState(1); // 1 = email, 2 = staffId/password, 3 = set password
+  const [step, setStep] = useState(1); // 1 = enter email, 2 = set staffId + password, 3 = enter password
   const [teacher, setTeacher] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [showPasswordForm, setShowPasswordForm] = useState(false);
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await api.post("/api/teachers/check-email", { email });
+      const res = await api.post("/api/teachers/verify-email", { email });
       const { usage, teacher } = res.data;
-      setTeacher(teacher);
+      setTeacher({ ...teacher, usage });
 
       if (usage === "not used") {
-        setStep(2); // Show Staff ID input
+        setStep(2); // New teacher – ask for staffId and create password
       } else {
-        setStep(3); // Show password input
+        setStep(3); // Returning teacher – just ask for password
       }
     } catch (err) {
-      toast.error("Email not found. Please try again.");
+      toast.error(err.response?.data?.message || "Email not found. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -39,9 +38,19 @@ function TeacherLogin() {
     e.preventDefault();
     setLoading(true);
     try {
-      const payload = teacher.usage === "not used"
-        ? { email, staffId, newPassword: password }
-        : { email, password };
+      let payload;
+      if (teacher.usage === "not used") {
+        payload = {
+          email,
+          staffId,
+          newPassword: password,
+        };
+      } else {
+        payload = {
+          email,
+          password,
+        };
+      }
 
       const res = await api.post("/api/teachers/login", payload);
 
@@ -50,7 +59,7 @@ function TeacherLogin() {
       localStorage.setItem("token", res.data.teacher.token);
       navigate("/teacher/dashboard");
     } catch (err) {
-      toast.error("Login failed. Please check your credentials.");
+      toast.error(err.response?.data?.message || "Login failed. Please check your credentials.");
     } finally {
       setLoading(false);
     }
