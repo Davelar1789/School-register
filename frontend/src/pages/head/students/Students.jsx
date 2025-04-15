@@ -5,6 +5,7 @@ import Header2 from "../../../components/Header2";
 import toast from "react-hot-toast";
 import "./Students.modules.css";
 import Sidebar from "../../../components/Sidebar";
+import { jwtDecode } from "jwt-decode";
 
 const Students = () => {
   const [students, setStudents] = useState([]);
@@ -20,13 +21,24 @@ const Students = () => {
     phone: "",
     address: "",
   });
-  
+
+  const token = localStorage.getItem("token");
+  const decoded = token ? jwtDecode(token) : null;
+  const schoolId = decoded?.schoolId;
 
   const fetchStudents = async () => {
     try {
-      const res = await api.get("/api/student");
-      setStudents(res.data);
-      setFilteredStudents(res.data);
+      const res = await api.get("/api/student", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      // If backend returns all students, filter here just in case:
+      const filtered = res.data.filter((student) => student.schoolId === schoolId);
+
+      setStudents(filtered);
+      setFilteredStudents(filtered);
     } catch (err) {
       console.error(err);
       toast.error("Failed to fetch students");
@@ -38,7 +50,7 @@ const Students = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this student?")) return;
     try {
-      await api.delete(`/api/students/${id}`);
+      await api.delete(`/api/student/${id}`);
       setStudents((prev) => prev.filter((student) => student._id !== id));
       toast.success("Student deleted successfully");
     } catch (err) {
@@ -74,24 +86,32 @@ const Students = () => {
 
   const handleAddStudent = async () => {
     const { name, class: studentClass, dob } = newStudent;
-  
+
     if (!name || !studentClass || !dob) {
       toast.error("Please fill in all required fields.");
       return;
     }
-  
+
     const generatedId = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit ID
-  
+
     try {
-      // Truncate DOB to YYYY-MM-DD format
       const formattedDOB = newStudent.dob.split("T")[0];
-  
-      const res = await api.post("/api/student", {
-        ...newStudent,
-        dob: formattedDOB,
-        idno: generatedId,
-      });
-  
+
+      const res = await api.post(
+        "/api/student",
+        {
+          ...newStudent,
+          dob: formattedDOB,
+          idno: generatedId,
+          schoolId, // ⬅️ Add this
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
       setStudents((prev) => [...prev, res.data]);
       setFilteredStudents((prev) => [...prev, res.data]);
       toast.success("Student added successfully");
@@ -108,13 +128,13 @@ const Students = () => {
       toast.error("Failed to add student");
     }
   };
-  
 
   useEffect(() => {
     fetchStudents();
   }, []);
 
   const uniqueClasses = [...new Set(students.map((s) => s.class))];
+
 
   return (
     <div className="full-page">

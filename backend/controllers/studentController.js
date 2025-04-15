@@ -48,16 +48,16 @@ export const createStudent = async (req, res) => {
 
 // Get all students
 export const getAllStudents = async (req, res) => {
-  try {
-    const schoolId = req.user?.schoolId || req.query.schoolId;
-    if (!schoolId) return res.status(400).json({ message: "School ID is required" });
+  const { schoolId } = req.user;
 
+  try {
     const students = await Students.find({ schoolId });
-    res.status(200).json(students);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching students", error });
+    res.json(students);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch students" });
   }
 };
+
 
 
 // Get a single student by ID
