@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "../api/axios";
+import jwt_decode from "jwt-decode";
 
 const UserContext = createContext();
 
@@ -11,6 +12,14 @@ export const UserProvider = ({ children }) => {
       const token = localStorage.getItem("token");
       if (!token) return;
 
+      const decoded = jwt_decode(token);
+      if (decoded.role !== "admin") {
+        // Only fetch user profile if role is admin
+        setCurrentUser(decoded); // just use the decoded token
+        return;
+      }
+
+      // Fetch full profile from backend only for admin
       const response = await api.get("/api/users/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -32,5 +41,4 @@ export const UserProvider = ({ children }) => {
   );
 };
 
-// Custom Hook to Use User Context
 export const useUserContext = () => useContext(UserContext);
