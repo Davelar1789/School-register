@@ -1,37 +1,54 @@
 import React, { useState, useEffect } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import "./Header.modules.css"; // Ensure you have this CSS file
-import logo from "../assets/images/logo.png"; // Ensure you have a logo in the assets folder
+import jwt_decode from "jwt-decode"; // 👈 Add this
+import "./Header.modules.css";
+import logo from "../assets/images/logo.png";
 
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userRole, setUserRole] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Check if token exists and is valid
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      setIsLoggedIn(true);
+      try {
+        const decoded = jwt_decode(token);
+        setIsLoggedIn(true);
+        setUserRole(decoded.role);
+      } catch (error) {
+        console.error("Invalid token:", error);
+        setIsLoggedIn(false);
+        setUserRole(null);
+      }
     } else {
       setIsLoggedIn(false);
+      setUserRole(null);
     }
   }, []);
 
-  // Toggle mobile menu
+  const handleDashboardClick = () => {
+    if (userRole === "admin") {
+      navigate("/dashboard");
+    } else if (userRole === "Teacher") {
+      navigate("/teacher-dashboard");
+    } else {
+      navigate("/"); // fallback if no valid role
+    }
+  };
+
   const toggleMenu = () => {
     setIsMenuOpen(!isMenuOpen);
   };
 
   return (
     <header className="head56">
-      {/* Logo */}
       <div className="logoContainer">
         <span className="logoText">Codewhiz Schools</span>
       </div>
 
-      {/* Desktop Navigation */}
       <nav className="nav">
         <ul className="navList">
           <li className="navItem"><a href="/" className="navLink">Home</a></li>
@@ -39,31 +56,33 @@ const Header = () => {
           <li className="navItem"><a href="#solutions" className="navLink">About Us</a></li>
           <li className="navItem"><a href="#contact" className="navLink">Contact</a></li>
           {isLoggedIn ? (
-            <li className="navItem"><a href="/dashboard" className="navLink">Go to Dashboard</a></li>
+            <li className="navItem">
+              <button onClick={handleDashboardClick} className="navLink" style={{ background: "none", border: "none", cursor: "pointer" }}>
+                Go to Dashboard
+              </button>
+            </li>
           ) : (
             <>
-            <li className="navItem login-dropdown">
-              <span className="navLink">Log In</span>
-              <div className="dropdown-menu">
-                <ul>
-                  <li><a href="/sign-in">As Admin</a></li>
-                  <li><a href="/teacher-login">As Teacher</a></li>
-                  <li><a href="/student-login">As Student</a></li>
-                </ul>
-              </div>
-            </li>
+              <li className="navItem login-dropdown">
+                <span className="navLink">Log In</span>
+                <div className="dropdown-menu">
+                  <ul>
+                    <li><a href="/sign-in">As Admin</a></li>
+                    <li><a href="/teacher-login">As Teacher</a></li>
+                    <li><a href="/student-login">As Student</a></li>
+                  </ul>
+                </div>
+              </li>
               <li className="navItem"><a href="/sign-up" className="navLink">Sign Up</a></li>
             </>
           )}
         </ul>
       </nav>
 
-      {/* Mobile Menu Icon */}
       <button className="menuIcon" onClick={toggleMenu}>
         {isMenuOpen ? <FaTimes /> : <FaBars />}
       </button>
 
-      {/* Mobile Navigation Menu */}
       {isMenuOpen && (
         <div className="mobileMenu">
           <ul className="mobileNavList">
@@ -72,7 +91,11 @@ const Header = () => {
             <li className="navItem"><a href="#solutions" className="navLink">About Us</a></li>
             <li className="navItem"><a href="#contact" className="navLink">Contact</a></li>
             {isLoggedIn ? (
-              <li className="navItem"><a href="/dashboard" className="navLink">Go to Dashboard</a></li>
+              <li className="navItem">
+                <button onClick={handleDashboardClick} className="navLink" style={{ background: "none", border: "none", cursor: "pointer" }}>
+                  Go to Dashboard
+                </button>
+              </li>
             ) : (
               <>
                 <li className="navItem"><a href="/sign-in" className="navLink">Log In</a></li>
