@@ -46,7 +46,7 @@ function TeacherLogin() {
         : { email, password };         // for normal login
   
       const endpoint = isFirstTime
-        ? "/api/teachers/first-time-setup"
+        ? "/api/teachers/setup"
         : "/api/teachers/login";
   
       const res = await api.post(endpoint, payload);
