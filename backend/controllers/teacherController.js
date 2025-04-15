@@ -1,6 +1,7 @@
 // controllers/teacherController.js
 import Teacher from "../models/Teacher.model.js";
 import School from "../models/School.model.js";
+import User from "../models/User.model.js";
 import jwt from "jsonwebtoken";
 
 
@@ -28,7 +29,21 @@ const generateStaffId = async () => {
 export const createTeacher = async (req, res) => {
   try {
     const schoolId = req.body.schoolId || req.user?.schoolId;
+    const { email } = req.body;
+
     if (!schoolId) return res.status(400).json({ message: "School ID is required" });
+
+    // Check if email already exists in Teacher model
+    const existingTeacher = await Teacher.findOne({ email });
+    if (existingTeacher) {
+      return res.status(400).json({ message: "Email is already in use by a teacher" });
+    }
+
+    // Check if email already exists in User model
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email is already in use by a system user" });
+    }
 
     const staffId = await generateStaffId();
 
@@ -50,6 +65,7 @@ export const createTeacher = async (req, res) => {
     res.status(500).json({ message: "Error creating teacher", error });
   }
 };
+
 
 // Phase 1: Check email existence and usage
 export const verifyTeacherEmail = async (req, res) => {

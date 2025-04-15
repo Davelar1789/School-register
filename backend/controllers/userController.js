@@ -1,6 +1,7 @@
 import User from "../models/User.model.js";
 import School from "../models/School.model.js";
 import jwt from "jsonwebtoken";
+import Teacher from "../models/Teacher.model.js"; // adjust path if needed
 import asyncHandler from "express-async-handler";
 
 // Generate JWT Token with schoolId
@@ -15,9 +16,16 @@ export const registerUser = async (req, res) => {
   try {
     const { fullName, email, password } = req.body;
 
+    // Check if email exists in User model
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(400).json({ message: "Email is already in use by a system user" });
+    }
+
+    // Check if email exists in Teacher model
+    const existingTeacher = await Teacher.findOne({ email });
+    if (existingTeacher) {
+      return res.status(400).json({ message: "Email is already in use by a teacher" });
     }
 
     const user = new User({ fullName, email, password });
@@ -51,6 +59,7 @@ export const registerUser = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 // Login user
 export const loginUser = async (req, res) => {
