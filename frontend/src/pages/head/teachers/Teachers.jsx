@@ -5,6 +5,8 @@ import Header from "../../../components/Header2";
 import Sidebar from "../../../components/Sidebar";
 import axios from "../../../api/axios";
 import { jwtDecode } from "jwt-decode";
+import { toast } from "react-hot-toast";
+
 
 
 const TeachersDashboard = () => {
@@ -55,24 +57,29 @@ const [filteredTeachers, setFilteredTeachers] = useState([]);
    };
  
    const handleAddTeacher = async (e) => {
-     e.preventDefault();
-     try {
-       await axios.post("/api/teachers", { ...formData, schoolId });
-       fetchTeachers();
-       setShowModal(false);
-       setFormData({
-         name: "",
-         gender: "",
-         phone: "",
-         email: "",
-         subjectSpecialization: "",
-         joinedDate: "",
-         status: "Active",
-       });
-     } catch (err) {
-       console.error("Failed to add teacher", err);
-     }
-   };
+    e.preventDefault();
+    try {
+      await axios.post("/api/teachers", { ...formData, schoolId });
+      toast.success('Teacher added successfully!');
+      fetchTeachers();
+      setShowModal(false);
+      setFormData({
+        name: "",
+        gender: "",
+        phone: "",
+        email: "",
+        subjectSpecialization: "",
+        joinedDate: "",
+        status: "Active",
+      });
+    } catch (err) {
+      console.error("Failed to add teacher", err);
+      toast.error('Failed to add teacher. Please try again.');
+    }
+  };
+  
+  
+  
  
    useEffect(() => {
      let filtered = teachers;
