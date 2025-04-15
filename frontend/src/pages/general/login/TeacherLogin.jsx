@@ -37,33 +37,32 @@ function TeacherLogin() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
+  
     try {
-      let payload;
-      if (teacher.usage === "not used") {
-        payload = {
-          email,
-          staffId,
-          newPassword: password,
-        };
-      } else {
-        payload = {
-          email,
-          password,
-        };
-      }
-
-      const res = await api.post("/api/teachers/login", payload);
-
+      const isFirstTime = teacher?.usage === "not used";
+  
+      const payload = isFirstTime
+        ? { email, staffId, password } // for first-time setup
+        : { email, password };         // for normal login
+  
+      const endpoint = isFirstTime
+        ? "/api/teachers/first-time-setup"
+        : "/api/teachers/login";
+  
+      const res = await api.post(endpoint, payload);
+  
       toast.success("Login successful!");
       localStorage.setItem("teacher", JSON.stringify(res.data.teacher));
       localStorage.setItem("token", res.data.teacher.token);
       navigate("/teacher/dashboard");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Login failed. Please check your credentials.");
+      const msg = err?.response?.data?.message || "Login failed. Please try again.";
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="login-container">
