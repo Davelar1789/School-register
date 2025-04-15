@@ -54,7 +54,7 @@ function TeacherLogin() {
       toast.success("Login successful!");
       localStorage.setItem("teacher", JSON.stringify(res.data.teacher));
       localStorage.setItem("token", res.data.teacher.token);
-      navigate("/teacher/dashboard");
+      navigate("/teacher-dashboard");
     } catch (err) {
       const msg = err?.response?.data?.message || "Login failed. Please try again.";
       toast.error(msg);
