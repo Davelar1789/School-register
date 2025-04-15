@@ -41,6 +41,7 @@ import SuperDashboard from "./pages/superadmin/dashboard/SuperAdmin";
 import SuperAdmin from "./pages/superadmin/SuperAdmin";
 import Trial from "./pages/head/page2/Trial";
 import Teachers from "./pages/head/teachers/Teachers"
+import TeacherLogin from "./pages/general/login/TeacherLogin"
 
 
 
@@ -72,6 +73,10 @@ const router = createBrowserRouter([
       {
         path: "sign-up",
         element: <SignUp />,
+      },
+      {
+        path: "teacher-login",
+        element: <TeacherLogin />,
       },
       {
         path: "admission",
