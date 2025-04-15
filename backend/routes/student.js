@@ -9,12 +9,13 @@ import {
   deleteStudent,
   searchStudents,
 } from "../controllers/studentController.js";
+import { protect } from "../middleware/authMiddleware.js"; // if you're using JWT middleware
 
 const router = express.Router();
 
 // CRUD routes
-router.post("/", createStudent);
-router.get("/", getAllStudents);
+router.post("/", protect, createStudent);
+router.get("/", protect, getAllStudents);
 router.get("/search", searchStudents); // ?query=John
 router.get("/:id", getStudentById);
 router.put("/:id", updateStudent);
