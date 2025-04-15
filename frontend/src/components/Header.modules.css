@@ -85,6 +85,44 @@
   width: 100%;
 }
 
+.login-dropdown {
+  position: relative;
+}
+
+.login-dropdown .dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 10px;
+  display: none;
+  z-index: 1;
+}
+
+.login-dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+.dropdown-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.dropdown-menu li {
+  margin-bottom: 10px;
+}
+
+.dropdown-menu a {
+  text-decoration: none;
+  color: #333;
+}
+
+.dropdown-menu a:hover {
+  color: var(--accent-orange);
+}
+
 /* Mobile Menu Button */
 .menuIcon {
   display: none;

@@ -42,7 +42,16 @@ const Header = () => {
             <li className="navItem"><a href="/dashboard" className="navLink">Go to Dashboard</a></li>
           ) : (
             <>
-              <li className="navItem"><a href="/sign-in" className="navLink">Log In</a></li>
+            <li className="navItem login-dropdown">
+              <span className="navLink">Log In</span>
+              <div className="dropdown-menu">
+                <ul>
+                  <li><a href="/sign-in">As Admin</a></li>
+                  <li><a href="/teacher-login">As Teacher</a></li>
+                  <li><a href="/student-login">As Student</a></li>
+                </ul>
+              </div>
+            </li>
               <li className="navItem"><a href="/sign-up" className="navLink">Sign Up</a></li>
             </>
           )}
