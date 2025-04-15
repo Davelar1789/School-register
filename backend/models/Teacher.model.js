@@ -1,5 +1,7 @@
 // models/Teacher.model.js
 import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
+
 
 const teacherSchema = new mongoose.Schema({
   school: {
