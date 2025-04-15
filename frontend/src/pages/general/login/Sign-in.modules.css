@@ -80,6 +80,11 @@
   transition: 0.3s;
 }
 
+.login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+} 
+
 .login-button:hover {
   background-color: #1f3b7a;
 }

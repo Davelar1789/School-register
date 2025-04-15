@@ -1,6 +1,14 @@
 // controllers/teacherController.js
 import Teacher from "../models/Teacher.model.js";
 import School from "../models/School.model.js";
+import jwt from "jsonwebtoken";
+
+
+const generateToken = ({ id, fullName, role, schoolName, schoolId }) => {
+  return jwt.sign({ id, fullName, role, schoolName, schoolId }, process.env.JWT_SECRET, {
+    expiresIn: "24h",
+  });
+};
 
 // Generate unique staff ID
 const generateStaffId = async () => {
@@ -42,6 +50,100 @@ export const createTeacher = async (req, res) => {
     res.status(500).json({ message: "Error creating teacher", error });
   }
 };
+
+// Phase 1: Check email existence and usage
+export const verifyTeacherEmail = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const teacher = await Teacher.findOne({ email });
+    if (!teacher) {
+      return res.status(404).json({ message: "Email not found" });
+    }
+    res.status(200).json({ usage: teacher.usage });
+  } catch (error) {
+    res.status(500).json({ message: "Error verifying email", error });
+  }
+};
+
+// Phase 2: First-time setup - verify staffId and set password
+export const firstTimeSetup = async (req, res) => {
+  const { email, staffId, password } = req.body;
+
+  try {
+    const teacher = await Teacher.findOne({ email, staffId });
+
+    if (!teacher || teacher.usage === "used") {
+      return res.status(400).json({ message: "Invalid credentials or already used" });
+    }
+
+    teacher.password = password;
+    teacher.usage = "used";
+    await teacher.save();
+
+    const token = generateToken({
+      id: teacher._id,
+      fullName: teacher.name,
+      role: "Teacher",
+      schoolName: teacher.school?.name || "",
+      schoolId: teacher.school?._id || ""
+    });
+
+    res.status(200).json({
+      message: "Password created successfully",
+      teacher: {
+        id: teacher._id,
+        name: teacher.name,
+        email: teacher.email,
+        staffId: teacher.staffId,
+        school: teacher.school,
+        token,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Error setting up teacher", error });
+  }
+};
+
+// Phase 3: Normal login
+export const loginTeacher = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const teacher = await Teacher.findOne({ email }).populate("school", "name");
+
+    if (!teacher || teacher.usage !== "used") {
+      return res.status(400).json({ message: "Invalid credentials or setup not complete" });
+    }
+
+    const isMatch = await teacher.matchPassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Incorrect password" });
+    }
+
+    const token = generateToken({
+      id: teacher._id,
+      fullName: teacher.name,
+      role: "Teacher",
+      schoolName: teacher.school?.name || "",
+      schoolId: teacher.school?._id || ""
+    });
+
+    res.status(200).json({
+      message: "Login successful",
+      teacher: {
+        id: teacher._id,
+        name: teacher.name,
+        email: teacher.email,
+        staffId: teacher.staffId,
+        school: teacher.school,
+        token,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Login error", error });
+  }
+};
+
 
 // Get all teachers for a school
 export const getTeachersBySchool = async (req, res) => {

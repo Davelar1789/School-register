@@ -7,43 +7,50 @@ import "./Sign-in.modules.css";
 
 function TeacherLogin() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: "",
-    teacherId: "",
-  });
-
+  const [email, setEmail] = useState("");
+  const [staffId, setStaffId] = useState("");
+  const [password, setPassword] = useState("");
+  const [step, setStep] = useState(1); // 1 = email, 2 = staffId/password, 3 = set password
+  const [teacher, setTeacher] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
+  const handleEmailSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-
     try {
-      const response = await api.post("/api/teachers/login", {
-        email: formData.email,
-        teacherId: formData.teacherId,
-      });
+      const res = await api.post("/api/teachers/check-email", { email });
+      const { usage, teacher } = res.data;
+      setTeacher(teacher);
 
-      if (!response.data || !response.data.teacher) {
-        throw new Error("Invalid credentials");
+      if (usage === "not used") {
+        setStep(2); // Show Staff ID input
+      } else {
+        setStep(3); // Show password input
       }
-
-      const teacher = response.data.teacher;
-
-      toast.success("Login successful! Redirecting...");
-      localStorage.setItem("teacher", JSON.stringify(teacher));
-      localStorage.setItem("token", teacher.token);
-
-      setTimeout(() => {
-        navigate("/teacher/dashboard");
-      }, 2000);
     } catch (err) {
-      console.error("Login Error:", err);
-      toast.error("Invalid email or teacher ID.");
+      toast.error("Email not found. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const payload = teacher.usage === "not used"
+        ? { email, staffId, newPassword: password }
+        : { email, password };
+
+      const res = await api.post("/api/teachers/login", payload);
+
+      toast.success("Login successful!");
+      localStorage.setItem("teacher", JSON.stringify(res.data.teacher));
+      localStorage.setItem("token", res.data.teacher.token);
+      navigate("/teacher/dashboard");
+    } catch (err) {
+      toast.error("Login failed. Please check your credentials.");
     } finally {
       setLoading(false);
     }
@@ -51,46 +58,74 @@ function TeacherLogin() {
 
   return (
     <div className="login-container">
-      {/* Back Button */}
       <div className="back-button3" onClick={() => navigate("/")}>
         <FaArrowLeft className="back-icon" /> Back
       </div>
 
       <div className="login-form-container">
         <h2 className="login-title">Teacher Login</h2>
-        <p className="login-subtitle">Enter your registered email and teacher ID.</p>
 
-        <form onSubmit={handleSubmit} className="login-form">
-          <div className="input-group3">
-            <label>Email Address</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
+        {step === 1 && (
+          <form onSubmit={handleEmailSubmit} className="login-form">
+            <div className="input-group3">
+              <label>Email Address</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <button type="submit" className="login-button" disabled={loading}>
+              {loading ? "Checking..." : "Next"}
+            </button>
+          </form>
+        )}
 
-          <div className="input-group3">
-            <label>Teacher ID</label>
-            <input
-              type="text"
-              name="teacherId"
-              value={formData.teacherId}
-              onChange={handleChange}
-              required
-            />
-          </div>
+        {step === 2 && (
+          <form onSubmit={handleLogin} className="login-form">
+            <div className="input-group3">
+              <label>Staff ID</label>
+              <input
+                type="text"
+                value={staffId}
+                onChange={(e) => setStaffId(e.target.value)}
+                required
+              />
+            </div>
+            <div className="input-group3">
+              <label>Create Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <button type="submit" className="login-button" disabled={loading}>
+              {loading ? "Setting Password..." : "Create & Login"}
+            </button>
+          </form>
+        )}
 
-          <button type="submit" className="login-button" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
-          </button>
-        </form>
+        {step === 3 && (
+          <form onSubmit={handleLogin} className="login-form">
+            <div className="input-group3">
+              <label>Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            <button type="submit" className="login-button" disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
+            </button>
+          </form>
+        )}
 
-        <p className="signup-link">
-          Not yet registered? Contact your admin.
-        </p>
+        <p className="signup-link">Not yet registered? Contact your admin.</p>
       </div>
     </div>
   );
