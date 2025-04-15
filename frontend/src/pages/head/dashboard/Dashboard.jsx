@@ -8,6 +8,7 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import { FaHome, FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt } from "react-icons/fa";
 import "./Dashboard.modules.css";
 import { NavLink } from "react-router-dom";
+import Sidebar from "../../../components/Sidebar"
 import Image1 from "../../../assets/images/userrr.png"
 
 const Dashboard = () => {
@@ -139,57 +140,7 @@ const Dashboard = () => {
   return (
     <div className="dashboard-container">
       {/* Sidebar - Integrated Directly */}
-      <div className="sidebar">
-        {/* School Logo */}
-        <div className="sidebar-header">
-          <div className="logo">{school?.name ? school.name.charAt(0) : "S"}</div>
-          <div className="school-name">{school?.name || "School Dashboard"}</div>
-        </div>
-
-        {/* User Profile */}
-        <div className="sidebar-profile">
-          <img src={Image1} alt="User" className="profile-pic" />
-          <div>
-          <h4>{userProfile.fullName}</h4>
-          <p className="user-role">{userProfile.role}</p>
-        </div>
-        </div>
-
-        {/* Menu Items */}
-        <ul className="sidebar-nav">
-  <li>
-    <NavLink to="/dashboard" className={({ isActive }) => isActive ? "active" : ""}>
-      <FaHome className="icon" /> Dashboard
-    </NavLink>
-  </li>
-  <li>
-    <NavLink to="/chat" className={({ isActive }) => isActive ? "active" : ""}>
-      <FaComments className="icon" /> Chat
-    </NavLink>
-  </li>
-  <li>
-    <NavLink to="/students" className={({ isActive }) => isActive ? "active" : ""}>
-      <FaUserGraduate className="icon" /> Student <span className="badge">35</span>
-    </NavLink>
-  </li>
-  <li>
-    <NavLink to="/teachers" className={({ isActive }) => isActive ? "active" : ""}>
-      <FaChalkboardTeacher className="icon" /> Teacher
-    </NavLink>
-  </li>
-  <li>
-    <NavLink to="/events" className={({ isActive }) => isActive ? "active" : ""}>
-      <FaCalendar className="icon" /> Event
-    </NavLink>
-  </li>
-  <li className="logout">
-    <NavLink to="/logout">
-      <FaSignOutAlt className="icon" /> Logout
-    </NavLink>
-  </li>
-</ul>
-
-      </div>
+      <Sidebar />
 
       {/* Main Content - Starts After Sidebar */}
       <div className="dashboard-main">
