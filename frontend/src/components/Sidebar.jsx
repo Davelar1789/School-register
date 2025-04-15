@@ -22,32 +22,38 @@ const Sidebar = () => {
 
   const fetchSchool = async (userId) => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("No token found, please log in again.");
-  
-      const response = await api.get(`/api/schools/user/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-  
-      if (response.data) {
-        const schoolData = response.data.school || response.data;
-      
-        // Save full school info
+      const cachedSchoolData = localStorage.getItem('schoolData');
+      if (cachedSchoolData) {
+        const schoolData = JSON.parse(cachedSchoolData);
         setSchool(schoolData);
-      
-        // Save stats
         setSchoolStats({
           numberOfStudents: schoolData.numberOfStudents || 0,
           numberOfTeachers: schoolData.numberOfTeachers || 0,
           numberOfClasses: schoolData.numberOfClasses || 0,
         });
-      
-        console.log("Fetched School Data:", response.data);
+        return;
+      }
+  
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found, please log in again.");
+      const response = await api.get(`/api/schools/user/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (response.data) {
+        const schoolData = response.data.school || response.data;
+        localStorage.setItem('schoolData', JSON.stringify(schoolData));
+        setSchool(schoolData);
+        setSchoolStats({
+          numberOfStudents: schoolData.numberOfStudents || 0,
+          numberOfTeachers: schoolData.numberOfTeachers || 0,
+          numberOfClasses: schoolData.numberOfClasses || 0,
+        });
       }
     } catch (error) {
       console.error("Error fetching school:", error);
     }
   };
+  
   
 
   useEffect(() => {
