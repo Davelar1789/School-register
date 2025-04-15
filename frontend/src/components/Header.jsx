@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { FaBars, FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import jwt_decode from "jwt-decode"; // 👈 Add this
+import { jwtDecode } from "jwt-decode";
 import "./Header.modules.css";
 import logo from "../assets/images/logo.png";
 
@@ -15,7 +15,7 @@ const Header = () => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        const decoded = jwt_decode(token);
+        const decoded = jwtDecode(token);
         setIsLoggedIn(true);
         setUserRole(decoded.role);
       } catch (error) {
