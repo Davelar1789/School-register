@@ -84,8 +84,6 @@ export const firstTimeSetup = async (req, res) => {
       id: teacher._id,
       fullName: teacher.name,
       role: "Teacher",
-      schoolName: teacher.school?.name || "",
-      schoolId: teacher.school?._id || ""
     });
 
     res.status(200).json({
@@ -95,11 +93,11 @@ export const firstTimeSetup = async (req, res) => {
         name: teacher.name,
         email: teacher.email,
         staffId: teacher.staffId,
-        school: teacher.school,
         token,
       },
     });
   } catch (error) {
+    console.error("Setup Error:", error);
     res.status(500).json({ message: "Error setting up teacher", error });
   }
 };
