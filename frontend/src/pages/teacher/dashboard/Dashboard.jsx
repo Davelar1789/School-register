@@ -1,12 +1,12 @@
 import React from "react";
-// import Header from "../../../components/Header2";
+import Header from "../../../components/Header2";
 // import Sidebar from "../../../components/Sidebar";
 import "./TeacherDashboard.modules.css";
 
 const TeacherDashboard = () => {
   return (
     <div className="teacher-dashboard">
-      {/* <Header /> */}
+      <Header />
       <div className="dashboard-body">
         {/* <Sidebar /> */}
         <main className="dashboard-main">
