@@ -1,31 +1,43 @@
 // models/Class.model.js
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const ClassSchema = new mongoose.Schema({
-  classCode: {
-    type: String,
+const classSchema = new mongoose.Schema({
+  school: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "School",
     required: true,
-    unique: true,
   },
   className: {
     type: String,
     required: true,
+    unique: true, // Optional: makes sure class names are unique within the system
+    trim: true,
   },
-  instructor: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+  description: {
+    type: String,
+  },
+  level: {
+    type: String,
+    enum: ["Nursery", "Primary", "Junior High", "Senior High"],
     required: true,
   },
-  maxStudents: {
-    type: Number,
-    default: 70,
-  },
-  enrolledStudents: [
+  subjects: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      type: String,
     },
   ],
+  students: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Student",
+    },
+  ],
+  classTeacher: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Teacher", // optional: can be used to assign a head teacher
+  },
 }, { timestamps: true });
 
-export default mongoose.model('Class', ClassSchema);
+const Class = mongoose.model("Class", classSchema);
+
+export default Class;

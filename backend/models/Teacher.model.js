@@ -28,8 +28,16 @@ const teacherSchema = new mongoose.Schema({
   },
   address: String,
   qualification: String,
-  subjectSpecialization: [String],
-  classAssigned: String,
+  subjectSpecialization: {
+    type: [String],
+    default: [],
+  },
+  classesAssigned: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Class", // assuming you have a Class model
+    }
+  ],  
   joinedDate: {
     type: Date,
     default: Date.now,
