@@ -34,6 +34,7 @@ const SidebarTeacher = () => {
 
     try {
       const decoded = jwtDecode(token);
+      console.log("Decoded token:", decoded);
 
       setUser({
         fullName: decoded.fullName,
