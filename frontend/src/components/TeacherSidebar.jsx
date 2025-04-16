@@ -1,15 +1,56 @@
 import React, { useState, useEffect } from "react";
 import { FaHome, FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt } from "react-icons/fa";
-import { NavLink, useNavigate } from "react-router-dom";
-import { toast } from "react-hot-toast";
-import api from "../api/axios";
-import Image1 from "../assets/images/userrr.png";
+import { useNavigate, NavLink } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
+import { toast } from "react-hot-toast";
+import api from "../api/axios"; // Ensure this points to your axios config
+import Image1 from "../assets/images/userrr.png";
 
-const TeacherSidebar = () => {
-  const [teacher, setTeacher] = useState(null);
+const SidebarTeacher = () => {
+  const [user, setUser] = useState(null);
   const [school, setSchool] = useState(null);
+  const [schoolStats, setSchoolStats] = useState({
+    numberOfStudents: 0,
+    numberOfTeachers: 0,
+    numberOfClasses: 0,
+  });
+
   const navigate = useNavigate();
+
+  const fetchSchoolViaTeacher = async (teacherId) => {
+    try {
+      console.log("Fetching teacher data for ID:", teacherId);
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found");
+
+      const response = await api.get(`/api/teachers/${teacherId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const teacherData = response.data.teacher || response.data;
+
+      console.log("Teacher data fetched:", teacherData);
+
+      if (teacherData.school) {
+        const schoolData = teacherData.school;
+        setSchool(schoolData);
+        setSchoolStats({
+          numberOfStudents: schoolData.numberOfStudents || 0,
+          numberOfTeachers: schoolData.numberOfTeachers || 0,
+          numberOfClasses: schoolData.numberOfClasses || 0,
+        });
+
+        setUser({
+          fullName: teacherData.fullName,
+          role: "Teacher",
+        });
+      } else {
+        console.warn("No school data found in teacher response");
+      }
+    } catch (error) {
+      console.error("Error fetching school via teacher:", error);
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -19,71 +60,28 @@ const TeacherSidebar = () => {
       return;
     }
 
-    try {
-      const decoded = jwtDecode(token);
-      const teacherId = decoded.id;
-      const role = decoded.role;
+    const decoded = jwtDecode(token);
+    console.log("Decoded token:", decoded);
 
-      if (role !== "teacher" && role !== "Teacher") {
-        toast.error("Unauthorized");
-        navigate("/sign-in");
-        return;
-      }
-
-      // Fetch teacher and school info
-      fetchTeacherInfo(teacherId);
-    } catch (err) {
-      console.error("Token decode failed", err);
-      toast.error("Session expired, please login again.");
-      navigate("/sign-in");
-    }
+    fetchSchoolViaTeacher(decoded.id);
   }, [navigate]);
 
-  const fetchTeacherInfo = async (teacherId) => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await api.get(`/api/teachers/${teacherId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (response.data) {
-        const teacherData = response.data.teacher || response.data;
-        setTeacher(teacherData);
-
-        // If school is nested in the teacher object
-        if (teacherData.school) {
-          setSchool(teacherData.school);
-        } else {
-          // If not, fetch it separately
-          const schoolRes = await api.get(`/api/schools/${teacherData.schoolId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          if (schoolRes.data) {
-            setSchool(schoolRes.data.school || schoolRes.data);
-          }
-        }
-      }
-    } catch (err) {
-      console.error("Error fetching teacher/school info", err);
-    }
-  };
-
-  if (!teacher) return null;
+  if (!user) return null;
 
   return (
     <div className="sidebar">
-      {/* Header with School */}
+      {/* Header */}
       <div className="sidebar-header">
-        <div className="logo">{school?.name?.charAt(0) || "S"}</div>
+        <div className="logo">{school?.name ? school.name.charAt(0) : "S"}</div>
         <div className="school-name">{school?.name || "School Dashboard"}</div>
       </div>
 
       {/* Profile */}
       <div className="sidebar-profile">
-        <img src={Image1} alt="Teacher" className="profile-pic" />
+        <img src={Image1} alt="User" className="profile-pic" />
         <div>
-          <h4>{teacher.fullName}</h4>
-          <p className="user-role">Teacher</p>
+          <h4>{user.fullName}</h4>
+          <p className="user-role">{user.role}</p>
         </div>
       </div>
 
@@ -100,18 +98,18 @@ const TeacherSidebar = () => {
           </NavLink>
         </li>
         <li>
-          <NavLink to="/my-students" className={({ isActive }) => isActive ? "active" : ""}>
-            <FaUserGraduate className="icon" /> My Students
+          <NavLink to="/students" className={({ isActive }) => isActive ? "active" : ""}>
+            <FaUserGraduate className="icon" /> Students
           </NavLink>
         </li>
         <li>
-          <NavLink to="/my-classes" className={({ isActive }) => isActive ? "active" : ""}>
-            <FaChalkboardTeacher className="icon" /> My Classes
+          <NavLink to="/teachers" className={({ isActive }) => isActive ? "active" : ""}>
+            <FaChalkboardTeacher className="icon" /> Teachers
           </NavLink>
         </li>
         <li>
           <NavLink to="/events" className={({ isActive }) => isActive ? "active" : ""}>
-            <FaCalendar className="icon" /> Event
+            <FaCalendar className="icon" /> Events
           </NavLink>
         </li>
         <li className="logout">
@@ -124,4 +122,4 @@ const TeacherSidebar = () => {
   );
 };
 
-export default TeacherSidebar;
+export default SidebarTeacher;
