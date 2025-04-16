@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { FaHome, FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt } from "react-icons/fa";
+import {
+  FaHome,
+  FaComments,
+  FaUserGraduate,
+  FaChalkboardTeacher,
+  FaCalendar,
+  FaSignOutAlt,
+} from "react-icons/fa";
 import { useNavigate, NavLink } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-hot-toast";
@@ -17,41 +24,6 @@ const SidebarTeacher = () => {
 
   const navigate = useNavigate();
 
-  const fetchSchoolViaTeacher = async (teacherId) => {
-    try {
-      console.log("Fetching teacher data for ID:", teacherId);
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("No token found");
-
-      const response = await api.get(`/api/teachers/${teacherId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      const teacherData = response.data.teacher || response.data;
-
-      console.log("Teacher data fetched:", teacherData);
-
-      if (teacherData.school) {
-        const schoolData = teacherData.school;
-        setSchool(schoolData);
-        setSchoolStats({
-          numberOfStudents: schoolData.numberOfStudents || 0,
-          numberOfTeachers: schoolData.numberOfTeachers || 0,
-          numberOfClasses: schoolData.numberOfClasses || 0,
-        });
-
-        setUser({
-          fullName: teacherData.fullName,
-          role: "Teacher",
-        });
-      } else {
-        console.warn("No school data found in teacher response");
-      }
-    } catch (error) {
-      console.error("Error fetching school via teacher:", error);
-    }
-  };
-
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -60,10 +32,25 @@ const SidebarTeacher = () => {
       return;
     }
 
-    const decoded = jwtDecode(token);
-    console.log("Decoded token:", decoded);
+    try {
+      const decoded = jwtDecode(token);
+      console.log("Decoded token:", decoded);
 
-    fetchSchoolViaTeacher(decoded.id);
+      setUser({
+        fullName: decoded.fullName,
+        role: decoded.role,
+      });
+
+      setSchool({
+        name: decoded.schoolName,
+      });
+
+      // You can later fetch stats using decoded.schoolId if needed
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      toast.error("Session expired. Please log in again.");
+      navigate("/sign-in");
+    }
   }, [navigate]);
 
   if (!user) return null;
