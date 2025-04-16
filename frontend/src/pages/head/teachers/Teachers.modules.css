@@ -144,7 +144,33 @@ body {
   }
   
 
-
+  .subject-selection {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 10px 0;
+  }
+  
+  .subject-tag {
+    padding: 6px 10px;
+    border: 1px solid #999;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    user-select: none;
+  }
+  
+  .subject-tag.selected {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+  }
+  
+  .scrollable-modal {
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
 
 
   .students-loading,
