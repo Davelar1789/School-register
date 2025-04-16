@@ -152,7 +152,6 @@ const TeachersDashboard = () => {
                   <tr>
                     <th>Staff ID</th>
                     <th>Name</th>
-                    <th>Gender</th>
                     <th>Phone</th>
                     <th>Email</th>
                     <th>Subjects</th>
@@ -165,7 +164,6 @@ const TeachersDashboard = () => {
                     <tr key={teacher._id}>
                       <td>{teacher.staffId}</td>
                       <td>{teacher.name}</td>
-                      <td>{teacher.gender}</td>
                       <td>{teacher.phone}</td>
                       <td>{teacher.email || "-"}</td>
                       <td>{teacher.subjectSpecialization?.join(", ")}</td>
