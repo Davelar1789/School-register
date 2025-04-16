@@ -74,7 +74,7 @@ const SidebarTeacher = () => {
       {/* Nav */}
       <ul className="sidebar-nav">
         <li>
-          <NavLink to="/dashboard" className={({ isActive }) => isActive ? "active" : ""}>
+          <NavLink to="/teacher-dashboard" className={({ isActive }) => isActive ? "active" : ""}>
             <FaHome className="icon" /> Dashboard
           </NavLink>
         </li>
@@ -85,12 +85,12 @@ const SidebarTeacher = () => {
         </li>
         <li>
           <NavLink to="/students" className={({ isActive }) => isActive ? "active" : ""}>
-            <FaUserGraduate className="icon" /> Students
+            <FaUserGraduate className="icon" />My Classes
           </NavLink>
         </li>
         <li>
           <NavLink to="/teachers" className={({ isActive }) => isActive ? "active" : ""}>
-            <FaChalkboardTeacher className="icon" /> Teachers
+            <FaChalkboardTeacher className="icon" />Gradebook
           </NavLink>
         </li>
         <li>
