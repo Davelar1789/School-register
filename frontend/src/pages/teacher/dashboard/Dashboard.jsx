@@ -1,6 +1,6 @@
 import React from "react";
 import Header from "../../../components/Header2";
-// import Sidebar from "../../../components/Sidebar";
+import Sidebar from "../../../components/TeacherSidebar";
 import "./TeacherDashboard.modules.css";
 
 const TeacherDashboard = () => {
@@ -8,7 +8,7 @@ const TeacherDashboard = () => {
     <div className="teacher-dashboard">
       <Header />
       <div className="dashboard-body">
-        {/* <Sidebar /> */}
+        <Sidebar />
         <main className="dashboard-main">
           <h1 className="dashboard-title">Welcome, Teacher!</h1>
           <p className="dashboard-subtitle">Here’s your activity overview</p>
