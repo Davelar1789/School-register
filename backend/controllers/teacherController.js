@@ -86,7 +86,7 @@ export const firstTimeSetup = async (req, res) => {
   const { email, staffId, password } = req.body;
 
   try {
-    const teacher = await Teacher.findOne({ email, staffId });
+    const teacher = await Teacher.findOne({ email, staffId }).populate("school", "name");
 
     if (!teacher || teacher.usage === "used") {
       return res.status(400).json({ message: "Invalid credentials or already used" });
@@ -100,6 +100,8 @@ export const firstTimeSetup = async (req, res) => {
       id: teacher._id,
       fullName: teacher.name,
       role: "Teacher",
+      schoolName: teacher.school?.name || "",
+      schoolId: teacher.school?._id || "",
     });
 
     res.status(200).json({
@@ -109,6 +111,7 @@ export const firstTimeSetup = async (req, res) => {
         name: teacher.name,
         email: teacher.email,
         staffId: teacher.staffId,
+        school: teacher.school,
         token,
       },
     });
@@ -117,6 +120,7 @@ export const firstTimeSetup = async (req, res) => {
     res.status(500).json({ message: "Error setting up teacher", error });
   }
 };
+
 
 // Phase 3: Normal login
 export const loginTeacher = async (req, res) => {
