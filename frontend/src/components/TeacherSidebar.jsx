@@ -34,7 +34,6 @@ const SidebarTeacher = () => {
 
     try {
       const decoded = jwtDecode(token);
-      console.log("Decoded token:", decoded);
 
       setUser({
         fullName: decoded.fullName,
@@ -47,7 +46,6 @@ const SidebarTeacher = () => {
 
       // You can later fetch stats using decoded.schoolId if needed
     } catch (error) {
-      console.error("Error decoding token:", error);
       toast.error("Session expired. Please log in again.");
       navigate("/sign-in");
     }
