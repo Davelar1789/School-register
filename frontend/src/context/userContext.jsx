@@ -12,7 +12,7 @@ export const UserProvider = ({ children }) => {
   const logout = () => {
     localStorage.clear();
     setCurrentUser(null);
-    navigate("/login");
+    navigate("/sign-in");
   };
 
   const fetchUserDetails = async () => {
