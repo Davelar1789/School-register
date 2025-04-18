@@ -119,6 +119,11 @@ const Sidebar = () => {
         </NavLink>
       </li>
       <li>
+        <NavLink to="/classes" className={({ isActive }) => isActive ? "active" : ""}>
+          <FaChalkboardTeacher className="icon" /> Classes
+        </NavLink>
+      </li>
+      <li>
         <NavLink to="/events" className={({ isActive }) => isActive ? "active" : ""}>
           <FaCalendar className="icon" /> Event
         </NavLink>

@@ -40,9 +40,10 @@ import Welcome from "./pages/head/dashboard/Dashboard";
 import SuperDashboard from "./pages/superadmin/dashboard/SuperAdmin";
 import SuperAdmin from "./pages/superadmin/SuperAdmin";
 import Trial from "./pages/head/page2/Trial";
-import Teachers from "./pages/head/teachers/Teachers"
-import TeacherLogin from "./pages/general/login/TeacherLogin"
-import Welcome2 from "./pages/teacher/dashboard/Dashboard"
+import Teachers from "./pages/head/teachers/Teachers";
+import TeacherLogin from "./pages/general/login/TeacherLogin";
+import Welcome2 from "./pages/teacher/dashboard/Dashboard";
+import Classes from "./pages/head/classes/Class";
 
 
 
@@ -74,6 +75,10 @@ const router = createBrowserRouter([
       {
         path: "teachers",
         element: <Teachers />,
+      },
+      {
+        path: "classes",
+        element: <Classes />,
       },
       {
         path: "sign-up",
