@@ -2,7 +2,6 @@
 import Teacher from "../models/Teacher.model.js";
 import School from "../models/School.model.js";
 import User from "../models/User.model.js";
-import Class from "../models/Class.model.js";
 import jwt from "jsonwebtoken";
 
 
@@ -30,52 +29,50 @@ const generateStaffId = async () => {
 export const createTeacher = async (req, res) => {
   try {
     const schoolId = req.body.schoolId || req.user?.schoolId;
-    const { email, classesAssigned = [] } = req.body;
+    const { email } = req.body;
 
     if (!schoolId) return res.status(400).json({ message: "School ID is required" });
 
+    // Log incoming data
     console.log("Incoming teacher data:", req.body);
 
-    // Check for existing teacher or user by email
+    // Check if email already exists in Teacher model
     const existingTeacher = await Teacher.findOne({ email });
     if (existingTeacher) {
       return res.status(400).json({ message: "Email is already in use by a teacher" });
     }
 
+    // Check if email already exists in User model
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Email is already in use by a system user" });
     }
 
-    // ✅ Convert class names to ObjectIds
-    const classDocs = await Class.find({
-      className: { $in: classesAssigned },
-      school: schoolId, // important to avoid cross-school name conflict
-    }).select("_id");
-
-    const classObjectIds = classDocs.map(cls => cls._id);
-
     const staffId = await generateStaffId();
 
+    // Build new teacher
     const newTeacher = new Teacher({
       ...req.body,
       staffId,
       school: schoolId,
-      classesAssigned: classObjectIds, // ✅ now ObjectIds instead of names
     });
 
     console.log("New teacher to be saved:", newTeacher);
 
+    // Save to DB
     const savedTeacher = await newTeacher.save();
 
+    // Log after saving
+    console.log("Teacher successfully saved:", savedTeacher);
+
+    // Optionally update school teacher count
     await School.findByIdAndUpdate(schoolId, {
       $inc: { numberOfTeachers: 1 },
     });
 
-    console.log("Teacher successfully saved:", savedTeacher);
     res.status(201).json(savedTeacher);
   } catch (error) {
-    console.error("Error creating teacher:", error.stack);
+    console.error("Error creating teacher:", error.stack); // better error message
     res.status(500).json({
       message: "Error creating teacher",
       error: error.message,
