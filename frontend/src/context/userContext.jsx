@@ -1,11 +1,19 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "../api/axios";
 import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
+  const navigate = useNavigate();
+
+  const logout = () => {
+    localStorage.clear();
+    setCurrentUser(null);
+    navigate("/login");
+  };
 
   const fetchUserDetails = async () => {
     try {
@@ -13,13 +21,23 @@ export const UserProvider = ({ children }) => {
       if (!token) return;
 
       const decoded = jwtDecode(token);
-      if (decoded.role !== "admin") {
-        // Only fetch user profile if role is admin
-        setCurrentUser(decoded); // just use the decoded token
+      const expiryTime = decoded.exp * 1000;
+      const currentTime = Date.now();
+
+      if (expiryTime < currentTime) {
+        logout(); // token expired
         return;
       }
 
-      // Fetch full profile from backend only for admin
+      // Auto-logout after the remaining token life
+      const timeout = expiryTime - currentTime;
+      setTimeout(() => logout(), timeout);
+
+      if (decoded.role !== "admin") {
+        setCurrentUser(decoded); // basic user data
+        return;
+      }
+
       const response = await api.get("/api/users/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
