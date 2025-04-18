@@ -10,7 +10,6 @@ const classSchema = new mongoose.Schema({
   className: {
     type: String,
     required: true,
-    unique: true, // Optional: makes sure class names are unique within the system
     trim: true,
   },
   description: {

@@ -11,21 +11,15 @@ const allSubjects = [
   "Mathematics", "English Language", "Integrated Science", "Natural Science", "Social Studies",
   "Ghanaian Language", "Computing", "RME", "OWOP",
   "Career Technology", "Creative Arts", "French", "Economics", "Business Studies",
- "Agricultural Science", "Spanish", "Yoruba", "Others"
+  "Agricultural Science", "Spanish", "Yoruba", "Others"
 ];
-
-
-const allClasses = [
-  "Primary 1", "Primary 2", "Primary 3", "Primary 4", "Primary 5", "Primary 6",
-  "JHS 1", "JHS 2", "JHS 3"
-];
-
 
 const TeachersDashboard = () => {
   const [teachers, setTeachers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [filteredTeachers, setFilteredTeachers] = useState([]);
+  const [allClasses, setAllClasses] = useState([]); // This holds objects like { _id, name }
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
@@ -34,7 +28,7 @@ const TeachersDashboard = () => {
     phone: "",
     email: "",
     subjectSpecialization: [],
-    classesAssigned: [], // <-- add this line
+    classesAssigned: [],
     joinedDate: "",
     status: "Active",
   });
@@ -49,6 +43,7 @@ const TeachersDashboard = () => {
   useEffect(() => {
     if (schoolId) {
       fetchTeachers();
+      fetchClasses();
     }
   }, [schoolId]);
 
@@ -60,6 +55,15 @@ const TeachersDashboard = () => {
       console.error("Failed to fetch teachers", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchClasses = async () => {
+    try {
+      const res = await axios.get(`/api/classes/school/${schoolId}`);
+      setAllClasses(res.data); // should be array of { _id, name }
+    } catch (err) {
+      console.error("Failed to fetch classes", err);
     }
   };
 
@@ -80,18 +84,17 @@ const TeachersDashboard = () => {
     });
   };
 
-  const handleClassClick = (className) => {
+  const handleClassClick = (classId) => {
     setFormData((prev) => {
-      const currentClasses = prev.classesAssigned;
-      const isSelected = currentClasses.includes(className);
-      const updatedClasses = isSelected
-        ? currentClasses.filter(c => c !== className)
-        : [...currentClasses, className];
-  
-      return { ...prev, classesAssigned: updatedClasses };
+      const current = prev.classesAssigned;
+      const isSelected = current.includes(classId);
+      const updated = isSelected
+        ? current.filter(id => id !== classId)
+        : [...current, classId];
+
+      return { ...prev, classesAssigned: updated };
     });
   };
-  
 
   const handleAddTeacher = async (e) => {
     e.preventDefault();
@@ -106,7 +109,7 @@ const TeachersDashboard = () => {
         phone: "",
         email: "",
         subjectSpecialization: [],
-        classesAssigned: [], // <-- add this line
+        classesAssigned: [],
         joinedDate: "",
         status: "Active",
       });
@@ -134,6 +137,7 @@ const TeachersDashboard = () => {
 
   const handleSearch = (term) => setSearchTerm(term);
   const handleFilterStatus = (status) => setSelectedStatus(status);
+
 
   return (
     <div className="teachers-container">
@@ -226,13 +230,13 @@ const TeachersDashboard = () => {
                   </div>
                   <label>Select Class(es) Assigned:</label>
                     <div className="class-selection">
-                      {allClasses.map(className => (
+                      {allClasses.map(cls => (
                         <span
-                          key={className}
-                          className={`class-tag ${formData.classesAssigned.includes(className) ? "selected" : ""}`}
-                          onClick={() => handleClassClick(className)}
+                          key={cls._id}
+                          className={`class-tag ${formData.classesAssigned.includes(cls._id) ? "selected" : ""}`}
+                          onClick={() => handleClassClick(cls._id)}
                         >
-                          {className}
+                          {cls.name}
                         </span>
                       ))}
                     </div>
