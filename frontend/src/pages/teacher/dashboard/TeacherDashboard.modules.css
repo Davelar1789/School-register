@@ -126,6 +126,7 @@
   padding: 2rem;
   overflow-y: auto;
   background-color: #f0f2f5;
+  margin-left: 250px; /* Ensures sidebar is accounted for */
 }
 
 .dashboard-title {
