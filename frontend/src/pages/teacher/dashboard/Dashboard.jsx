@@ -5,11 +5,11 @@ import "./TeacherDashboard.modules.css";
 
 const TeacherDashboard = () => {
   return (
-    <div className="teacher-dashboard">
+    <div className="teacher-dashboard2">
       <Header />
       <div className="dashboard-body">
         <Sidebar />
-        <main className="dashboard-main">
+        <main className="dashboard-main2">
           <h1 className="dashboard-title">Welcome, Teacher!</h1>
           <p className="dashboard-subtitle">Here’s your activity overview</p>
 
