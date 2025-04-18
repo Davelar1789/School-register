@@ -14,6 +14,13 @@ const allSubjects = [
  "Agricultural Science", "Spanish", "Yoruba", "Others"
 ];
 
+
+const allClasses = [
+  "Primary 1", "Primary 2", "Primary 3", "Primary 4", "Primary 5", "Primary 6",
+  "JHS 1", "JHS 2", "JHS 3"
+];
+
+
 const TeachersDashboard = () => {
   const [teachers, setTeachers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,6 +34,7 @@ const TeachersDashboard = () => {
     phone: "",
     email: "",
     subjectSpecialization: [],
+    assignedClasses: [], // <-- NEW
     joinedDate: "",
     status: "Active",
   });
@@ -202,7 +210,26 @@ const TeachersDashboard = () => {
                       </span>
                     ))}
                   </div>
-
+                  <label>Select Assigned Class(es):</label>
+                    <div className="class-selection">
+                      {allClasses.map(cls => (
+                        <span
+                          key={cls}
+                          className={`class-tag ${formData.assignedClasses.includes(cls) ? "selected" : ""}`}
+                          onClick={() => {
+                            setFormData(prev => {
+                              const alreadySelected = prev.assignedClasses.includes(cls);
+                              const updated = alreadySelected
+                                ? prev.assignedClasses.filter(c => c !== cls)
+                                : [...prev.assignedClasses, cls];
+                              return { ...prev, assignedClasses: updated };
+                            });
+                          }}
+                        >
+                          {cls}
+                        </span>
+                      ))}
+                    </div>
                   <input type="date" name="joinedDate" value={formData.joinedDate} onChange={handleInput} required />
                   <select name="status" value={formData.status} onChange={handleInput}>
                     <option value="Active">Active</option>
