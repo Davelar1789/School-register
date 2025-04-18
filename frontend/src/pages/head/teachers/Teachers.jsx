@@ -8,10 +8,10 @@ import { jwtDecode } from "jwt-decode";
 import { toast } from "react-hot-toast";
 
 const allSubjects = [
-  "Mathematics", "English", "Biology", "Chemistry", "Physics",
-  "Civic Education", "Computer", "Literature", "Accounting",
-  "Commerce", "CRS", "Government", "Economics", "Business Studies",
-  "Social Studies", "Agricultural Science", "French", "Yoruba", "Others"
+  "Mathematics", "English Language", "Integrated Science", "Natural Science", "Social Studies",
+  "Ghanaian Language", "Computing", "RME", "OWOP",
+  "Career Technology", "Creative Arts", "French", "Economics", "Business Studies",
+ "Agricultural Science", "Spanish", "Yoruba", "Others"
 ];
 
 const TeachersDashboard = () => {
