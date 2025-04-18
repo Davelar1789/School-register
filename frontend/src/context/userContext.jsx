@@ -1,11 +1,17 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import api from "../api/axios";
 import { jwtDecode } from "jwt-decode";
+import api from "../api/axios";
 
 const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
+
+  const logout = () => {
+    localStorage.clear();
+    setCurrentUser(null);
+    window.location.href = "/login"; // safer navigation
+  };
 
   const fetchUserDetails = async () => {
     try {
@@ -13,25 +19,41 @@ export const UserProvider = ({ children }) => {
       if (!token) return;
 
       const decoded = jwtDecode(token);
-      if (decoded.role !== "admin") {
-        // Only fetch user profile if role is admin
-        setCurrentUser(decoded); // just use the decoded token
+      const currentTime = Date.now() / 1000;
+
+      if (decoded.exp < currentTime) {
+        console.log("Token expired, logging out...");
+        logout();
         return;
       }
 
-      // Fetch full profile from backend only for admin
+      // If user is not an admin, just use decoded info
+      if (decoded.role !== "admin") {
+        setCurrentUser(decoded);
+        return;
+      }
+
+      // For admin, fetch full profile
       const response = await api.get("/api/users/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
       setCurrentUser(response.data);
     } catch (error) {
-      console.error("Error fetching user details:", error);
+      console.error("Error fetching user:", error);
+      logout(); // fallback logout on error
     }
   };
 
   useEffect(() => {
     fetchUserDetails();
+
+    // Optional: auto-check every 30s if token expired
+    const interval = setInterval(() => {
+      fetchUserDetails();
+    }, 30000); // every 30s
+
+    return () => clearInterval(interval);
   }, []);
 
   return (
