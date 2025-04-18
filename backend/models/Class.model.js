@@ -12,17 +12,16 @@ const classSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
-  description: {
-    type: String,
-  },
+  description: String,
   level: {
     type: String,
     enum: ["Nursery", "Primary", "Junior High", "Senior High"],
     required: true,
   },
-  subjects: [
+  teachers: [
     {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Teacher",
     },
   ],
   students: [
@@ -31,12 +30,7 @@ const classSchema = new mongoose.Schema({
       ref: "Student",
     },
   ],
-  classTeacher: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Teacher", // optional: can be used to assign a head teacher
-  },
 }, { timestamps: true });
 
 const Class = mongoose.model("Class", classSchema);
-
 export default Class;
