@@ -12,8 +12,9 @@ export const UserProvider = ({ children }) => {
   const logout = () => {
     localStorage.clear();
     setCurrentUser(null);
-    navigate("/sign-in");
+    window.location.href = "/sign-in";
   };
+  
 
   const fetchUserDetails = async () => {
     try {
