@@ -11,7 +11,7 @@ const allSubjects = [
   "Mathematics", "English Language", "Integrated Science", "Natural Science", "Social Studies",
   "Ghanaian Language", "Computing", "RME", "OWOP",
   "Career Technology", "Creative Arts", "French", "Economics", "Business Studies",
-  "Agricultural Science", "Spanish", "Yoruba", "Others"
+   "Agricultural Science", "Spanish", "Yoruba", "Others"
 ];
 
 const TeachersDashboard = () => {
@@ -19,7 +19,6 @@ const TeachersDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStatus, setSelectedStatus] = useState("");
   const [filteredTeachers, setFilteredTeachers] = useState([]);
-  const [allClasses, setAllClasses] = useState([]); // This holds objects like { _id, name }
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
@@ -28,7 +27,6 @@ const TeachersDashboard = () => {
     phone: "",
     email: "",
     subjectSpecialization: [],
-    classesAssigned: [],
     joinedDate: "",
     status: "Active",
   });
@@ -43,7 +41,6 @@ const TeachersDashboard = () => {
   useEffect(() => {
     if (schoolId) {
       fetchTeachers();
-      fetchClasses();
     }
   }, [schoolId]);
 
@@ -55,15 +52,6 @@ const TeachersDashboard = () => {
       console.error("Failed to fetch teachers", err);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchClasses = async () => {
-    try {
-      const res = await axios.get(`/api/classes/school/${schoolId}`);
-      setAllClasses(res.data); // should be array of { _id, name }
-    } catch (err) {
-      console.error("Failed to fetch classes", err);
     }
   };
 
@@ -84,18 +72,6 @@ const TeachersDashboard = () => {
     });
   };
 
-  const handleClassClick = (classId) => {
-    setFormData((prev) => {
-      const current = prev.classesAssigned;
-      const isSelected = current.includes(classId);
-      const updated = isSelected
-        ? current.filter(id => id !== classId)
-        : [...current, classId];
-
-      return { ...prev, classesAssigned: updated };
-    });
-  };
-
   const handleAddTeacher = async (e) => {
     e.preventDefault();
     try {
@@ -109,7 +85,6 @@ const TeachersDashboard = () => {
         phone: "",
         email: "",
         subjectSpecialization: [],
-        classesAssigned: [],
         joinedDate: "",
         status: "Active",
       });
@@ -137,7 +112,6 @@ const TeachersDashboard = () => {
 
   const handleSearch = (term) => setSearchTerm(term);
   const handleFilterStatus = (status) => setSelectedStatus(status);
-
 
   return (
     <div className="teachers-container">
@@ -228,18 +202,8 @@ const TeachersDashboard = () => {
                       </span>
                     ))}
                   </div>
-                  <label>Select Class(es) Assigned:</label>
-                    <div className="class-selection">
-                      {allClasses.map(cls => (
-                        <span
-                          key={cls._id}
-                          className={`class-tag ${formData.classesAssigned.includes(cls._id) ? "selected" : ""}`}
-                          onClick={() => handleClassClick(cls._id)}
-                        >
-                          {cls.name}
-                        </span>
-                      ))}
-                    </div>
+
+                  <label>Date Joined:</label>
                   <input type="date" name="joinedDate" value={formData.joinedDate} onChange={handleInput} required />
                   <select name="status" value={formData.status} onChange={handleInput}>
                     <option value="Active">Active</option>
