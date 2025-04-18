@@ -93,6 +93,7 @@ const TeachersDashboard = () => {
         phone: "",
         email: "",
         subjectSpecialization: [],
+        assignedClasses: [], // <-- NEW
         joinedDate: "",
         status: "Active",
       });
