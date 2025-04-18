@@ -1,23 +1,41 @@
-/* ErrorStyles.css */
-.error-page, .not-found-page {
-  background-image: url('../assets/images/logback.jpg');
-  background-size: cover;
-  background-position: center;
+.not-found-wrapper {
   height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  color: white;
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
   text-align: center;
+  padding: 40px;
+  background-color: #f9f9f9;
+  color: #333;
 }
 
-.error-page h1, .not-found-page h1 {
-  font-size: 3rem;
-  margin-bottom: 20px;
+.not-found-wrapper h1 {
+  font-size: 6rem;
+  margin-bottom: 10px;
+  color: #ff4d4d;
 }
 
-.error-page p, .not-found-page p {
-  font-size: 1.5rem;
+.not-found-wrapper h2 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+.not-found-wrapper p {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+}
+
+.home-button {
+  background-color: #ff4d4d;
+  color: white;
+  text-decoration: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.home-button:hover {
+  background-color: #e84343;
 }
