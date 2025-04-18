@@ -33,6 +33,9 @@ export const createTeacher = async (req, res) => {
 
     if (!schoolId) return res.status(400).json({ message: "School ID is required" });
 
+    // Log incoming data
+    console.log("Incoming teacher data:", req.body);
+
     // Check if email already exists in Teacher model
     const existingTeacher = await Teacher.findOne({ email });
     if (existingTeacher) {
@@ -47,13 +50,20 @@ export const createTeacher = async (req, res) => {
 
     const staffId = await generateStaffId();
 
+    // Build new teacher
     const newTeacher = new Teacher({
       ...req.body,
       staffId,
       school: schoolId,
     });
 
+    console.log("New teacher to be saved:", newTeacher);
+
+    // Save to DB
     const savedTeacher = await newTeacher.save();
+
+    // Log after saving
+    console.log("Teacher successfully saved:", savedTeacher);
 
     // Optionally update school teacher count
     await School.findByIdAndUpdate(schoolId, {
@@ -62,7 +72,12 @@ export const createTeacher = async (req, res) => {
 
     res.status(201).json(savedTeacher);
   } catch (error) {
-    res.status(500).json({ message: "Error creating teacher", error });
+    console.error("Error creating teacher:", error.stack); // better error message
+    res.status(500).json({
+      message: "Error creating teacher",
+      error: error.message,
+      stack: error.stack,
+    });
   }
 };
 
