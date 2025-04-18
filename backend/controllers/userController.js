@@ -7,7 +7,7 @@ import asyncHandler from "express-async-handler";
 // Generate JWT Token with schoolId
 const generateToken = ({ id, fullName, role, schoolName, schoolId }) => {
   return jwt.sign({ id, fullName, role, schoolName, schoolId }, process.env.JWT_SECRET, {
-    expiresIn: "24h",
+    expiresIn: "1m",
   });
 };
 
