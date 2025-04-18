@@ -1,0 +1,32 @@
+.container {
+    max-width: 600px;
+    margin: auto;
+    padding: 2rem;
+    background: #f9f9f9;
+    border-radius: 10px;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .multiBox {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .multiBox span {
+    padding: 0.4rem 0.8rem;
+    background: #e0e0e0;
+    border-radius: 20px;
+    cursor: pointer;
+  }
+  
+  .selected {
+    background-color: #4caf50;
+    color: white;
+  }
+  
