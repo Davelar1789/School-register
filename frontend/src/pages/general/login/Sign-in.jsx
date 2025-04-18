@@ -65,7 +65,7 @@ function UserLogin() {
       </div>
 
       <div className="login-form-container">
-        <h2 className="login-title">Welcome Back!</h2>
+        <h2 className="login-title">Welcome Back Admin!</h2>
         <p className="login-subtitle">Log in to manage your account.</p>
 
         <form onSubmit={handleSubmit} className="login-form">
@@ -98,6 +98,9 @@ function UserLogin() {
 
         <p className="signup-link">
           Don't have an account? <Link to="/sign-up">Sign up here</Link>
+        </p>
+        <p className="signup-link">
+          Not an admin? <Link to="/teacher-login">Login as Teacher</Link>
         </p>
       </div>
     </div>
