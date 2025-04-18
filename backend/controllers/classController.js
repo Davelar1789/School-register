@@ -3,31 +3,36 @@ import Class from "../models/Class.model.js";
 
 // Create a new class
 export const createClass = async (req, res) => {
-  try {
-    const { school, className, description, level, subjects, classTeacher } = req.body;
-
-    // Optional: prevent duplicates within a school
-    const existing = await Class.findOne({ school, className });
-    if (existing) {
-      return res.status(400).json({ message: "Class with this name already exists for this school" });
+    try {
+      const { school, className, description, level, teachers = [], students = [] } = req.body;
+  
+      if (!school || !className || !level) {
+        return res.status(400).json({ message: "school, className, and level are required" });
+      }
+  
+      // Optional: prevent duplicates within a school
+      const existing = await Class.findOne({ school, className });
+      if (existing) {
+        return res.status(400).json({ message: "Class with this name already exists for this school" });
+      }
+  
+      const newClass = new Class({
+        school,
+        className,
+        description,
+        level,
+        teachers,
+        students,
+      });
+  
+      await newClass.save();
+      res.status(201).json(newClass);
+    } catch (err) {
+      console.error("Error creating class:", err.stack);
+      res.status(500).json({ message: "Server error", error: err.message });
     }
-
-    const newClass = new Class({
-      school,
-      className,
-      description,
-      level,
-      subjects,
-      classTeacher
-    });
-
-    await newClass.save();
-    res.status(201).json(newClass);
-  } catch (err) {
-    console.error("Error creating class:", err);
-    res.status(500).json({ message: "Server error" });
-  }
-};
+  };
+  
 
 // Get all classes for a school
 export const getClassesBySchool = async (req, res) => {
