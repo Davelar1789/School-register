@@ -34,7 +34,7 @@ const TeachersDashboard = () => {
     phone: "",
     email: "",
     subjectSpecialization: [],
-    assignedClasses: [], // <-- NEW
+    classesAssigned: [], // <-- add this line
     joinedDate: "",
     status: "Active",
   });
@@ -80,6 +80,19 @@ const TeachersDashboard = () => {
     });
   };
 
+  const handleClassClick = (className) => {
+    setFormData((prev) => {
+      const currentClasses = prev.classesAssigned;
+      const isSelected = currentClasses.includes(className);
+      const updatedClasses = isSelected
+        ? currentClasses.filter(c => c !== className)
+        : [...currentClasses, className];
+  
+      return { ...prev, classesAssigned: updatedClasses };
+    });
+  };
+  
+
   const handleAddTeacher = async (e) => {
     e.preventDefault();
     try {
@@ -93,7 +106,7 @@ const TeachersDashboard = () => {
         phone: "",
         email: "",
         subjectSpecialization: [],
-        assignedClasses: [], // <-- NEW
+        classesAssigned: [], // <-- add this line
         joinedDate: "",
         status: "Active",
       });
@@ -211,23 +224,15 @@ const TeachersDashboard = () => {
                       </span>
                     ))}
                   </div>
-                  <label>Select Assigned Class(es):</label>
+                  <label>Select Class(es) Assigned:</label>
                     <div className="class-selection">
-                      {allClasses.map(cls => (
+                      {allClasses.map(className => (
                         <span
-                          key={cls}
-                          className={`class-tag ${formData.assignedClasses.includes(cls) ? "selected" : ""}`}
-                          onClick={() => {
-                            setFormData(prev => {
-                              const alreadySelected = prev.assignedClasses.includes(cls);
-                              const updated = alreadySelected
-                                ? prev.assignedClasses.filter(c => c !== cls)
-                                : [...prev.assignedClasses, cls];
-                              return { ...prev, assignedClasses: updated };
-                            });
-                          }}
+                          key={className}
+                          className={`class-tag ${formData.classesAssigned.includes(className) ? "selected" : ""}`}
+                          onClick={() => handleClassClick(className)}
                         >
-                          {cls}
+                          {className}
                         </span>
                       ))}
                     </div>
