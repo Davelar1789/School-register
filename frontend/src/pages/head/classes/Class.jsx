@@ -17,42 +17,38 @@ const CreateClassPage = () => {
 
   const [teachers, setTeachers] = useState([]);
   const [students, setStudents] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [showModal, setShowModal] = useState(false);
 
-  useEffect(() => {
+  const fetchAllData = async () => {
     const schoolDataRaw = localStorage.getItem("schoolData");
-  
-    // If schoolData exists, set schoolId
+
     if (schoolDataRaw) {
       const schoolData = JSON.parse(schoolDataRaw);
-  
+
       if (schoolData && schoolData._id) {
-        localStorage.setItem("schoolId", schoolData._id);
-  
         const schoolId = schoolData._id;
-  
-        const fetchData = async () => {
-          try {
-            const [teacherRes, studentRes] = await Promise.all([
-              axios.get(`/api/teachers?schoolId=${schoolId}`),
-              axios.get(`/api/students?schoolId=${schoolId}`),
-            ]);
-            setTeachers(teacherRes.data);
-            setStudents(studentRes.data);
-          } catch (error) {
-            console.error("Error fetching teachers/students", error);
-          }
-        };
-  
-        fetchData();
-      } else {
-        console.error("schoolData exists but _id is missing.");
+        localStorage.setItem("schoolId", schoolId);
+
+        try {
+          const [teacherRes, studentRes, classRes] = await Promise.all([
+            axios.get(`/api/teachers?schoolId=${schoolId}`),
+            axios.get(`/api/student?schoolId=${schoolId}`),
+            axios.get(`/api/classes?schoolId=${schoolId}`),
+          ]);
+          setTeachers(teacherRes.data);
+          setStudents(studentRes.data);
+          setClasses(classRes.data);
+        } catch (error) {
+          console.error("Error fetching data", error);
+        }
       }
-    } else {
-      console.error("No schoolData found in localStorage.");
     }
+  };
+
+  useEffect(() => {
+    fetchAllData();
   }, []);
-  
-  
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -73,7 +69,6 @@ const CreateClassPage = () => {
     e.preventDefault();
     const schoolId = localStorage.getItem("schoolId");
 
-    // Prepare payload - only include teachers/students if not empty
     const payload = {
       school: schoolId,
       className: formData.className,
@@ -94,9 +89,24 @@ const CreateClassPage = () => {
         teachers: [],
         students: [],
       });
+      setShowModal(false);
+      fetchAllData(); // refresh list
+      toast.success('Class added successfully!');
     } catch (err) {
+      toast.error('Failed to add class. Please try again.');
       console.error("Error creating class", err);
       alert(err.response?.data?.message || "Failed to create class.");
+    }
+  };
+
+  const handleDelete = async classId => {
+    try {
+      await axios.delete(`/api/classes/${classId}`);
+      alert("Class deleted.");
+      fetchAllData();
+    } catch (err) {
+      console.error("Delete error", err);
+      alert("Failed to delete class.");
     }
   };
 
@@ -106,76 +116,118 @@ const CreateClassPage = () => {
       <div className="class-page2">
         <Sidebar />
         <div className="create-class-container">
-          <h2>Create New Class</h2>
-          <form onSubmit={handleSubmit} className="create-class-form">
-            <label>Class Name</label>
-            <input
-              type="text"
-              name="className"
-              value={formData.className}
-              onChange={handleChange}
-              required
-            />
+          <div style={{ display: "flex", justifyContent: "space-between" }}>
+            <h2>All Classes</h2>
+            <button onClick={() => setShowModal(true)}>Add Class</button>
+          </div>
 
-            <label>Description</label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={handleChange}
-            />
-
-            <label>Level</label>
-            <select
-              name="level"
-              value={formData.level}
-              onChange={handleChange}
-              required
-            >
-              <option value="">Select Level</option>
-              <option value="Nursery">Nursery</option>
-              <option value="Primary">Primary</option>
-              <option value="Junior High">Junior High</option>
-              <option value="Senior High">Senior High</option>
-            </select>
-
-            <label>Assign Teachers (Optional)</label>
-            <div className="select-multiple-box">
-              {teachers.map(t => (
-                <span
-                  key={t._id}
-                  className={
-                    formData.teachers.includes(t._id)
-                      ? "select-option selected"
-                      : "select-option"
-                  }
-                  onClick={() => handleMultiSelect(t._id, "teachers")}
-                >
-                  {t.name}
-                </span>
+          {/* Table of Classes */}
+          <table border="1" cellPadding="10">
+            <thead>
+              <tr>
+                <th>Class Name</th>
+                <th>Level</th>
+                <th>Teachers</th>
+                <th>Students</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {classes.map(cls => (
+                <tr key={cls._id}>
+                  <td>{cls.className}</td>
+                  <td>{cls.level}</td>
+                  <td>{cls.teachers?.length || 0}</td>
+                  <td>{cls.students?.length || 0}</td>
+                  <td>
+                    <button>Edit</button>
+                    <button onClick={() => handleDelete(cls._id)}>Delete</button>
+                  </td>
+                </tr>
               ))}
-            </div>
+            </tbody>
+          </table>
 
-            <label>Assign Students (Optional)</label>
-            <div className="select-multiple-box">
-              {students.map(s => (
-                <span
-                  key={s._id}
-                  className={
-                    formData.students.includes(s._id)
-                      ? "select-option selected"
-                      : "select-option"
-                  }
-                  onClick={() => handleMultiSelect(s._id, "students")}
+          {/* Modal Form */}
+          {showModal && (
+            <div className="modal">
+              <h3>Create New Class</h3>
+              <form onSubmit={handleSubmit}>
+                <label>Class Name</label>
+                <input
+                  type="text"
+                  name="className"
+                  value={formData.className}
+                  onChange={handleChange}
+                  required
+                />
+
+                <label>Description</label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                />
+
+                <label>Level</label>
+                <select
+                  name="level"
+                  value={formData.level}
+                  onChange={handleChange}
+                  required
                 >
-                  {s.name}
-                </span>
-              ))}
-            </div>
+                  <option value="">Select Level</option>
+                  <option value="Nursery">Nursery</option>
+                  <option value="Primary">Primary</option>
+                  <option value="Junior High">Junior High</option>
+                  <option value="Senior High">Senior High</option>
+                </select>
 
-            <button type="submit" className="submit-button">
-              Create Class
-            </button>
-          </form>
+                <label>Assign Teachers (Optional)</label>
+                <div>
+                  {teachers.map(t => (
+                    <span
+                      key={t._id}
+                      onClick={() => handleMultiSelect(t._id, "teachers")}
+                      style={{
+                        cursor: "pointer",
+                        margin: 4,
+                        background: formData.teachers.includes(t._id)
+                          ? "#ddd"
+                          : "transparent",
+                      }}
+                    >
+                      {t.name}
+                    </span>
+                  ))}
+                </div>
+
+                <label>Assign Students (Optional)</label>
+                <div>
+                  {students.map(s => (
+                    <span
+                      key={s._id}
+                      onClick={() => handleMultiSelect(s._id, "students")}
+                      style={{
+                        cursor: "pointer",
+                        margin: 4,
+                        background: formData.students.includes(s._id)
+                          ? "#ddd"
+                          : "transparent",
+                      }}
+                    >
+                      {s.name}
+                    </span>
+                  ))}
+                </div>
+
+                <button type="submit">Create</button>
+                <button type="button" onClick={() => setShowModal(false)}>
+                  Cancel
+                </button>
+              </form>
+            </div>
+          )}
         </div>
       </div>
     </div>
