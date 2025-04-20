@@ -116,37 +116,40 @@ const CreateClassPage = () => {
       <div className="class-page2">
         <Sidebar />
         <div className="create-class-container">
-          <div style={{ display: "flex", justifyContent: "space-between" }}>
-            <h2>All Classes</h2>
-            <button onClick={() => setShowModal(true)}>Add Class</button>
-          </div>
+        <div className="class-table-container">
+  <div className="class-table-header">
+    <h2>All Classes</h2>
+    <button onClick={() => setShowModal(true)}>Add Class</button>
+  </div>
 
-          {/* Table of Classes */}
-          <table border="1" cellPadding="10">
-            <thead>
-              <tr>
-                <th>Class Name</th>
-                <th>Level</th>
-                <th>Teachers</th>
-                <th>Students</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {classes.map(cls => (
-                <tr key={cls._id}>
-                  <td>{cls.className}</td>
-                  <td>{cls.level}</td>
-                  <td>{cls.teachers?.length || 0}</td>
-                  <td>{cls.students?.length || 0}</td>
-                  <td>
-                    <button>Edit</button>
-                    <button onClick={() => handleDelete(cls._id)}>Delete</button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+  {/* Table of Classes */}
+  <table className="class-table">
+    <thead>
+      <tr>
+        <th>Class Name</th>
+        <th>Level</th>
+        <th>Teachers</th>
+        <th>Students</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {classes.map(cls => (
+        <tr key={cls._id}>
+          <td>{cls.className}</td>
+          <td>{cls.level}</td>
+          <td>{cls.teachers?.length || 0}</td>
+          <td>{cls.students?.length || 0}</td>
+          <td>
+            <button className="icon-btn">Edit</button>
+            <button className="icon-btn" onClick={() => handleDelete(cls._id)}>Delete</button>
+          </td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
 
           {/* Modal Form */}
           {showModal && (
