@@ -3,6 +3,8 @@ import axios from "../../../api/axios";
 import "./Class.modules.css";
 import Header from "../../../components/Header2";
 import Sidebar from "../../../components/Sidebar";
+import { toast } from "react-hot-toast";
+
 
 const CreateClassPage = () => {
   const [formData, setFormData] = useState({
@@ -17,30 +19,39 @@ const CreateClassPage = () => {
   const [students, setStudents] = useState([]);
 
   useEffect(() => {
-    // Extract schoolId from schoolData if not already in localStorage
-    const schoolData = JSON.parse(localStorage.getItem("schoolData"));
-    if (schoolData && schoolData._id && !localStorage.getItem("schoolId")) {
-      localStorage.setItem("schoolId", schoolData._id);
-    }
+    const schoolDataRaw = localStorage.getItem("schoolData");
   
-    const fetchData = async () => {
-      const schoolId = localStorage.getItem("schoolId");
-      console.log("Fetched schoolId:", schoolId); // debug log
+    // If schoolData exists, set schoolId
+    if (schoolDataRaw) {
+      const schoolData = JSON.parse(schoolDataRaw);
   
-      try {
-        const [teacherRes, studentRes] = await Promise.all([
-          axios.get(`/api/teachers?schoolId=${schoolId}`),
-          axios.get(`/api/students?schoolId=${schoolId}`),
-        ]);
-        setTeachers(teacherRes.data);
-        setStudents(studentRes.data);
-      } catch (error) {
-        console.error("Error fetching teachers/students", error);
+      if (schoolData && schoolData._id) {
+        localStorage.setItem("schoolId", schoolData._id);
+  
+        const schoolId = schoolData._id;
+  
+        const fetchData = async () => {
+          try {
+            const [teacherRes, studentRes] = await Promise.all([
+              axios.get(`/api/teachers?schoolId=${schoolId}`),
+              axios.get(`/api/students?schoolId=${schoolId}`),
+            ]);
+            setTeachers(teacherRes.data);
+            setStudents(studentRes.data);
+          } catch (error) {
+            console.error("Error fetching teachers/students", error);
+          }
+        };
+  
+        fetchData();
+      } else {
+        console.error("schoolData exists but _id is missing.");
       }
-    };
-  
-    fetchData();
+    } else {
+      console.error("No schoolData found in localStorage.");
+    }
   }, []);
+  
   
 
   const handleChange = e => {
