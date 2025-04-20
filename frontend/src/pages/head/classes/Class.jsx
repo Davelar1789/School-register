@@ -32,9 +32,9 @@ const CreateClassPage = () => {
 
         try {
           const [teacherRes, studentRes, classRes] = await Promise.all([
-            axios.get(`/api/teachers?schoolId=${schoolId}`),
+            axios.get(``),
             axios.get(`/api/student?schoolId=${schoolId}`),
-            axios.get(`/api/classes?schoolId=${schoolId}`),
+            axios.get(`/api/classes/school/${schoolId}`),
           ]);
           setTeachers(teacherRes.data);
           setStudents(studentRes.data);

@@ -134,3 +134,14 @@ export const searchStudents = async (req, res) => {
   }
 };
 
+export const getStudentsBySchool = async (req, res) => {
+  const { schoolId } = req.params;
+
+  try {
+    const students = await Students.find({ school: schoolId }).select("_id name");
+    res.status(200).json(students);
+  } catch (err) {
+    console.error("Error fetching students:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+};

@@ -8,6 +8,7 @@ import {
   updateStudent,
   deleteStudent,
   searchStudents,
+  getStudentsBySchool,
 } from "../controllers/studentController.js";
 import { protect } from "../middleware/authMiddleware.js"; // if you're using JWT middleware
 
@@ -18,6 +19,7 @@ router.post("/", protect, createStudent);
 router.get("/", protect, getAllStudents);
 router.get("/search", searchStudents); // ?query=John
 router.get("/:id", getStudentById);
+router.get("/school/:schoolId", getStudentsBySchool);
 router.put("/:id", updateStudent);
 router.delete("/:id", deleteStudent);
 
