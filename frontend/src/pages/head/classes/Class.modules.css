@@ -1,5 +1,4 @@
 .create-class-container {
-  max-width: 600px;
   margin: auto;
   padding: 2rem;
   background: #f5f5f5;
@@ -84,7 +83,6 @@
 .class-table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 700px;
 }
 
 .class-table th,
