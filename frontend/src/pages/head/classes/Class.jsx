@@ -17,9 +17,16 @@ const CreateClassPage = () => {
   const [students, setStudents] = useState([]);
 
   useEffect(() => {
+    // Extract schoolId from schoolData if not already in localStorage
+    const schoolData = JSON.parse(localStorage.getItem("schoolData"));
+    if (schoolData && schoolData._id && !localStorage.getItem("schoolId")) {
+      localStorage.setItem("schoolId", schoolData._id);
+    }
+  
     const fetchData = async () => {
       const schoolId = localStorage.getItem("schoolId");
-      console.log(localStorage.getItem("schoolId")); 
+      console.log("Fetched schoolId:", schoolId); // debug log
+  
       try {
         const [teacherRes, studentRes] = await Promise.all([
           axios.get(`/api/teachers?schoolId=${schoolId}`),
@@ -31,8 +38,10 @@ const CreateClassPage = () => {
         console.error("Error fetching teachers/students", error);
       }
     };
+  
     fetchData();
   }, []);
+  
 
   const handleChange = e => {
     const { name, value } = e.target;
