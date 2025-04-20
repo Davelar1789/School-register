@@ -61,9 +61,17 @@
 }
 
 /* ========== NEW STYLES ADDED BELOW ========== */
+.table-wrapper {
+  overflow-x: auto;
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
 
 .class-table-container {
   padding: 2rem;
+  margin-top: 3rem;
 }
 
 .class-table-header {
@@ -76,6 +84,7 @@
 .class-table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 700px;
 }
 
 .class-table th,

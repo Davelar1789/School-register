@@ -122,34 +122,34 @@ const CreateClassPage = () => {
     <button onClick={() => setShowModal(true)}>Add Class</button>
   </div>
 
-  {/* Table of Classes */}
-  <table className="class-table">
-    <thead>
-      <tr>
-        <th>Class Name</th>
-        <th>Level</th>
-        <th>Teachers</th>
-        <th>Students</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {classes.map(cls => (
-        <tr key={cls._id}>
-          <td>{cls.className}</td>
-          <td>{cls.level}</td>
-          <td>{cls.teachers?.length || 0}</td>
-          <td>{cls.students?.length || 0}</td>
-          <td>
-            <button className="icon-btn">Edit</button>
-            <button className="icon-btn" onClick={() => handleDelete(cls._id)}>Delete</button>
-          </td>
+  <div className="table-wrapper">
+    <table className="class-table">
+      <thead>
+        <tr>
+          <th>Class Name</th>
+          <th>Level</th>
+          <th>Teachers</th>
+          <th>Students</th>
+          <th>Actions</th>
         </tr>
-      ))}
-    </tbody>
-  </table>
+      </thead>
+      <tbody>
+        {classes.map(cls => (
+          <tr key={cls._id}>
+            <td>{cls.className}</td>
+            <td>{cls.level}</td>
+            <td>{cls.teachers?.length || 0}</td>
+            <td>{cls.students?.length || 0}</td>
+            <td>
+              <button className="icon-btn">Edit</button>
+              <button className="icon-btn" onClick={() => handleDelete(cls._id)}>Delete</button>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
 </div>
-
 
           {/* Modal Form */}
           {showModal && (
