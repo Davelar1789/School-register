@@ -19,6 +19,7 @@ const CreateClassPage = () => {
   useEffect(() => {
     const fetchData = async () => {
       const schoolId = localStorage.getItem("schoolId");
+      console.log(localStorage.getItem("schoolId")); 
       try {
         const [teacherRes, studentRes] = await Promise.all([
           axios.get(`/api/teachers?schoolId=${schoolId}`),
