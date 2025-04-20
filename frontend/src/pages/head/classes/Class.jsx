@@ -32,8 +32,8 @@ const CreateClassPage = () => {
 
         try {
           const [teacherRes, studentRes, classRes] = await Promise.all([
-            axios.get(``),
-            axios.get(`/api/student?schoolId=${schoolId}`),
+            axios.get(`/api/teachers/school/${schoolId}`),
+            axios.get(`/api/student/school/${schoolId}`),
             axios.get(`/api/classes/school/${schoolId}`),
           ]);
           setTeachers(teacherRes.data);
