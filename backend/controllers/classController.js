@@ -53,3 +53,27 @@ export const getClassesBySchool = async (req, res) => {
   }
 };
 
+export const assignTeacherToClass = async (req, res) => {
+  const { teacherId, classId } = req.body;
+
+  try {
+    // Step 1: Add class to teacher's assigned classes
+    await Teacher.findByIdAndUpdate(
+      teacherId,
+      { $addToSet: { classesAssigned: classId } },
+      { new: true }
+    );
+
+    // Step 2: Add teacher to class's teacher list
+    await Class.findByIdAndUpdate(
+      classId,
+      { $addToSet: { teachers: teacherId } },
+      { new: true }
+    );
+
+    res.status(200).json({ message: 'Teacher successfully assigned to class' });
+  } catch (error) {
+    console.error('Error assigning teacher to class:', error);
+    res.status(500).json({ error: 'Something went wrong while assigning teacher to class' });
+  }
+};
