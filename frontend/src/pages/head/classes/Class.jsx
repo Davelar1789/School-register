@@ -191,7 +191,7 @@ const CreateClassPage = () => {
                   <option value="Senior High">Senior High</option>
                 </select>
 
-                <label>Assign Teachers (Optional)</label>
+                {/* <label>Assign Teachers (Optional)</label>
                 <div>
                   {teachers.map(t => (
                     <span
@@ -227,7 +227,7 @@ const CreateClassPage = () => {
                       {s.name}
                     </span>
                   ))}
-                </div>
+                </div> */}
 
                 <button type="submit">Create</button>
                 <button type="button" onClick={() => setShowModal(false)}>
