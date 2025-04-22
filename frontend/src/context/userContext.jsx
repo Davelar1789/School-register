@@ -25,9 +25,7 @@ export const UserProvider = ({ children }) => {
       console.log("Token Expiry Time:", decoded.exp);
       console.log("Current Time:", currentTime);
       if (decoded.exp < currentTime) {
-        console.log("Token expired, logging out...");
-        console.log("Token Expiry Time (in human-readable format):", new Date(decoded.exp * 1000));
-        console.log("Current Time (in human-readable format):", new Date(currentTime * 1000));
+       
         logout();
         return;
       }
