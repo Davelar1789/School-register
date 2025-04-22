@@ -30,13 +30,23 @@ const TeacherDetails = () => {
   };
 
   const fetchClasses = async () => {
-    try {
-      const { data } = await axios.get('/api/classes');
-      setAllClasses(data);
-    } catch (error) {
-      toast.error('Could not fetch class list');
+    const schoolDataRaw = localStorage.getItem("schoolData");
+  
+    if (schoolDataRaw) {
+      const schoolData = JSON.parse(schoolDataRaw);
+  
+      if (schoolData && schoolData._id) {
+        const schoolId = schoolData._id;
+        try {
+          const { data } = await axios.get(`/api/classes/school/${schoolId}`);
+          setAllClasses(data);
+        } catch (error) {
+          toast.error('Could not fetch class list');
+        }
+      }
     }
   };
+  
 
   const handleAssignClass = async (classId) => {
     try {
