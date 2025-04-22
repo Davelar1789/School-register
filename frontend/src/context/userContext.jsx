@@ -16,35 +16,37 @@ export const UserProvider = ({ children }) => {
   const fetchUserDetails = async () => {
     try {
       const token = localStorage.getItem("token");
-      if (!token) return;
-
+      if (!token) {
+        console.log("No token found in local storage.");
+        return;
+      }
       const decoded = jwtDecode(token);
       const currentTime = Date.now() / 1000;
-
+      console.log("Token Expiry Time:", decoded.exp);
+      console.log("Current Time:", currentTime);
       if (decoded.exp < currentTime) {
         console.log("Token expired, logging out...");
+        console.log("Token Expiry Time (in human-readable format):", new Date(decoded.exp * 1000));
+        console.log("Current Time (in human-readable format):", new Date(currentTime * 1000));
         logout();
         return;
       }
-
       // If user is not an admin, just use decoded info
       if (decoded.role !== "admin") {
         setCurrentUser(decoded);
         return;
       }
-
       // For admin, fetch full profile
       const response = await api.get("/api/users/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       setCurrentUser(response.data);
     } catch (error) {
       console.error("Error fetching user:", error);
       logout(); // fallback logout on error
     }
   };
-
+  
   useEffect(() => {
     fetchUserDetails();
 

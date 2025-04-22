@@ -5,6 +5,7 @@ import Header from "../../../components/Header2";
 import Sidebar from "../../../components/Sidebar";
 import { MdDelete, MdEdit } from "react-icons/md";
 import axios from "../../../api/axios";
+import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-hot-toast";
 
@@ -179,7 +180,11 @@ const TeachersDashboard = () => {
                   {filteredTeachers.map((teacher) => (
                     <tr key={teacher._id}>
                       <td>{teacher.staffId}</td>
-                      <td>{teacher.name}</td>
+                      <td>
+                        <Link to={`/teachers/${teacher._id}`} className="teacher-name-link">
+                          {teacher.name}
+                        </Link>
+                      </td>
                       <td>{teacher.phone}</td>
                       <td>{teacher.email || "-"}</td>
                       <td>{new Date(teacher.joinedDate).toLocaleDateString()}</td>
