@@ -22,8 +22,7 @@ export const UserProvider = ({ children }) => {
       }
       const decoded = jwtDecode(token);
       const currentTime = Date.now() / 1000;
-      console.log("Token Expiry Time:", decoded.exp);
-      console.log("Current Time:", currentTime);
+     
       if (decoded.exp < currentTime) {
        
         logout();
