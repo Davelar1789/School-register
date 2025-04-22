@@ -50,8 +50,8 @@ const TeacherDetails = () => {
 
   const handleAssignClass = async (classId) => {
     try {
-      const { data } = await axios.post(`/api/teachers/${id}/assign-classes`, { classId });
-      setAssignedClasses(data.classesAssigned);
+        const { data } = await axios.put(`/api/teachers/${id}/assign-classes`, { classId });
+        setAssignedClasses(data.classesAssigned);
       toast.success('Class assigned successfully');
     } catch (error) {
       toast.error('Failed to assign class');
@@ -94,7 +94,7 @@ const TeacherDetails = () => {
             <option value="">Select a class</option>
             {allClasses.map((cls) => (
               <option key={cls._id} value={cls._id}>
-                {cls.name}
+                {cls.className}
               </option>
             ))}
           </select>
