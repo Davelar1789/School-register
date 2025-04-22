@@ -32,12 +32,7 @@ const teacherSchema = new mongoose.Schema({
     type: [String],
     default: [],
   },
-  classesAssigned: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Class", // assuming you have a Class model
-    }
-  ],  
+  classesAssigned: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Class' }],
   joinedDate: {
     type: Date,
     default: Date.now,
