@@ -50,7 +50,7 @@ const TeacherDetails = () => {
 
   const handleAssignClass = async (classId) => {
     try {
-      const { data } = await axios.post(`/api/teachers/${id}/assign-class`, { classId });
+      const { data } = await axios.post(`/api/teachers/${id}/assign-classes`, { classId });
       setAssignedClasses(data.classesAssigned);
       toast.success('Class assigned successfully');
     } catch (error) {
