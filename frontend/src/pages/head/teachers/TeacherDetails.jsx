@@ -103,7 +103,7 @@ const TeacherDetails = () => {
             <h4>Currently Assigned Classes:</h4>
             <ul>
               {assignedClasses.map((cls, index) => (
-                <li key={index}>{cls.name || cls}</li>
+                <li key={index}>{cls.className || cls}</li>
               ))}
             </ul>
           </div>

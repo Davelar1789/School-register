@@ -229,3 +229,29 @@ export const deleteTeacher = async (req, res) => {
     res.status(500).json({ message: "Error deleting teacher", error });
   }
 };
+
+// Assign class(es) to teacher
+export const assignClassesToTeacher = async (req, res) => {
+  const { teacherId } = req.params;
+  const { classIds } = req.body; // expects an array of class ObjectIds
+
+  if (!Array.isArray(classIds) || classIds.length === 0) {
+    return res.status(400).json({ message: "classIds must be a non-empty array" });
+  }
+
+  try {
+    const teacher = await Teacher.findById(teacherId);
+    if (!teacher) return res.status(404).json({ message: "Teacher not found" });
+
+    // Avoid duplicates
+    const updatedClassList = Array.from(new Set([...teacher.classesAssigned.map(id => id.toString()), ...classIds]));
+
+    teacher.classesAssigned = updatedClassList;
+    await teacher.save();
+
+    res.status(200).json({ message: "Classes assigned successfully", classesAssigned: teacher.classesAssigned });
+  } catch (error) {
+    console.error("Error assigning classes:", error);
+    res.status(500).json({ message: "Failed to assign classes", error });
+  }
+};

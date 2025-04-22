@@ -8,6 +8,7 @@ import {
   deleteTeacher,
   loginTeacher,
   verifyTeacherEmail,
+  assignClassesToTeacher,
   firstTimeSetup} from "../controllers/teacherController.js";
 import { protect } from "../middleware/authMiddleware.js"; // if you're using JWT middleware
 
@@ -22,5 +23,7 @@ router.get("/school/:schoolId", getTeachersBySchool);
 router.get("/:id", getTeacherById);
 router.put("/:id", updateTeacher);
 router.delete("/:id", deleteTeacher);
+router.put("/:teacherId/assign-classes", assignClassesToTeacher);
+
 
 export default router;
