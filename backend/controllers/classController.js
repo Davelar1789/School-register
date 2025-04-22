@@ -39,10 +39,14 @@ export const getClassesBySchool = async (req, res) => {
   try {
     const { schoolId } = req.params;
 
-    const classes = await Class.find({ school: schoolId }).select("_id className");
+    const classes = await Class.find({ school: schoolId })
+      .populate("teachers", "name") // optional
+      .populate("students", "name");
+
     res.status(200).json(classes);
   } catch (err) {
     console.error("Error fetching classes:", err);
     res.status(500).json({ message: "Server error" });
   }
 };
+
