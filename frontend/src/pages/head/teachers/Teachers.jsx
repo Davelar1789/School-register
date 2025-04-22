@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import "./Teachers.modules.css";
 import Header from "../../../components/Header2";
 import Sidebar from "../../../components/Sidebar";
+import { MdDelete, MdEdit } from "react-icons/md";
 import axios from "../../../api/axios";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-hot-toast";
@@ -94,6 +95,21 @@ const TeachersDashboard = () => {
     }
   };
 
+  const handleDelete = async (teacherId) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this teacher?");
+    if (!confirmDelete) return;
+  
+    try {
+      await axios.delete(`/api/teachers/${teacherId}`);
+      toast.success("Teacher deleted successfully");
+      fetchTeachers(); // Refresh the list
+    } catch (error) {
+      console.error("Failed to delete teacher", error);
+      toast.error("Failed to delete teacher");
+    }
+  };
+  
+
   useEffect(() => {
     let filtered = teachers;
 
@@ -154,9 +170,9 @@ const TeachersDashboard = () => {
                     <th>Name</th>
                     <th>Phone</th>
                     <th>Email</th>
-                    <th>Subjects</th>
                     <th>Joined</th>
                     <th>Status</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -166,9 +182,19 @@ const TeachersDashboard = () => {
                       <td>{teacher.name}</td>
                       <td>{teacher.phone}</td>
                       <td>{teacher.email || "-"}</td>
-                      <td>{teacher.subjectSpecialization?.join(", ")}</td>
                       <td>{new Date(teacher.joinedDate).toLocaleDateString()}</td>
                       <td>{teacher.status}</td>
+                      <td className="students-actions">
+                    <button className="students-edit">
+                      <MdEdit />
+                    </button>
+                    <button
+                      className="students-delete"
+                      onClick={() => handleDelete(teacher._id)}
+                      >
+                      <MdDelete />
+                    </button>
+                  </td>
                     </tr>
                   ))}
                 </tbody>
