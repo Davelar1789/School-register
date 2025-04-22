@@ -240,15 +240,18 @@ export const assignClassesToTeacher = async (req, res) => {
   }
 
   try {
-    const teacher = await Teacher.findById(id);
+    const teacher = await Teacher.findById(id).populate('classesAssigned', 'className');
     if (!teacher) return res.status(404).json({ message: "Teacher not found" });
 
     const updatedClassList = Array.from(new Set([...teacher.classesAssigned.map(id => id.toString()), ...classIds]));
     teacher.classesAssigned = updatedClassList;
     await teacher.save();
 
-    res.status(200).json({ message: "Classes assigned successfully", classesAssigned: teacher.classesAssigned });
-  } catch (error) {
+    res.status(200).json({
+      message: "Classes assigned successfully",
+      classesAssigned: teacher.classesAssigned,
+    });
+      } catch (error) {
     console.error("Error assigning classes:", error);
     res.status(500).json({ message: "Failed to assign classes", error });
   }
