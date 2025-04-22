@@ -232,7 +232,7 @@ export const deleteTeacher = async (req, res) => {
 
 // Assign class(es) to teacher
 export const assignClassesToTeacher = async (req, res) => {
-  const { teacherId } = req.params;
+  const { id } = req.params;
   const { classIds } = req.body;
 
   if (!Array.isArray(classIds) || classIds.length === 0) {
@@ -240,7 +240,7 @@ export const assignClassesToTeacher = async (req, res) => {
   }
 
   try {
-    const teacher = await Teacher.findById(teacherId);
+    const teacher = await Teacher.findById(id);
     if (!teacher) return res.status(404).json({ message: "Teacher not found" });
 
     // Avoid duplicates
@@ -250,7 +250,7 @@ export const assignClassesToTeacher = async (req, res) => {
     await teacher.save();
 
     // Re-fetch the teacher and populate class names
-    const updatedTeacher = await Teacher.findById(teacherId).populate('classesAssigned', 'className');
+    const updatedTeacher = await Teacher.findById(id).populate('classesAssigned', 'className');
 
     res.status(200).json({
       message: "Classes assigned successfully",
