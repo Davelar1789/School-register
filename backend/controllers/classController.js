@@ -1,5 +1,7 @@
 // controllers/classController.js
 import Class from "../models/Class.model.js";
+import Student from "../models/Student.model.js"; // ✅ Add this
+import Teacher from "../models/Teacher.model.js"; // ✅ Also recommended
 
 // Create a new class
 export const createClass = async (req, res) => {
