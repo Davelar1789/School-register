@@ -23,7 +23,7 @@ router.get("/school/:schoolId", getTeachersBySchool);
 router.get("/:id", getTeacherById);
 router.put("/:id", updateTeacher);
 router.delete("/:id", deleteTeacher);
-router.put("/:teacherId/assign-classes", assignClassesToTeacher);
+router.put("/:id/assign-classes", assignClassesToTeacher);
 
 
 export default router;
