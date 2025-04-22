@@ -20,7 +20,7 @@ router.post("/setup", firstTimeSetup);              // Phase 2
 router.post("/login", loginTeacher);                // Phase 3
 router.get("/school/:schoolId", getTeachersBySchool);
 router.get("/:id", getTeacherById);
-router.put("/:id", protect, updateTeacher);
-router.delete("/:id", protect, deleteTeacher);
+router.put("/:id", updateTeacher);
+router.delete("/:id", deleteTeacher);
 
 export default router;
