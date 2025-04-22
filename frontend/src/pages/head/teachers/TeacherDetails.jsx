@@ -49,10 +49,10 @@ const TeacherDetails = () => {
   
 
   const handleAssignClass = async (classId) => {
-    console.log("Assigning class ID:", classId);
-  
     try {
-      const { data } = await axios.put(`/api/teachers/${id}/assign-classes`, { classId });
+      const { data } = await axios.put(`/api/teachers/${id}/assign-classes`, {
+        classIds: [classId], // ✅ send as array with correct key
+      });
       setAssignedClasses(data.classesAssigned);
       toast.success('Class assigned successfully');
     } catch (error) {
@@ -60,6 +60,7 @@ const TeacherDetails = () => {
       toast.error('Failed to assign class');
     }
   };
+  
   
   if (loading) return <p>Loading...</p>;
 
