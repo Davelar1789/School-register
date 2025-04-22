@@ -13,10 +13,12 @@ export const authToken = (req, res, next) => {
       if (err) {
         if (err.name === "TokenExpiredError") {
           console.error("Token Expired:", err.message);
+          console.log("Decoded token or error reason:", err || error);
           return res.status(401).json({ message: "Token has expired" });
         }
     
         console.error("Token Authentication Error:", err.message);
+        console.log("Decoded token or error reason:", err || error);
         return res.status(403).json({ message: "Invalid or tampered token" });
       }
     
