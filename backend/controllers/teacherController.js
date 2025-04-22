@@ -1,6 +1,7 @@
 // controllers/teacherController.js
 import Teacher from "../models/Teacher.model.js";
 import School from "../models/School.model.js";
+import Class from "../models/Class.model.js";
 import User from "../models/User.model.js";
 import jwt from "jsonwebtoken";
 
@@ -192,11 +193,15 @@ export const getTeachersBySchool = async (req, res) => {
 // Get single teacher by ID
 export const getTeacherById = async (req, res) => {
   try {
-    const teacher = await Teacher.findById(req.params.id);
+    const teacher = await Teacher.findById(req.params.id)
+      .populate('classesAssigned', 'className'); // ✅ this line populates class names
+
     if (!teacher) return res.status(404).json({ message: "Teacher not found" });
+
     res.status(200).json(teacher);
   } catch (error) {
-    res.status(500).json({ message: "Error fetching teacher", error });
+    console.error("Error fetching teacher:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
