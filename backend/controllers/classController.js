@@ -42,8 +42,9 @@ export const getClassesBySchool = async (req, res) => {
     const { schoolId } = req.params;
 
     const classes = await Class.find({ school: schoolId })
-      .populate("teachers", "name") // optional
-      .populate("students", "name");
+    .populate({ path: "teachers", select: "name" })
+    .populate({ path: "students", model: "students", select: "name" });
+  
 
     res.status(200).json(classes);
   } catch (err) {
