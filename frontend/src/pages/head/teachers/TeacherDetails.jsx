@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import './TeacherDetails.modules.css';
-import axios from 'axios';
 import { useParams } from 'react-router-dom';
-import Header from '../components/Header';
-import Sidebar from '../components/Sidebar';
+import Header from "../../../components/Header2";
+import Sidebar from "../../../components/Sidebar";
+import axios from "../../../api/axios";
 import { toast } from "react-hot-toast";
 
 const TeacherDetails = () => {
