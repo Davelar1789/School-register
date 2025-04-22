@@ -42,8 +42,8 @@ export const UserProvider = ({ children }) => {
       });
       setCurrentUser(response.data);
     } catch (error) {
-      console.error("Error fetching user:", error);
-      logout(); // fallback logout on error
+      console.error("Error fetching user:", error?.response?.data || error.message);
+      // logout(); // comment this to test behavior
     }
   };
   
