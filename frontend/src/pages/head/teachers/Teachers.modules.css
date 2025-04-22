@@ -83,6 +83,16 @@ body {
     background-color: #f9f9f9;
   }
   
+  .teacher-name-link {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .teacher-name-link:hover {
+    text-decoration: underline;
+  }
+  
   .students-actions {
     display: flex;
     gap: 10px;
@@ -108,7 +118,7 @@ body {
     background-color: #ffe5e5;
     color: #d32f2f;
   }
-  
+
   /* Modal Styles */
   .modal-backdrop {
     position: fixed;
