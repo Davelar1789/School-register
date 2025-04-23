@@ -20,7 +20,7 @@ router.post("/", createTeacher);
 router.post("/verify-email", verifyTeacherEmail);   // Phase 1
 router.post("/setup", firstTimeSetup);              // Phase 2
 router.post("/login", loginTeacher);   
-router.get("/teacher/teacher-classes", getTeacherClasses);          
+router.get("/teacher/teacher-classes", protect, getTeacherClasses);          
 router.get("/school/:schoolId", getTeachersBySchool);
 router.get("/:id", getTeacherById);
 router.put("/:id", updateTeacher);
