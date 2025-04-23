@@ -2,6 +2,8 @@
 
 import Students from "../models/Student.model.js";
 import School from "../models/School.model.js"; // ⬅️ Import the School model if not already
+import Class from "../models/Class.model.js"; // or whatever your model file is named
+
 
 
 const generateUniqueId = async () => {
@@ -100,15 +102,23 @@ export const updateStudent = async (req, res) => {
 export const deleteStudent = async (req, res) => {
   try {
     const schoolId = req.user?.schoolId || req.query.schoolId;
+
     const deletedStudent = await Students.findOneAndDelete({
       _id: req.params.id,
       schoolId,
     });
 
-    if (!deletedStudent)
+    if (!deletedStudent) {
       return res.status(404).json({ message: "Student not found or unauthorized" });
+    }
 
-    // ✅ Decrease the student count
+    // ✅ Remove student from any class they are assigned to
+    await Class.updateMany(
+      { students: deletedStudent._id }, // Find all classes with the student
+      { $pull: { students: deletedStudent._id } } // Remove them from the array
+    );
+
+    // ✅ Decrease student count
     await School.findByIdAndUpdate(
       schoolId,
       { $inc: { numberOfStudents: -1 } }
@@ -116,10 +126,10 @@ export const deleteStudent = async (req, res) => {
 
     res.status(200).json({ message: "Student deleted successfully" });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Error deleting student", error });
   }
 };
-
 
 // Search student by name or ID number (optional)
 export const searchStudents = async (req, res) => {
