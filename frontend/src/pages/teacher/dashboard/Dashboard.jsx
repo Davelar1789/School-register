@@ -10,13 +10,20 @@ const TeacherDashboard = () => {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const response = await api.get("/api/teachers/teacher/teacher-classes");
+        const token = localStorage.getItem("token");
+  
+        const response = await api.get("/api/teachers/teacher/teacher-classes", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+  
         setClassCount(response.data.count);
       } catch (error) {
-        console.error("Error fetching class count:", error);
+        console.error("Error fetching class count:", error.response?.data || error.message);
       }
     };
-
+  
     fetchClasses();
   }, []);
   
