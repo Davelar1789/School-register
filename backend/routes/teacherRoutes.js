@@ -19,13 +19,13 @@ const router = express.Router();
 router.post("/", createTeacher);
 router.post("/verify-email", verifyTeacherEmail);   // Phase 1
 router.post("/setup", firstTimeSetup);              // Phase 2
-router.post("/login", loginTeacher);                // Phase 3
+router.post("/login", loginTeacher);   
+router.get("/teacher-classes", getTeacherClasses);          
 router.get("/school/:schoolId", getTeachersBySchool);
 router.get("/:id", getTeacherById);
 router.put("/:id", updateTeacher);
 router.delete("/:id", deleteTeacher);
 router.put("/:id/assign-classes", assignClassesToTeacher);
-router.get("/teacher-classes", getTeacherClasses);
 
 
 
