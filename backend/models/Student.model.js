@@ -20,7 +20,7 @@ const subjectSchema = new Schema({
 const studentSchema = new Schema(
   {
     name: { type: String, required: true, trim: true },
-    class: { type: String, required: true, trim: true },
+    classes: [{ type: Schema.Types.ObjectId, ref: "Class" }],
     idno: { type: String, unique: true, trim: true }, // No longer required here
     dob: { type: String, required: true },
     phone: { type: String, trim: true },

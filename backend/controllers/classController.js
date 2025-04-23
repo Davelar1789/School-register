@@ -77,3 +77,29 @@ export const assignTeacherToClass = async (req, res) => {
     res.status(500).json({ error: 'Something went wrong while assigning teacher to class' });
   }
 };
+
+export const assignStudentToClass = async (req, res) => {
+  const { studentId, classId } = req.body;
+
+  try {
+    // Step 1: Add class ID to student's class array (optional if you store full array)
+    await Students.findByIdAndUpdate(
+      studentId,
+      { $addToSet: { class: classId } }, // Or update another field if needed
+      { new: true }
+    );
+
+    // Step 2: Add student to class's students array
+    await Class.findByIdAndUpdate(
+      classId,
+      { $addToSet: { students: studentId } },
+      { new: true }
+    );
+
+    res.status(200).json({ message: "Student successfully assigned to class" });
+  } catch (error) {
+    console.error("Error assigning student to class:", error);
+    res.status(500).json({ error: "Something went wrong while assigning student to class" });
+  }
+};
+

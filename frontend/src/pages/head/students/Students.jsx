@@ -83,6 +83,7 @@ const Students = () => {
       toast.error("Failed to delete student");
     }
   };
+  
 
   const handleSearch = (value) => {
     setSearchTerm(value);
@@ -111,24 +112,25 @@ const Students = () => {
 
   const handleAddStudent = async () => {
     const { name, class: studentClass, dob } = newStudent;
-
+  
     if (!name || !studentClass || !dob) {
       toast.error("Please fill in all required fields.");
       return;
     }
-
+  
     const generatedId = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit ID
-
+  
     try {
       const formattedDOB = newStudent.dob.split("T")[0];
-
+  
+      // Step 1: Create the student
       const res = await api.post(
         "/api/student",
         {
           ...newStudent,
           dob: formattedDOB,
           idno: generatedId,
-          schoolId, // ⬅️ Add this
+          schoolId,
         },
         {
           headers: {
@@ -136,10 +138,27 @@ const Students = () => {
           },
         }
       );
-
-      setStudents((prev) => [...prev, res.data]);
-      setFilteredStudents((prev) => [...prev, res.data]);
-      toast.success("Student added successfully");
+  
+      const createdStudent = res.data;
+  
+      // Step 2: Assign the student to the selected class
+      await api.post(
+        "/api/classes/assign-student",
+        {
+          studentId: createdStudent._id,
+          classId: studentClass,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+  
+      setStudents((prev) => [...prev, createdStudent]);
+      setFilteredStudents((prev) => [...prev, createdStudent]);
+  
+      toast.success("Student added and assigned to class successfully");
       setShowModal(false);
       setNewStudent({
         name: "",
@@ -150,9 +169,10 @@ const Students = () => {
       });
     } catch (err) {
       console.error(err);
-      toast.error("Failed to add student");
+      toast.error("Failed to add and assign student");
     }
   };
+  
 
   useEffect(() => {
     fetchStudents();
@@ -213,7 +233,7 @@ const Students = () => {
               {filteredStudents.map((student) => (
                 <tr key={student._id}>
                   <td>{student.name}</td>
-                  <td>{student.class}</td>
+                  <td>{student.className}</td>
                   <td>{student.idno}</td>
                   <td>{student.dob}</td>
                   <td>{student.phone || "N/A"}</td>
