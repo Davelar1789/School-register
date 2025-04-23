@@ -96,6 +96,7 @@ export const updateStudent = async (req, res) => {
 };
 
 // Delete student
+// Delete student
 export const deleteStudent = async (req, res) => {
   try {
     const schoolId = req.user?.schoolId || req.query.schoolId;
@@ -106,6 +107,12 @@ export const deleteStudent = async (req, res) => {
 
     if (!deletedStudent)
       return res.status(404).json({ message: "Student not found or unauthorized" });
+
+    // ✅ Decrease the student count
+    await School.findByIdAndUpdate(
+      schoolId,
+      { $inc: { numberOfStudents: -1 } }
+    );
 
     res.status(200).json({ message: "Student deleted successfully" });
   } catch (error) {
