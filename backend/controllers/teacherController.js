@@ -269,22 +269,15 @@ export const assignClassesToTeacher = async (req, res) => {
 
 export const getTeacherClasses = async (req, res) => {
   try {
-    const teacherId = req.user?.id;
-    console.log("Fetching classes for teacher ID:", teacherId);
+    const teacherId = req.user._id; // Now it should work!
+    console.log("✅ Teacher ID from token:", teacherId);
 
-    if (!teacherId) {
-      console.error("No teacherId found in req.user");
-      return res.status(400).json({ message: "Unauthorized or invalid token" });
-    }
+    const classes = await Class.find({ teachers: teacherId }); // using `teachers` array
 
-    const classes = await Class.find({ teacherId });
-
-    console.log("Classes fetched:", classes);
     res.json({ count: classes.length, classes });
-
   } catch (err) {
-    console.error("Error fetching classes:", err);
-    res.status(500).json({ message: "Failed to fetch classes", error: err.message || err });
+    console.error("❌ Error fetching classes:", err.message || err);
+    res.status(500).json({ message: "Failed to fetch classes" });
   }
 };
 
