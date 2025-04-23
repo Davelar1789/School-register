@@ -10,7 +10,7 @@ const TeacherDashboard = () => {
   useEffect(() => {
     const fetchClasses = async () => {
       try {
-        const response = await api.get("/api/teachers/teachers/teacher-classes");
+        const response = await api.get("/api/teachers/teacher/teacher-classes");
         setClassCount(response.data.count);
       } catch (error) {
         console.error("Error fetching class count:", error);
