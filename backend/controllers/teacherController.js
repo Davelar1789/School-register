@@ -269,11 +269,17 @@ export const assignClassesToTeacher = async (req, res) => {
 
 export const getTeacherClasses = async (req, res) => {
   try {
-    const teacherId = req.user._id; // Now it should work!
+    const teacherId = req.user._id;
     console.log("✅ Teacher ID from token:", teacherId);
 
-    const classes = await Class.find({ teachers: teacherId }); // using `teachers` array
+    const teacher = await Teacher.findById(teacherId).populate("classesAssigned");
+    if (!teacher) {
+      return res.status(404).json({ message: "Teacher not found" });
+    }
 
+    const classes = teacher.classesAssigned;
+
+    console.log("✅ Classes fetched:", classes);
     res.json({ count: classes.length, classes });
   } catch (err) {
     console.error("❌ Error fetching classes:", err.message || err);
