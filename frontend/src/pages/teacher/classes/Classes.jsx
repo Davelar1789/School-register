@@ -50,7 +50,6 @@ const Classes = () => {
             <div key={cls._id} className="class-card">
               <h3>{cls.className}</h3>
               <p><strong>Level:</strong> {cls.level}</p>
-              <p><strong>Description:</strong> {cls.description || "No description provided."}</p>
               <p><strong>Students:</strong> {cls.students?.length || 0}</p>
             </div>
           ))}

@@ -10,6 +10,7 @@ import { jwtDecode } from "jwt-decode";
 const Students = () => {
   const [students, setStudents] = useState([]);
   const [filteredStudents, setFilteredStudents] = useState([]);
+  const [allClasses, setAllClasses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedClass, setSelectedClass] = useState("");
@@ -46,6 +47,30 @@ const Students = () => {
       setLoading(false);
     }
   };
+
+  const fetchClasses = async () => {
+    const schoolDataRaw = localStorage.getItem("schoolData");
+  
+    if (schoolDataRaw) {
+      const schoolData = JSON.parse(schoolDataRaw);
+  
+      if (schoolData && schoolData._id) {
+        const schoolId = schoolData._id;
+        try {
+          const { data } = await axios.get(`/api/classes/school/${schoolId}`);
+          setAllClasses(data);
+        } catch (error) {
+          toast.error("Could not fetch class list");
+        }
+      }
+    }
+  };
+  
+  useEffect(() => {
+    if (showModal) {
+      fetchClasses();
+    }
+  }, [showModal]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this student?")) return;
@@ -223,20 +248,12 @@ const Students = () => {
                 className="students-modalForm-input"
               >
                 <option value="">Select Class</option>
-                <option value="Creche">Creche</option>
-                <option value="Nursery 1">Nursery 1</option>
-                <option value="Nursery 2">Nursery 2</option>
-                <option value="Primary 1">Primary 1</option>
-                <option value="Primary 2">Primary 2</option>
-                <option value="Primary 3">Primary 3</option>
-                <option value="Primary 4">Primary 4</option>
-                <option value="Primary 5">Primary 5</option>
-                <option value="Primary 6">Primary 6</option>
-                <option value="JHS 1">JHS 1</option>
-                <option value="JHS 2">JHS 2</option>
-                <option value="JHS 3">JHS 3</option>
+                {allClasses.map((cls) => (
+                  <option key={cls._id} value={cls._id}>
+                    {cls.className}
+                  </option>
+                ))}
               </select>
-
              {/* Removed idno input and added date picker for dob */}
               <input
                 name="dob"
