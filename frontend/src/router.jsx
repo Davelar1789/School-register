@@ -45,7 +45,7 @@ import TeacherLogin from "./pages/general/login/TeacherLogin";
 import Welcome2 from "./pages/teacher/dashboard/Dashboard";
 import Classes from "./pages/head/classes/Class";
 import TeacherDetails from "./pages/head/teachers/TeacherDetails";
-
+import TeacherClasses from "./pages/teacher/classes/Classes";
 
 
 const router = createBrowserRouter([
@@ -76,6 +76,10 @@ const router = createBrowserRouter([
       {
         path: "teachers",
         element: <Teachers />,
+      },
+      {
+        path: "my-classes",
+        element: <TeacherClasses />,
       },
       {
         path: "/teachers/:id",
