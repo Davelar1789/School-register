@@ -21,6 +21,6 @@ router.get("/search", searchStudents); // ?query=John
 router.get("/:id", getStudentById);
 router.get("/school/:schoolId", getStudentsBySchool);
 router.put("/:id", updateStudent);
-router.delete("/:id", deleteStudent);
+router.delete("/:id", protect, deleteStudent);
 
 export default router;
