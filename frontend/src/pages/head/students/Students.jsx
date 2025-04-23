@@ -75,14 +75,20 @@ const Students = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this student?")) return;
     try {
-      await api.delete(`/api/student/${id}`);
+      const token = localStorage.getItem("token");
+      await api.delete(`/api/student/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setStudents((prev) => prev.filter((student) => student._id !== id));
       toast.success("Student deleted successfully");
     } catch (err) {
       console.error(err);
       toast.error("Failed to delete student");
-    }
+    }
   };
+  
   
 
   const handleSearch = (value) => {
