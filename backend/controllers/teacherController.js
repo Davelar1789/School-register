@@ -267,4 +267,13 @@ export const assignClassesToTeacher = async (req, res) => {
   }
 };
 
+export const getTeacherClasses = async (req, res) => {
+  try {
+    const teacherId = req.user.id;
+    const classes = await Class.find({ teacherId });
+    res.json({ count: classes.length, classes });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch classes", error: err });
+  }
+};
 
