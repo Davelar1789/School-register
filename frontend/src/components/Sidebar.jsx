@@ -110,7 +110,8 @@ const Sidebar = () => {
       </li>
       <li>
         <NavLink to="/students" className={({ isActive }) => isActive ? "active" : ""}>
-          <FaUserGraduate className="icon" /> Student <span className="badge">35</span>
+          <FaUserGraduate className="icon" /> Student <span className="badge">{schoolStats.numberOfStudents}
+          </span>
         </NavLink>
       </li>
       <li>
