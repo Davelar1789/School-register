@@ -160,7 +160,7 @@ const CreateClassPage = () => {
           {showModal && (
             <div className="modal">
               <h3>Create New Class</h3>
-              <form onSubmit={handleSubmit}>
+              <form className="create-class-form" onSubmit={handleSubmit}>
                 <label>Class Name</label>
                 <input
                   type="text"
