@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import "./Classes.modules.css";
 import axios from "../../../api/axios";
-import Sidebar from "../../../components/Sidebar";
+import Sidebar from "../../../components/TeacherSidebar";
 import Header from "../../../components/Header2";
 
 const Classes = () => {
