@@ -1,10 +1,27 @@
 import React from "react";
 import Header from "../../../components/Header2";
 import Sidebar from "../../../components/TeacherSidebar";
+import api from "../../../api/axios";
 import "./TeacherDashboard.modules.css";
 
 const TeacherDashboard = () => {
-  return (
+  const [classCount, setClassCount] = useState(0);
+
+  useEffect(() => {
+    const fetchClasses = async () => {
+      try {
+        const response = await api.get("/api/teachers/teacher-classes");
+        setClassCount(response.data.count);
+      } catch (error) {
+        console.error("Error fetching class count:", error);
+      }
+    };
+
+    fetchClasses();
+  }, []);
+  
+  
+return (
     <div className="teacher-dashboard2">
       <Header />
       <div className="dashboard-body">
@@ -16,7 +33,7 @@ const TeacherDashboard = () => {
           <div className="dashboard-widgets">
             <div className="widget-card">
               <h3>Total Classes</h3>
-              <p>6</p>
+              <p>{classCount}</p> {/* 🟢 Now dynamic */}
             </div>
             <div className="widget-card">
               <h3>Students</h3>
