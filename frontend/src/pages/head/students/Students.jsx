@@ -57,7 +57,7 @@ const Students = () => {
       if (schoolData && schoolData._id) {
         const schoolId = schoolData._id;
         try {
-          const { data } = await axios.get(`/api/classes/school/${schoolId}`);
+          const { data } = await api.get(`/api/classes/school/${schoolId}`);
           setAllClasses(data);
         } catch (error) {
           toast.error("Could not fetch class list");
