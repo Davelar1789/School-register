@@ -181,7 +181,7 @@ const Header = () => {
                 </NavLink>
               </li>
             <li>
-                      <div className="logout" onClick={handleLogout} style={{ cursor: "pointer" }}>
+                      <div onClick={handleLogout} style={{ cursor: "pointer" }}>
                     <FaSignOutAlt className="icon" /> Logout
                     </div>
                   </li>
