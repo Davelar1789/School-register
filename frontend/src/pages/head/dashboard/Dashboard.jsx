@@ -15,6 +15,7 @@ import fetchSchoolData from "../../../utils/fetchSchoolData"; // ✅ Import your
 const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [school, setSchool] = useState(null);
+  console.log("📘 School data:", school);
   const [schoolName, setSchoolName] = useState("Loading...");
   const [userProfile, setUserProfile] = useState({ fullName: "Loading...", role: "Loading..." });
   const [schoolStats, setSchoolStats] = useState({
