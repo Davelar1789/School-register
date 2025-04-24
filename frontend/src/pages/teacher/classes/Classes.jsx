@@ -4,10 +4,14 @@ import "./Classes.modules.css";
 import axios from "../../../api/axios";
 import Sidebar from "../../../components/TeacherSidebar";
 import Header from "../../../components/Header2";
+import { useNavigate } from "react-router-dom";
+
 
 const Classes = () => {
   const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
 
   const fetchClasses = async () => {
     try {
