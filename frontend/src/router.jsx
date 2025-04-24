@@ -102,7 +102,11 @@ const router = createBrowserRouter([
       },
       {
         path: "/teachers/:id",
-        element: <TeacherDetails />,
+        element: (
+        <ProtectedRoute allowedRoles={["admin"]}>
+          <TeacherDetails />
+        </ProtectedRoute>
+        ),
       },
       {
         path: "classes",
