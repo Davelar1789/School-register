@@ -47,10 +47,10 @@ const ClassDetails = () => {
         <div className="student-grid">
           {classData.students.map((student) => (
             <div key={student._id} className="student-card">
-              <div className="student-avatar">{student.fullName[0]}</div>
+              <div className="student-avatar">{student.name[0]}</div>
               <div className="student-details">
-                <h4>{student.fullName}</h4>
-                <p>ID: {student.studentId}</p>
+                <h4>{student.name}</h4>
+                <p>ID: {student.idno}</p>
               </div>
             </div>
           ))}
