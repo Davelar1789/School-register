@@ -3,6 +3,9 @@ import { MdEdit } from "react-icons/md";
 import api from "../../../api/axios.js";
 import fetchSchoolData from "../../../utils/fetchSchoolData.js";
 import "./AdminSettings.modules.css";
+import Sidebar from "../../../components/Sidebar"
+import Header2 from "../../../components/Header2";
+
 
 const AdminSettings = () => {
   const [school, setSchool] = useState(null);
@@ -53,6 +56,9 @@ const AdminSettings = () => {
   if (!school) return <div className="loading">Loading...</div>;
 
   return (
+    <div>
+      <Header2  />
+      <Sidebar />
     <div className="admin-settings-container">
       <h2 className="admin-settings-heading">School Settings</h2>
 
@@ -146,6 +152,7 @@ const AdminSettings = () => {
           Save Changes
         </button>
       )}
+    </div>
     </div>
   );
 };
