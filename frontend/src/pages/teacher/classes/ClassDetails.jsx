@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "../../../api/axios";
-import Header from "../../../components/Header2";
+import Header from "../../../components/TeacherHeader";
 import Sidebar from "../../../components/TeacherSidebar";
 import "./ClassDetails.modules.css";
 

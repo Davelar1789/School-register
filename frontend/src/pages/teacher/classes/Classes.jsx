@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import "./Classes.modules.css";
 import axios from "../../../api/axios";
 import Sidebar from "../../../components/TeacherSidebar";
-import Header from "../../../components/Header2";
+import Header from "../../../components/TeacherHeader";
 import { useNavigate } from "react-router-dom";
 
 
