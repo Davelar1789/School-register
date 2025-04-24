@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import api from "../../../api/axios"; // Ensure this is the correct API instance
+import api from "../../../api/axios";
 import Header2 from "../../../components/Header2";
-import Form from "../../general/register/Sign-up"; // School Registration Form
+import Form from "../../general/register/Sign-up";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { FaHome, FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt } from "react-icons/fa";
 import "./Dashboard.modules.css";
 import { NavLink } from "react-router-dom";
-import Sidebar from "../../../components/Sidebar"
-import Image1 from "../../../assets/images/userrr.png"
-import fetchSchoolData from "../../../utils/fetchSchoolData"; // ✅ Import your utility
+import Sidebar from "../../../components/Sidebar";
+import Image1 from "../../../assets/images/userrr.png";
+import fetchSchoolData from "../../../utils/fetchSchoolData";
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [school, setSchool] = useState(null);
-  console.log("📘 School data:", school);
   const [schoolName, setSchoolName] = useState("Loading...");
   const [userProfile, setUserProfile] = useState({ fullName: "Loading...", role: "Loading..." });
   const [schoolStats, setSchoolStats] = useState({
@@ -37,8 +36,20 @@ const Dashboard = () => {
     const parsedUser = JSON.parse(storedUser);
     setUser(parsedUser);
 
-    // ✅ Use the utility function instead of inlined fetchSchool
-    getSchoolData(parsedUser._id);
+    // ✅ Use fetchSchoolData without passing userId
+    const loadSchoolData = async () => {
+      const data = await fetchSchoolData();
+      if (data) {
+        setSchool(data);
+        setSchoolStats({
+          numberOfStudents: data.numberOfStudents || 0,
+          numberOfTeachers: data.numberOfTeachers || 0,
+          numberOfClasses: data.numberOfClasses || 0,
+        });
+      }
+    };
+
+    loadSchoolData();
   }, [navigate]);
 
   useEffect(() => {
@@ -96,25 +107,7 @@ const Dashboard = () => {
     fetchSchoolName();
   }, []);
 
-  // ✅ Replaces fetchSchool with utility-based fetch
-  const getSchoolData = async (userId) => {
-    try {
-      const schoolData = await fetchSchoolData(userId);
-      if (schoolData) {
-        setSchool(schoolData);
-        setSchoolStats({
-          numberOfStudents: schoolData.numberOfStudents || 0,
-          numberOfTeachers: schoolData.numberOfTeachers || 0,
-          numberOfClasses: schoolData.numberOfClasses || 0,
-        });
-      }
-    } catch (error) {
-      console.error("Error using fetchSchoolData:", error);
-    }
-  };
-
   if (!user) return null;
-
 
   return (
     <div className="dashboard-container">
