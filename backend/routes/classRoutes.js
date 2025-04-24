@@ -1,6 +1,6 @@
 // routes/classRoutes.js
 import express from "express";
-import { createClass, getClassesBySchool, assignTeacherToClass, assignStudentToClass } from "../controllers/classController.js";
+import { createClass, getClassesBySchool, getClassById, assignTeacherToClass, assignStudentToClass } from "../controllers/classController.js";
 
 const router = express.Router();
 
@@ -11,6 +11,7 @@ router.post("/", createClass);
 router.get("/school/:schoolId", getClassesBySchool);
 router.post('/assign-teacher', assignTeacherToClass);
 router.post('/assign-student', assignStudentToClass);
+router.get("/:id", getClassById);
 
 
 export default router;
