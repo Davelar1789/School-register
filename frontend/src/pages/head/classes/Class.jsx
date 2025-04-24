@@ -187,6 +187,7 @@ const CreateClassPage = () => {
                 >
                   <option value="">Select Level</option>
                   <option value="Nursery">Nursery</option>
+                  <option value="Kindergaten">Kindergaten</option>
                   <option value="Primary">Primary</option>
                   <option value="Junior High">Junior High</option>
                   <option value="Senior High">Senior High</option>
