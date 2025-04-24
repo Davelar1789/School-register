@@ -16,7 +16,6 @@ body {
 
 .teachers-container {
     display: flex;
-    margin-left: 250px;
     margin-top: 60px;
     flex-direction: column;
     height: 100vh;
@@ -82,7 +81,7 @@ body {
   .teachers-table tr:hover {
     background-color: #f9f9f9;
   }
-  
+
   .teacher-name-link {
     color: #007bff;
     text-decoration: none;
@@ -310,4 +309,10 @@ body {
     border: 1px solid #ccc;
     flex: 1;
     min-width: 200px;
+  }
+
+  @media screen and (min-width: 768px){
+    .teachers-container {
+      margin-left: 250px;
+    }
   }
