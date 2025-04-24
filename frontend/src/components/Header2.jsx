@@ -122,60 +122,69 @@ const Header = () => {
 
       {/* Responsive Sidebar - Slide In */}
       {sidebarOpen && windowWidth <= 974 && user && (
-        <div className="mobile-sidebar">
-          <div className="sidebar-header">
-            <div className="logo">{school?.name ? school.name.charAt(0) : "S"}</div>
-            <div className="school-name">{school?.name || "School Dashboard"}</div>
-          </div>
+  <div
+    className="sidebar-overlay"
+    onClick={() => setSidebarOpen(false)}
+  >
+    <div
+      className="mobile-sidebar"
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className="sidebar-header">
+        <div className="logo">{school?.name ? school.name.charAt(0) : "S"}</div>
+        <div className="school-name">{school?.name || "School Dashboard"}</div>
+      </div>
 
-          <div className="sidebar-profile">
-            <img src={Image1} alt="User" className="profile-pic" />
-            <div>
-              <h4>{user.fullName}</h4>
-              <p className="user-role">{user.role}</p>
-            </div>
-          </div>
-
-          <ul className="sidebar-nav">
-            <li>
-              <NavLink to="/dashboard" onClick={() => setSidebarOpen(false)}>
-                <FaHome className="icon" /> Dashboard
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/chat" onClick={() => setSidebarOpen(false)}>
-                <FaComments className="icon" /> Chat
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/students" onClick={() => setSidebarOpen(false)}>
-                <FaUserGraduate className="icon" /> Student
-                <span className="badge">{schoolStats.numberOfStudents}</span>
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/teachers" onClick={() => setSidebarOpen(false)}>
-                <FaChalkboardTeacher className="icon" /> Teacher
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/classes" onClick={() => setSidebarOpen(false)}>
-                <FaChalkboardTeacher className="icon" /> Classes
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/events" onClick={() => setSidebarOpen(false)}>
-                <FaCalendar className="icon" /> Event
-              </NavLink>
-            </li>
-            <li className="logout">
-              <NavLink to="/logout" onClick={() => setSidebarOpen(false)}>
-                <FaSignOutAlt className="icon" /> Logout
-              </NavLink>
-            </li>
-          </ul>
+      <div className="sidebar-profile">
+        <img src={Image1} alt="User" className="profile-pic" />
+        <div>
+          <h4>{user.fullName}</h4>
+          <p className="user-role">{user.role}</p>
         </div>
-      )}
+      </div>
+
+      <ul className="sidebar-nav">
+        <li>
+          <NavLink to="/dashboard" onClick={() => setSidebarOpen(false)}>
+            <FaHome className="icon" /> Dashboard
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/chat" onClick={() => setSidebarOpen(false)}>
+            <FaComments className="icon" /> Chat
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/students" onClick={() => setSidebarOpen(false)}>
+            <FaUserGraduate className="icon" /> Student
+            <span className="badge">{schoolStats.numberOfStudents}</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/teachers" onClick={() => setSidebarOpen(false)}>
+            <FaChalkboardTeacher className="icon" /> Teacher
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/classes" onClick={() => setSidebarOpen(false)}>
+            <FaChalkboardTeacher className="icon" /> Classes
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/events" onClick={() => setSidebarOpen(false)}>
+            <FaCalendar className="icon" /> Event
+          </NavLink>
+        </li>
+        <li className="logout">
+          <NavLink to="/logout" onClick={() => setSidebarOpen(false)}>
+            <FaSignOutAlt className="icon" /> Logout
+          </NavLink>
+        </li>
+      </ul>
+    </div>
+  </div>
+)}
+
     </>
   );
 };
