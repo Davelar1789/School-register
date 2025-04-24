@@ -15,7 +15,7 @@ const classSchema = new mongoose.Schema({
   description: String,
   level: {
     type: String,
-    enum: ["Nursery", "Primary", "Junior High", "Senior High"],
+    enum: ["Nursery", "Kindergaten", "Primary", "Junior High", "Senior High"],
     required: true,
   },
   teachers: [
