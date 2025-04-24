@@ -170,28 +170,28 @@ const TeachersDashboard = () => {
               <table className="teachers-table">
                 <thead>
                   <tr>
-                    <th>Staff ID</th>
+                    <th className="out">Staff ID</th>
                     <th>Name</th>
-                    <th>Phone</th>
-                    <th>Email</th>
-                    <th>Joined</th>
-                    <th>Status</th>
+                    <th className="out">Phone</th>
+                    <th className="out">Email</th>
+                    <th className="out">Joined</th>
+                    <th className="out">Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredTeachers.map((teacher) => (
                     <tr key={teacher._id}>
-                      <td>{teacher.staffId}</td>
+                      <td className="out">{teacher.staffId}</td>
                       <td>
                         <Link to={`/teachers/${teacher._id}`} className="teacher-name-link">
                           {teacher.name}
                         </Link>
                       </td>
-                      <td>{teacher.phone}</td>
-                      <td>{teacher.email || "-"}</td>
-                      <td>{new Date(teacher.joinedDate).toLocaleDateString()}</td>
-                      <td>{teacher.status}</td>
+                      <td className="out">{teacher.phone}</td>
+                      <td className="out">{teacher.email || "-"}</td>
+                      <td className="out">{new Date(teacher.joinedDate).toLocaleDateString()}</td>
+                      <td className="out">{teacher.status}</td>
                       <td className="students-actions">
                     <button className="students-edit">
                       <MdEdit />
