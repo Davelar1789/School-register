@@ -168,7 +168,7 @@ const Students = () => {
   
       toast.success("Student added and assigned to class successfully");
       await fetchSchoolData();
-      
+
       setShowModal(false);
       setNewStudent({
         name: "",
@@ -233,10 +233,10 @@ const Students = () => {
               <tr>
                 <th>Name</th>
                 <th>Class</th>
-                <th>ID No</th>
-                <th>DOB</th>
-                <th>Phone</th>
-                <th>Actions</th>
+                <th className="out">ID No</th>
+                <th className="out">DOB</th>
+                <th className="out">Phone</th>
+                <th className="out">Actions</th>
               </tr>
             </thead>
             <tbody>

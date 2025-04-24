@@ -301,3 +301,8 @@ body {
     background-color: #999;
   }
   
+  @media screen and (max-width : 768px){
+    .out {
+      display: none !important;
+    }
+  }
