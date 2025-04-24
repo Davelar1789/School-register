@@ -86,6 +86,18 @@ const Header = () => {
 
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
 
+  const handleLogout = async () => {
+    try {
+      localStorage.clear(); // or just remove 'token' if you prefer
+      toast.success("Logged out successfully");
+      navigate("/sign-in"); // or your login route
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast.error("Logout failed. Please try again.");
+    }
+  };
+  
+
   return (
     <>
       <header className="header2">
@@ -168,11 +180,9 @@ const Header = () => {
                   <FaCalendar className="icon" /> Events
                 </NavLink>
               </li>
-              <li className="logout">
-                <NavLink to="/logout">
-                  <FaSignOutAlt className="icon" /> Logout
-                </NavLink>
-              </li>
+              <li className="logout" onClick={handleLogout} style={{ cursor: "pointer" }}>
+  <FaSignOutAlt className="icon" /> Logout
+</li>
             </ul>
     </div>
   </div>
