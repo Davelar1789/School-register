@@ -158,7 +158,8 @@ const CreateClassPage = () => {
 
           {/* Modal Form */}
           {showModal && (
-            <div className="modal">
+            <div className="modal-overlay">
+              <div className="modal-content">
               <h3>Create New Class</h3>
               <form className="create-class-form" onSubmit={handleSubmit}>
                 <label>Class Name</label>
@@ -234,6 +235,7 @@ const CreateClassPage = () => {
                   Cancel
                 </button>
               </form>
+              </div>
             </div>
           )}
         </div>
