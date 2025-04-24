@@ -112,11 +112,9 @@ const SidebarTeacher = () => {
             <FaCalendar className="icon" /> Events
           </NavLink>
         </li>
-       <li>
-                 <div onClick={handleLogout} style={{ cursor: "pointer" }}>
-               <FaSignOutAlt className="icon" /> Logout
-               </div>
-             </li>
+        <li onClick={handleLogout} style={{ cursor: "pointer" }}>
+  <FaSignOutAlt className="icon" /> Logout
+</li>
       </ul>
     </div>
   );
