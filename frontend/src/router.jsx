@@ -47,6 +47,8 @@ import Classes from "./pages/head/classes/Class";
 import TeacherDetails from "./pages/head/teachers/TeacherDetails";
 import TeacherClasses from "./pages/teacher/classes/Classes";
 import ClassDetails from "./pages/teacher/classes/ClassDetails";
+import ProtectedRoute from "./components/ProtectedRoute"; // adjust path accordingly
+
 
 
 const router = createBrowserRouter([
@@ -64,7 +66,11 @@ const router = createBrowserRouter([
       },
       {
         path: "dashboard",
-        element: <Welcome />,
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <Welcome />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "teacher-dashboard",
@@ -76,7 +82,11 @@ const router = createBrowserRouter([
       },
       {
         path: "teachers",
-        element: <Teachers />,
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <Teachers />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "my-classes",
