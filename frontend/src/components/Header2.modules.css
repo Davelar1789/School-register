@@ -135,11 +135,21 @@
   width: 50%;
   max-width: 320px;
   height: 100vh;
-  background-color: #f2f2f2;
-  z-index: 999;
+  background: #1b1f3b; /* Dark navy */
+  color: white;  z-index: 999;
   overflow-y: auto;
   box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
   animation: slideIn 0.3s ease forwards;
+}
+
+.sidebar-nav li a.active {
+  background: rgba(255, 255, 255, 0.1);
+  font-weight: bold;
+}
+
+
+.sidebar-nav li:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 @keyframes slideIn {
