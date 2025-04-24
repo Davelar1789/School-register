@@ -144,9 +144,12 @@ const Sidebar = () => {
           <FaCalendar className="icon" /> Event
         </NavLink>
       </li>
-    <li onClick={handleLogout} style={{ cursor: "pointer" }}>
-            <FaSignOutAlt className="icon" /> Logout
-          </li>
+      <li onClick={handleLogout} style={{ cursor: "pointer" }}>
+        <div className="nav-link-custom">
+          <FaSignOutAlt className="icon" /> Logout
+        </div>
+      </li>
+
     </ul>
           </div>
   );

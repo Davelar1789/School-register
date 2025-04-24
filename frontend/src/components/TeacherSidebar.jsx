@@ -113,8 +113,11 @@ const SidebarTeacher = () => {
           </NavLink>
         </li>
         <li onClick={handleLogout} style={{ cursor: "pointer" }}>
-  <FaSignOutAlt className="icon" /> Logout
+  <div className="nav-link-custom">
+    <FaSignOutAlt className="icon" /> Logout
+  </div>
 </li>
+
       </ul>
     </div>
   );
