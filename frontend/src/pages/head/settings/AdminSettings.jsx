@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { MdEdit } from "react-icons/md";
-import api from "../../../api/axios";
+import api from "../../../api/axios.js";
 import fetchSchoolData from "../../../utils/fetchSchoolData.js";
 import "./AdminSettings.modules.css";
 

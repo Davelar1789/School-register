@@ -125,7 +125,12 @@ const Header = () => {
         <div className="header-right">
           <FaBell className="icon" />
           {windowWidth > 768 && <FaEnvelope className="icon" />}
-          {windowWidth > 768 && <FaCog className="icon" />}
+          {windowWidth > 768 && (
+            <FaCog
+              className="icon"
+              onClick={() => navigate('/school-settings')}
+            />
+          )}
           <FaUser className="icon" />
           {windowWidth > 1024 && (
             <select className="language-switcher">

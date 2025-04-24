@@ -48,7 +48,7 @@ import TeacherDetails from "./pages/head/teachers/TeacherDetails";
 import TeacherClasses from "./pages/teacher/classes/Classes";
 import ClassDetails from "./pages/teacher/classes/ClassDetails";
 import ProtectedRoute from "./components/ProtectedRoute"; // adjust path accordingly
-import SchoolSettings from "./pages/head/settings/AdminSetttings";
+import SchoolSettings from "./pages/head/settings/AdminSettings";
 
 
 
