@@ -244,10 +244,10 @@ const Students = () => {
                 <tr key={student._id}>
                   <td>{student.name}</td>
                   <td>{student.className}</td>
-                  <td>{student.idno}</td>
-                  <td>{student.dob}</td>
-                  <td>{student.phone || "N/A"}</td>
-                  <td className="students-actions">
+                  <td className="out">{student.idno}</td>
+                  <td className="out">{student.dob}</td>
+                  <td className="out">{student.phone || "N/A"}</td>
+                  <td className="students-actions out">
                     <button className="students-edit">
                       <MdEdit />
                     </button>
