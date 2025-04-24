@@ -107,7 +107,7 @@ export const getClassById = async (req, res) => {
   try {
     const classItem = await Class.findById(req.params.id)
       .populate({ path: "teachers", select: "name" })
-      .populate({ path: "students", model: "students", select: "name" });
+      .populate({ path: "students", model: "students", select: "name idno" });
 
     if (!classItem) {
       return res.status(404).json({ message: "Class not found" });
