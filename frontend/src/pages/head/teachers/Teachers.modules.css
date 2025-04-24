@@ -63,7 +63,6 @@ body {
   .teachers-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 700px;
   }
   
   .teachers-table th, .teachers-table td {
@@ -314,7 +313,7 @@ body {
     .teachers-container {
       margin-left: 250px;
     }
-    .students-table {
+    .teachers-table {
       min-width: 700px;
     }
   }
