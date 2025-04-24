@@ -38,26 +38,31 @@ const Classes = () => {
 
   return (
     <div>
-        <Header />
-        <Sidebar />
-    <div className="class-container">
-      <h2 className="class-heading">My Classes</h2>
-      {classes.length === 0 ? (
-        <p className="no-classes">No classes assigned to you.</p>
-      ) : (
-        <div className="class-grid">
-          {classes.map((cls) => (
-            <div key={cls._id} className="class-card">
-              <h3>{cls.className}</h3>
-              <p><strong>Level:</strong> {cls.level}</p>
-              <p><strong>Students:</strong> {cls.students?.length || 0}</p>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
+      <Header />
+      <Sidebar />
+      <div className="class-container">
+        <h2 className="class-heading">My Classes</h2>
+        {classes.length === 0 ? (
+          <p className="no-classes">No classes assigned to you.</p>
+        ) : (
+          <div className="class-grid">
+            {classes.map((cls) => (
+              <div
+                key={cls._id}
+                className="class-card"
+                onClick={() => navigate(`/class/${cls._id}`)}
+              >
+                <h3>{cls.className}</h3>
+                <p><strong>Level:</strong> {cls.level}</p>
+                <p><strong>Students:</strong> {cls.students?.length || 0}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
+
 
 export default Classes;
