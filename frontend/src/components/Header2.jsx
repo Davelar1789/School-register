@@ -192,9 +192,11 @@ const Header = () => {
             <FaCalendar className="icon" /> Event
           </NavLink>
         </li>
-        <li className="logout" onClick={handleLogout} style={{ cursor: "pointer" }}>
-  <FaSignOutAlt className="icon" /> Logout
-</li>
+        <li>
+          <div className="logout" onClick={handleLogout} style={{ cursor: "pointer" }}>
+        <FaSignOutAlt className="icon" /> Logout
+        </div>
+      </li>
       </ul>
     </div>
   </div>
