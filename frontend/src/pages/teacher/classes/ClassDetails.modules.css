@@ -63,4 +63,11 @@
     color: red;
     text-align: center;
   }
+
+  @media (min-width: 768px) {
+    .class-details-container {
+        margin-left: 250px;
+      }
+      
+  }
   

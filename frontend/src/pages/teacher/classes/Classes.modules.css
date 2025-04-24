@@ -55,4 +55,10 @@
     font-size: 1.1rem;
     padding: 2rem;
   }
+
+  @media (min-width: 768px) {
+    .class-container {
+        margin-left: 250px;
+      }
+  }
   
