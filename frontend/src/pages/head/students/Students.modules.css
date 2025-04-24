@@ -159,7 +159,6 @@ body {
   .students-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 700px;
   }
   
   .students-table th,
@@ -304,5 +303,11 @@ body {
   @media screen and (max-width : 768px){
     .out {
       display: none !important;
+    }
+  }
+
+  @media screen and (min-width : 768px){
+    .students-table {
+      min-width: 700px;
     }
   }
