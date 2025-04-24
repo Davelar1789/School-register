@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { MdEdit } from "react-icons/md";
 import api from "../../../api/axios.js";
-import fetchSchoolData from "../../../utils/fetchSchoolData.js";
 import "./AdminSettings.modules.css";
-import Sidebar from "../../../components/Sidebar"
+import Sidebar from "../../../components/Sidebar";
 import Header2 from "../../../components/Header2";
-
 
 const AdminSettings = () => {
   const [school, setSchool] = useState(null);
@@ -13,15 +11,34 @@ const AdminSettings = () => {
   const [editedData, setEditedData] = useState({});
 
   useEffect(() => {
-    const getData = async () => {
-      const data = await fetchSchoolData();
-      if (data) {
-        setSchool(data);
-        setEditedData(data);
+    const getSchoolFromCache = async () => {
+      try {
+        const cachedSchoolData = localStorage.getItem('schoolData');
+        if (cachedSchoolData) {
+          const schoolData = JSON.parse(cachedSchoolData);
+          setSchool(schoolData);
+          setEditedData(schoolData);
+        } else {
+          // Optionally, fetch from API if not cached
+          const token = localStorage.getItem("token");
+          const userId = localStorage.getItem("userId"); // Ensure this is being set on login
+          if (!token || !userId) throw new Error("Missing credentials");
+
+          const response = await api.get(`/api/schools/user/${userId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          const schoolData = response.data.school || response.data;
+          localStorage.setItem('schoolData', JSON.stringify(schoolData));
+          setSchool(schoolData);
+          setEditedData(schoolData);
+        }
+      } catch (err) {
+        console.error("Error retrieving school data:", err);
       }
     };
 
-    getData();
+    getSchoolFromCache();
   }, []);
 
   const handleEditClick = (field) => {
@@ -35,8 +52,10 @@ const AdminSettings = () => {
   const handleSave = async () => {
     try {
       const token = localStorage.getItem("token");
+      const schoolId = school._id;
+
       const response = await api.put(
-        "/api/school/${schoolId}",
+        `/api/schools/${schoolId}`,
         editedData,
         {
           headers: {
@@ -44,9 +63,11 @@ const AdminSettings = () => {
           },
         }
       );
+
       setSchool(response.data);
       setEditedData(response.data);
       setEditingField(null);
+      localStorage.setItem('schoolData', JSON.stringify(response.data)); // Update local cache
     } catch (err) {
       console.error("Error updating school data:", err);
       alert("Failed to update school info.");
@@ -57,9 +78,11 @@ const AdminSettings = () => {
 
   return (
     <div>
-      <Header2  />
-      <Sidebar />
+    <Header2  />
+    <Sidebar />
     <div className="admin-settings-container">
+      <Header2 />
+      <Sidebar />
       <h2 className="admin-settings-heading">School Settings</h2>
 
       <div className="settings-row">
@@ -133,7 +156,7 @@ const AdminSettings = () => {
       <div className="settings-row">
         <label>Website:</label>
         {editingField === "website" ? (
-          <input name="website" value={editedData.website || ""} onChange={handleInputChange} />
+          <input name="website" value={editedData.website} onChange={handleInputChange} />
         ) : (
           <div className="value-display">
             <span>{school.website || "N/A"}</span>
