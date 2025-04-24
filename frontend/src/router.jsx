@@ -48,6 +48,7 @@ import TeacherDetails from "./pages/head/teachers/TeacherDetails";
 import TeacherClasses from "./pages/teacher/classes/Classes";
 import ClassDetails from "./pages/teacher/classes/ClassDetails";
 import ProtectedRoute from "./components/ProtectedRoute"; // adjust path accordingly
+import SchoolSettings from "./pages/head/settings/AdminSetttings";
 
 
 
@@ -89,6 +90,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["admin"]}>
             <Teachers />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "school-settings",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <SchoolSettings />
           </ProtectedRoute>
         ),
       },
