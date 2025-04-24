@@ -10,6 +10,7 @@ import "./Dashboard.modules.css";
 import { NavLink } from "react-router-dom";
 import Sidebar from "../../../components/Sidebar"
 import Image1 from "../../../assets/images/userrr.png"
+import fetchSchoolData from "../../../utils/fetchSchoolData"; // ✅ Import your utility
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
@@ -25,7 +26,6 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get user from local storage
     const storedUser = localStorage.getItem("user");
     if (!storedUser) {
       toast.error("Please login first.");
@@ -36,8 +36,8 @@ const Dashboard = () => {
     const parsedUser = JSON.parse(storedUser);
     setUser(parsedUser);
 
-    // ✅ Fetch school based on user ID
-    fetchSchool(parsedUser._id);
+    // ✅ Use the utility function instead of inlined fetchSchool
+    getSchoolData(parsedUser._id);
   }, [navigate]);
 
   useEffect(() => {
@@ -48,11 +48,11 @@ const Dashboard = () => {
           console.error("No token found, please log in again.");
           return;
         }
-  
+
         const response = await api.get("/api/users/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
-  
+
         if (response.data) {
           setUserProfile({
             fullName: response.data.fullName || "Unknown",
@@ -63,40 +63,27 @@ const Dashboard = () => {
         console.error("Error fetching user profile:", error);
       }
     };
-  
+
     fetchUserProfile();
   }, []);
 
   useEffect(() => {
-
     const fetchSchoolName = async () => {
       try {
-
-        // Get user from localStorage
         const storedUser = localStorage.getItem("user");
-        if (!storedUser) {
-          return;
-        }
+        if (!storedUser) return;
 
         const parsedUser = JSON.parse(storedUser);
-        const userId = parsedUser._id; // Get logged-in user ID
-
         const token = localStorage.getItem("token");
-        if (!token) {
-          return;
-        }
+        if (!token) return;
 
-        // Fetch all schools from the database
         const response = await api.get("/api/schools", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
-
-        // Find the school where user ID matches
-        const userSchool = response.data.find((school) => school.user.toString() === userId);
-
+        const userSchool = response.data.find((school) => school.user.toString() === parsedUser._id);
         if (userSchool) {
-          setSchoolName(userSchool.name); // Set school name if found
+          setSchoolName(userSchool.name);
         } else {
           console.log("❌ No school found for this user.");
         }
@@ -108,28 +95,11 @@ const Dashboard = () => {
     fetchSchoolName();
   }, []);
 
-  const fetchSchool = async (userId) => {
+  // ✅ Replaces fetchSchool with utility-based fetch
+  const getSchoolData = async (userId) => {
     try {
-      const cachedSchoolData = localStorage.getItem('schoolData');
-      if (cachedSchoolData) {
-        const schoolData = JSON.parse(cachedSchoolData);
-        setSchool(schoolData);
-        setSchoolStats({
-          numberOfStudents: schoolData.numberOfStudents || 0,
-          numberOfTeachers: schoolData.numberOfTeachers || 0,
-          numberOfClasses: schoolData.numberOfClasses || 0,
-        });
-        return;
-      }
-  
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("No token found, please log in again.");
-      const response = await api.get(`/api/schools/user/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (response.data) {
-        const schoolData = response.data.school || response.data;
-        localStorage.setItem('schoolData', JSON.stringify(schoolData));
+      const schoolData = await fetchSchoolData(userId);
+      if (schoolData) {
         setSchool(schoolData);
         setSchoolStats({
           numberOfStudents: schoolData.numberOfStudents || 0,
@@ -138,12 +108,12 @@ const Dashboard = () => {
         });
       }
     } catch (error) {
-      console.error("Error fetching school:", error);
+      console.error("Error using fetchSchoolData:", error);
     }
   };
-  
-  
-  if (!user) return null; // Prevent rendering if user is still loading
+
+  if (!user) return null;
+
 
   return (
     <div className="dashboard-container">
