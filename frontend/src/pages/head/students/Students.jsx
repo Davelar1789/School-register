@@ -6,6 +6,8 @@ import toast from "react-hot-toast";
 import "./Students.modules.css";
 import Sidebar from "../../../components/Sidebar";
 import { jwtDecode } from "jwt-decode";
+import fetchSchoolData from "../../../utils/fetchSchoolData";
+
 
 const Students = () => {
   const [students, setStudents] = useState([]);
@@ -165,6 +167,8 @@ const Students = () => {
       setFilteredStudents((prev) => [...prev, createdStudent]);
   
       toast.success("Student added and assigned to class successfully");
+      await fetchSchoolData();
+      
       setShowModal(false);
       setNewStudent({
         name: "",

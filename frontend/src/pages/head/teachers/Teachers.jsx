@@ -8,6 +8,8 @@ import axios from "../../../api/axios";
 import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-hot-toast";
+import fetchSchoolData from "../../../utils/fetchSchoolData";
+
 
 const allSubjects = [
   "Mathematics", "English Language", "Integrated Science", "Natural Science", "Social Studies",
@@ -79,6 +81,7 @@ const TeachersDashboard = () => {
     try {
       await axios.post("/api/teachers", { ...formData, schoolId });
       toast.success('Teacher added successfully!');
+      await fetchSchoolData();
       fetchTeachers();
       setShowModal(false);
       setFormData({
