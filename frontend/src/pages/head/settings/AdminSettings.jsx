@@ -55,7 +55,7 @@ const AdminSettings = () => {
       const schoolId = school._id;
 
       const response = await api.put(
-        `/api/schools/${schoolId}`,
+        `/api/school/${school._id}`, // fixed dynamic string too
         editedData,
         {
           headers: {
@@ -63,12 +63,17 @@ const AdminSettings = () => {
           },
         }
       );
-
-      setSchool(response.data);
-      setEditedData(response.data);
-      setEditingField(null);
-      localStorage.setItem('schoolData', JSON.stringify(response.data));
-      window.dispatchEvent(new Event("schoolDataUpdated")); // 👈 Custom event!
+      
+      // Merge old + new data
+      const updatedSchool = {
+        ...school,           // old data
+        ...response.data,    // updated fields
+      };
+      
+      setSchool(updatedSchool);
+      setEditedData(updatedSchool);
+      localStorage.setItem('schoolData', JSON.stringify(updatedSchool));
+      window.dispatchEvent(new Event("schoolDataUpdated"));      
           } catch (err) {
       console.error("Error updating school data:", err);
       alert("Failed to update school info.");
