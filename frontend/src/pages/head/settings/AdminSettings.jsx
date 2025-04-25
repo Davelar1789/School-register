@@ -3,6 +3,7 @@ import { MdEdit } from "react-icons/md";
 import api from "../../../api/axios.js";
 import "./AdminSettings.modules.css";
 import Sidebar from "../../../components/Sidebar";
+import { toast } from "react-hot-toast";
 import Header2 from "../../../components/Header2";
 
 const AdminSettings = () => {
@@ -52,10 +53,9 @@ const AdminSettings = () => {
   const handleSave = async () => {
     try {
       const token = localStorage.getItem("token");
-      const schoolId = school._id;
-
+  
       const response = await api.put(
-        `/api/schools/${school._id}`, // fixed dynamic string too
+        `/api/schools/${school._id}`,
         editedData,
         {
           headers: {
@@ -63,23 +63,24 @@ const AdminSettings = () => {
           },
         }
       );
-      
-      // Merge old + new data
+  
       const updatedSchool = {
-        ...school,           // old data
-        ...response.data,    // updated fields
+        ...school,
+        ...response.data,
       };
-      
+  
       setSchool(updatedSchool);
       setEditedData(updatedSchool);
-      localStorage.setItem('schoolData', JSON.stringify(updatedSchool));
-      window.dispatchEvent(new Event("schoolDataUpdated"));      
-          } catch (err) {
+      localStorage.setItem("schoolData", JSON.stringify(updatedSchool));
+      window.dispatchEvent(new Event("schoolDataUpdated"));
+  
+      toast.success("Changes saved! They will reflect after next login.");
+    } catch (err) {
       console.error("Error updating school data:", err);
-      alert("Failed to update school info.");
+      toast.error("Failed to update school info.");
     }
   };
-
+  
   if (!school) return <div className="loading">Loading...</div>;
 
   return (
