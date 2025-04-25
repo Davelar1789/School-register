@@ -55,7 +55,7 @@ const AdminSettings = () => {
       const schoolId = school._id;
 
       const response = await api.put(
-        `/api/school/${school._id}`, // fixed dynamic string too
+        `/api/schools/${school._id}`, // fixed dynamic string too
         editedData,
         {
           headers: {
