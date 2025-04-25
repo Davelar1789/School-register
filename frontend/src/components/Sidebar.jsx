@@ -57,13 +57,13 @@ const Sidebar = () => {
   
   useEffect(() => {
     const token = localStorage.getItem("token");
-
+  
     if (!token) {
       toast.error("Please login first.");
       navigate("/sign-in");
       return;
     }
-
+  
     const decoded = jwtDecode(token);
     setUser({
       id: decoded.id,
@@ -71,9 +71,30 @@ const Sidebar = () => {
       role: decoded.role,
       schoolName: decoded.schoolName,
     });
-
+  
     fetchSchool(decoded.id);
+  
+    // ✅ Listen for school data updates
+    const handleSchoolUpdate = () => {
+      const cachedSchoolData = localStorage.getItem("schoolData");
+      if (cachedSchoolData) {
+        const schoolData = JSON.parse(cachedSchoolData);
+        setSchool(schoolData);
+        setSchoolStats({
+          numberOfStudents: schoolData.numberOfStudents || 0,
+          numberOfTeachers: schoolData.numberOfTeachers || 0,
+          numberOfClasses: schoolData.numberOfClasses || 0,
+        });
+      }
+    };
+  
+    window.addEventListener("schoolDataUpdated", handleSchoolUpdate);
+  
+    return () => {
+      window.removeEventListener("schoolDataUpdated", handleSchoolUpdate);
+    };
   }, [navigate]);
+  
 
   const handleLogout = async () => {
     try {

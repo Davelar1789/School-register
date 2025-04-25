@@ -67,8 +67,9 @@ const AdminSettings = () => {
       setSchool(response.data);
       setEditedData(response.data);
       setEditingField(null);
-      localStorage.setItem('schoolData', JSON.stringify(response.data)); // Update local cache
-    } catch (err) {
+      localStorage.setItem('schoolData', JSON.stringify(response.data));
+      window.dispatchEvent(new Event("schoolDataUpdated")); // 👈 Custom event!
+          } catch (err) {
       console.error("Error updating school data:", err);
       alert("Failed to update school info.");
     }
