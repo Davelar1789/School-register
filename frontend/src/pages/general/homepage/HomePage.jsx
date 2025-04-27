@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { FaUserGraduate, FaClipboardList, FaChartLine, FaComments, FaSchool, FaUniversity, FaBookReader, FaStar } from "react-icons/fa";
-import Header from "../../../components/Header.jsx";
-import Footer from "../../../components/Footer.jsx";
+import Header from "../../../components/Homepage/Header.jsx";
+import Footer from "../../../components/Homepage/Footer.jsx";
 import Image1 from "../../../assets/images/head1.jpg";
 import Image2 from "../../../assets/images/head2.jpg";
 import Image3 from "../../../assets/images/head3.jpg";
