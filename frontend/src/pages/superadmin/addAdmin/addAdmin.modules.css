@@ -4,7 +4,6 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background: linear-gradient(to right, #4169E1, #32CD32);
   }
   
   .back-button {
