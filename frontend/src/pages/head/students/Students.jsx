@@ -104,11 +104,11 @@ const [editFormData, setEditFormData] = useState({
   };
   
   useEffect(() => {
-    if (showModal) {
+    if (showModal || editingStudent) {
       fetchClasses();
     }
-  }, [showModal]);
-
+  }, [showModal, editingStudent]);
+  
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this student?")) return;
     try {
