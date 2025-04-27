@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './AdmissionsPage.modules.css';
-import Header from '../../../components/Header';
+import Header from '../../../components/Homepage/Header';
 
 const AdmissionsPage = () => {
     const navigate = useNavigate();
