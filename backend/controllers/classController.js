@@ -130,7 +130,7 @@ export const patchStudentClasses = async (req, res) => {
 
       for (const studentId of students) {
         // 2. For each student, add the classId into their classes array
-        await Student.findByIdAndUpdate(
+        await Students.findByIdAndUpdate(
           studentId,
           { $addToSet: { classes: classId } }, // ✅ No duplicates because $addToSet
           { new: true }
