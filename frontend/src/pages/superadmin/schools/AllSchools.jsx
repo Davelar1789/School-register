@@ -3,6 +3,8 @@ import { Link } from "react-router-dom";
 import api from "../../../api/axios";
 import { toast, Toaster } from "react-hot-toast";
 import "./AllSchools.modules.css";
+import Header2 from "../../../components/Header3";
+import Sidebar from "../../../components/Sidebar2";
 
 function AllSchools() {
   const [schools, setSchools] = useState([]);
@@ -30,6 +32,15 @@ function AllSchools() {
   };
 
   return (
+    <div className="superadmin-container">
+    {/* Sidebar */}
+    <Sidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+
+    {/* Main Content */}
+    <div className="superadmin-main">
+      {/* Header */}
+      <Header2 toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+
     <div className="allschools-container">
       <Toaster position="top-right" reverseOrder={false} />
       <div className="allschools-header">
@@ -58,6 +69,8 @@ function AllSchools() {
           )}
         </div>
       )}
+    </div>
+    </div>
     </div>
   );
 }
