@@ -53,7 +53,7 @@ export const getAllStudents = async (req, res) => {
   const { schoolId } = req.user;
 
   try {
-    const students = await Students.find({ schoolId });
+    const students = await Students.find({ schoolId }).populate("classes", "className");
     res.json(students);
   } catch (err) {
     res.status(500).json({ message: "Failed to fetch students" });
