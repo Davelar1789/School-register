@@ -84,6 +84,7 @@ const Students = () => {
         },
       });
       setStudents((prev) => prev.filter((student) => student._id !== id));
+      setFilteredStudents((prev) => prev.filter((student) => student._id !== id));
       toast.success("Student deleted successfully");
     } catch (err) {
       console.error(err);
