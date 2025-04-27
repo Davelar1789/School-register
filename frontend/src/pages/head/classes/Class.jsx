@@ -86,7 +86,6 @@ const CreateClassPage = () => {
 
     try {
       await axios.post("/api/classes", payload);
-      alert("Class created successfully!");
       setFormData({
         className: "",
         description: "New class adding...",
