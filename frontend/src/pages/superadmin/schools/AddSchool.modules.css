@@ -76,3 +76,8 @@
     text-decoration: underline;
   }
   
+  @media screen and (min-width: 768px) {
+    .addschool-container {
+      margin-left: 250px;
+    }
+    }
