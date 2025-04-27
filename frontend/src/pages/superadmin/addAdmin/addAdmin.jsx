@@ -38,8 +38,7 @@ function UserSignUp() {
         password: formData.password,
       });
 
-      toast.success("Account created successfully! Redirecting to login...");
-      setTimeout(() => navigate("/sign-in"), 3000);
+      toast.success("Account created successfully!");
     } catch (err) {
       console.error("Signup Error:", err);
       toast.error("Signup failed. Please try again.");
