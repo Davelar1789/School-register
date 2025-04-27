@@ -3,7 +3,7 @@ import { FaBars, FaTimes } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import "./Header.modules.css";
-import logo from "../assets/images/logo.png";
+import logo from "../../assets/images/logo.png";
 
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
