@@ -3,6 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import { toast, Toaster } from "react-hot-toast";
 import api from "../../../api/axios";
 import "./AddSchool.modules.css";
+import Header2 from "../../../components/Header3";
+import Sidebar from "../../../components/Sidebar2";
 
 function AddSchool() {
   const navigate = useNavigate();
@@ -72,6 +74,15 @@ function AddSchool() {
   };
 
   return (
+    <div className="superadmin-container">
+    {/* Sidebar */}
+    <Sidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+
+    {/* Main Content */}
+    <div className="superadmin-main">
+      {/* Header */}
+      <Header2 toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+
     <div className="addschool-container">
       <Toaster position="top-right" reverseOrder={false} />
 
@@ -163,6 +174,8 @@ function AddSchool() {
 
         <Link to="/all-schools" className="back-link">← Back to All Schools</Link>
       </div>
+    </div>
+    </div>
     </div>
   );
 }
