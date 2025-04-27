@@ -51,7 +51,7 @@ import ProtectedRoute from "./components/ProtectedRoute"; // adjust path accordi
 import SchoolSettings from "./pages/head/settings/AdminSettings";
 import AllSchools from "./pages/superadmin/schools/AllSchools";
 import AddSchool from "./pages/superadmin/schools/AddSchool";
-
+import AddAdmin from "./pages/superadmin/addAdmin/addAdmin";
 
 
 const router = createBrowserRouter([
@@ -92,6 +92,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["superadmin"]}>
             <AllSchools />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "add-admin",
+        element: (
+          <ProtectedRoute allowedRoles={["superadmin"]}>
+            <AddAdmin />
           </ProtectedRoute>
         ),
       },
