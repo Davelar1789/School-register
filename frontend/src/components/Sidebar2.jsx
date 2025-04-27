@@ -145,8 +145,8 @@ const Sidebar = () => {
         </NavLink>
       </li>
       <li>
-        <NavLink to="/classes" className={({ isActive }) => isActive ? "active" : ""}>
-          <FaChalkboardTeacher className="icon" /> Settings
+        <NavLink to="/add-admin" className={({ isActive }) => isActive ? "active" : ""}>
+          <FaChalkboardTeacher className="icon" /> Add Admin
         </NavLink>
       </li>
       <li onClick={handleLogout} style={{ cursor: "pointer" }}>

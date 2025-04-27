@@ -69,7 +69,7 @@ const Header = () => {
                   <ul>
                     <li><a href="/sign-in">As Admin</a></li>
                     <li><a href="/teacher-login">As Teacher</a></li>
-                    <li><a href="/student-login">As Student</a></li>
+                    {/* <li><a href="/student-login">As Student</a></li> */}
                   </ul>
                 </div>
               </li>
