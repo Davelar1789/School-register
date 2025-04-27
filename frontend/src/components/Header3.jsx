@@ -173,7 +173,7 @@ const Header = () => {
                </NavLink>
              </li>
              <li>
-               <NavLink to="/teachers" className={({ isActive }) => isActive ? "active" : ""}>
+               <NavLink to="/all-schools" className={({ isActive }) => isActive ? "active" : ""}>
                  <FaChalkboardTeacher className="icon" /> Schools
                </NavLink>
              </li>

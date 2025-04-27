@@ -156,8 +156,6 @@ const Dashboard = () => {
 
         {/* Show Dashboard if school exists, else show Registration Form */}
         <div className="dashboard-content">
-          {school ? (
-            <>
              <div className="overview-section">
                 <div className="overview-card students">
                   <div className="card-header">
@@ -225,16 +223,6 @@ const Dashboard = () => {
                   <button className="quick-link">School Settings</button>
                 </div>
               </div>
-            </>
-          ) : (
-            <div className="register-school-section">
-              <h2 className="register-title">Register Your School</h2>
-              <p className="register-subtitle">
-                You need to register a school before accessing the dashboard.
-              </p>
-              <Form />
-            </div>
-          )}
         </div>
       </div>
     </div>
