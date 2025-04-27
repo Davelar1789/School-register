@@ -17,7 +17,6 @@
 .superadmin-content {
   max-width: 1200px;
   margin: auto;
-  margin-left: 250px;
   margin-top: 50px;
 }
 
@@ -103,4 +102,10 @@ h3 {
 
 .reject-btn:hover {
   background: #D0342C;
+}
+
+@media screen and (min-width: 768px) {
+.superadmin-content {
+  margin-left: 250px;
+}
 }

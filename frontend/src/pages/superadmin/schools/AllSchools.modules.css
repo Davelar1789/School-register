@@ -71,3 +71,8 @@
     color: #000;
   }
   
+  @media screen and (min-width: 768px) {
+    .allschools-container {
+      margin-left: 250px;
+    }
+    }
