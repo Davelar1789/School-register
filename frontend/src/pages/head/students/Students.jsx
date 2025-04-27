@@ -243,7 +243,9 @@ const Students = () => {
               {filteredStudents.map((student) => (
                 <tr key={student._id}>
                   <td>{student.name}</td>
-                  <td>{student.className}</td>
+                  <td>
+                    {student.classes && student.classes.length > 0 ? student.classes[0].className : "N/A"}
+                  </td>
                   <td className="out">{student.idno}</td>
                   <td className="out">{student.dob}</td>
                   <td className="out">{student.phone || "N/A"}</td>
