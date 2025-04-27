@@ -9,6 +9,7 @@ import Sidebar from "../../../components/Sidebar2";
 function AllSchools() {
   const [schools, setSchools] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   useEffect(() => {
     fetchSchools();

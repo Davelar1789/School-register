@@ -8,6 +8,7 @@ import Sidebar from "../../../components/Sidebar2";
 
 function AddSchool() {
   const navigate = useNavigate();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [formData, setFormData] = useState({
     schoolName: "",
     email: "",
