@@ -17,6 +17,15 @@ const Students = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedClass, setSelectedClass] = useState("");
   const [showModal, setShowModal] = useState(false);
+  const [editingStudent, setEditingStudent] = useState(null);
+const [editFormData, setEditFormData] = useState({
+  name: "",
+  className: "",
+  idno: "",
+  dob: "",
+  phone: ""
+});
+
   const [newStudent, setNewStudent] = useState({
     name: "",
     class: "",
@@ -28,6 +37,32 @@ const Students = () => {
   const token = localStorage.getItem("token");
   const decoded = token ? jwtDecode(token) : null;
   const schoolId = decoded?.schoolId;
+
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    try {
+      const token = localStorage.getItem("token");
+      await api.put(`/api/student/${editingStudent}`, editFormData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
+      // Update students list locally
+      setStudents((prev) =>
+        prev.map((student) =>
+          student._id === editingStudent ? { ...student, ...editFormData } : student
+        )
+      );
+  
+      toast.success("Student updated successfully");
+      setEditingStudent(null); // Close edit form
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update student");
+    }
+  };
+  
 
   const fetchStudents = async () => {
     try {
@@ -251,7 +286,10 @@ const Students = () => {
                   <td className="out">{student.dob}</td>
                   <td className="out">{student.phone || "N/A"}</td>
                   <td className="students-actions out">
-                    <button className="students-edit">
+                  <button
+                      className="students-edit"
+                      onClick={() => handleUpdate(student)}
+                    >
                       <MdEdit />
                     </button>
                     <button
@@ -267,6 +305,75 @@ const Students = () => {
           </table>
         </div>
       )}
+
+      {/* ✅ ADDING EDIT FORM HERE */}
+      {editingStudent && (
+  <div className="students-modalOverlay">
+    <div className="students-modal">
+      <h3>Edit Student</h3>
+      <div className="students-modalForm">
+        <input
+          name="name"
+          placeholder="Name"
+          onChange={(e) =>
+            setEditFormData({ ...editFormData, name: e.target.value })
+          }
+          value={editFormData.name}
+        />
+        <select
+          name="class"
+          onChange={(e) =>
+            setEditFormData({ ...editFormData, class: e.target.value })
+          }
+          value={editFormData.class}
+          className="students-modalForm-input"
+        >
+          <option value="">Select Class</option>
+          {allClasses.map((cls) => (
+            <option key={cls._id} value={cls._id}>
+              {cls.className}
+            </option>
+          ))}
+        </select>
+        <input
+          name="dob"
+          type="date"
+          onChange={(e) =>
+            setEditFormData({ ...editFormData, dob: e.target.value })
+          }
+          value={editFormData.dob}
+        />
+        <input
+          name="phone"
+          placeholder="Phone (optional)"
+          onChange={(e) =>
+            setEditFormData({ ...editFormData, phone: e.target.value })
+          }
+          value={editFormData.phone}
+        />
+        <input
+          name="address"
+          placeholder="Address (optional)"
+          onChange={(e) =>
+            setEditFormData({ ...editFormData, address: e.target.value })
+          }
+          value={editFormData.address}
+        />
+      </div>
+
+      <div className="students-modalButtons">
+        <button onClick={handleUpdate}>Update</button>
+        <button
+          onClick={() => setEditingStudent(null)}
+          className="students-cancelBtn"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+    {/* ✅ END EDIT FORM */}
 
       {showModal && (
         <div className="students-modalOverlay">
