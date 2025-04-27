@@ -85,7 +85,7 @@ export const assignStudentToClass = async (req, res) => {
     // Step 1: Add class ID to student's class array (optional if you store full array)
     await Students.findByIdAndUpdate(
       studentId,
-      { $addToSet: { class: classId } }, // Or update another field if needed
+      { $addToSet: { classes: classId } }, // Or update another field if needed
       { new: true }
     );
 
