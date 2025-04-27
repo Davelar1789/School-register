@@ -46,7 +46,7 @@ const Header = () => {
   return (
     <header className="head56">
       <div className="logoContainer">
-        <span className="logoText">Codewhiz Schools</span>
+        <span className="logoText">De-ƒem Services</span>
       </div>
 
       <nav className="nav">

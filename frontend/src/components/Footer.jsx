@@ -50,7 +50,7 @@ const Footer = () => {
 
       {/* Copyright Section */}
       <div className="footerBottom">
-        <p>&copy; 2025 Codewhiz Schools. All rights reserved.</p>
+        <p>&copy; 2025 De-ƒem Services. All rights reserved.</p>
       </div>
     </footer>
   );
