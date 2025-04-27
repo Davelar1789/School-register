@@ -4,6 +4,8 @@ import { FaArrowLeft } from "react-icons/fa";
 import api from "../../../api/axios";
 import { toast } from "react-hot-toast";
 import "./addAdmin.modules.css";
+import Header2 from "../../../components/Header3";
+import Sidebar from "../../../components/Sidebar2";
 
 function UserSignUp() {
   const navigate = useNavigate();
@@ -47,6 +49,15 @@ function UserSignUp() {
   };
 
   return (
+    <div className="superadmin-container">
+    {/* Sidebar */}
+    <Sidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+
+    {/* Main Content */}
+    <div className="superadmin-main">
+      {/* Header */}
+      <Header2 toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+
     <div className="signup-container">
       {/* Back Button */}
       {/* <div className="back-button" onClick={() => navigate("/")}>
@@ -111,6 +122,8 @@ function UserSignUp() {
           Already have an account? <Link to="/sign-in">Login here</Link>
         </p> */}
       </div>
+    </div>
+    </div>
     </div>
   );
 }
