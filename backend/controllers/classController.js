@@ -119,3 +119,28 @@ export const getClassById = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const patchStudentClasses = async (req, res) => {
+  try {
+    // 1. Get all classes
+    const classes = await Class.find({});
+
+    for (const eachClass of classes) {
+      const { _id: classId, students } = eachClass;
+
+      for (const studentId of students) {
+        // 2. For each student, add the classId into their classes array
+        await Student.findByIdAndUpdate(
+          studentId,
+          { $addToSet: { classes: classId } }, // ✅ No duplicates because $addToSet
+          { new: true }
+        );
+      }
+    }
+
+    res.status(200).json({ message: "Successfully patched all students" });
+  } catch (error) {
+    console.error("Error patching students:", error);
+    res.status(500).json({ error: "Something went wrong during patching" });
+  }
+};
