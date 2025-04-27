@@ -99,7 +99,7 @@ const Header = () => {
             ) : (
               <>
                 <li className="navItem"><a href="/sign-in" className="navLink">Log In</a></li>
-                <li className="navItem"><a href="/sign-up" className="navLink">Sign Up</a></li>
+                {/* <li className="navItem"><a href="/sign-up" className="navLink">Sign Up</a></li> */}
               </>
             )}
           </ul>

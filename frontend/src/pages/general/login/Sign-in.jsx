@@ -96,9 +96,9 @@ function UserLogin() {
           </button>
         </form>
 
-        <p className="signup-link">
+        {/* <p className="signup-link">
           Don't have an account? <Link to="/sign-up">Sign up here</Link>
-        </p>
+        </p> */}
         <p className="signup-link">
           Not an admin? <Link to="/teacher-login">Login as Teacher</Link>
         </p>
