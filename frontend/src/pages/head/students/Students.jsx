@@ -127,6 +127,16 @@ const [editFormData, setEditFormData] = useState({
     }
   };
   
+  const handleEdit = (student) => {
+    setEditingStudent(student._id); // this opens the edit modal
+    setEditFormData({
+      name: student.name || "",
+      class: student.classes && student.classes[0] ? student.classes[0]._id : "", // depends how you store class
+      dob: student.dob || "",
+      phone: student.phone || "",
+      address: student.address || "",
+    });
+  };
   
 
   const handleSearch = (value) => {
@@ -288,7 +298,7 @@ const [editFormData, setEditFormData] = useState({
                   <td className="students-actions out">
                   <button
                       className="students-edit"
-                      onClick={() => handleUpdate(student)}
+                      onClick={() => handleEdit(student)}
                     >
                       <MdEdit />
                     </button>
