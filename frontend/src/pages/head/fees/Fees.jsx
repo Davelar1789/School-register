@@ -3,7 +3,7 @@ import Header from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
 import "./Fees.modules.css";
 import { FaPlus, FaMoneyBillWave, FaEdit, FaTrash } from "react-icons/fa";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
 import api from "../../../api"; // Adjust if your api path is different
 
 const Fees = () => {
