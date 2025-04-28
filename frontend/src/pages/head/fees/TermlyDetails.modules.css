@@ -77,4 +77,10 @@
   .termly-details-submit:hover {
     background-color: #0052cc;
   }
+
+  @media screen and (min-width: 768px) {
+    .termly-details-content {
+        margin-left: 250px;
+    }
+  }
   
