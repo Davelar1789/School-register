@@ -7,6 +7,6 @@ const router = express.Router();
 
 router.post("/set-fees", protect, setClassFees);
 router.post("/make-payment", protect, makePayment);
-router.post("/migrate", migrateOldStudents);
+router.patch("/migrate", migrateOldStudents);
 
 export default router;
