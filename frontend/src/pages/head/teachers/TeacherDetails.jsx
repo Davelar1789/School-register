@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import './TeacherDetails.modules.css';
 import { useParams } from 'react-router-dom';
-import Header from "../../../components/Header2";
-import Sidebar from "../../../components/Sidebar";
+import Header from "../../../components/Admin/Header2";
+import Sidebar from "../../../components/Admin/Sidebar";
 import axios from "../../../api/axios";
 import { toast } from "react-hot-toast";
 

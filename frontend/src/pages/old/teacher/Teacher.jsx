@@ -1,6 +1,6 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import Sidebar from "../../components/Sidebar2";
-import AdminHeader from "../../components/TeacherHeader";
+import AdminHeader from "../../../components/Teacher/TeacherHeader";
 import { useEffect } from "react";
 import { useUserContext } from "../../context/userContext";
 import { Toaster } from "react-hot-toast";

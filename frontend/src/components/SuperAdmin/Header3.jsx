@@ -5,7 +5,7 @@ import {
 } from "react-icons/fa";
 import { useNavigate, NavLink } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import api from "../api/axios";
+import api from "../../api/axios";
 import { jwtDecode } from "jwt-decode";
 import Image1 from "../assets/images/userrr.png";
 import "./Header2.modules.css";
@@ -88,6 +88,11 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
+      const token = localStorage.getItem("token");
+      await api.post("/api/users/logout", {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+  
       localStorage.clear(); // or just remove 'token' if you prefer
       toast.success("Logged out successfully");
       navigate("/sign-in"); // or your login route
@@ -120,6 +125,12 @@ const Header = () => {
         <div className="header-right">
           <FaBell className="icon" />
           {windowWidth > 768 && <FaEnvelope className="icon" />}
+          {windowWidth > 768 && (
+            <FaCog
+              className="icon"
+              onClick={() => navigate('/school-settings')}
+            />
+          )}
           <FaUser className="icon" />
           {windowWidth > 1024 && (
             <select className="language-switcher">
@@ -141,10 +152,6 @@ const Header = () => {
       className="mobile-sidebar"
       onClick={(e) => e.stopPropagation()}
     >
-      <div className="sidebar-header">
-        <div className="logo">{school?.name ? school.name.charAt(0) : "S"}</div>
-        <div className="school-name">{school?.name || "School Dashboard"}</div>
-      </div>
 
       <div className="sidebar-profile">
         <img src={Image1} alt="User" className="profile-pic" />
@@ -154,39 +161,34 @@ const Header = () => {
         </div>
       </div>
 
-        <ul className="sidebar-nav">
-              <li>
-                <NavLink to="/teacher-dashboard" className={({ isActive }) => isActive ? "active" : ""}>
-                  <FaHome className="icon" /> Dashboard
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/chat" className={({ isActive }) => isActive ? "active" : ""}>
-                  <FaComments className="icon" /> Chat
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/my-classes" className={({ isActive }) => isActive ? "active" : ""}>
-                  <FaUserGraduate className="icon" />My Classes
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/teachers" className={({ isActive }) => isActive ? "active" : ""}>
-                  <FaChalkboardTeacher className="icon" />Gradebook
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/events" className={({ isActive }) => isActive ? "active" : ""}>
-                  <FaCalendar className="icon" /> Events
-                </NavLink>
-              </li>
-              <li onClick={handleLogout} style={{ cursor: "pointer" }}>
+      <ul className="sidebar-nav">
+       <li>
+               <NavLink to="/superadmin" className={({ isActive }) => isActive ? "active" : ""}>
+                 <FaHome className="icon" /> Dashboard
+               </NavLink>
+             </li>
+             <li>
+               <NavLink to="/chat" className={({ isActive }) => isActive ? "active" : ""}>
+                 <FaComments className="icon" /> Chat
+               </NavLink>
+             </li>
+             <li>
+               <NavLink to="/all-schools" className={({ isActive }) => isActive ? "active" : ""}>
+                 <FaChalkboardTeacher className="icon" /> Schools
+               </NavLink>
+             </li>
+             <li>
+               <NavLink to="/classes" className={({ isActive }) => isActive ? "active" : ""}>
+                 <FaChalkboardTeacher className="icon" /> Settings
+               </NavLink>
+             </li>
+        <li onClick={handleLogout} style={{ cursor: "pointer" }}>
   <div className="nav-link-custom">
     <FaSignOutAlt className="icon" /> Logout
   </div>
 </li>
 
-            </ul>
+      </ul>
     </div>
   </div>
 )}

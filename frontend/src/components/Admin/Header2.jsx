@@ -5,7 +5,7 @@ import {
 } from "react-icons/fa";
 import { useNavigate, NavLink } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import api from "../api/axios";
+import api from "../../api/axios";
 import { jwtDecode } from "jwt-decode";
 import Image1 from "../assets/images/userrr.png";
 import "./Header2.modules.css";
@@ -152,6 +152,10 @@ const Header = () => {
       className="mobile-sidebar"
       onClick={(e) => e.stopPropagation()}
     >
+      <div className="sidebar-header">
+        <div className="logo">{school?.name ? school.name.charAt(0) : "S"}</div>
+        <div className="school-name">{school?.name || "School Dashboard"}</div>
+      </div>
 
       <div className="sidebar-profile">
         <img src={Image1} alt="User" className="profile-pic" />
@@ -162,26 +166,37 @@ const Header = () => {
       </div>
 
       <ul className="sidebar-nav">
-       <li>
-               <NavLink to="/superadmin" className={({ isActive }) => isActive ? "active" : ""}>
-                 <FaHome className="icon" /> Dashboard
-               </NavLink>
-             </li>
-             <li>
-               <NavLink to="/chat" className={({ isActive }) => isActive ? "active" : ""}>
-                 <FaComments className="icon" /> Chat
-               </NavLink>
-             </li>
-             <li>
-               <NavLink to="/all-schools" className={({ isActive }) => isActive ? "active" : ""}>
-                 <FaChalkboardTeacher className="icon" /> Schools
-               </NavLink>
-             </li>
-             <li>
-               <NavLink to="/classes" className={({ isActive }) => isActive ? "active" : ""}>
-                 <FaChalkboardTeacher className="icon" /> Settings
-               </NavLink>
-             </li>
+        <li>
+          <NavLink to="/dashboard" onClick={() => setSidebarOpen(false)}>
+            <FaHome className="icon" /> Dashboard
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/chat" onClick={() => setSidebarOpen(false)}>
+            <FaComments className="icon" /> Chat
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/students" onClick={() => setSidebarOpen(false)}>
+            <FaUserGraduate className="icon" /> Student
+            <span className="badge">{schoolStats.numberOfStudents}</span>
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/teachers" onClick={() => setSidebarOpen(false)}>
+            <FaChalkboardTeacher className="icon" /> Teacher
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/classes" onClick={() => setSidebarOpen(false)}>
+            <FaChalkboardTeacher className="icon" /> Classes
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/events" onClick={() => setSidebarOpen(false)}>
+            <FaCalendar className="icon" /> Event
+          </NavLink>
+        </li>
         <li onClick={handleLogout} style={{ cursor: "pointer" }}>
   <div className="nav-link-custom">
     <FaSignOutAlt className="icon" /> Logout

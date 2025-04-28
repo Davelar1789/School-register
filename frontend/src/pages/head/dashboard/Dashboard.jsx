@@ -2,13 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import api from "../../../api/axios"; // Ensure this is the correct API instance
-import Header2 from "../../../components/Header2";
+import Header2 from "../../../components/Admin/Header2";
 import Form from "../../general/register/Sign-up"; // School Registration Form
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import { FaHome, FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt } from "react-icons/fa";
 import "./Dashboard.modules.css";
 import { NavLink } from "react-router-dom";
-import Sidebar from "../../../components/Sidebar"
+import Sidebar from "../../../components/Admin/Sidebar"
 import Image1 from "../../../assets/images/userrr.png"
 
 const Dashboard = () => {

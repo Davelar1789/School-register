@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import Header from "../../../components/TeacherHeader";
-import Sidebar from "../../../components/TeacherSidebar";
+import Header from "../../../components/Teacher/TeacherHeader";
+import Sidebar from "../../../components/Teacher/TeacherSidebar";
 import api from "../../../api/axios";
 import "./TeacherDashboard.modules.css";
 

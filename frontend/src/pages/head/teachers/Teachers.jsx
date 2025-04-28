@@ -1,8 +1,8 @@
 // src/pages/TeachersDashboard.jsx
 import React, { useEffect, useState } from "react";
 import "./Teachers.modules.css";
-import Header from "../../../components/Header2";
-import Sidebar from "../../../components/Sidebar";
+import Header from "../../../components/Admin/Header2";
+import Sidebar from "../../../components/Admin/Sidebar";
 import { MdDelete, MdEdit } from "react-icons/md";
 import axios from "../../../api/axios";
 import { Link } from "react-router-dom";

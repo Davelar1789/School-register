@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import api from "../../../api/axios";
 import { MdDelete, MdEdit } from "react-icons/md";
-import Header2 from "../../../components/Header2";
+import Header2 from "../../../components/Admin/Header2";
 import toast from "react-hot-toast";
 import "./Students.modules.css";
-import Sidebar from "../../../components/Sidebar";
+import Sidebar from "../../../components/Admin/Sidebar";
 import { jwtDecode } from "jwt-decode";
 import fetchSchoolData from "../../../utils/fetchSchoolData";
 

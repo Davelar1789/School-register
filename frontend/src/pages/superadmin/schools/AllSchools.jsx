@@ -3,8 +3,8 @@ import { Link } from "react-router-dom";
 import api from "../../../api/axios";
 import { toast, Toaster } from "react-hot-toast";
 import "./AllSchools.modules.css";
-import Header2 from "../../../components/Header3";
-import Sidebar from "../../../components/Sidebar2";
+import Header2 from "../../../components/SuperAdmin/Header3";
+import Sidebar from "../../../components/SuperAdmin/Sidebar2";
 
 function AllSchools() {
   const [schools, setSchools] = useState([]);

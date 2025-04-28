@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import Header2 from "../../../components/Header3";
-import Sidebar from "../../../components/Sidebar2";
+import Header2 from "../../../components/SuperAdmin/Header3";
+import Sidebar from "../../../components/SuperAdmin/Sidebar2";
 import api from "../../../api/axios";
 import { toast } from "react-hot-toast";
 import "./SuperAdmin.modules.css";

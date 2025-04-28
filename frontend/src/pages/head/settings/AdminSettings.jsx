@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import { MdEdit } from "react-icons/md";
 import api from "../../../api/axios.js";
 import "./AdminSettings.modules.css";
-import Sidebar from "../../../components/Sidebar";
+import Sidebar from "../../../components/Admin/Sidebar.jsx";
 import { toast } from "react-hot-toast";
-import Header2 from "../../../components/Header2";
+import Header2 from "../../../components/Admin/Header2.jsx";
 
 const AdminSettings = () => {
   const [school, setSchool] = useState(null);

@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../../api/axios";
 import "./Class.modules.css";
-import Header from "../../../components/Header2";
+import Header from "../../../components/Admin/Header2";
 import { MdDelete, MdEdit } from "react-icons/md";
-import Sidebar from "../../../components/Sidebar";
+import Sidebar from "../../../components/Admin/Sidebar";
 import { toast } from "react-hot-toast";
 
 

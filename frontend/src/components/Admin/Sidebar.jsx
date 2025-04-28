@@ -3,7 +3,7 @@ import { FaHome, FaUser, FaCommentDots, FaUsers, FaCalendarAlt, FaComments, FaUs
 import { useNavigate, NavLink } from "react-router-dom";
 import "../pages/head/students/Students.modules.css";
 import { toast } from "react-hot-toast";
-import api from "../api/axios"; // API instance
+import api from "../../api/axios"; // API instance
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import Image1 from "../assets/images/userrr.png";
 import { jwtDecode } from "jwt-decode";
@@ -117,6 +117,11 @@ const Sidebar = () => {
 
   return (
     <div className="sidebar">
+            {/* School Logo */}
+            <div className="sidebar-header">
+              <div className="logo">{school?.name ? school.name.charAt(0) : "S"}</div>
+              <div className="school-name">{school?.name || "School Dashboard"}</div>
+            </div>
     
             {/* User Profile */}
             <div className="sidebar-profile">
@@ -130,7 +135,7 @@ const Sidebar = () => {
             {/* Menu Items */}
             <ul className="sidebar-nav">
       <li>
-        <NavLink to="/superadmin" className={({ isActive }) => isActive ? "active" : ""}>
+        <NavLink to="/dashboard" className={({ isActive }) => isActive ? "active" : ""}>
           <FaHome className="icon" /> Dashboard
         </NavLink>
       </li>
@@ -140,13 +145,24 @@ const Sidebar = () => {
         </NavLink>
       </li>
       <li>
-        <NavLink to="/all-schools" className={({ isActive }) => isActive ? "active" : ""}>
-          <FaChalkboardTeacher className="icon" /> Schools
+        <NavLink to="/students" className={({ isActive }) => isActive ? "active" : ""}>
+          <FaUserGraduate className="icon" /> Student <span className="badge">{schoolStats.numberOfStudents}
+          </span>
         </NavLink>
       </li>
       <li>
-        <NavLink to="/add-admin" className={({ isActive }) => isActive ? "active" : ""}>
-          <FaChalkboardTeacher className="icon" /> Add Admin
+        <NavLink to="/teachers" className={({ isActive }) => isActive ? "active" : ""}>
+          <FaChalkboardTeacher className="icon" /> Teacher
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/classes" className={({ isActive }) => isActive ? "active" : ""}>
+          <FaChalkboardTeacher className="icon" /> Classes
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/events" className={({ isActive }) => isActive ? "active" : ""}>
+          <FaCalendar className="icon" /> Event
         </NavLink>
       </li>
       <li onClick={handleLogout} style={{ cursor: "pointer" }}>

@@ -4,8 +4,8 @@ import { FaArrowLeft } from "react-icons/fa";
 import api from "../../../api/axios";
 import { toast } from "react-hot-toast";
 import "./addAdmin.modules.css";
-import Header2 from "../../../components/Header3";
-import Sidebar from "../../../components/Sidebar2";
+import Header2 from "../../../components/SuperAdmin/Header3";
+import Sidebar from "../../../components/SuperAdmin/Sidebar2";
 
 function UserSignUp() {
   const navigate = useNavigate();

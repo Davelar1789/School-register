@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import "./UploadStudent.modules.css";
-import axios from '../api/axios';
+import axios from '../../api/axios';
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
