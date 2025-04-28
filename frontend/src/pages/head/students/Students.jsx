@@ -166,11 +166,16 @@ const [editFormData, setEditFormData] = useState({
       const matchesSearch =
         student.name.toLowerCase().includes(search.toLowerCase()) ||
         student.idno.toLowerCase().includes(search.toLowerCase());
-      const matchesClass = classFilter ? student.class === classFilter : true;
+      
+      const matchesClass = classFilter
+        ? student.classes && student.classes.length > 0 && student.classes[0]._id === classFilter
+        : true;
+  
       return matchesSearch && matchesClass;
     });
     setFilteredStudents(filtered);
   };
+  
 
   const handleInputChange = (e) => {
     setNewStudent({ ...newStudent, [e.target.name]: e.target.value });
