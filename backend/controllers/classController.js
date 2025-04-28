@@ -2,6 +2,7 @@
 import Class from "../models/Class.model.js";
 import Students from "../models/Student.model.js"; // ✅ Add this
 import Teacher from "../models/Teacher.model.js"; // ✅ Also recommended
+import School from "../models/School.model.js";
 
 // Create a new class
 export const createClass = async (req, res) => {
