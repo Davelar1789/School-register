@@ -22,7 +22,20 @@ const Fees = () => {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      const { data } = await api.get("/api/students"); // Adjust your endpoint
+      const userDataRaw = localStorage.getItem("user"); // or however you saved it
+      if (!userDataRaw) {
+        toast.error("User not logged in");
+        return;
+      }
+  
+      const userData = JSON.parse(userDataRaw);
+      const token = userData.token;
+  
+      const { data } = await api.get("/api/student", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setStudents(data);
       setFilteredStudents(data);
     } catch (error) {
@@ -31,15 +44,34 @@ const Fees = () => {
       setLoading(false);
     }
   };
-
+  
   const fetchClasses = async () => {
     try {
-      const { data } = await api.get("/api/classes"); // Adjust your endpoint
+      const schoolDataRaw = localStorage.getItem("schoolData");
+      if (!schoolDataRaw) {
+        toast.error("School not selected");
+        return;
+      }
+  
+      const schoolData = JSON.parse(schoolDataRaw);
+      const schoolId = schoolData._id;
+  
+      const userDataRaw = localStorage.getItem("user");
+      const userData = JSON.parse(userDataRaw);
+      const token = userData.token;
+  
+      const { data } = await api.get(`/api/classes/school/${schoolId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+  
       setAllClasses(data);
     } catch (error) {
       toast.error("Failed to fetch classes");
     }
   };
+  
 
   const handleSearch = (e) => {
     const value = e.target.value;
