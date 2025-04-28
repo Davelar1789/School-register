@@ -299,6 +299,33 @@ body {
   .students-cancelBtn:hover {
     background-color: #999;
   }
+
+  .students-pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 1rem;
+    gap: 1rem;
+  }
+  
+  .students-pagination-btn {
+    padding: 0.5rem 1rem;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+  }
+  
+  .students-pagination-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .students-pagination-info {
+    font-size: 0.9rem;
+  }
+  
   
   @media screen and (max-width : 768px){
     .out {

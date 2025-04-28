@@ -18,6 +18,8 @@ const Students = () => {
   const [selectedClass, setSelectedClass] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
+const studentsPerPage = 15;
 const [editFormData, setEditFormData] = useState({
   name: "",
   className: "",
@@ -286,7 +288,9 @@ const [editFormData, setEditFormData] = useState({
               </tr>
             </thead>
             <tbody>
-              {filteredStudents.map((student) => (
+            {filteredStudents
+            .slice((currentPage - 1) * studentsPerPage, currentPage * studentsPerPage)
+            .map((student) => (
                 <tr key={student._id}>
                   <td>{student.name}</td>
                   <td>
@@ -313,6 +317,35 @@ const [editFormData, setEditFormData] = useState({
               ))}
             </tbody>
           </table>
+          <div className="students-pagination">
+            <button
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+              className="students-pagination-btn"
+            >
+              Previous
+            </button>
+
+            <span className="students-pagination-info">
+              {`Showing ${
+                filteredStudents.length === 0 ? 0 : (currentPage - 1) * studentsPerPage + 1
+              } - ${
+                Math.min(currentPage * studentsPerPage, filteredStudents.length)
+              } of ${filteredStudents.length}`}
+            </span>
+
+            <button
+              onClick={() =>
+                setCurrentPage((prev) =>
+                  prev < Math.ceil(filteredStudents.length / studentsPerPage) ? prev + 1 : prev
+                )
+              }
+              disabled={currentPage === Math.ceil(filteredStudents.length / studentsPerPage) || filteredStudents.length === 0}
+              className="students-pagination-btn"
+            >
+              Next
+            </button>
+          </div>
         </div>
       )}
 
