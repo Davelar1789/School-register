@@ -29,7 +29,7 @@ const TermlyDetails = () => {
       setAllClasses(data);
       const initialFees = data.map(cls => ({
         classId: cls._id,
-        className: cls.name,
+        className: cls.className,
         totalFees: 0,
       }));
       setClassFees(initialFees);
