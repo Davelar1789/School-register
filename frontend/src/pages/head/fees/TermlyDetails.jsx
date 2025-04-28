@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import Header from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
-import api from "../../../utils/api"; // Assuming you have an api.js file
+import api from "../../../api/axios"; // Adjust if your api path is different
 import { toast } from "react-hot-toast";
 import "./TermlyDetails.modules.css";
 
