@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { FaHome, FaUser, FaCommentDots, FaUsers, FaCalendarAlt, FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt } from "react-icons/fa";
 import { useNavigate, NavLink } from "react-router-dom";
-import "../pages/head/students/Students.modules.css";
+import "../../pages/head/students/Students.modules.css";
 import { toast } from "react-hot-toast";
 import api from "../../api/axios"; // API instance
 import "@fortawesome/fontawesome-free/css/all.min.css";
-import Image1 from "../assets/images/userrr.png";
+import Image1 from "../../assets/images/userrr.png";
 import { jwtDecode } from "jwt-decode";
 
 const Sidebar = () => {

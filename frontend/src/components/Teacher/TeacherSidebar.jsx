@@ -11,7 +11,7 @@ import { useNavigate, NavLink } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-hot-toast";
 import api from "../../api/axios"; // Ensure this points to your axios config
-import Image1 from "../assets/images/userrr.png";
+import Image1 from "../../assets/images/userrr.png";
 
 const SidebarTeacher = () => {
   const [user, setUser] = useState(null);

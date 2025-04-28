@@ -7,7 +7,7 @@ import { useNavigate, NavLink } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import api from "../../api/axios";
 import { jwtDecode } from "jwt-decode";
-import Image1 from "../assets/images/userrr.png";
+import Image1 from "../../assets/images/userrr.png";
 import "./Header2.modules.css";
 
 const Header = () => {
