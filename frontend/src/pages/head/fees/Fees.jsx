@@ -71,7 +71,7 @@ const Fees = () => {
       <Sidebar />
       <div className="fees-main">
         <Header />
-
+        <div className="fees-side">
         <div className="fees-header">
           <h1>Fees Management</h1>
           <div className="fees-header-actions">
@@ -165,6 +165,7 @@ const Fees = () => {
               </tbody>
             </table>
           )}
+        </div>
         </div>
       </div>
     </div>
