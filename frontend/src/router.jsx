@@ -32,8 +32,8 @@ import App from "./App";
 // import TopSellers from "./pages/admin2/top_sellers/TopSellers";
 import SignIn from "./pages/general/login/Sign-in";
 // import Stuff from "./pages/admin2/stuff/Stuff";
-import ErrorBoundary from "./components/ErrorBoundary";
-import NotFound from "./components/NotFound";
+import ErrorBoundary from "./components/General/ErrorBoundary";
+import NotFound from "./components/General/NotFound";
 // import ManageTeachers from "./pages/admin2/manage_teachers/ManageTeachers";
 // import ManageStudents from "./pages/admin2/manage_students/ManageStudents";
 import Welcome from "./pages/head/dashboard/Dashboard";
@@ -47,7 +47,7 @@ import Classes from "./pages/head/classes/Class";
 import TeacherDetails from "./pages/head/teachers/TeacherDetails";
 import TeacherClasses from "./pages/teacher/classes/Classes";
 import ClassDetails from "./pages/teacher/classes/ClassDetails";
-import ProtectedRoute from "./components/ProtectedRoute"; // adjust path accordingly
+import ProtectedRoute from "./components/General/ProtectedRoute"; // adjust path accordingly
 import SchoolSettings from "./pages/head/settings/AdminSettings";
 import AllSchools from "./pages/superadmin/schools/AllSchools";
 import AddSchool from "./pages/superadmin/schools/AddSchool";
