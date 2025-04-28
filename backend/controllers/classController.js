@@ -5,36 +5,40 @@ import Teacher from "../models/Teacher.model.js"; // ✅ Also recommended
 
 // Create a new class
 export const createClass = async (req, res) => {
-    try {
-      const { school, className, description, level, teachers = [], students = [] } = req.body;
-  
-      if (!school || !className || !level) {
-        return res.status(400).json({ message: "school, className, and level are required" });
-      }
-  
-      // Optional: prevent duplicates within a school
-      const existing = await Class.findOne({ school, className });
-      if (existing) {
-        return res.status(400).json({ message: "Class with this name already exists for this school" });
-      }
-  
-      const newClass = new Class({
-        school,
-        className,
-        description,
-        level,
-        teachers,
-        students,
-      });
-  
-      await newClass.save();
-      res.status(201).json(newClass);
-    } catch (err) {
-      console.error("Error creating class:", err.stack);
-      res.status(500).json({ message: "Server error", error: err.message });
+  try {
+    const { school, className, description, level, teachers = [], students = [] } = req.body;
+
+    if (!school || !className || !level) {
+      return res.status(400).json({ message: "school, className, and level are required" });
     }
-  };
-  
+
+    // Prevent duplicate className in same school
+    const existing = await Class.findOne({ school, className });
+    if (existing) {
+      return res.status(400).json({ message: "Class with this name already exists for this school" });
+    }
+
+    const newClass = new Class({
+      school,
+      className,
+      description,
+      level,
+      teachers,
+      students,
+    });
+
+    await newClass.save();
+
+    // 🔥 UPDATE the number of classes for the school
+    const numberOfClasses = await Class.countDocuments({ school });
+    await School.findByIdAndUpdate(school, { numberOfClasses });
+
+    res.status(201).json(newClass);
+  } catch (err) {
+    console.error("Error creating class:", err.stack);
+    res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
 
 // Get all classes for a school
 export const getClassesBySchool = async (req, res) => {
@@ -142,5 +146,25 @@ export const patchStudentClasses = async (req, res) => {
   } catch (error) {
     console.error("Error patching students:", error);
     res.status(500).json({ error: "Something went wrong during patching" });
+  }
+};
+
+export const recalculateClassesForSchool = async (req, res) => {
+  try {
+    const { schoolId } = req.params;
+
+    const school = await School.findById(schoolId);
+    if (!school) {
+      return res.status(404).json({ message: "School not found" });
+    }
+
+    const numberOfClasses = await Class.countDocuments({ school: schoolId });
+    school.numberOfClasses = numberOfClasses;
+    await school.save();
+
+    res.status(200).json({ message: "Number of classes updated successfully", school });
+  } catch (error) {
+    console.error("Error recalculating number of classes:", error.stack);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
