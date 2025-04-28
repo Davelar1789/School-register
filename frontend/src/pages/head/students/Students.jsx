@@ -143,11 +143,13 @@ const [editFormData, setEditFormData] = useState({
 
   const handleSearch = (value) => {
     setSearchTerm(value);
+    setCurrentPage(1);
     filterStudents(value, selectedClass);
   };
 
   const handleFilterClass = (value) => {
     setSelectedClass(value);
+    setCurrentPage(1);
     filterStudents(searchTerm, value);
   };
 
