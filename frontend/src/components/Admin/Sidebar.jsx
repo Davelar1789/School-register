@@ -145,6 +145,11 @@ const Sidebar = () => {
         </NavLink>
       </li>
       <li>
+        <NavLink to="/fees" className={({ isActive }) => isActive ? "active" : ""}>
+          <FaUserGraduate className="icon" /> Fees 
+        </NavLink>
+      </li>
+      <li>
         <NavLink to="/students" className={({ isActive }) => isActive ? "active" : ""}>
           <FaUserGraduate className="icon" /> Student <span className="badge">{schoolStats.numberOfStudents}
           </span>

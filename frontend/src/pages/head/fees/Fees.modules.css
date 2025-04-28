@@ -1,0 +1,119 @@
+.fees-container {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f5f7fa;
+  }
+  
+  .fees-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .fees-header {
+    padding: 20px;
+    background-color: white;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .fees-header h1 {
+    margin-bottom: 20px;
+  }
+  
+  .fees-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .fees-search, .fees-filter {
+    padding: 8px 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  
+  .fees-add {
+    background-color: #2c7be5;
+    color: white;
+    padding: 9px 15px;
+    border: none;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+  }
+  
+  .fees-add:hover {
+    background-color: #1a5fd0;
+  }
+  
+  .fees-summary {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  .fees-summary-box {
+    flex: 1;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  }
+  
+  .fees-summary-icon {
+    font-size: 40px;
+    color: #4caf50;
+  }
+  
+  .fees-tableWrapper {
+    padding: 20px;
+    overflow-x: auto;
+  }
+  
+  .fees-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .fees-table th, .fees-table td {
+    border: 1px solid #ddd;
+    padding: 12px 15px;
+    text-align: left;
+  }
+  
+  .fees-table th {
+    background-color: #f4f4f4;
+  }
+  
+  .fees-actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .fees-edit, .fees-delete {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+  }
+  
+  .fees-edit {
+    color: #4caf50;
+  }
+  
+  .fees-delete {
+    color: #f44336;
+  }
+  
+  .fees-loading, .fees-empty {
+    padding: 20px;
+    text-align: center;
+    color: #555;
+  }
+  

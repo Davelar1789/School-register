@@ -1,0 +1,174 @@
+import React, { useState, useEffect } from "react";
+import Header from "../../../components/Admin/Header2";
+import Sidebar from "../../../components/Admin/Sidebar";
+import "./Fees.modules.css";
+import { FaPlus, FaMoneyBillWave, FaEdit, FaTrash } from "react-icons/fa";
+import { toast } from "react-toastify";
+import api from "../../../api"; // Adjust if your api path is different
+
+const Fees = () => {
+  const [students, setStudents] = useState([]);
+  const [filteredStudents, setFilteredStudents] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [selectedClass, setSelectedClass] = useState("");
+  const [allClasses, setAllClasses] = useState([]);
+
+  useEffect(() => {
+    fetchStudents();
+    fetchClasses();
+  }, []);
+
+  const fetchStudents = async () => {
+    try {
+      setLoading(true);
+      const { data } = await api.get("/api/students"); // Adjust your endpoint
+      setStudents(data);
+      setFilteredStudents(data);
+    } catch (error) {
+      toast.error("Failed to fetch students");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchClasses = async () => {
+    try {
+      const { data } = await api.get("/api/classes"); // Adjust your endpoint
+      setAllClasses(data);
+    } catch (error) {
+      toast.error("Failed to fetch classes");
+    }
+  };
+
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    filterStudents(value, selectedClass);
+  };
+
+  const handleFilterClass = (e) => {
+    const value = e.target.value;
+    setSelectedClass(value);
+    filterStudents(searchTerm, value);
+  };
+
+  const filterStudents = (search, classId) => {
+    const filtered = students.filter((student) => {
+      const matchesSearch =
+        student.name.toLowerCase().includes(search.toLowerCase()) ||
+        student.idno.toLowerCase().includes(search.toLowerCase());
+      const matchesClass = classId
+        ? student.classes && student.classes.length > 0 && student.classes[0]._id === classId
+        : true;
+      return matchesSearch && matchesClass;
+    });
+    setFilteredStudents(filtered);
+  };
+
+  return (
+    <div className="fees-container">
+      <Sidebar />
+      <div className="fees-main">
+        <Header />
+
+        <div className="fees-header">
+          <h1>Fees Management</h1>
+          <div className="fees-header-actions">
+            <input
+              type="text"
+              placeholder="Search by name or ID"
+              value={searchTerm}
+              onChange={handleSearch}
+              className="fees-search"
+            />
+            <select
+              value={selectedClass}
+              onChange={handleFilterClass}
+              className="fees-filter"
+            >
+              <option value="">All Classes</option>
+              {allClasses.map((cls) => (
+                <option key={cls._id} value={cls._id}>
+                  {cls.className}
+                </option>
+              ))}
+            </select>
+            <button className="fees-add">
+              <FaPlus /> Add New Payment
+            </button>
+          </div>
+        </div>
+
+        <div className="fees-summary">
+          <div className="fees-summary-box">
+            <FaMoneyBillWave className="fees-summary-icon" />
+            <div>
+              <h3>Total Fees Collected</h3>
+              <p>GHC 50,000</p> {/* replace with calculated value later */}
+            </div>
+          </div>
+          <div className="fees-summary-box">
+            <FaMoneyBillWave className="fees-summary-icon" />
+            <div>
+              <h3>Outstanding Arrears</h3>
+              <p>GHC 8,500</p> {/* replace with calculated value later */}
+            </div>
+          </div>
+        </div>
+
+        <div className="fees-tableWrapper">
+          {loading ? (
+            <p className="fees-loading">Loading students...</p>
+          ) : filteredStudents.length === 0 ? (
+            <p className="fees-empty">No students found.</p>
+          ) : (
+            <table className="fees-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Class</th>
+                  <th>Fees Owed</th>
+                  <th>Fees Paid</th>
+                  <th>Balance</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredStudents.map((student) => {
+                  const feesOwed = student.feesOwed || 0;
+                  const feesPaid = student.feesPaid || 0;
+                  const balance = feesOwed - feesPaid;
+
+                  return (
+                    <tr key={student._id}>
+                      <td>{student.name}</td>
+                      <td>
+                        {student.classes && student.classes.length > 0
+                          ? student.classes[0].className
+                          : "N/A"}
+                      </td>
+                      <td>GHC {feesOwed}</td>
+                      <td>GHC {feesPaid}</td>
+                      <td>GHC {balance}</td>
+                      <td className="fees-actions">
+                        <button className="fees-edit">
+                          <FaEdit />
+                        </button>
+                        <button className="fees-delete">
+                          <FaTrash />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Fees;
