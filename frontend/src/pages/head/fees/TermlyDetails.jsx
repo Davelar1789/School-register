@@ -14,12 +14,15 @@ const TermlyDetails = () => {
   const [allClasses, setAllClasses] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  const schoolId = localStorage.getItem("schoolId"); // Adjust if your storage is different
-
+  const schoolData = JSON.parse(localStorage.getItem("schoolData"));
+  const schoolId = schoolData ? schoolData._id : null;
+  
   useEffect(() => {
-    fetchClasses();
-  }, []);
-
+    if (schoolId) {
+      fetchClasses();
+    }
+  }, [schoolId]);
+  
   const fetchClasses = async () => {
     try {
       const { data } = await api.get(`/api/classes/school/${schoolId}`);
@@ -34,7 +37,7 @@ const TermlyDetails = () => {
       toast.error("Failed to fetch classes");
     }
   };
-
+  
   const handleFeeChange = (index, value) => {
     const updatedFees = [...classFees];
     updatedFees[index].totalFees = value;
