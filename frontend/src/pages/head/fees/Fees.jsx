@@ -4,7 +4,7 @@ import Sidebar from "../../../components/Admin/Sidebar";
 import "./Fees.modules.css";
 import { FaPlus, FaMoneyBillWave, FaEdit, FaTrash } from "react-icons/fa";
 import { toast } from "react-hot-toast";
-import api from "../../../api"; // Adjust if your api path is different
+import api from "../../../api/axios"; // Adjust if your api path is different
 
 const Fees = () => {
   const [students, setStudents] = useState([]);
