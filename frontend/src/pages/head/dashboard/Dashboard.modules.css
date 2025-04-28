@@ -171,7 +171,6 @@ body {
 @media screen and (max-width: 768px) {
   .overview-section {
     grid-template-columns: repeat(2, 1fr); /* Two per row on tablets */
-    border: 5px solid red; /* Temporary test */
   }
 }
 
