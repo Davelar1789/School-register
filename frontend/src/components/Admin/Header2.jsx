@@ -172,8 +172,13 @@ const Header = () => {
           </NavLink>
         </li>
         <li>
-          <NavLink to="/chat" onClick={() => setSidebarOpen(false)}>
-            <FaComments className="icon" /> Chat
+          <NavLink to="/termly-details" onClick={() => setSidebarOpen(false)}>
+            <FaComments className="icon" /> Termly Details
+          </NavLink>
+        </li>
+        <li>
+          <NavLink to="/fees" onClick={() => setSidebarOpen(false)}>
+            <FaChalkboardTeacher className="icon" /> Fees
           </NavLink>
         </li>
         <li>

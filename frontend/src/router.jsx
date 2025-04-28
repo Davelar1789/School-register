@@ -8,7 +8,7 @@ import Students from "./pages/head/students/Students"
 // import Events from "./pages/admin2/events/Events";
 import Fees from "./pages/head/fees/Fees";
 // import Cashbook from "./pages/admin2/cashbook/Cashbook";
-// import TermlyDetails from "./pages/admin2/termlydetails/TermlyDetails";
+import TermlyDetails from "./pages/head/fees/TermlyDetails";
 // import TDashboard from "./pages/teacher/dashboard/Dashboard";
 // import TManageStudents from "./pages/teacher/manage_students/ManageStudents";
 // import TEditGrades from "./pages/teacher/manage_students/EditGrades";
@@ -124,6 +124,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["admin"]}>
             <SchoolSettings />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "termly-details",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <TermlyDetails />
           </ProtectedRoute>
         ),
       },

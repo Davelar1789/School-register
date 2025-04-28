@@ -11,6 +11,7 @@ import studentRoutes from "./routes/student.js"
 import teacherRoutes from "./routes/teacherRoutes.js";
 import classRoutes from "./routes/classRoutes.js";
 import feesRoutes from "./routes/feesRoutes.js";
+import termsRoutes from "./routes/termSessionRoutes.js";
 import { authToken } from "./middleware/authToken.js";
 import { verifyAdmin } from "./middleware/verifyAdmin.js";
 import { verifyTeacher } from "./middleware/verifyTeacher.js";
@@ -46,7 +47,7 @@ app.use("/api/student", studentRoutes);
 app.use("/api/teachers", teacherRoutes);
 app.use("/api/classes", classRoutes);
 app.use("/api/fees", feesRoutes);
-
+app.use("/api/terms", termsRoutes);
 
 
 

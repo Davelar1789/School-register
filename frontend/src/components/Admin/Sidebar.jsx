@@ -140,8 +140,8 @@ const Sidebar = () => {
         </NavLink>
       </li>
       <li>
-        <NavLink to="/chat" className={({ isActive }) => isActive ? "active" : ""}>
-          <FaComments className="icon" /> Chat
+        <NavLink to="/termly-details" className={({ isActive }) => isActive ? "active" : ""}>
+          <FaComments className="icon" /> Termly Details
         </NavLink>
       </li>
       <li>
