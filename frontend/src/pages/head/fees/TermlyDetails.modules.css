@@ -1,71 +1,70 @@
 .termly-details-container {
     display: flex;
-    min-height: 100vh;
-  }
-  
-  .termly-details-main {
-    flex: 1;
-    background-color: #f5f7fa;
-    padding: 20px;
   }
   
   .termly-details-content {
-    background: white;
-    padding: 30px;
+    flex: 1;
+    padding: 20px;
+    background: #f9f9f9;
+    min-height: 100vh;
+  }
+  
+  h2 {
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .termly-form {
+    background: #fff;
+    padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   }
   
-  .termly-details-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
+  .form-group {
+    margin-bottom: 20px;
   }
   
-  .termly-details-row {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .termly-details-row label {
-    font-weight: bold;
+  .form-group label {
+    font-weight: 600;
     margin-bottom: 8px;
+    display: block;
+    color: #555;
   }
   
-  .termly-details-row input,
-  .termly-details-row select {
+  .form-group input,
+  .form-group select {
+    width: 100%;
     padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
   }
   
-  .termly-details-classes {
+  h3 {
     margin-top: 30px;
+    color: #444;
   }
   
-  .termly-details-class-row {
+  .fee-row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     margin-bottom: 15px;
   }
   
-  .termly-details-class-row label {
+  .fee-row span {
     flex: 1;
-    font-size: 16px;
+    font-weight: 500;
   }
   
-  .termly-details-class-row input {
-    flex: 1;
+  .fee-row input {
+    width: 150px;
     padding: 8px;
     margin-left: 20px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
   }
   
-  .termly-details-submit {
-    background-color: #0066ff;
-    color: white;
+  button[type="submit"] {
+    background: #007bff;
+    color: #fff;
     padding: 12px 20px;
     border: none;
     border-radius: 6px;
@@ -74,12 +73,12 @@
     margin-top: 20px;
   }
   
-  .termly-details-submit:hover {
-    background-color: #0052cc;
+  button[type="submit"]:hover {
+    background: #0056b3;
   }
-
+  
   @media screen and (min-width: 768px) {
-    .termly-details-content {
+    .termly-side {
         margin-left: 250px;
     }
   }

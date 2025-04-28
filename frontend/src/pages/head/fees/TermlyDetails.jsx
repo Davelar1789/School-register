@@ -1,19 +1,20 @@
-// pages/Admin/Fees/TermlyDetails.jsx
 import React, { useEffect, useState } from "react";
+import "./TermlyDetails.modules.css";
 import Header from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
 import api from "../../../api/axios"; // Adjust if your api path is different
 import { toast } from "react-hot-toast";
-import "./TermlyDetails.modules.css";
 
 const TermlyDetails = () => {
   const [yearLabel, setYearLabel] = useState("");
-  const [termName, setTermName] = useState("");
+  const [termName, setTermName] = useState("Term 1");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [classes, setClasses] = useState([]);
-  const [classFees, setClassFees] = useState({});
+  const [classFees, setClassFees] = useState([]);
+  const [allClasses, setAllClasses] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  const schoolId = localStorage.getItem("schoolId"); // Adjust if your storage is different
 
   useEffect(() => {
     fetchClasses();
@@ -21,56 +22,50 @@ const TermlyDetails = () => {
 
   const fetchClasses = async () => {
     try {
-      setLoading(true);
-      const { data } = await api.get("/api/classes/school/${schoolId}"); // Adjust if needed
-      setClasses(data);
-      const initialFees = {};
-      data.forEach((cls) => {
-        initialFees[cls._id] = "";
-      });
+      const { data } = await api.get(`/api/classes/school/${schoolId}`);
+      setAllClasses(data);
+      const initialFees = data.map(cls => ({
+        classId: cls._id,
+        className: cls.name,
+        totalFees: 0,
+      }));
       setClassFees(initialFees);
     } catch (error) {
-      console.error(error);
-      toast.error("Failed to load classes");
-    } finally {
-      setLoading(false);
+      toast.error("Failed to fetch classes");
     }
   };
 
-  const handleFeeChange = (classId, fee) => {
-    setClassFees((prevFees) => ({
-      ...prevFees,
-      [classId]: fee,
-    }));
+  const handleFeeChange = (index, value) => {
+    const updatedFees = [...classFees];
+    updatedFees[index].totalFees = value;
+    setClassFees(updatedFees);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (!yearLabel || !termName || !startDate || !endDate) {
-      toast.error("Please fill all term details.");
+      toast.error("Please fill all fields!");
       return;
     }
 
     try {
       setLoading(true);
-
-      for (const classId in classFees) {
-        if (classFees[classId]) {
-          await api.post("/api/fees/set-fees", {
-            classId,
-            yearLabel,
-            termName,
-            totalFees: parseFloat(classFees[classId]),
-          });
-        }
-      }
-
-      toast.success("Termly details and fees saved successfully!");
-      // Optional: clear form after submit
+      await api.post("/api/terms/create", {
+        schoolId,
+        yearLabel,
+        termName,
+        startDate,
+        endDate,
+        classFees,
+      });
+      toast.success("Term session created successfully!");
+      setYearLabel("");
+      setTermName("Term 1");
+      setStartDate("");
+      setEndDate("");
+      fetchClasses();
     } catch (error) {
-      console.error(error);
-      toast.error("Failed to save term details.");
+      toast.error(error.response?.data?.message || "Failed to create term session");
     } finally {
       setLoading(false);
     }
@@ -79,69 +74,67 @@ const TermlyDetails = () => {
   return (
     <div className="termly-details-container">
       <Sidebar />
-      <div className="termly-details-main">
+      <div className="termly-details-content">
         <Header />
-        <div className="termly-details-content">
-          <h2>Set Term Details and Class Fees</h2>
+        <div className="termly-side">
+        <h2>Set Up New Term Session</h2>
+        <form className="termly-form" onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Academic Year (e.g. 2024/2025)</label>
+            <input 
+              type="text" 
+              value={yearLabel} 
+              onChange={(e) => setYearLabel(e.target.value)} 
+              required 
+            />
+          </div>
 
-          <form onSubmit={handleSubmit} className="termly-details-form">
-            <div className="termly-details-row">
-              <label>Academic Year:</label>
+          <div className="form-group">
+            <label>Term</label>
+            <select value={termName} onChange={(e) => setTermName(e.target.value)}>
+              <option value="Term 1">Term 1</option>
+              <option value="Term 2">Term 2</option>
+              <option value="Term 3">Term 3</option>
+            </select>
+          </div>
+
+          <div className="form-group">
+            <label>Term Start Date</label>
+            <input 
+              type="date" 
+              value={startDate} 
+              onChange={(e) => setStartDate(e.target.value)} 
+              required 
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Term End Date</label>
+            <input 
+              type="date" 
+              value={endDate} 
+              onChange={(e) => setEndDate(e.target.value)} 
+              required 
+            />
+          </div>
+
+          <h3>Set Fees for Each Class</h3>
+          {classFees.map((cls, index) => (
+            <div key={cls.classId} className="fee-row">
+              <span>{cls.className}</span>
               <input
-                type="text"
-                placeholder="e.g. 2024/2025"
-                value={yearLabel}
-                onChange={(e) => setYearLabel(e.target.value)}
+                type="number"
+                value={cls.totalFees}
+                onChange={(e) => handleFeeChange(index, Number(e.target.value))}
+                placeholder="Enter total fees"
               />
             </div>
+          ))}
 
-            <div className="termly-details-row">
-              <label>Term:</label>
-              <select value={termName} onChange={(e) => setTermName(e.target.value)}>
-                <option value="">Select Term</option>
-                <option value="Term 1">Term 1</option>
-                <option value="Term 2">Term 2</option>
-                <option value="Term 3">Term 3</option>
-              </select>
-            </div>
-
-            <div className="termly-details-row">
-              <label>Term Start Date:</label>
-              <input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-            </div>
-
-            <div className="termly-details-row">
-              <label>Term End Date:</label>
-              <input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-            </div>
-
-            <div className="termly-details-classes">
-              <h3>Class Fees Setup</h3>
-              {classes.map((cls) => (
-                <div key={cls._id} className="termly-details-class-row">
-                  <label>{cls.className}</label>
-                  <input
-                    type="number"
-                    placeholder="Enter fee amount"
-                    value={classFees[cls._id] || ""}
-                    onChange={(e) => handleFeeChange(cls._id, e.target.value)}
-                  />
-                </div>
-              ))}
-            </div>
-
-            <button type="submit" className="termly-details-submit">
-              Save Term Details
-            </button>
-          </form>
+          <button type="submit" disabled={loading}>
+            {loading ? "Saving..." : "Save Term Session"}
+          </button>
+        </form>
         </div>
       </div>
     </div>
