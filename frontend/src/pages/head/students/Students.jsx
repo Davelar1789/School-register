@@ -16,6 +16,7 @@ const Students = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedClass, setSelectedClass] = useState("");
+  const [classOptions, setClassOptions] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -98,6 +99,13 @@ const [editFormData, setEditFormData] = useState({
         try {
           const { data } = await api.get(`/api/classes/school/${schoolId}`);
           setAllClasses(data);
+          
+          // 👉 prepare options immediately
+          const options = data.map((c) => ({
+            label: c.className,
+            value: c._id,
+          }));
+          setClassOptions(options);
         } catch (error) {
           toast.error("Could not fetch class list");
         }
@@ -261,9 +269,9 @@ const [editFormData, setEditFormData] = useState({
           className="students-filter"
         >
           <option value="">Filter by class</option>
-          {uniqueClasses.map((cls) => (
-            <option key={cls} value={cls}>
-              {cls}
+          {classOptions.map((cls) => (
+            <option key={cls.value} value={cls.value}>
+              {cls.label}
             </option>
           ))}
         </select>
