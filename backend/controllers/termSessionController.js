@@ -9,6 +9,7 @@ export const createTermSession = async (req, res) => {
     // Deactivate previous sessions
     await TermSession.updateMany({ schoolId }, { isActive: false });
 
+    // Create new session
     const newSession = await TermSession.create({
       schoolId,
       yearLabel,
@@ -19,19 +20,49 @@ export const createTermSession = async (req, res) => {
       isActive: true,
     });
 
-    // Now assign fees to all students
+    // Assign fees to all students
     for (const fee of classFees) {
       const students = await Students.find({ classes: fee.classId });
 
       for (const student of students) {
-        student.fees.push({
-          term: termName,
-          year: yearLabel,
-          totalFees: fee.totalFees,
-          amount: 0,
-          arrears: student.fees.length > 0 ? (student.fees.slice(-1)[0].amount > 0 ? student.fees.slice(-1)[0].amount : 0) : 0,
-          paid: false,
-        });
+        if (!student.academicRecords) {
+          student.academicRecords = [];
+        }
+
+        let yearRecord = student.academicRecords.find(
+          (record) => record.yearLabel === yearLabel
+        );
+
+        if (!yearRecord) {
+          yearRecord = {
+            yearLabel,
+            terms: [],
+          };
+          student.academicRecords.push(yearRecord);
+        }
+
+        const existingTerm = yearRecord.terms.find(
+          (t) => t.termName === termName
+        );
+
+        if (!existingTerm) {
+          yearRecord.terms.push({
+            termName,
+            fees: {
+              totalFees: fee.totalFees,
+              amountPaid: 0,
+              balance: fee.totalFees,
+              arrears: 0,
+              paymentHistory: [],
+            },
+            attendance: [],
+            totalAttendance: 0,
+            subjects: [],
+            startDate,
+            endDate,
+          });
+        }
+
         await student.save();
       }
     }

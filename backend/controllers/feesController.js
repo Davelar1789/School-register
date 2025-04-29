@@ -18,54 +18,41 @@ export const setClassFees = async (req, res) => {
       return res.status(404).json({ message: "No students found in this class." });
     }
 
-    for (const fee of classFees) {
-      const students = await Students.find({ classes: fee.classId });
-    
-      for (const student of students) {
-        if (!student.academicRecords) {
-          student.academicRecords = [];
-        }
-    
-        let yearRecord = student.academicRecords.find(
-          (record) => record.yearLabel === yearLabel
-        );
-    
-        if (!yearRecord) {
-          // No year record yet – create a new one
-          yearRecord = {
-            yearLabel,
-            terms: [],
-          };
-          student.academicRecords.push(yearRecord);
-        }
-    
-        // Check if this term already exists
-        const existingTerm = yearRecord.terms.find(
-          (t) => t.termName === termName
-        );
-    
-        if (!existingTerm) {
-          yearRecord.terms.push({
-            termName,
-            fees: {
-              totalFees: fee.totalFees,
-              amountPaid: 0,
-              balance: fee.totalFees,
-              arrears: 0,
-              paymentHistory: [],
-            },
-            attendance: [],
-            totalAttendance: 0,
-            subjects: [],
-            startDate,
-            endDate,
-          });
-        }
-    
-        await student.save();
+    for (const student of students) {
+      // Find or create the year record
+      let yearRecord = student.academicRecords?.find(record => record.yearLabel === yearLabel);
+
+      if (!yearRecord) {
+        yearRecord = {
+          yearLabel,
+          terms: [],
+        };
+        student.academicRecords.push(yearRecord);
       }
+
+      // Find or create the term record
+      let termRecord = yearRecord.terms.find(term => term.termName === termName);
+
+      if (!termRecord) {
+        termRecord = {
+          termName,
+          fees: {
+            totalFees,
+            amountPaid: 0,
+            balance: totalFees,
+            arrears: 0,
+            paymentHistory: [],
+          },
+        };
+        yearRecord.terms.push(termRecord);
+      } else {
+        // If term already exists, update fees
+        termRecord.fees.totalFees = totalFees;
+        termRecord.fees.balance = totalFees - (termRecord.fees.amountPaid || 0);
+      }
+
+      await student.save();
     }
-    
 
     res.status(200).json({ message: "Fees set successfully for the class." });
   } catch (error) {
@@ -122,54 +109,5 @@ export const makePayment = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Something went wrong." });
-  }
-};
-
-export const migrateOldStudents = async (req, res) => {
-  try {
-    const students = await Students.find({});
-
-    for (const student of students) {
-      if (!student.academicRecords || student.academicRecords.length === 0) {
-        const yearRecord = {
-          yearLabel: "2024/2025", // Default year
-          terms: [
-            {
-              termName: "Term 1",
-              fees: {
-                totalFees: student.fees?.[0]?.totalFees || 0,
-                amountPaid: student.fees?.[0]?.amount || 0,
-                balance: (student.fees?.[0]?.totalFees || 0) - (student.fees?.[0]?.amount || 0),
-                arrears: student.fees?.[0]?.arrears || 0,
-                paymentHistory: [],
-              },
-              attendance: student.attendance || [],
-              totalAttendance: student.totalAttendance || 0,
-              subjects: student.subjects || [],
-              startDate: student.termBeginDate,
-              endDate: student.termEndDate,
-            },
-          ],
-        };
-
-        student.academicRecords = [yearRecord];
-
-        // Clean up old fields if you want
-        student.attendance = undefined;
-        student.totalAttendance = undefined;
-        student.subjects = undefined;
-        student.fees = undefined;
-        student.year = undefined;
-        student.termBeginDate = undefined;
-        student.termEndDate = undefined;
-
-        await student.save();
-      }
-    }
-
-    res.status(200).json({ message: "Migration completed." });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Migration failed." });
   }
 };
