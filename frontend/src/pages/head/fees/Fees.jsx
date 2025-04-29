@@ -13,6 +13,13 @@ const Fees = () => {
   const [loading, setLoading] = useState(false);
   const [selectedClass, setSelectedClass] = useState("");
   const [allClasses, setAllClasses] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedStudent, setSelectedStudent] = useState(null);
+    const [paymentAmount, setPaymentAmount] = useState('');
+    const [paymentDate, setPaymentDate] = useState(new Date().toISOString().substr(0, 10));
+    const [paymentMethod, setPaymentMethod] = useState('Cash');
+    const [paymentNote, setPaymentNote] = useState('');
+
 
   useEffect(() => {
     fetchStudents();
@@ -44,7 +51,59 @@ const Fees = () => {
       setLoading(false);
     }
   };
+
+  const handleSavePayment = async () => {
+    if (!selectedStudent || !paymentAmount) {
+      alert("Please fill in all required fields.");
+      return;
+    }
   
+    // Get latest term from academicRecords
+    let latestTerm = null;
+    let yearLabel = "";
+    let latestDate = null;
+  
+    (selectedStudent.academicRecords || []).forEach((record) => {
+      (record.terms || []).forEach((term) => {
+        if (!latestDate || new Date(term.startDate) > new Date(latestDate)) {
+          latestDate = term.startDate;
+          latestTerm = term;
+          yearLabel = record.yearLabel;
+        }
+      });
+    });
+  
+    if (!latestTerm || !yearLabel) {
+      alert("No valid academic term found for this student.");
+      return;
+    }
+  
+    try {
+      await axios.post("/api/fees/make-payment", {
+        studentId: selectedStudent._id,
+        yearLabel,
+        termName: latestTerm.termName,
+        amount: Number(paymentAmount),
+      }, {
+        headers: {
+          Authorization: `Bearer ${userToken}`, // if protected route
+        },
+      });
+  
+      alert("Payment recorded successfully!");
+      // Optionally refresh students data
+      setIsModalOpen(false);
+      setSelectedStudent(null);
+      setPaymentAmount('');
+      setPaymentNote('');
+    } catch (error) {
+      console.error(error);
+      alert("Failed to record payment.");
+    }
+  };
+  
+  
+
   const fetchClasses = async () => {
     try {
       const schoolDataRaw = localStorage.getItem("schoolData");
@@ -126,10 +185,10 @@ const Fees = () => {
                 </option>
               ))}
             </select>
-            <button className="fees-add">
-              <FaPlus /> Add New Payment
+            <button className="fees-add" onClick={() => setIsModalOpen(true)}>
+                <FaPlus /> Add New Payment
             </button>
-          </div>
+        </div>
         </div>
 
         <div className="fees-summary">
@@ -217,6 +276,101 @@ const Fees = () => {
             </table>
           )}
         </div>
+        {isModalOpen && (
+  <div className="modal-overlay">
+    <div className="modal-content">
+      <h2>Add New Payment</h2>
+      <button className="modal-close" onClick={() => setIsModalOpen(false)}>X</button>
+
+      <div className="modal-field">
+        <label>Select Student:</label>
+        <select
+          value={selectedStudent?._id || ""}
+          onChange={(e) => {
+            const student = filteredStudents.find(s => s._id === e.target.value);
+            setSelectedStudent(student);
+          }}
+        >
+          <option value="">-- Select --</option>
+          {filteredStudents.map((student) => (
+            <option key={student._id} value={student._id}>
+              {student.name} ({student.idno})
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {selectedStudent && (
+        <>
+          <div className="modal-field">
+            <label>Current Balance:</label>
+            <p>
+              GHC {(() => {
+                const academicRecords = selectedStudent.academicRecords || [];
+                let latestTerm = null;
+                let latestDate = null;
+
+                academicRecords.forEach((record) => {
+                  (record.terms || []).forEach((term) => {
+                    if (!latestDate || new Date(term.startDate) > new Date(latestDate)) {
+                      latestDate = term.startDate;
+                      latestTerm = term;
+                    }
+                  });
+                });
+
+                return latestTerm?.fees?.balance ?? 0;
+              })()}
+            </p>
+          </div>
+
+          <div className="modal-field">
+            <label>Payment Amount (GHC):</label>
+            <input
+              type="number"
+              value={paymentAmount}
+              onChange={(e) => setPaymentAmount(e.target.value)}
+            />
+          </div>
+
+          <div className="modal-field">
+            <label>Payment Date:</label>
+            <input
+              type="date"
+              value={paymentDate}
+              onChange={(e) => setPaymentDate(e.target.value)}
+            />
+          </div>
+
+          <div className="modal-field">
+            <label>Payment Method:</label>
+            <select
+              value={paymentMethod}
+              onChange={(e) => setPaymentMethod(e.target.value)}
+            >
+              <option value="Cash">Cash</option>
+              <option value="Bank Transfer">Bank Transfer</option>
+              <option value="Mobile Money">Mobile Money</option>
+            </select>
+          </div>
+
+          <div className="modal-field">
+            <label>Notes (optional):</label>
+            <textarea
+              value={paymentNote}
+              onChange={(e) => setPaymentNote(e.target.value)}
+              placeholder="e.g., Paid via MTN MOMO..."
+            />
+          </div>
+
+          <button className="modal-save" onClick={handleSavePayment}>
+            Save Payment
+          </button>
+        </>
+      )}
+    </div>
+  </div>
+)}
         </div>
       </div>
     </div>

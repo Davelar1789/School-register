@@ -22,11 +22,14 @@ const feesSchema = new Schema({
   balance: { type: Number, default: 0 },
   paymentHistory: [
     {
-      date: { type: Date },
+      date: { type: Date, default: Date.now },
       amount: { type: Number },
+      method: { type: String }, // e.g. "Cash", "Bank Transfer", etc.
+      note: { type: String },   // optional additional notes
     }
   ],
 });
+
 
 const termSchema = new Schema({
   termName: { type: String, enum: ["Term 1", "Term 2", "Term 3"], required: true },
