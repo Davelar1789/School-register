@@ -127,3 +127,42 @@ export const fetchFees = async (req, res) => {
     res.status(500).json({ message: 'Server error while fetching fees.' });
   }
 };
+
+export const getRecentPayments = async (req, res) => {
+  const { studentId } = req.params;
+
+  try {
+    const student = await Student.findById(studentId);
+
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found' });
+    }
+
+    const academicRecords = student.academicRecords || [];
+
+    let latestTerm = null;
+    let latestDate = null;
+
+    academicRecords.forEach((record) => {
+      (record.terms || []).forEach((term) => {
+        if (!latestDate || new Date(term.startDate) > new Date(latestDate)) {
+          latestDate = term.startDate;
+          latestTerm = term;
+        }
+      });
+    });
+
+    if (!latestTerm || !latestTerm.fees || !latestTerm.fees.paymentHistory) {
+      return res.status(404).json({ message: 'No payment history found for latest term' });
+    }
+
+    const sortedPayments = [...latestTerm.fees.paymentHistory]
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+      .slice(0, 5);
+
+    res.status(200).json({ payments: sortedPayments });
+  } catch (error) {
+    console.error('Error fetching recent payments:', error);
+    res.status(500).json({ message: 'Server error while fetching recent payments' });
+  }
+};
