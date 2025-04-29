@@ -168,33 +168,52 @@ const Fees = () => {
               </thead>
               <tbody>
                 {filteredStudents.map((student) => {
-                  const feesOwed = student.feesOwed || 0;
-                  const feesPaid = student.feesPaid || 0;
-                  const balance = feesOwed - feesPaid;
+                    let className = "N/A";
+                    if (student.classes && student.classes.length > 0) {
+                    className = student.classes[0]?.className || "N/A";
+                    }
 
-                  return (
+                    // Get latest academic record based on year (optional: sort by year if needed)
+                    const academicRecords = student.academicRecords || [];
+
+                    // Get the most recent term across all academic years
+                    let latestTerm = null;
+                    let latestDate = null;
+
+                    academicRecords.forEach((record) => {
+                    (record.terms || []).forEach((term) => {
+                        if (!latestDate || new Date(term.startDate) > new Date(latestDate)) {
+                        latestDate = term.startDate;
+                        latestTerm = term;
+                        }
+                    });
+                    });
+
+                    const fees = latestTerm?.fees || {};
+                    const feesOwed = fees.totalFees || 0;
+                    const feesPaid = fees.amountPaid || 0;
+                    const balance = fees.balance ?? (feesOwed - feesPaid);
+
+                    return (
                     <tr key={student._id}>
-                      <td>{student.name}</td>
-                      <td>
-                        {student.classes && student.classes.length > 0
-                          ? student.classes[0].className
-                          : "N/A"}
-                      </td>
-                      <td>GHC {feesOwed}</td>
-                      <td>GHC {feesPaid}</td>
-                      <td>GHC {balance}</td>
-                      <td className="fees-actions">
+                        <td>{student.name}</td>
+                        <td>{className}</td>
+                        <td>GHC {feesOwed}</td>
+                        <td>GHC {feesPaid}</td>
+                        <td>GHC {balance}</td>
+                        <td className="fees-actions">
                         <button className="fees-edit">
-                          <FaEdit />
+                            <FaEdit />
                         </button>
                         <button className="fees-delete">
-                          <FaTrash />
+                            <FaTrash />
                         </button>
-                      </td>
+                        </td>
                     </tr>
-                  );
+                    );
                 })}
-              </tbody>
+                </tbody>
+
             </table>
           )}
         </div>
