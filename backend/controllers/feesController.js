@@ -132,7 +132,7 @@ export const getRecentPayments = async (req, res) => {
   const { studentId } = req.params;
 
   try {
-    const student = await Student.findById(studentId);
+    const student = await Students.findById(studentId);
 
     if (!student) {
       return res.status(404).json({ message: 'Student not found' });
