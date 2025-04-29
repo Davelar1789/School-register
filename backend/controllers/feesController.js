@@ -113,3 +113,17 @@ export const makePayment = async (req, res) => {
     res.status(500).json({ message: "Something went wrong." });
   }
 };
+
+export const fetchFees = async (req, res) => {
+  try {
+    const studentId = req.params.studentId;
+    const student = await Students.findById(studentId);
+    if (!student) {
+      return res.status(404).json({ message: 'Student not found.' });
+    }
+    res.status(200).json({ academicRecords: student.academicRecords });
+  } catch (error) {
+    console.error("Fetch fees error:", error);
+    res.status(500).json({ message: 'Server error while fetching fees.' });
+  }
+};

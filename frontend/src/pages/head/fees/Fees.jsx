@@ -189,9 +189,9 @@ const Fees = () => {
                 </option>
               ))}
             </select>
-            <button className="fees-add" onClick={() => setIsModalOpen(true)}>
+            {/* <button className="fees-add" onClick={() => setIsModalOpen(true)}>
                 <FaPlus /> Add New Payment
-            </button>
+            </button> */}
         </div>
         </div>
 
