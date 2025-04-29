@@ -5,8 +5,8 @@ import {
 } from "react-icons/fa";
 import { useNavigate, NavLink } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import api from "../../api/axios";
 import { jwtDecode } from "jwt-decode";
+import api from "../../api/axios";
 import Image1 from "../../assets/images/userrr.png";
 import "./Header2.modules.css";
 
@@ -14,12 +14,6 @@ const Header = () => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
-  const [school, setSchool] = useState(null);
-  const [schoolStats, setSchoolStats] = useState({
-    numberOfStudents: 0,
-    numberOfTeachers: 0,
-    numberOfClasses: 0,
-  });
 
   const navigate = useNavigate();
 
@@ -47,42 +41,7 @@ const Header = () => {
       role: decoded.role,
       schoolName: decoded.schoolName,
     });
-
-    fetchSchool(decoded.id);
   }, [navigate]);
-
-  const fetchSchool = async (userId) => {
-    try {
-      const cached = localStorage.getItem("schoolData");
-      if (cached) {
-        const schoolData = JSON.parse(cached);
-        setSchool(schoolData);
-        setSchoolStats({
-          numberOfStudents: schoolData.numberOfStudents || 0,
-          numberOfTeachers: schoolData.numberOfTeachers || 0,
-          numberOfClasses: schoolData.numberOfClasses || 0,
-        });
-        return;
-      }
-
-      const token = localStorage.getItem("token");
-      const response = await api.get(`/api/schools/user/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (response.data) {
-        const schoolData = response.data.school || response.data;
-        localStorage.setItem("schoolData", JSON.stringify(schoolData));
-        setSchool(schoolData);
-        setSchoolStats({
-          numberOfStudents: schoolData.numberOfStudents || 0,
-          numberOfTeachers: schoolData.numberOfTeachers || 0,
-          numberOfClasses: schoolData.numberOfClasses || 0,
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching school:", error);
-    }
-  };
 
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
 
@@ -92,10 +51,10 @@ const Header = () => {
       await api.post("/api/users/logout", {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
-  
-      localStorage.clear(); // or just remove 'token' if you prefer
+
+      localStorage.clear();
       toast.success("Logged out successfully");
-      navigate("/sign-in"); // or your login route
+      navigate("/sign-in");
     } catch (error) {
       console.error("Logout failed:", error);
       toast.error("Logout failed. Please try again.");
