@@ -266,8 +266,11 @@ const Fees = () => {
                         <td>GHC {feesPaid}</td>
                         <td>GHC {balance}</td>
                         <td>
-                            <button className="fees-add" onClick={() => setIsModalOpen(true)}>
-                                <FaPlus /> Add New Payment
+                            <button className="fees-add" onClick={() => {
+                            setSelectedStudent(student); // auto-select this student
+                            setIsModalOpen(true);
+                            }}>
+                            <FaPlus /> Add New Payment
                             </button>
                         </td>
                         {/* <td className="fees-actions">
@@ -286,101 +289,96 @@ const Fees = () => {
             </table>
           )}
         </div>
-        {isModalOpen && (
+        {isModalOpen && selectedStudent && (
   <div className="modal-overlay">
     <div className="modal-content">
       <h2>Add New Payment</h2>
-      <button className="modal-close" onClick={() => setIsModalOpen(false)}>X</button>
+      <button
+        className="modal-close"
+        onClick={() => {
+          setIsModalOpen(false);
+          setSelectedStudent(null);
+          setPaymentAmount('');
+          setPaymentNote('');
+          setPaymentDate('');
+        }}
+      >
+        X
+      </button>
 
       <div className="modal-field">
-        <label>Select Student:</label>
+        <label>Student:</label>
+        <p>{selectedStudent.name} ({selectedStudent.idno})</p>
+      </div>
+
+      <div className="modal-field">
+        <label>Current Balance:</label>
+        <p>
+          GHC {(() => {
+            const academicRecords = selectedStudent.academicRecords || [];
+            let latestTerm = null;
+            let latestDate = null;
+
+            academicRecords.forEach((record) => {
+              (record.terms || []).forEach((term) => {
+                if (!latestDate || new Date(term.startDate) > new Date(latestDate)) {
+                  latestDate = term.startDate;
+                  latestTerm = term;
+                }
+              });
+            });
+
+            return latestTerm?.fees?.balance ?? 0;
+          })()}
+        </p>
+      </div>
+
+      <div className="modal-field">
+        <label>Payment Amount (GHC):</label>
+        <input
+          type="number"
+          value={paymentAmount}
+          onChange={(e) => setPaymentAmount(e.target.value)}
+        />
+      </div>
+
+      <div className="modal-field">
+        <label>Payment Date:</label>
+        <input
+          type="date"
+          value={paymentDate}
+          onChange={(e) => setPaymentDate(e.target.value)}
+        />
+      </div>
+
+      <div className="modal-field">
+        <label>Payment Method:</label>
         <select
-          value={selectedStudent?._id || ""}
-          onChange={(e) => {
-            const student = filteredStudents.find(s => s._id === e.target.value);
-            setSelectedStudent(student);
-          }}
+          value={paymentMethod}
+          onChange={(e) => setPaymentMethod(e.target.value)}
         >
-          <option value="">-- Select --</option>
-          {filteredStudents.map((student) => (
-            <option key={student._id} value={student._id}>
-              {student.name} ({student.idno})
-            </option>
-          ))}
+          <option value="Cash">Cash</option>
+          <option value="Bank Transfer">Bank Transfer</option>
+          <option value="Mobile Money">Mobile Money</option>
         </select>
       </div>
 
-      {selectedStudent && (
-        <>
-          <div className="modal-field">
-            <label>Current Balance:</label>
-            <p>
-              GHC {(() => {
-                const academicRecords = selectedStudent.academicRecords || [];
-                let latestTerm = null;
-                let latestDate = null;
+      <div className="modal-field">
+        <label>Notes (optional):</label>
+        <textarea
+          value={paymentNote}
+          onChange={(e) => setPaymentNote(e.target.value)}
+          placeholder="e.g., Paid via MTN MOMO..."
+        />
+      </div>
 
-                academicRecords.forEach((record) => {
-                  (record.terms || []).forEach((term) => {
-                    if (!latestDate || new Date(term.startDate) > new Date(latestDate)) {
-                      latestDate = term.startDate;
-                      latestTerm = term;
-                    }
-                  });
-                });
-
-                return latestTerm?.fees?.balance ?? 0;
-              })()}
-            </p>
-          </div>
-
-          <div className="modal-field">
-            <label>Payment Amount (GHC):</label>
-            <input
-              type="number"
-              value={paymentAmount}
-              onChange={(e) => setPaymentAmount(e.target.value)}
-            />
-          </div>
-
-          <div className="modal-field">
-            <label>Payment Date:</label>
-            <input
-              type="date"
-              value={paymentDate}
-              onChange={(e) => setPaymentDate(e.target.value)}
-            />
-          </div>
-
-          <div className="modal-field">
-            <label>Payment Method:</label>
-            <select
-              value={paymentMethod}
-              onChange={(e) => setPaymentMethod(e.target.value)}
-            >
-              <option value="Cash">Cash</option>
-              <option value="Bank Transfer">Bank Transfer</option>
-              <option value="Mobile Money">Mobile Money</option>
-            </select>
-          </div>
-
-          <div className="modal-field">
-            <label>Notes (optional):</label>
-            <textarea
-              value={paymentNote}
-              onChange={(e) => setPaymentNote(e.target.value)}
-              placeholder="e.g., Paid via MTN MOMO..."
-            />
-          </div>
-
-          <button className="modal-save" onClick={handleSavePayment}>
-            Save Payment
-          </button>
-        </>
-      )}
+      <button className="modal-save" onClick={handleSavePayment}>
+        Save Payment
+      </button>
     </div>
   </div>
 )}
+
         </div>
       </div>
     </div>
