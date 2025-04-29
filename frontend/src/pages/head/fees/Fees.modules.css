@@ -179,6 +179,42 @@
     cursor: pointer;
   }
   
+  .payment-history-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background-color: #f9f9f9;
+  }
+  
+  .payment-history-list li {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+  }
+  
+  .payment-history-list li:last-child {
+    border-bottom: none;
+  }
+  
+  .payment-history-list p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #333;
+  }
+  
+  .payment-history-list strong {
+    color: #444;
+  }
+  
+  .payment-history-list hr {
+    margin-top: 10px;
+    border: none;
+    border-top: 1px solid #ccc;
+  }
+  
   
 @media screen and (min-width: 768px) {
     .fees-side {
