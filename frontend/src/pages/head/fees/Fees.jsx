@@ -79,6 +79,8 @@ const Fees = () => {
     }
   
     try {
+    const userToken = localStorage.getItem("token");
+
       await api.post("/api/fees/make-payment", {
         studentId: selectedStudent._id,
         yearLabel,
