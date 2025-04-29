@@ -22,8 +22,10 @@ export const createTermSession = async (req, res) => {
 
     // Assign fees to all students
     for (const fee of classFees) {
-      const students = await Students.find({ classes: fee.classId });
-
+        const students = await Students.find({ classes: { $in: [fee.classId] } });
+        console.log(`Assigning fees for class: ${fee.classId}`);
+        console.log(`Found ${students.length} students in this class.`);
+        
       for (const student of students) {
         if (!student.academicRecords) {
           student.academicRecords = [];
