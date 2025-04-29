@@ -93,6 +93,21 @@ const Fees = () => {
           Authorization: `Bearer ${userToken}`, // if protected route
         },
       });
+
+      // ✅ Fetch latest fees data from backend
+        const response = await api.get(`/api/fees/fetch-fees/${selectedStudent._id}`, {
+            headers: {
+            Authorization: `Bearer ${userToken}`,
+            },
+        });
+        
+        const updatedAcademicRecords = response.data.academicRecords;
+        
+        // ✅ Update selected student with latest records
+        setSelectedStudent(prev => ({
+            ...prev,
+            academicRecords: updatedAcademicRecords
+        }));
   
       alert("Payment recorded successfully!");
       // Optionally refresh students data
