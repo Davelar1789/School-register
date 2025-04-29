@@ -63,7 +63,7 @@ export const setClassFees = async (req, res) => {
 
 // Student makes a payment
 export const makePayment = async (req, res) => {
-  const { studentId, yearLabel, termName, amount, method, note } = req.body;
+  const { studentId, yearLabel, termName, amount, method, note, date } = req.body;
 
   if (!studentId || !yearLabel || !termName || !amount) {
     return res.status(400).json({ message: "All fields are required." });
@@ -94,7 +94,7 @@ export const makePayment = async (req, res) => {
     termRecord.fees.amountPaid += amount;
     termRecord.fees.balance = termRecord.fees.totalFees - termRecord.fees.amountPaid;
     termRecord.fees.paymentHistory.push({
-      date: new Date(),
+      date: date ? new Date(date) : new Date(),
       amount,
       method, // optional
       note,   // optional

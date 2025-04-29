@@ -84,6 +84,8 @@ const Fees = () => {
         yearLabel,
         termName: latestTerm.termName,
         amount: Number(paymentAmount),
+        note: paymentNote,
+        date: paymentDate, // make sure it's a valid date string
       }, {
         headers: {
           Authorization: `Bearer ${userToken}`, // if protected route
