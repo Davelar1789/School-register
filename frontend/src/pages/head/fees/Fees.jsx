@@ -79,7 +79,7 @@ const Fees = () => {
     }
   
     try {
-      await axios.post("/api/fees/make-payment", {
+      await api.post("/api/fees/make-payment", {
         studentId: selectedStudent._id,
         yearLabel,
         termName: latestTerm.termName,
