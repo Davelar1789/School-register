@@ -19,40 +19,56 @@ export const setClassFees = async (req, res) => {
     }
 
     for (const student of students) {
-      // Find or create the year record
-      let yearRecord = student.academicRecords?.find(record => record.yearLabel === yearLabel);
-
-      if (!yearRecord) {
-        yearRecord = {
-          yearLabel,
-          terms: [],
-        };
-        student.academicRecords.push(yearRecord);
+      if (!student.academicRecords || student.academicRecords.length === 0) {
+        student.academicRecords = [];
       }
-
-      // Find or create the term record
-      let termRecord = yearRecord.terms.find(term => term.termName === termName);
-
-      if (!termRecord) {
-        termRecord = {
+    
+      const existingYearRecord = student.academicRecords.find(record => record.yearLabel === yearLabel);
+    
+      if (!existingYearRecord) {
+        // No record for this year yet, create it
+        student.academicRecords.push({
+          yearLabel,
+          terms: [
+            {
+              termName,
+              fees: {
+                totalFees: fee.totalFees,
+                amountPaid: 0,
+                balance: fee.totalFees,
+                arrears: 0,
+                paymentHistory: [],
+              },
+              attendance: [],
+              totalAttendance: 0,
+              subjects: [],
+              startDate: startDate,
+              endDate: endDate,
+            },
+          ],
+        });
+      } else {
+        // Year record exists, push a new term
+        existingYearRecord.terms.push({
           termName,
           fees: {
-            totalFees,
+            totalFees: fee.totalFees,
             amountPaid: 0,
-            balance: totalFees,
+            balance: fee.totalFees,
             arrears: 0,
             paymentHistory: [],
           },
-        };
-        yearRecord.terms.push(termRecord);
-      } else {
-        // If term already exists, update fees
-        termRecord.fees.totalFees = totalFees;
-        termRecord.fees.balance = totalFees - (termRecord.fees.amountPaid || 0);
+          attendance: [],
+          totalAttendance: 0,
+          subjects: [],
+          startDate: startDate,
+          endDate: endDate,
+        });
       }
-
+    
       await student.save();
     }
+    
 
     res.status(200).json({ message: "Fees set successfully for the class." });
   } catch (error) {
