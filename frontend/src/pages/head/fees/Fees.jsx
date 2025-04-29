@@ -13,6 +13,9 @@ const Fees = () => {
   const [loading, setLoading] = useState(false);
   const [selectedClass, setSelectedClass] = useState("");
   const [allClasses, setAllClasses] = useState([]);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
+const [paymentHistory, setPaymentHistory] = useState([]);
+const [viewedStudent, setViewedStudent] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedStudent, setSelectedStudent] = useState(null);
     const [paymentAmount, setPaymentAmount] = useState('');
@@ -149,6 +152,26 @@ const Fees = () => {
       toast.error("Failed to fetch classes");
     }
   };
+
+  const handleViewPayments = async (student) => {
+    try {
+        const userToken = localStorage.getItem("token");
+
+      const response = await api.get(`/api/fees/recent-payments/${student._id}`, {
+        headers: {
+          Authorization: `Bearer ${userToken}`
+        }
+      });
+  
+      setViewedStudent(student);
+      setPaymentHistory(response.data.payments);
+      setViewModalOpen(true);
+    } catch (error) {
+      console.error('Failed to fetch recent payments', error);
+      alert('Could not fetch recent payments.');
+    }
+  };
+  
   
 
   const handleSearch = (e) => {
@@ -237,11 +260,11 @@ const Fees = () => {
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>Class</th>
                   <th>Fees Owed</th>
                   <th>Fees Paid</th>
                   <th>Balance</th>
                   <th>Payments</th>
+                  <th>Payment History</th>
                   {/* <th>Actions</th> */}
                 </tr>
               </thead>
@@ -276,7 +299,6 @@ const Fees = () => {
                     return (
                     <tr key={student._id}>
                         <td>{student.name}</td>
-                        <td>{className}</td>
                         <td>GHC {feesOwed}</td>
                         <td>GHC {feesPaid}</td>
                         <td>GHC {balance}</td>
@@ -287,6 +309,11 @@ const Fees = () => {
                             }}>
                             <FaPlus /> Add New Payment
                             </button>
+                        </td>
+                        <td>
+                        <button onClick={() => handleViewPayments(student)} className="fees-view">
+                            View
+                        </button>
                         </td>
                         {/* <td className="fees-actions">
                         <button className="fees-edit">
@@ -393,6 +420,34 @@ const Fees = () => {
     </div>
   </div>
 )}
+
+{viewModalOpen && (
+  <div className="modal-overlay">
+    <div className="modal-content">
+      <h2>Recent Payments</h2>
+      <button className="modal-close" onClick={() => setViewModalOpen(false)}>X</button>
+
+      <p><strong>{viewedStudent.name}</strong> ({viewedStudent.idno})</p>
+
+      {paymentHistory.length === 0 ? (
+        <p>No recent payments found.</p>
+      ) : (
+        <ul className="payment-history-list">
+          {paymentHistory.map((payment, idx) => (
+            <li key={idx}>
+              <p><strong>Amount:</strong> GHC {payment.amount}</p>
+              <p><strong>Date:</strong> {new Date(payment.date).toLocaleDateString()}</p>
+              <p><strong>Method:</strong> {payment.method}</p>
+              {payment.note && <p><strong>Note:</strong> {payment.note}</p>}
+              <hr />
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  </div>
+)}
+
 
         </div>
       </div>
