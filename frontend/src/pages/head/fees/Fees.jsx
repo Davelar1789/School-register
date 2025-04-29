@@ -226,6 +226,7 @@ const Fees = () => {
                   <th>Fees Owed</th>
                   <th>Fees Paid</th>
                   <th>Balance</th>
+                  <th>Payments</th>
                   {/* <th>Actions</th> */}
                 </tr>
               </thead>
@@ -264,6 +265,11 @@ const Fees = () => {
                         <td>GHC {feesOwed}</td>
                         <td>GHC {feesPaid}</td>
                         <td>GHC {balance}</td>
+                        <td>
+                            <button className="fees-add" onClick={() => setIsModalOpen(true)}>
+                                <FaPlus /> Add New Payment
+                            </button>
+                        </td>
                         {/* <td className="fees-actions">
                         <button className="fees-edit">
                             <FaEdit />
