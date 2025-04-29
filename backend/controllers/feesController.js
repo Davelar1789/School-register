@@ -18,55 +18,52 @@ export const setClassFees = async (req, res) => {
       return res.status(404).json({ message: "No students found in this class." });
     }
 
-    for (const student of students) {
-      if (!student.academicRecords || student.academicRecords.length === 0) {
-        student.academicRecords = [];
-      }
+    for (const fee of classFees) {
+      const students = await Students.find({ classes: fee.classId });
     
-      const existingYearRecord = student.academicRecords.find(record => record.yearLabel === yearLabel);
+      for (const student of students) {
+        if (!student.academicRecords) {
+          student.academicRecords = [];
+        }
     
-      if (!existingYearRecord) {
-        // No record for this year yet, create it
-        student.academicRecords.push({
-          yearLabel,
-          terms: [
-            {
-              termName,
-              fees: {
-                totalFees: fee.totalFees,
-                amountPaid: 0,
-                balance: fee.totalFees,
-                arrears: 0,
-                paymentHistory: [],
-              },
-              attendance: [],
-              totalAttendance: 0,
-              subjects: [],
-              startDate: startDate,
-              endDate: endDate,
+        let yearRecord = student.academicRecords.find(
+          (record) => record.yearLabel === yearLabel
+        );
+    
+        if (!yearRecord) {
+          // No year record yet – create a new one
+          yearRecord = {
+            yearLabel,
+            terms: [],
+          };
+          student.academicRecords.push(yearRecord);
+        }
+    
+        // Check if this term already exists
+        const existingTerm = yearRecord.terms.find(
+          (t) => t.termName === termName
+        );
+    
+        if (!existingTerm) {
+          yearRecord.terms.push({
+            termName,
+            fees: {
+              totalFees: fee.totalFees,
+              amountPaid: 0,
+              balance: fee.totalFees,
+              arrears: 0,
+              paymentHistory: [],
             },
-          ],
-        });
-      } else {
-        // Year record exists, push a new term
-        existingYearRecord.terms.push({
-          termName,
-          fees: {
-            totalFees: fee.totalFees,
-            amountPaid: 0,
-            balance: fee.totalFees,
-            arrears: 0,
-            paymentHistory: [],
-          },
-          attendance: [],
-          totalAttendance: 0,
-          subjects: [],
-          startDate: startDate,
-          endDate: endDate,
-        });
-      }
+            attendance: [],
+            totalAttendance: 0,
+            subjects: [],
+            startDate,
+            endDate,
+          });
+        }
     
-      await student.save();
+        await student.save();
+      }
     }
     
 
