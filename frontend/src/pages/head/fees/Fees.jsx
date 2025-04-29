@@ -163,7 +163,7 @@ const Fees = () => {
                   <th>Fees Owed</th>
                   <th>Fees Paid</th>
                   <th>Balance</th>
-                  <th>Actions</th>
+                  {/* <th>Actions</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -201,14 +201,14 @@ const Fees = () => {
                         <td>GHC {feesOwed}</td>
                         <td>GHC {feesPaid}</td>
                         <td>GHC {balance}</td>
-                        <td className="fees-actions">
+                        {/* <td className="fees-actions">
                         <button className="fees-edit">
                             <FaEdit />
                         </button>
                         <button className="fees-delete">
                             <FaTrash />
                         </button>
-                        </td>
+                        </td> */}
                     </tr>
                     );
                 })}
