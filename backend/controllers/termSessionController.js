@@ -64,7 +64,7 @@ export const createTermSession = async (req, res) => {
             endDate,
           });
         }
-
+        student.markModified("academicRecords");
         await student.save();
       }
     }
