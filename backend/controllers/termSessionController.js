@@ -1,97 +1,135 @@
 import TermSession from "../models/TermSession.model.js";
-import Students from "../models/Student.model.js";
-import Class from "../models/Class.model.js";
+import Student from "../models/Student.model.js";
 
-export const createTermSession = async (req, res) => {
+// Get all academic years for a school
+export const getAcademicYears = async (req, res) => {
+  const { schoolId } = req.params;
   try {
-    const { schoolId, yearLabel, termName, startDate, endDate, classFees } = req.body;
+    const years = await TermSession.find({ schoolId }).distinct("yearLabel");
+    res.status(200).json(years);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch academic years", error });
+  }
+};
 
-    // Deactivate previous sessions
-    await TermSession.updateMany({ schoolId }, { isActive: false });
+// Get all terms for a given academic year and school
+export const getTermsByYear = async (req, res) => {
+  const { schoolId, yearLabel } = req.params;
+  try {
+    const terms = await TermSession.find({ schoolId, yearLabel });
+    res.status(200).json(terms);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch terms", error });
+  }
+};
 
-    // Create new session
-    const newSession = await TermSession.create({
+// Add new academic year (no terms initially, just the label)
+export const addAcademicYear = async (req, res) => {
+  const { schoolId, yearLabel } = req.body;
+  try {
+    // Prevent duplicate
+    const existing = await TermSession.findOne({ schoolId, yearLabel });
+    if (existing) return res.status(400).json({ message: "Academic year already exists" });
+
+    // This is just a placeholder term, you can skip creating a term here if desired
+    const placeholder = new TermSession({
       schoolId,
       yearLabel,
-      termName,
-      startDate,
-      endDate,
-      classFees,
-      isActive: true,
+      termName: "Placeholder",
+      startDate: new Date(),
+      endDate: new Date(),
+      classFees: [],
+      isActive: false,
     });
+    await placeholder.save();
 
-    // Assign fees to all students
-    for (const fee of classFees) {
-        const students = await Students.find({ classes: { $in: [fee.classId] } });
-        console.log(`Assigning fees for class: ${fee.classId}`);
-        console.log(`Found ${students.length} students in this class.`);
-        
-      for (const student of students) {
-        if (!student.academicRecords) {
-          student.academicRecords = [];
-        }
-
-        let yearRecord = student.academicRecords.find(
-          (record) => record.yearLabel === yearLabel
-        );
-
-        if (!yearRecord) {
-          yearRecord = {
+    // Update students
+    await Student.updateMany(
+      { schoolId, "academicRecords.yearLabel": { $ne: yearLabel } },
+      {
+        $push: {
+          academicRecords: {
             yearLabel,
             terms: [],
-          };
-          student.academicRecords.push(yearRecord);
-        }
-
-        const existingTerm = yearRecord.terms.find(
-          (t) => t.termName === termName
-        );
-
-        if (!existingTerm) {
-          yearRecord.terms.push({
-            termName,
-            fees: {
-              totalFees: fee.totalFees,
-              amountPaid: 0,
-              balance: fee.totalFees,
-              arrears: 0,
-              paymentHistory: [],
-            },
-            attendance: [],
-            totalAttendance: 0,
-            subjects: [],
-            startDate,
-            endDate,
-          });
-        }
-        student.markModified("academicRecords");
-        await student.save();
+          },
+        },
       }
+    );
+
+    res.status(201).json({ message: "Academic year added and students updated" });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to add academic year", error });
+  }
+};
+
+// Add or Update a specific term with fees
+export const upsertTermSession = async (req, res) => {
+  const { schoolId, yearLabel, termName, startDate, endDate, classFees } = req.body;
+
+  try {
+    let term = await TermSession.findOne({ schoolId, yearLabel, termName });
+
+    if (term) {
+      // Update existing
+      term.startDate = startDate;
+      term.endDate = endDate;
+      term.classFees = classFees;
+      await term.save();
+      res.status(200).json({ message: "Term session updated", term });
+    } else {
+      // Create new
+      const newTerm = new TermSession({
+        schoolId,
+        yearLabel,
+        termName,
+        startDate,
+        endDate,
+        classFees,
+      });
+      await newTerm.save();
+
+      res.status(201).json({ message: "Term session created", term: newTerm });
     }
-
-    res.status(201).json(newSession);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Failed to create term session." });
+    res.status(500).json({ message: "Failed to save term session", error });
   }
 };
 
-export const getCurrentTermSession = async (req, res) => {
+// Get fees for a specific term
+export const getTermFees = async (req, res) => {
+  const { schoolId, yearLabel, termName } = req.params;
+
   try {
-    const { schoolId } = req.params;
-    const session = await TermSession.findOne({ schoolId, isActive: true });
-    res.status(200).json(session);
+    const term = await TermSession.findOne({ schoolId, yearLabel, termName });
+    if (!term) return res.status(404).json({ message: "Term not found" });
+
+    res.status(200).json(term.classFees);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch current term session." });
+    res.status(500).json({ message: "Failed to fetch term fees", error });
   }
 };
 
-export const getAllTermSessions = async (req, res) => {
+// OPTIONAL: Delete a term session and remove from students
+export const deleteTermSession = async (req, res) => {
+  const { schoolId, yearLabel, termName } = req.params;
+
   try {
-    const { schoolId } = req.params;
-    const sessions = await TermSession.find({ schoolId }).sort({ createdAt: -1 });
-    res.status(200).json(sessions);
+    await TermSession.findOneAndDelete({ schoolId, yearLabel, termName });
+
+    await Student.updateMany(
+      { schoolId },
+      {
+        $pull: {
+          "academicRecords.$[record].terms": { termName },
+        },
+      },
+      {
+        arrayFilters: [{ "record.yearLabel": yearLabel }],
+      }
+    );
+
+    res.status(200).json({ message: "Term session deleted and student records updated" });
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch term sessions." });
+    res.status(500).json({ message: "Failed to delete term session", error });
   }
 };

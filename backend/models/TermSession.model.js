@@ -19,5 +19,11 @@ const termSessionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+// Prevent duplicate term sessions for same school, year, and term
+termSessionSchema.index(
+  { schoolId: 1, yearLabel: 1, termName: 1 },
+  { unique: true }
+);
+
 const TermSession = mongoose.model("TermSession", termSessionSchema);
 export default TermSession;
