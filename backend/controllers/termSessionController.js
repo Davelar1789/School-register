@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import TermSession from "../models/TermSession.model.js";
 import Student from "../models/Student.model.js";
 import Class from "../models/Class.model.js";
@@ -29,55 +30,62 @@ export const addAcademicYear = async (req, res) => {
     const { schoolId, yearLabel } = req.body;
   
     try {
-      // Check if terms for this year already exist
-      const existing = await TermSession.findOne({ schoolId, yearLabel });
-      if (existing) return res.status(400).json({ message: "Academic year already exists" });
+      // Convert schoolId to ObjectId
+      const schoolObjectId = mongoose.Types.ObjectId(schoolId);
   
-      // Fetch all classes in the school
-      const classes = await Class.find({ schoolId });
-      if (!classes || classes.length === 0) {
-        return res.status(400).json({ message: "No classes found for this school" });
+      // Check if the academic year already exists
+      const existing = await TermSession.findOne({ schoolId: schoolObjectId, yearLabel });
+      if (existing) {
+        return res.status(400).json({ message: 'Academic year already exists' });
       }
   
+      // Fetch classes associated with the school
+      const classes = await Class.find({ schoolId: schoolObjectId });
+      if (!classes || classes.length === 0) {
+        return res.status(400).json({ message: 'No classes found for this school.' });
+      }
+  
+      // Prepare classFees array
       const classFees = classes.map((cls) => ({
         classId: cls._id,
         className: cls.className,
         totalFees: 0,
       }));
   
-      const termNames = ["Term 1", "Term 2", "Term 3"];
-      const termDocs = termNames.map((termName) => {
-        return {
-          schoolId,
-          yearLabel,
-          termName,
-          startDate: new Date(),
-          endDate: new Date(),
-          classFees,
-          isActive: false,
-        };
-      });
+      // Define term names
+      const termNames = ['Term 1', 'Term 2', 'Term 3'];
   
-      await TermSession.insertMany(termDocs);
+      // Create term sessions for each term
+      const termSessions = termNames.map((termName) => ({
+        schoolId: schoolObjectId,
+        yearLabel,
+        termName,
+        startDate: new Date(),
+        endDate: new Date(),
+        classFees,
+        isActive: true,
+      }));
+  
+      // Insert term sessions into the database
+      await TermSession.insertMany(termSessions);
   
       // Update students' academic records
       await Student.updateMany(
-        { schoolId, "academicRecords.yearLabel": { $ne: yearLabel } },
+        { schoolId: schoolObjectId, 'academicRecords.yearLabel': { $ne: yearLabel } },
         {
           $push: {
             academicRecords: {
               yearLabel,
-              terms: [], // You can add default terms structure here if needed
+              terms: [],
             },
           },
         }
       );
   
-      res.status(201).json({ message: "Academic year and terms created successfully" });
-  
+      res.status(201).json({ message: 'Academic year added and students updated' });
     } catch (error) {
-      console.error(error);
-      res.status(500).json({ message: "Failed to add academic year", error });
+      console.error('Error adding academic year:', error);
+      res.status(500).json({ message: 'Failed to add academic year', error });
     }
   };
   
