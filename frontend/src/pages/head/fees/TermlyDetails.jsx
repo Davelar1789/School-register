@@ -113,23 +113,19 @@ const [newTermData, setNewTermData] = useState({
       await api.post("/api/terms/add-academic-year", {
         schoolId,
         yearLabel: newYearLabel,
-        termName: "Term 1",
-        startDate: new Date(),
-        endDate: new Date(),
-        classFees: allClasses.map((cls) => ({
-          classId: cls._id,
-          className: cls.className,
-          totalFees: 0,
-        })),
       });
       toast.success("Academic year added successfully.");
       setShowAddYearModal(false);
       setNewYearLabel("");
       fetchAcademicYears();
     } catch (error) {
-      toast.error("Failed to add academic year.");
+      console.error(error); // helpful for debugging
+      toast.error(
+        error?.response?.data?.message || "Failed to add academic year."
+      );
     }
   };
+  
 
   const handleEditFees = (term) => {
     setEditingTerm(term);
