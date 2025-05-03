@@ -11,7 +11,7 @@ import {
 const router = express.Router();
 
 router.get("/years/:schoolId", getAcademicYears);
-router.get("/terms/:schoolId/:yearLabel", getTermsByYear);
+router.get("/:schoolId/:yearLabel", getTermsByYear);
 router.post("/add-academic-year", addAcademicYear);
 router.post("/upsert-term", upsertTermSession);
 router.get("/fees/:schoolId/:yearLabel/:termName", getTermFees);
