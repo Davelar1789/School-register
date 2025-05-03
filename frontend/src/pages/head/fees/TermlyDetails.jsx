@@ -227,8 +227,8 @@ const [newTermData, setNewTermData] = useState({
 
       {/* Edit Fees Modal */}
       {editingTerm && (
-        <div className="modal-overlay">
-          <div className="modal">
+        <div className="modal-overlay2">
+          <div className="modal2">
             <h3>Edit Fees for {editingTerm.termName}</h3>
             {editedClassFees.map((fee, index) => (
               <div key={fee.classId} className="fee-row">
