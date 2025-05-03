@@ -46,7 +46,7 @@ export const addAcademicYear = async (req, res) => {
   
       // Fetch classes associated with the school
       console.log('Fetching classes for school...');
-      const classes = await Class.find({ schoolId: schoolObjectId });
+      const classes = await Class.find({ school: schoolObjectId });
       console.log(`Found ${classes.length} classes`);
       if (!classes || classes.length === 0) {
         console.log('No classes found for this school');
