@@ -32,7 +32,7 @@ const Attendance = () => {
     try {
       const token = localStorage.getItem("token");
       const res = await axios.get(
-        `https://school-register-a2bx.onrender.com/api/students/class/${classId}`,
+        `https://school-register-a2bx.onrender.com/api/student/class/${classId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setStudents(res.data.students || []);
