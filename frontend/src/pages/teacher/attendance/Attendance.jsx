@@ -3,6 +3,8 @@ import axios from "../../../api/axios";
 import { FaUserCheck, FaCalendarAlt } from "react-icons/fa";
 import toast from "react-hot-toast";
 import "./Attendance.modules.css";
+import Sidebar from "../../../components/Teacher/TeacherSidebar";
+import Header from "../../../components/Teacher/TeacherHeader";
 
 const Attendance = () => {
   const [classes, setClasses] = useState([]);
@@ -82,6 +84,11 @@ const Attendance = () => {
   }, []);
 
   return (
+    <div>
+        <Header />
+        <div>
+            <Sidebar />
+      
     <div className="attendance-page">
       <h2>Attendance Page</h2>
 
@@ -134,6 +141,8 @@ const Attendance = () => {
           </button>
         </div>
       )}
+    </div>
+    </div>
     </div>
   );
 };
