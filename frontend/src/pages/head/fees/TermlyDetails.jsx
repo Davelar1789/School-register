@@ -148,7 +148,7 @@ const TermSessionsManager = () => {
                       <button onClick={() => handleEditFees(term)}>Edit Fees</button>
                     </>
                   ) : (
-                    <p>Term not created yet.</p>
+                    <><p>Term not created yet.</p><button onClick={() => handleEditFees(term)}>Create</button></>
                   )}
                 </div>
               );
