@@ -47,7 +47,7 @@ const TermSessionsManager = () => {
     setSelectedYear(year);
     try {
       const encodedYear = encodeURIComponent(year); // <-- Encode here
-      const { data } = await api.get(`/api/terms/school/${schoolId}/year/${encodedYear}`);
+      const { data } = await api.get(`/api/terms/${schoolId}/year/${encodedYear}`);
       setTerms(data);
     } catch (error) {
       toast.error("Failed to fetch terms for the selected year.");
