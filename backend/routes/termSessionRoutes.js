@@ -13,7 +13,7 @@ const router = express.Router();
 router.get("/years/:schoolId", getAcademicYears);
 router.get("/:schoolId/:yearLabel", getTermsByYear);
 router.post("/add-academic-year", addAcademicYear);
-router.post("/upsert-term", saveTermSession);
+router.post("/upsert-term/:termId", saveTermSession);
 router.get("/fees/:schoolId/:yearLabel/:termName", getTermFees);
 router.delete("/delete/:schoolId/:yearLabel/:termName", deleteTermSession); // optional
 

@@ -143,7 +143,7 @@ const [newTermData, setNewTermData] = useState({
 
   const handleSaveFees = async () => {
     try {
-      await api.put(`/api/terms/${editingTerm._id}`, {
+      await api.put(`/api/terms/upsert-term/${editingTerm._id}`, {
         classFees: editedClassFees,
       });
       toast.success("Class fees updated successfully.");
