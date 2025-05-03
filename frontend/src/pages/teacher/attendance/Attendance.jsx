@@ -37,12 +37,14 @@ const Attendance = () => {
         `https://school-register-a2bx.onrender.com/api/student/class/${classId}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setStudents(res.data.students || []);
-      const defaultAttendance = {};
-      res.data.students.forEach(student => {
-        defaultAttendance[student._id] = true; // all present by default
-      });
-      setAttendanceData(defaultAttendance);
+      const fetchedStudents = res.data.students || res.data || []; // <-- fallback logic
+        setStudents(fetchedStudents);
+        // build attendance state
+        const defaultAttendance = {};
+        fetchedStudents.forEach((student) => {
+        defaultAttendance[student._id] = true;
+        });
+        setAttendanceData(defaultAttendance);
     } catch (err) {
       console.error("Error fetching students:", err);
     } finally {
