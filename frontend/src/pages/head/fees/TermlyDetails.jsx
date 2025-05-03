@@ -17,6 +17,14 @@ const TermSessionsManager = () => {
   const [newYearLabel, setNewYearLabel] = useState("");
   const [editingTerm, setEditingTerm] = useState(null);
   const [editedClassFees, setEditedClassFees] = useState([]);
+  const [showCreateTermModal, setShowCreateTermModal] = useState(false);
+const [newTermData, setNewTermData] = useState({
+  termName: "",
+  startDate: "",
+  endDate: "",
+  classFees: [],
+});
+
 
   useEffect(() => {
     if (schoolId) {
@@ -33,6 +41,47 @@ const TermSessionsManager = () => {
       toast.error("Failed to fetch academic years.");
     }
   };
+
+  const handleCreateTerm = (termName) => {
+    setNewTermData({
+      termName,
+      startDate: "",
+      endDate: "",
+      classFees: allClasses.map(cls => ({
+        classId: cls._id,
+        className: cls.className,
+        totalFees: 0,
+      })),
+    });
+    setShowCreateTermModal(true);
+  };
+
+  const handleSubmitNewTerm = async () => {
+    const { termName, startDate, endDate, classFees } = newTermData;
+  
+    if (!startDate || !endDate) {
+      toast.error("Start and end dates are required.");
+      return;
+    }
+  
+    try {
+      await api.post("/api/terms/upsert-term", {
+        schoolId,
+        yearLabel: selectedYear,
+        termName,
+        startDate,
+        endDate,
+        classFees,
+      });
+      toast.success(`${termName} created successfully.`);
+      setShowCreateTermModal(false);
+      handleYearSelect(selectedYear); // Refresh term list
+    } catch (error) {
+      toast.error("Failed to create term.");
+    }
+  };
+  
+  
 
   const fetchClasses = async () => {
     try {
@@ -148,7 +197,10 @@ const TermSessionsManager = () => {
                       <button onClick={() => handleEditFees(term)}>Edit Fees</button>
                     </>
                   ) : (
-                    <><p>Term not created yet.</p><button onClick={() => handleEditFees(term)}>Create</button></>
+                    <>
+                    <p>Term not created yet.</p>
+                    <button onClick={() => handleCreateTerm(term)}>Create</button>
+                    </>
                   )}
                 </div>
               );
@@ -198,6 +250,50 @@ const TermSessionsManager = () => {
           </div>
         </div>
       )}
+
+{showCreateTermModal && (
+  <div className="modal-overlay">
+    <div className="modal">
+      <h3>Create {newTermData.termName}</h3>
+      <label>Start Date</label>
+      <input
+        type="date"
+        value={newTermData.startDate}
+        onChange={(e) =>
+          setNewTermData({ ...newTermData, startDate: e.target.value })
+        }
+      />
+      <label>End Date</label>
+      <input
+        type="date"
+        value={newTermData.endDate}
+        onChange={(e) =>
+          setNewTermData({ ...newTermData, endDate: e.target.value })
+        }
+      />
+
+      <h4>Set Fees</h4>
+      {newTermData.classFees.map((fee, index) => (
+        <div key={fee.classId}>
+          <label>{fee.className}</label>
+          <input
+            type="number"
+            value={fee.totalFees}
+            onChange={(e) => {
+              const updatedFees = [...newTermData.classFees];
+              updatedFees[index].totalFees = parseFloat(e.target.value);
+              setNewTermData({ ...newTermData, classFees: updatedFees });
+            }}
+          />
+        </div>
+      ))}
+
+      <button onClick={handleSubmitNewTerm}>Create Term</button>
+      <button onClick={() => setShowCreateTermModal(false)}>Cancel</button>
+    </div>
+  </div>
+)}
+
     </div>
     </div>
     </div>
