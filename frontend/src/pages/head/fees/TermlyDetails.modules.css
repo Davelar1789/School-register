@@ -1,85 +1,70 @@
-.termly-details-container {
+.term-sessions-manager {
+    padding: 20px;
+  }
+  
+  .year-list {
     display: flex;
-  }
-  
-  .termly-details-content {
-    flex: 1;
-    padding: 20px;
-    background: #f9f9f9;
-    min-height: 100vh;
-  }
-  
-  h2 {
-    margin-bottom: 20px;
-    color: #333;
-  }
-  
-  .termly-form {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  }
-  
-  .form-group {
+    gap: 10px;
     margin-bottom: 20px;
   }
   
-  .form-group label {
-    font-weight: 600;
-    margin-bottom: 8px;
-    display: block;
-    color: #555;
+  .year-button,
+  .add-year-button {
+    padding: 10px 15px;
+    border: none;
+    background-color: #f0f0f0;
+    cursor: pointer;
   }
   
-  .form-group input,
-  .form-group select {
-    width: 100%;
-    padding: 10px;
+  .year-button.active {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  .terms-section {
+    margin-top: 20px;
+  }
+  
+  .term-list {
+    display: flex;
+    gap: 15px;
+  }
+  
+  .term-card {
     border: 1px solid #ccc;
+    padding: 15px;
+    width: 200px;
+  }
+  
+  .modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .modal {
+    background-color: white;
+    padding: 20px;
+    width: 400px;
     border-radius: 5px;
   }
   
-  h3 {
-    margin-top: 30px;
-    color: #444;
+  .modal-actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
   }
   
   .fee-row {
     display: flex;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-  
-  .fee-row span {
-    flex: 1;
-    font-weight: 500;
-  }
-  
-  .fee-row input {
-    width: 150px;
-    padding: 8px;
-    margin-left: 20px;
-  }
-  
-  button[type="submit"] {
-    background: #007bff;
-    color: #fff;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 6px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 20px;
-  }
-  
-  button[type="submit"]:hover {
-    background: #0056b3;
-  }
-  
-  @media screen and (min-width: 768px) {
-    .termly-side {
-        margin-left: 250px;
-    }
+    justify-content: space-between;
+    margin-bottom: 10px;
   }
   

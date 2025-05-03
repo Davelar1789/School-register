@@ -1,147 +1,197 @@
 import React, { useEffect, useState } from "react";
-import "./TermlyDetails.modules.css";
-import Header from "../../../components/Admin/Header2";
-import Sidebar from "../../../components/Admin/Sidebar";
-import api from "../../../api/axios"; // Adjust if your api path is different
-import { toast } from "react-hot-toast";
+import api from "../../../api/axios";
+import toast from "react-hot-toast";
+import "./TermlyDetails.modules.css"; // Create and style accordingly
 
-const TermlyDetails = () => {
-  const [yearLabel, setYearLabel] = useState("");
-  const [termName, setTermName] = useState("Term 1");
-  const [startDate, setStartDate] = useState("");
-  const [endDate, setEndDate] = useState("");
-  const [classFees, setClassFees] = useState([]);
-  const [allClasses, setAllClasses] = useState([]);
-  const [loading, setLoading] = useState(false);
-
+const TermSessionsManager = () => {
   const schoolData = JSON.parse(localStorage.getItem("schoolData"));
   const schoolId = schoolData ? schoolData._id : null;
-  
+
+  const [academicYears, setAcademicYears] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(null);
+  const [terms, setTerms] = useState([]);
+  const [allClasses, setAllClasses] = useState([]);
+  const [showAddYearModal, setShowAddYearModal] = useState(false);
+  const [newYearLabel, setNewYearLabel] = useState("");
+  const [editingTerm, setEditingTerm] = useState(null);
+  const [editedClassFees, setEditedClassFees] = useState([]);
+
   useEffect(() => {
     if (schoolId) {
+      fetchAcademicYears();
       fetchClasses();
     }
   }, [schoolId]);
-  
+
+  const fetchAcademicYears = async () => {
+    try {
+      const { data } = await api.get(`/api/terms/years/${schoolId}`);
+      setAcademicYears(data);
+    } catch (error) {
+      toast.error("Failed to fetch academic years.");
+    }
+  };
+
   const fetchClasses = async () => {
     try {
       const { data } = await api.get(`/api/classes/school/${schoolId}`);
       setAllClasses(data);
-      const initialFees = data.map(cls => ({
-        classId: cls._id,
-        className: cls.className,
-        totalFees: 0,
-      }));
-      setClassFees(initialFees);
     } catch (error) {
-      toast.error("Failed to fetch classes");
+      toast.error("Failed to fetch classes.");
     }
   };
-  
-  const handleFeeChange = (index, value) => {
-    const updatedFees = [...classFees];
-    updatedFees[index].totalFees = value;
-    setClassFees(updatedFees);
+
+  const handleYearSelect = async (year) => {
+    setSelectedYear(year);
+    try {
+      const { data } = await api.get(`/api/terms/school/${schoolId}/year/${year}`);
+      setTerms(data);
+    } catch (error) {
+      toast.error("Failed to fetch terms for the selected year.");
+    }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!yearLabel || !termName || !startDate || !endDate) {
-      toast.error("Please fill all fields!");
+  const handleAddYear = async () => {
+    if (!newYearLabel) {
+      toast.error("Year label cannot be empty.");
       return;
     }
-
     try {
-      setLoading(true);
       await api.post("/api/terms/create", {
         schoolId,
-        yearLabel,
-        termName,
-        startDate,
-        endDate,
-        classFees,
+        yearLabel: newYearLabel,
+        termName: "Term 1",
+        startDate: new Date(),
+        endDate: new Date(),
+        classFees: allClasses.map((cls) => ({
+          classId: cls._id,
+          className: cls.className,
+          totalFees: 0,
+        })),
       });
-      toast.success("Term session created successfully!");
-      setYearLabel("");
-      setTermName("Term 1");
-      setStartDate("");
-      setEndDate("");
-      fetchClasses();
+      toast.success("Academic year added successfully.");
+      setShowAddYearModal(false);
+      setNewYearLabel("");
+      fetchAcademicYears();
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to create term session");
-    } finally {
-      setLoading(false);
+      toast.error("Failed to add academic year.");
+    }
+  };
+
+  const handleEditFees = (term) => {
+    setEditingTerm(term);
+    setEditedClassFees(term.classFees);
+  };
+
+  const handleFeeChange = (index, value) => {
+    const updatedFees = [...editedClassFees];
+    updatedFees[index].totalFees = value;
+    setEditedClassFees(updatedFees);
+  };
+
+  const handleSaveFees = async () => {
+    try {
+      await api.put(`/api/terms/${editingTerm._id}`, {
+        classFees: editedClassFees,
+      });
+      toast.success("Class fees updated successfully.");
+      setEditingTerm(null);
+      handleYearSelect(selectedYear);
+    } catch (error) {
+      toast.error("Failed to update class fees.");
     }
   };
 
   return (
-    <div className="termly-details-container">
-      <Sidebar />
-      <div className="termly-details-content">
-        <Header />
-        <div className="termly-side">
-        <h2>Set Up New Term Session</h2>
-        <form className="termly-form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Academic Year (e.g. 2024/2025)</label>
-            <input 
-              type="text" 
-              value={yearLabel} 
-              onChange={(e) => setYearLabel(e.target.value)} 
-              required 
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Term</label>
-            <select value={termName} onChange={(e) => setTermName(e.target.value)}>
-              <option value="Term 1">Term 1</option>
-              <option value="Term 2">Term 2</option>
-              <option value="Term 3">Term 3</option>
-            </select>
-          </div>
-
-          <div className="form-group">
-            <label>Term Start Date</label>
-            <input 
-              type="date" 
-              value={startDate} 
-              onChange={(e) => setStartDate(e.target.value)} 
-              required 
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Term End Date</label>
-            <input 
-              type="date" 
-              value={endDate} 
-              onChange={(e) => setEndDate(e.target.value)} 
-              required 
-            />
-          </div>
-
-          <h3>Set Fees for Each Class</h3>
-          {classFees.map((cls, index) => (
-            <div key={cls.classId} className="fee-row">
-              <span>{cls.className}</span>
-              <input
-                type="number"
-                value={cls.totalFees}
-                onChange={(e) => handleFeeChange(index, Number(e.target.value))}
-                placeholder="Enter total fees"
-              />
-            </div>
-          ))}
-
-          <button type="submit" disabled={loading}>
-            {loading ? "Saving..." : "Save Term Session"}
+    <div className="term-sessions-manager">
+      <h2>Academic Years</h2>
+      <div className="year-list">
+        {academicYears.map((year) => (
+          <button
+            key={year}
+            className={`year-button ${selectedYear === year ? "active" : ""}`}
+            onClick={() => handleYearSelect(year)}
+          >
+            {year}
           </button>
-        </form>
-        </div>
+        ))}
+        <button className="add-year-button" onClick={() => setShowAddYearModal(true)}>
+          + Add Year
+        </button>
       </div>
+
+      {selectedYear && (
+        <div className="terms-section">
+          <h3>Terms for {selectedYear}</h3>
+          <div className="term-list">
+            {["Term 1", "Term 2", "Term 3"].map((termName) => {
+              const term = terms.find((t) => t.termName === termName);
+              return (
+                <div key={termName} className="term-card">
+                  <h4>{termName}</h4>
+                  {term ? (
+                    <>
+                      <p>
+                        Start Date: {new Date(term.startDate).toLocaleDateString()}
+                      </p>
+                      <p>
+                        End Date: {new Date(term.endDate).toLocaleDateString()}
+                      </p>
+                      <button onClick={() => handleEditFees(term)}>Edit Fees</button>
+                    </>
+                  ) : (
+                    <p>Term not created yet.</p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Add Year Modal */}
+      {showAddYearModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Add New Academic Year</h3>
+            <input
+              type="text"
+              placeholder="e.g., 2025/2026"
+              value={newYearLabel}
+              onChange={(e) => setNewYearLabel(e.target.value)}
+            />
+            <div className="modal-actions">
+              <button onClick={handleAddYear}>Add Year</button>
+              <button onClick={() => setShowAddYearModal(false)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Fees Modal */}
+      {editingTerm && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Edit Fees for {editingTerm.termName}</h3>
+            {editedClassFees.map((fee, index) => (
+              <div key={fee.classId} className="fee-row">
+                <span>{fee.className}</span>
+                <input
+                  type="number"
+                  value={fee.totalFees}
+                  onChange={(e) => handleFeeChange(index, Number(e.target.value))}
+                />
+              </div>
+            ))}
+            <div className="modal-actions">
+              <button onClick={handleSaveFees}>Save</button>
+              <button onClick={() => setEditingTerm(null)}>Cancel</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
-export default TermlyDetails;
+export default TermSessionsManager;
