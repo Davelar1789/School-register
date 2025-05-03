@@ -27,21 +27,29 @@ export const getTermsByYear = async (req, res) => {
 
 // Add new academic year (no terms initially, just the label)
 export const addAcademicYear = async (req, res) => {
+    console.log('Adding academic year...');
     const { schoolId, yearLabel } = req.body;
+    console.log(`Request body: schoolId=${schoolId}, yearLabel=${yearLabel}`);
   
     try {
       // Convert schoolId to ObjectId
       const schoolObjectId = new mongoose.Types.ObjectId(schoolId);
+      console.log(`Converted schoolId to ObjectId: ${schoolObjectId}`);
   
       // Check if the academic year already exists
+      console.log('Checking for existing academic year...');
       const existing = await TermSession.findOne({ schoolId: schoolObjectId, yearLabel });
       if (existing) {
+        console.log('Academic year already exists');
         return res.status(400).json({ message: 'Academic year already exists' });
       }
   
       // Fetch classes associated with the school
+      console.log('Fetching classes for school...');
       const classes = await Class.find({ schoolId: schoolObjectId });
+      console.log(`Found ${classes.length} classes`);
       if (!classes || classes.length === 0) {
+        console.log('No classes found for this school');
         return res.status(400).json({ message: 'No classes found for this school.' });
       }
   
@@ -51,9 +59,11 @@ export const addAcademicYear = async (req, res) => {
         className: cls.className,
         totalFees: 0,
       }));
+      console.log('Prepared classFees array');
   
       // Define term names
       const termNames = ['Term 1', 'Term 2', 'Term 3'];
+      console.log('Term names:', termNames);
   
       // Create term sessions for each term
       const termSessions = termNames.map((termName) => ({
@@ -65,11 +75,15 @@ export const addAcademicYear = async (req, res) => {
         classFees,
         isActive: true,
       }));
+      console.log('Created term sessions');
   
       // Insert term sessions into the database
+      console.log('Inserting term sessions into database...');
       await TermSession.insertMany(termSessions);
+      console.log('Term sessions inserted successfully');
   
       // Update students' academic records
+      console.log('Updating students\' academic records...');
       await Student.updateMany(
         { schoolId: schoolObjectId, 'academicRecords.yearLabel': { $ne: yearLabel } },
         {
@@ -81,6 +95,7 @@ export const addAcademicYear = async (req, res) => {
           },
         }
       );
+      console.log('Students\' academic records updated');
   
       res.status(201).json({ message: 'Academic year added and students updated' });
     } catch (error) {
