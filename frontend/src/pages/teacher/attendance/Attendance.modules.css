@@ -25,3 +25,9 @@
   border: none;
   border-radius: 5px;
 }
+
+@media screen and (min-width: 768px) {
+  .attendance-page {
+    margin-left: 250px;
+  }
+}
