@@ -162,3 +162,56 @@ export const getStudentsBySchool = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
+// Fetch students by class
+export const getStudentsByClass = async (req, res) => {
+  try {
+    const { classId } = req.params;
+    const students = await Students.find({ classes: classId });
+    res.json(students);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch students", error: err.message });
+  }
+};
+
+// Mark attendance
+export const markAttendance = async (req, res) => {
+  const { studentId, date, present } = req.body;
+
+  try {
+    const student = await Students.findById(studentId);
+    if (!student) return res.status(404).json({ message: "Student not found" });
+
+    const year = new Date(date).getFullYear();
+    const academicYear = student.academicRecords.find((rec) =>
+      rec.yearLabel.includes(year.toString())
+    );
+
+    if (!academicYear) return res.status(400).json({ message: "Academic year not found" });
+
+    const currentTerm = academicYear.terms.at(-1); // latest term
+    if (!currentTerm) return res.status(400).json({ message: "Term not found" });
+
+    const currentWeek = Math.ceil((new Date(date).getDate()) / 7);
+
+    // Check if this week already has an entry
+    let weekAttendance = currentTerm.attendance.find(a => a.week === currentWeek);
+    if (!weekAttendance) {
+      weekAttendance = { week: currentWeek, days: Array(5).fill(false) };
+      currentTerm.attendance.push(weekAttendance);
+    }
+
+    const dayIndex = new Date(date).getDay() - 1; // Mon = 0, Tue = 1...
+    if (dayIndex >= 0 && dayIndex <= 4) {
+      weekAttendance.days[dayIndex] = present;
+    }
+
+    student.markModified("academicRecords");
+    await student.save();
+
+    res.json({ message: "Attendance marked successfully" });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to mark attendance", error: err.message });
+  }
+};
