@@ -18,6 +18,7 @@ const TermSessionsManager = () => {
   const [editingTerm, setEditingTerm] = useState(null);
   const [editedClassFees, setEditedClassFees] = useState([]);
   const [showCreateTermModal, setShowCreateTermModal] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 const [newTermData, setNewTermData] = useState({
   termName: "",
   startDate: "",
@@ -142,6 +143,7 @@ const [newTermData, setNewTermData] = useState({
   
 
   const handleSaveFees = async () => {
+    setIsSaving(true); // Start loading animation
     try {
       await api.post(`/api/terms/upsert-term/${editingTerm._id}`, {
         classFees: editedClassFees,
@@ -151,7 +153,9 @@ const [newTermData, setNewTermData] = useState({
       handleYearSelect(selectedYear);
     } catch (error) {
       toast.error("Failed to update class fees.");
-    }
+    } finally {
+        setIsSaving(false); // Stop loading animation
+      }
   };
 
   return (
@@ -295,6 +299,14 @@ const [newTermData, setNewTermData] = useState({
     </div>
   </div>
 )}
+
+{isSaving && (
+  <div className="loading-overlay">
+    <div className="spinner"></div>
+    <p>Saving fees...</p>
+  </div>
+)}
+
 
     </div>
     </div>
