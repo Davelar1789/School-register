@@ -52,7 +52,7 @@ import SchoolSettings from "./pages/head/settings/AdminSettings";
 import AllSchools from "./pages/superadmin/schools/AllSchools";
 import AddSchool from "./pages/superadmin/schools/AddSchool";
 import AddAdmin from "./pages/superadmin/addAdmin/addAdmin";
-
+import Attendance from "./pages/teacher/attendance/Attendance";
 
 const router = createBrowserRouter([
   {
@@ -78,6 +78,10 @@ const router = createBrowserRouter([
       {
         path: "teacher-dashboard",
         element: <Welcome2 />,
+      },
+      {
+        path: "attendance",
+        element: <Attendance />,
       },
       {
         path: "students",

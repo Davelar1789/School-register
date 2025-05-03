@@ -1,0 +1,27 @@
+.attendance-page {
+  padding: 20px;
+}
+
+.class-select {
+  margin-bottom: 20px;
+}
+
+.attendance-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.attendance-table th, .attendance-table td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+}
+
+.submit-attendance-btn {
+  margin-top: 15px;
+  background: royalblue;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+}
