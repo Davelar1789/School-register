@@ -130,14 +130,16 @@ const [newTermData, setNewTermData] = useState({
 
   const handleEditFees = (term) => {
     setEditingTerm(term);
-    setEditedClassFees(term.classFees);
+    const copiedFees = term.classFees.map(fee => ({ ...fee }));
+    setEditedClassFees(copiedFees);
   };
-
+  
   const handleFeeChange = (index, value) => {
     const updatedFees = [...editedClassFees];
     updatedFees[index].totalFees = value;
     setEditedClassFees(updatedFees);
   };
+  
 
   const handleSaveFees = async () => {
     try {
@@ -234,9 +236,10 @@ const [newTermData, setNewTermData] = useState({
               <div key={fee.classId} className="fee-row">
                 <span>{fee.className}</span>
                 <input
-                  type="number"
-                  value={fee.totalFees}
-                  onChange={(e) => handleFeeChange(index, Number(e.target.value))}
+                type="number"
+                step="0.01"
+                value={fee.totalFees}
+                onChange={(e) => handleFeeChange(index, parseFloat(e.target.value) || 0)}
                 />
               </div>
             ))}
