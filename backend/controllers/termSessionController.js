@@ -31,7 +31,7 @@ export const addAcademicYear = async (req, res) => {
   
     try {
       // Convert schoolId to ObjectId
-      const schoolObjectId = mongoose.Types.ObjectId(schoolId);
+      const schoolObjectId = new mongoose.Types.ObjectId(schoolId);
   
       // Check if the academic year already exists
       const existing = await TermSession.findOne({ schoolId: schoolObjectId, yearLabel });
