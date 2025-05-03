@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import api from "../../../api/axios";
 import toast from "react-hot-toast";
+import Header from "../../../components/Admin/Header2";
+import Sidebar from "../../../components/Admin/Sidebar";
 import "./TermlyDetails.modules.css"; // Create and style accordingly
 
 const TermSessionsManager = () => {
@@ -103,6 +105,10 @@ const TermSessionsManager = () => {
   };
 
   return (
+    <div className="termlyy-container">
+      <Sidebar />
+      <div className="termlyy-main">
+        <Header />
     <div className="term-sessions-manager">
       <h2>Academic Years</h2>
       <div className="year-list">
@@ -190,6 +196,8 @@ const TermSessionsManager = () => {
           </div>
         </div>
       )}
+    </div>
+    </div>
     </div>
   );
 };
