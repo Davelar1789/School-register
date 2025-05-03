@@ -252,8 +252,8 @@ const [newTermData, setNewTermData] = useState({
       )}
 
 {showCreateTermModal && (
-  <div className="modal-overlay">
-    <div className="modal">
+  <div className="modal-overlay2">
+    <div className="modal2">
       <h3>Create {newTermData.termName}</h3>
       <label>Start Date</label>
       <input
