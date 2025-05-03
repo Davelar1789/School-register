@@ -46,12 +46,14 @@ const TermSessionsManager = () => {
   const handleYearSelect = async (year) => {
     setSelectedYear(year);
     try {
-      const { data } = await api.get(`/api/terms/school/${schoolId}/year/${year}`);
+      const encodedYear = encodeURIComponent(year); // <-- Encode here
+      const { data } = await api.get(`/api/terms/school/${schoolId}/year/${encodedYear}`);
       setTerms(data);
     } catch (error) {
       toast.error("Failed to fetch terms for the selected year.");
     }
   };
+  
 
   const handleAddYear = async () => {
     if (!newYearLabel) {
@@ -59,7 +61,7 @@ const TermSessionsManager = () => {
       return;
     }
     try {
-      await api.post("/api/terms//add-academic-year", {
+      await api.post("/api/terms/add-academic-year", {
         schoolId,
         yearLabel: newYearLabel,
         termName: "Term 1",
