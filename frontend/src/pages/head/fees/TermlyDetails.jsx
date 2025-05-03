@@ -280,11 +280,12 @@ const [newTermData, setNewTermData] = useState({
             type="number"
             value={fee.totalFees}
             onChange={(e) => {
-              const updatedFees = [...newTermData.classFees];
-              updatedFees[index].totalFees = parseFloat(e.target.value);
-              setNewTermData({ ...newTermData, classFees: updatedFees });
+                const updatedFees = [...newTermData.classFees];
+                updatedFees[index].totalFees = parseFloat(e.target.value);
+                setNewTermData({ ...newTermData, classFees: updatedFees });
             }}
-          />
+            onWheel={(e) => e.target.blur()} // Prevent scroll-based changes
+            />
         </div>
       ))}
 
