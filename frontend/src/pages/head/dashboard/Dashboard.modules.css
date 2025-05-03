@@ -170,13 +170,13 @@ body {
 
 @media screen and (max-width: 768px) {
   .overview-section {
-    grid-template-columns: repeat(2, 1fr); /* Two per row on tablets */
+    grid-template-columns: repeat(2, 1fr) !important; /* Two per row on tablets */
   }
 }
 
 @media screen and (max-width: 480px) {
   .overview-section {
-    grid-template-columns: 1fr; /* One per row on smaller phones */
+    grid-template-columns: 1fr !important; /* One per row on smaller phones */
   }
 }
 
