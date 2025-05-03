@@ -9,8 +9,8 @@ const classFeeSchema = new mongoose.Schema({
 const termSessionSchema = new mongoose.Schema(
   {
     schoolId: { type: mongoose.Schema.Types.ObjectId, ref: "School", required: true },
-    yearLabel: { type: String, required: true }, // Example: 2024/2025
-    termName: { type: String, required: true },  // Example: Term 1
+    yearLabel: { type: String, required: true }, 
+    termName: { type: String, required: true }, 
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
     classFees: [classFeeSchema],

@@ -59,7 +59,7 @@ const TermSessionsManager = () => {
       return;
     }
     try {
-      await api.post("/api/terms/create", {
+      await api.post("/api/terms//add-academic-year", {
         schoolId,
         yearLabel: newYearLabel,
         termName: "Term 1",
