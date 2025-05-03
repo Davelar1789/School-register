@@ -70,7 +70,7 @@ const Attendance = () => {
         })),
       };
       await axios.post(
-        "https://school-register-a2bx.onrender.com/api/students/mark-attendance",
+        "https://school-register-a2bx.onrender.com/api/student/mark-attendance",
         payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );

@@ -64,21 +64,6 @@ const Header = () => {
         });
         return;
       }
-
-      const token = localStorage.getItem("token");
-      const response = await api.get(`/api/schools/user/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (response.data) {
-        const schoolData = response.data.school || response.data;
-        localStorage.setItem("schoolData", JSON.stringify(schoolData));
-        setSchool(schoolData);
-        setSchoolStats({
-          numberOfStudents: schoolData.numberOfStudents || 0,
-          numberOfTeachers: schoolData.numberOfTeachers || 0,
-          numberOfClasses: schoolData.numberOfClasses || 0,
-        });
-      }
     } catch (error) {
       console.error("Error fetching school:", error);
     }
