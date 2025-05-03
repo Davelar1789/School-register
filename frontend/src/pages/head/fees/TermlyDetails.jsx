@@ -120,6 +120,7 @@ const [newTermData, setNewTermData] = useState({
       fetchAcademicYears();
     } catch (error) {
       console.error(error); // helpful for debugging
+      console.log("schoolId being sent:", schoolId);
       toast.error(
         error?.response?.data?.message || "Failed to add academic year."
       );
