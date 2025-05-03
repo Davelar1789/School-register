@@ -90,6 +90,29 @@ export const addAcademicYear = async (req, res) => {
   };
   
 
+  export const createTermSession = async (req, res) => {
+    const { schoolId, yearLabel, termName, startDate, endDate, classFees } = req.body;
+  
+    try {
+      const term = new TermSession({
+        schoolId,
+        yearLabel,
+        termName,
+        startDate,
+        endDate,
+        classFees,
+        isActive: true,
+      });
+  
+      await term.save();
+      res.status(201).json({ message: "Term created successfully", term });
+    } catch (error) {
+      console.error("Error creating term session:", error);
+      res.status(500).json({ message: "Failed to create term", error });
+    }
+  };
+  
+
 // Add or Update a specific term with fees
 export const saveTermSession = async (req, res) => {
     const { termId } = req.params;
