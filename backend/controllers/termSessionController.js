@@ -91,7 +91,6 @@ export const addAcademicYear = async (req, res) => {
   
 
 // Add or Update a specific term with fees
-// Add or Update a specific term with fees
 export const saveTermSession = async (req, res) => {
     const { termId } = req.params;
     const { classFees } = req.body;
