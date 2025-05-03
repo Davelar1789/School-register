@@ -91,37 +91,82 @@ export const addAcademicYear = async (req, res) => {
   
 
 // Add or Update a specific term with fees
-export const upsertTermSession = async (req, res) => {
-  const { schoolId, yearLabel, termName, startDate, endDate, classFees } = req.body;
-
-  try {
-    let term = await TermSession.findOne({ schoolId, yearLabel, termName });
-
-    if (term) {
-      // Update existing
-      term.startDate = startDate;
-      term.endDate = endDate;
+// Add or Update a specific term with fees
+export const saveTermSession = async (req, res) => {
+    const { termId } = req.params;
+    const { classFees } = req.body;
+  
+    try {
+      // Step 1: Find and update the TermSession
+      const term = await TermSession.findById(termId);
+      if (!term) return res.status(404).json({ message: "Term session not found" });
+  
       term.classFees = classFees;
       await term.save();
-      res.status(200).json({ message: "Term session updated", term });
-    } else {
-      // Create new
-      const newTerm = new TermSession({
-        schoolId,
-        yearLabel,
-        termName,
-        startDate,
-        endDate,
-        classFees,
-      });
-      await newTerm.save();
-
-      res.status(201).json({ message: "Term session created", term: newTerm });
+  
+      const { schoolId, yearLabel, termName, startDate, endDate } = term;
+  
+      // Step 2: Get all students in the school
+      const students = await Student.find({ schoolId }).populate("classes");
+  
+      for (let student of students) {
+        // Match student's class with the updated classFees
+        const matchedClass = student.classes.find(cls =>
+          classFees.some(fee => fee.classId === cls._id.toString())
+        );
+  
+        if (!matchedClass) continue;
+  
+        const feeData = classFees.find(fee => fee.classId === matchedClass._id.toString());
+  
+        // Step 3: Ensure academic record for the year exists
+        let yearRecord = student.academicRecords.find(y => y.yearLabel === yearLabel);
+        if (!yearRecord) {
+          yearRecord = {
+            yearLabel,
+            terms: [],
+          };
+          student.academicRecords.push(yearRecord);
+        }
+  
+        // Step 4: Ensure the term record exists and update fees
+        let termRecord = yearRecord.terms.find(t => t.termName === termName);
+        if (!termRecord) {
+          yearRecord.terms.push({
+            termName,
+            fees: {
+              totalFees: feeData.totalFees || 0,
+              amountPaid: 0,
+              arrears: 0,
+              balance: feeData.totalFees || 0,
+              paymentHistory: [],
+            },
+            attendance: [],
+            totalAttendance: 0,
+            subjects: [],
+            startDate,
+            endDate,
+          });
+        } else {
+          termRecord.fees = {
+            totalFees: feeData.totalFees || 0,
+            amountPaid: 0,
+            arrears: 0,
+            balance: feeData.totalFees || 0,
+            paymentHistory: [],
+          };
+        }
+  
+        await student.save();
+      }
+  
+      res.status(200).json({ message: "Term session fees saved and student records updated." });
+    } catch (error) {
+      console.error("Error saving term session:", error);
+      res.status(500).json({ message: "Failed to save term session", error });
     }
-  } catch (error) {
-    res.status(500).json({ message: "Failed to save term session", error });
-  }
-};
+  };
+  
 
 // Get fees for a specific term
 export const getTermFees = async (req, res) => {
