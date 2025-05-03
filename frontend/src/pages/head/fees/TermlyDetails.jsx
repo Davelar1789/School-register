@@ -236,11 +236,12 @@ const [newTermData, setNewTermData] = useState({
               <div key={fee.classId} className="fee-row">
                 <span>{fee.className}</span>
                 <input
-                type="number"
-                step="0.01"
-                value={fee.totalFees}
-                onChange={(e) => handleFeeChange(index, parseFloat(e.target.value) || 0)}
-                />
+                    type="number"
+                    step="0.01"
+                    value={fee.totalFees}
+                    onChange={(e) => handleFeeChange(index, parseFloat(e.target.value) || 0)}
+                    onWheel={(e) => e.target.blur()} // ✅ disables scroll changing the number
+                    />
               </div>
             ))}
             <div className="modal-actions">
