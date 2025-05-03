@@ -199,6 +199,46 @@ const [viewedStudent, setViewedStudent] = useState(null);
     setFilteredStudents(filtered);
   };
 
+  const totalFeesCollected = filteredStudents.reduce((sum, student) => {
+    const academicRecords = student.academicRecords || [];
+  
+    let latestTerm = null;
+    let latestDate = null;
+  
+    academicRecords.forEach((record) => {
+      (record.terms || []).forEach((term) => {
+        if (!latestDate || new Date(term.startDate) > new Date(latestDate)) {
+          latestDate = term.startDate;
+          latestTerm = term;
+        }
+      });
+    });
+  
+    const feesPaid = latestTerm?.fees?.amountPaid || 0;
+    return sum + feesPaid;
+  }, 0);
+  
+  const totalOutstandingArrears = filteredStudents.reduce((sum, student) => {
+    const academicRecords = student.academicRecords || [];
+  
+    let latestTerm = null;
+    let latestDate = null;
+  
+    academicRecords.forEach((record) => {
+      (record.terms || []).forEach((term) => {
+        if (!latestDate || new Date(term.startDate) > new Date(latestDate)) {
+          latestDate = term.startDate;
+          latestTerm = term;
+        }
+      });
+    });
+  
+    const fees = latestTerm?.fees || {};
+    const balance = fees.balance ?? (fees.totalFees - fees.amountPaid || 0);
+    return sum + balance;
+  }, 0);
+  
+
   return (
     <div className="fees-container">
       <Sidebar />
@@ -237,15 +277,15 @@ const [viewedStudent, setViewedStudent] = useState(null);
           <div className="fees-summary-box">
             <FaMoneyBillWave className="fees-summary-icon" />
             <div>
-              <h3>Total Fees Collected</h3>
-              <p>GHC 50,000</p> {/* replace with calculated value later */}
+              <h3>Total Fees Collected This Term</h3>
+              <p>GHC {totalFeesCollected.toLocaleString()}</p>
             </div>
           </div>
           <div className="fees-summary-box">
             <FaMoneyBillWave className="fees-summary-icon" />
             <div>
               <h3>Outstanding Arrears</h3>
-              <p>GHC 8,500</p> {/* replace with calculated value later */}
+              <p>GHC {totalOutstandingArrears.toLocaleString()}</p>
             </div>
           </div>
         </div>
