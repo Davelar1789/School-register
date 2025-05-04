@@ -72,7 +72,12 @@ const Attendance = () => {
       await axios.post(
         "/api/student/mark-attendance",
         payload,
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
       alert("Attendance submitted successfully!");
     } catch (err) {
