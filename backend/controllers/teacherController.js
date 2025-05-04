@@ -270,7 +270,6 @@ export const assignClassesToTeacher = async (req, res) => {
 export const getTeacherClasses = async (req, res) => {
   try {
     const teacherId = req.user._id;
-    console.log("✅ Teacher ID from token:", teacherId);
 
     const teacher = await Teacher.findById(teacherId).populate("classesAssigned");
     if (!teacher) {
@@ -279,7 +278,6 @@ export const getTeacherClasses = async (req, res) => {
 
     const classes = teacher.classesAssigned;
 
-    console.log("✅ Classes fetched:", classes);
     res.json({ count: classes.length, classes });
   } catch (err) {
     console.error("❌ Error fetching classes:", err.message || err);
