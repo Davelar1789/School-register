@@ -70,7 +70,7 @@ const Attendance = () => {
         })),
       };
       await axios.post(
-        "/api/student/mark-attendance",
+        `/api/student/mark-attendance`,
         payload,
         {
         headers: {
