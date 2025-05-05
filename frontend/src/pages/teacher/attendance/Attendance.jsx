@@ -46,6 +46,7 @@ const Attendance = () => {
         initialAttendance[s._id] = true;
       });
       setAttendanceData(initialAttendance);
+      console.log("✅ Students fetched:", fetched);
     } catch (err) {
       toast.error("Error loading students");
     } finally {
@@ -73,9 +74,6 @@ const Attendance = () => {
         const termEnd = new Date(res.data.termEndDate);
         setTermRange({ start: termStart, end: termEnd });
   
-        console.log("✅ Term Start Date:", termStart.toDateString());
-        console.log("✅ Term End Date:", termEnd.toDateString());
-        console.log("✅ Selected Date:", date.toDateString());
       } else {
         console.log("⚠️ Not a school day:", date.toDateString());
       }
