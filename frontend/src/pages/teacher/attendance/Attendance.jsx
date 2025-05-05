@@ -63,29 +63,53 @@ const Attendance = () => {
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log("📦 Raw response:", res.data);
-
   
-      if (res.data.isSchoolDay) {
-        setIsSchoolDay(true);
+      const isSchool = res.data.isSchoolDay;
+      setIsSchoolDay(isSchool);
+  
+      if (isSchool) {
         setAttendanceData({});
         const termStart = new Date(res.data.termStartDate);
         const termEnd = new Date(res.data.termEndDate);
         setTermRange({ start: termStart, end: termEnd });
   
-        // ✅ Debug logs
         console.log("✅ Term Start Date:", termStart.toDateString());
         console.log("✅ Term End Date:", termEnd.toDateString());
         console.log("✅ Selected Date:", date.toDateString());
       } else {
-        setIsSchoolDay(false);
         console.log("⚠️ Not a school day:", date.toDateString());
       }
+  
+      return isSchool;
     } catch (err) {
       setIsSchoolDay(false);
       console.error("🚫 Error fetching date status:", err.response?.data?.message || err.message);
+      return false;
     }
   };
+
+  useEffect(() => {
+    const runChecks = async () => {
+      if (selectedClassId && currentDate) {
+        const isValidSchoolDay = await fetchDateStatus(selectedClassId, currentDate);
+        if (isValidSchoolDay) {
+          await fetchStudents(selectedClassId);
+        } else {
+          setStudents([]); // Clear table if not a school day
+        }
+      }
+    };
+    runChecks();
+  }, [selectedClassId, currentDate]);
+
+  
+  useEffect(() => {
+    if (!selectedClassId) {
+      setStudents([]);
+      setIsSchoolDay(false);
+    }
+  }, [selectedClassId]);
+  
   
 
   const handleSubmit = async () => {
