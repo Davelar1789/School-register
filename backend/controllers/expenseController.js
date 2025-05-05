@@ -38,9 +38,6 @@ export const getExpenses = async (req, res) => {
   }
 };
 
-import mongoose from 'mongoose';
-import Expense from '../models/expenseModel.js';
-
 export const getExpensesByCategory = async (req, res) => {
   try {
     const { schoolId } = req.params;
