@@ -149,6 +149,11 @@ const Sidebar = () => {
           <FaUserGraduate className="icon" /> Fees 
         </NavLink>
       </li>
+      <li>
+                <NavLink to="/events" onClick={() => setSidebarOpen(false)}>
+                  <FaCalendar className="icon" /> Expenses
+                </NavLink>
+              </li>
        <li>
                 <NavLink to="/income" onClick={() => setSidebarOpen(false)}>
                   <FaChalkboardTeacher className="icon" /> Income Statement
@@ -168,11 +173,6 @@ const Sidebar = () => {
       <li>
         <NavLink to="/classes" className={({ isActive }) => isActive ? "active" : ""}>
           <FaChalkboardTeacher className="icon" /> Classes
-        </NavLink>
-      </li>
-      <li>
-        <NavLink to="/events" className={({ isActive }) => isActive ? "active" : ""}>
-          <FaCalendar className="icon" /> Event
         </NavLink>
       </li>
       <li onClick={handleLogout} style={{ cursor: "pointer" }}>
