@@ -37,3 +37,29 @@ export const getExpenses = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
+export const getExpensesByCategory = async (req, res) => {
+  try {
+    const { schoolId } = req.params;
+
+    const results = await Expense.aggregate([
+      { $match: { schoolId } },
+      {
+        $group: {
+          _id: '$category',
+          totalAmount: { $sum: '$amount' },
+        },
+      },
+    ]);
+
+    const categoryTotals = {};
+    results.forEach((item) => {
+      categoryTotals[item._id] = item.totalAmount;
+    });
+
+    res.json(categoryTotals);
+  } catch (error) {
+    console.error('Error fetching expenses by category:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
