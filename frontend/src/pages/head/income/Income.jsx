@@ -2,33 +2,37 @@ import React from "react";
 import "./Income.modules.css";
 import Header from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
+import api from "../../../api/axios";
 
 const IncomeStatement = () => {
   // Dummy data – replace with real data or props
   const incomeItems = [
-    { label: "Tuition Fees", amount: 500000 },
-    { label: "Feeding Fees", amount: 200000 },
-    { label: "Donations", amount: 75000 },
-    { label: "Grants", amount: 45000 },
+    { label: "Tuition Fees", amount: 500 },
+    { label: "Feeding Fees", amount: 200 },
+    { label: "Donations", amount: 750 },
+    { label: "Grants", amount: 450 },
   ];
 
   const expenseItems = [
-    { label: "Salaries", amount: 300000 },
-    { label: "Utilities", amount: 40000 },
-    { label: "Postage", amount: 40000 },
-    { label: "Telephone", amount: 40000 },
-    { label: "Stationery", amount: 40000 },
-    { label: "Cleaning and Sanitation", amount: 40000 },
-    { label: "Depreciation", amount: 40000 },
-    { label: "Transport", amount: 40000 },
-    { label: "Feeding cost", amount: 40000 },
-    { label: "Maintenance", amount: 25000 },
+    { label: "Salaries", amount: 300 },
+    { label: "Utilities", amount: 40 },
+    { label: "Postage", amount: 40 },
+    { label: "Telephone", amount: 40 },
+    { label: "Stationery", amount: 40 },
+    { label: "Cleaning and Sanitation", amount: 40 },
+    { label: "Depreciation", amount: 40 },
+    { label: "Transport", amount: 40 },
+    { label: "Feeding cost", amount: 40 },
+    { label: "Maintenance", amount: 25 },
   ];
 
   const totalIncome = incomeItems.reduce((sum, item) => sum + item.amount, 0);
   const totalExpenses = expenseItems.reduce((sum, item) => sum + item.amount, 0);
   const grossProfit = totalIncome;
   const netProfit = totalIncome - totalExpenses;
+  const tax = 250;
+  const netProfitaftertax = netProfit - tax;
+
 
   return (
     <div>
@@ -68,15 +72,15 @@ const IncomeStatement = () => {
       <div className="statement-summary">
         <div className="summary-row">
           <span>Net Profit Before Tax:</span>
-          <span>GHC{grossProfit.toLocaleString()}</span>
+          <span>GHC{netProfit.toLocaleString()}</span>
         </div>
         <div className="summary-row">
           <span>Tax:</span>
-          <span>GHC{grossProfit.toLocaleString()}</span>
+          <span>GHC{tax.toLocaleString()}</span>
         </div>
         <div className="summary-row net-profit">
           <span>Net Profit After Tax:</span>
-          <span>GHC{netProfit.toLocaleString()}</span>
+          <span>GHC{netProfitaftertax.toLocaleString()}</span>
         </div>
       </div>
     </div>
