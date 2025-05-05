@@ -235,6 +235,13 @@ const [newTermData, setNewTermData] = useState({
       {selectedYear && (
         <div className="terms-section">
           <h3>Terms for {selectedYear}</h3>
+          <MdEdit
+                      onClick={() => {
+                        setSelectedTermForDateEdit(term);
+                        setIsStartModalOpen(true);
+                      }}
+                      style={{ marginLeft: 8, cursor: 'pointer' }}
+                    />
           <div className="term-list">
             {["Term 1", "Term 2", "Term 3"].map((termName) => {
               const term = terms.find((t) => t.termName === termName);
