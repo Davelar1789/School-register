@@ -265,7 +265,7 @@ export const markAttendance = async (req, res) => {
       // Step 7: Save updated student
       console.log("💾 Saving updated student document...");
       await student.save();
-      console.log("✅ Student attendance saved successfully.");
+      console.log("Student attendance saved successfully.");
     }
 
     console.log("🎉 Attendance marking complete.");
