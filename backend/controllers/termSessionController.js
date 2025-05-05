@@ -228,3 +228,30 @@ export const deleteTermSession = async (req, res) => {
     res.status(500).json({ message: "Failed to delete term session", error });
   }
 };
+
+// Update start and/or end date for a term
+export const updateTermDates = async (req, res) => {
+  const { termId } = req.params;
+  const { startDate, endDate } = req.body;
+
+  try {
+    const term = await TermSession.findById(termId);
+    if (!term) {
+      return res.status(404).json({ message: "Term session not found" });
+    }
+
+    // Only update if provided
+    if (startDate) term.startDate = new Date(startDate);
+    if (endDate) term.endDate = new Date(endDate);
+
+    await term.save();
+
+    res.status(200).json({
+      message: "Term dates updated successfully",
+      updatedTerm: term,
+    });
+  } catch (error) {
+    console.error("Error updating term dates:", error);
+    res.status(500).json({ message: "Failed to update term dates", error });
+  }
+};

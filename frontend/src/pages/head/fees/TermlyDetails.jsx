@@ -24,6 +24,7 @@ const TermSessionsManager = () => {
   const [isEndModalOpen, setIsEndModalOpen] = useState(false);
   const [newStartDate, setNewStartDate] = useState('');
   const [newEndDate, setNewEndDate] = useState('');
+  const [selectedTermForDateEdit, setSelectedTermForDateEdit] = useState(null);
 const [newTermData, setNewTermData] = useState({
   termName: "",
   startDate: "",
@@ -163,16 +164,51 @@ const [newTermData, setNewTermData] = useState({
       }
   };
 
-  const handleStartDateSave = () => {
-    // You'll connect this to your backend later
-    console.log(`New start date for ${termName}:`, newStartDate);
-    setIsStartModalOpen(false);
+  const handleStartDateSave = async () => {
+    if (!newStartDate || !selectedTermForDateEdit?._id) {
+      toast.error("Start date or term is missing.");
+      return;
+    }
+  
+    try {
+      await api.patch(`/terms/update-term-dates/${selectedTermForDateEdit._id}`, {
+        startDate: newStartDate,
+      });
+  
+      toast.success("Start date updated!");
+      setIsStartModalOpen(false);
+      setSelectedTermForDateEdit(null);
+      handleYearSelect(selectedYear); // Refresh terms
+  
+    } catch (error) {
+      console.error("Failed to update start date:", error);
+      toast.error("Failed to update start date.");
+    }
   };
-
-  const handleEndDateSave = () => {
-    console.log(`New end date for ${termName}:`, newEndDate);
-    setIsEndModalOpen(false);
+  
+  const handleEndDateSave = async () => {
+    if (!newEndDate || !selectedTermForDateEdit?._id) {
+      toast.error("End date or term is missing.");
+      return;
+    }
+  
+    try {
+      await api.patch(`/terms/update-term-dates/${selectedTermForDateEdit._id}`, {
+        endDate: newEndDate,
+      });
+  
+      toast.success("End date updated!");
+      setIsEndModalOpen(false);
+      setSelectedTermForDateEdit(null);
+      handleYearSelect(selectedYear); // Refresh terms
+  
+    } catch (error) {
+      console.error("Failed to update end date:", error);
+      toast.error("Failed to update end date.");
+    }
   };
+  
+  
 
   return (
     <div className="termlyy-container">
@@ -208,13 +244,26 @@ const [newTermData, setNewTermData] = useState({
                 {term ? (
                   <>
                     <p>
-                      Start Date: {new Date(term.startDate).toLocaleDateString()}
-                      <MdEdit onClick={() => setIsStartModalOpen(true)} style={{ marginLeft: 8, cursor: 'pointer' }} />
-                    </p>
-                    <p>
-                      End Date: {new Date(term.endDate).toLocaleDateString()}
-                      <MdEdit onClick={() => setIsEndModalOpen(true)} style={{ marginLeft: 8, cursor: 'pointer' }} />
-                    </p>
+                    Start Date: {new Date(term.startDate).toLocaleDateString()}
+                    <MdEdit
+                      onClick={() => {
+                        setSelectedTermForDateEdit(term);
+                        setIsStartModalOpen(true);
+                      }}
+                      style={{ marginLeft: 8, cursor: 'pointer' }}
+                    />
+                  </p>
+
+                  <p>
+                    End Date: {new Date(term.endDate).toLocaleDateString()}
+                    <MdEdit
+                      onClick={() => {
+                        setSelectedTermForDateEdit(term);
+                        setIsEndModalOpen(true);
+                      }}
+                      style={{ marginLeft: 8, cursor: 'pointer' }}
+                    />
+                  </p>
                     <button onClick={() => handleEditFees(term)}>Edit Fees</button>
                   </>
                 ) : (
