@@ -150,7 +150,7 @@ const Sidebar = () => {
         </NavLink>
       </li>
       <li>
-                <NavLink to="/events" onClick={() => setSidebarOpen(false)}>
+                <NavLink to="/expenses" onClick={() => setSidebarOpen(false)}>
                   <FaCalendar className="icon" /> Expenses
                 </NavLink>
               </li>

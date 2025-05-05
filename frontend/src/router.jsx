@@ -54,6 +54,7 @@ import AddSchool from "./pages/superadmin/schools/AddSchool";
 import AddAdmin from "./pages/superadmin/addAdmin/addAdmin";
 import Attendance from "./pages/teacher/attendance/Attendance";
 import Income from "./pages/head/income/Income";
+import Expenses from "./pages/head/expenses/ExpensePage";
 
 const router = createBrowserRouter([
   {
@@ -121,6 +122,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["admin"]}>
             <Teachers />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "expenses",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <Expenses />
           </ProtectedRoute>
         ),
       },
