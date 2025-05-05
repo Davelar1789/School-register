@@ -38,12 +38,19 @@ export const getExpenses = async (req, res) => {
   }
 };
 
+import mongoose from 'mongoose';
+import Expense from '../models/expenseModel.js';
+
 export const getExpensesByCategory = async (req, res) => {
   try {
     const { schoolId } = req.params;
 
     const results = await Expense.aggregate([
-      { $match: { schoolId } },
+      {
+        $match: {
+          school: new mongoose.Types.ObjectId(schoolId),
+        },
+      },
       {
         $group: {
           _id: '$category',
