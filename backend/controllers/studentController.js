@@ -177,63 +177,106 @@ export const getStudentsByClass = async (req, res) => {
 };
 
 
+
 export const markAttendance = async (req, res) => {
+  console.log("Marking attendance...");
+  console.log("Request body:", req.body);
+
   const { studentId } = req.body;
-  const today = new Date(); // live date
-  const currentDay = today.getDay(); // Sunday: 0, Monday: 1, ..., Saturday: 6
+  console.log("Student ID:", studentId);
+
+  const today = new Date();
+  console.log("Current date:", today);
+
+  const currentDay = today.getDay();
+  console.log("Current day:", currentDay);
 
   // Disallow weekends
   if (currentDay === 0 || currentDay === 6) {
+    console.log("Weekend detected. Attendance cannot be marked.");
     return res.status(400).json({ message: "Attendance can only be marked Monday to Friday." });
   }
 
   try {
+    console.log("Finding student by ID...");
     const student = await Students.findById(studentId);
-    if (!student) return res.status(404).json({ message: "Student not found" });
+    console.log("Student found:", student);
 
-    // Fetch active term session for this student's school
+    if (!student) {
+      console.log("Student not found. Returning 404...");
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    console.log("Finding active term session for student's school...");
     const currentTerm = await TermSession.findOne({
       schoolId: student.schoolId,
       startDate: { $lte: today },
       endDate: { $gte: today },
       isActive: true
     });
+    console.log("Current term session:", currentTerm);
 
     if (!currentTerm) {
+      console.log("No active term session found. Returning 400...");
       return res.status(400).json({ message: "No active term found for this date." });
     }
 
+    console.log("Finding academic year in student record...");
     const year = currentTerm.yearLabel;
+    console.log("Year:", year);
     const academicYear = student.academicRecords.find(rec => rec.yearLabel === year);
+    console.log("Academic year:", academicYear);
+
     if (!academicYear) {
+      console.log("Academic year not found in student record. Returning 400...");
       return res.status(400).json({ message: "Academic year not found in student record." });
     }
 
+    console.log("Finding term record in student academic data...");
     const studentTerm = academicYear.terms.find(term => term.termName === currentTerm.termName);
+    console.log("Student term:", studentTerm);
+
     if (!studentTerm) {
+      console.log("Term record not found in student academic data. Returning 400...");
       return res.status(400).json({ message: "Term record not found in student academic data." });
     }
 
+    console.log("Calculating current week...");
     const currentWeek = Math.ceil((today.getDate()) / 7);
+    console.log("Current week:", currentWeek);
+
+    console.log("Finding week attendance in student term...");
     let weekAttendance = studentTerm.attendance.find(a => a.week === currentWeek);
+    console.log("Week attendance:", weekAttendance);
 
     if (!weekAttendance) {
+      console.log("Creating new week attendance...");
       weekAttendance = { week: currentWeek, days: Array(5).fill(false) };
       studentTerm.attendance.push(weekAttendance);
+      console.log("New week attendance created:", weekAttendance);
     }
 
-    const dayIndex = currentDay - 1; // Monday = 0, ..., Friday = 4
+    console.log("Marking attendance for today...");
+    const dayIndex = currentDay - 1;
+    console.log("Day index:", dayIndex);
     weekAttendance.days[dayIndex] = true;
+    console.log("Attendance marked:", weekAttendance.days);
 
+    console.log("Marking student document as modified...");
     student.markModified("academicRecords");
-    await student.save();
 
+    console.log("Saving student document...");
+    await student.save();
+    console.log("Student document saved.");
+
+    console.log("Returning success response...");
     res.json({ message: "Attendance marked successfully for today." });
   } catch (err) {
     console.error("Error marking attendance:", err);
     res.status(500).json({ message: "Failed to mark attendance", error: err.message });
   }
 };
+
 
 export const getAttendanceForToday = async (req, res) => {
   const { studentId } = req.params;
