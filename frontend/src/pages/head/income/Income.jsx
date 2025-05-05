@@ -50,7 +50,7 @@ const IncomeStatement = () => {
 
       try {
         const token = localStorage.getItem("token");
-        const response = await api.get(`/api/fees/total-paid/${schoolId}`, {
+        const response = await api.get(`/api/fees/fees/total-paid/${schoolId}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setTuitionFee(response.data.totalFeesPaid || 0);
