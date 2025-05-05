@@ -9,6 +9,6 @@ router.post("/set-fees", protect, setClassFees);
 router.post("/make-payment", protect, makePayment);
 router.get('/fetch-fees/:studentId', fetchFees);
 router.get('/recent-payments/:studentId', getRecentPayments);
-router.get('/fees/total-paid/:schoolId', fetchTotalFeesPaid);
+router.get('/total-paid/:schoolId', fetchTotalFeesPaid);
 
 export default router;

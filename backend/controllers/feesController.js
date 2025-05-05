@@ -129,24 +129,40 @@ export const fetchFees = async (req, res) => {
 };
 
 export const fetchTotalFeesPaid = async (req, res) => {
+  console.log("Fetching total fees paid...");
+  console.log("Request params:", req.params);
+
   try {
     const schoolId = req.params.schoolId;
+    console.log("School ID:", schoolId);
 
-    // Get all students in this school
+    console.log("Finding all students in school...");
     const students = await Students.find({ schoolId });
+    console.log("Students found:", students.length);
 
     let totalFeesPaid = 0;
+    console.log("Initializing total fees paid to 0");
 
-    // Loop through each student's academic records
-    students.forEach(student => {
-      student.academicRecords.forEach(year => {
-        year.terms.forEach(term => {
+    console.log("Looping through each student's academic records...");
+    students.forEach((student, studentIndex) => {
+      console.log(`Processing student ${studentIndex + 1} of ${students.length}`);
+      student.academicRecords.forEach((year, yearIndex) => {
+        console.log(`Processing academic year ${yearIndex + 1} of ${student.academicRecords.length}`);
+        year.terms.forEach((term, termIndex) => {
+          console.log(`Processing term ${termIndex + 1} of ${year.terms.length}`);
           if (term.fees && term.fees.amountPaid) {
+            console.log(`Adding ${term.fees.amountPaid} to total fees paid`);
             totalFeesPaid += term.fees.amountPaid;
+            console.log(`Total fees paid so far: ${totalFeesPaid}`);
+          } else {
+            console.log("No fees paid for this term");
           }
         });
       });
     });
+
+    console.log("Total fees paid calculation complete");
+    console.log("Total fees paid:", totalFeesPaid);
 
     res.status(200).json({ totalFeesPaid });
   } catch (error) {
