@@ -110,7 +110,7 @@
   @media (max-width: 768px) {
     .expenses-container {
       margin-left: 0;
-      padding: 10px;
+      padding: 3px;
     }
   
     .expenses-header {
@@ -121,6 +121,13 @@
   
     .modal-content {
       width: 90%;
+    }
+  }
+  
+  
+  @media (min-width: 768px) {
+    .expenses-container {
+      margin-left: 0;
     }
   }
   
