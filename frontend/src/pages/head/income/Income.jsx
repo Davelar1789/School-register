@@ -56,7 +56,7 @@ const IncomeStatement = () => {
       </div>
 
       <div className="statement-section">
-        <h3><strong>Expenses</strong></h3>
+        <h3><strong>Operating Expenses</strong></h3>
         {expenseItems.map((item, index) => (
           <div key={index} className="statement-row">
             <span>{item.label}</span>
@@ -64,7 +64,7 @@ const IncomeStatement = () => {
           </div>
         ))}
         <div className="statement-total">
-          <strong>Total Expenses</strong>
+          <strong>Total Operating Expenses</strong>
           <strong>GHC{totalExpenses.toLocaleString()}</strong>
         </div>
       </div>
