@@ -53,18 +53,16 @@ const Attendance = () => {
     }
   };
 
-  const fetchDateStatus = async (classId, date) => {
+  const fetchDateStatus = async (studentId, date) => {
     try {
-      const res = await axios.post(
-        "/api/student/fetch-attendance",
-        {
-          classId,
-          date: date.toISOString(),
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
+      const res = await axios.get(
+        `/api/student/today/${studentId}`, // GET request to the correct URL
+        { 
+          headers: { Authorization: `Bearer ${token}` },
+          params: { date: date.toISOString() }, // You can send the date as a query param
+        }
       );
       console.log("📦 Raw response:", res.data);
-
   
       if (res.data.isSchoolDay) {
         setIsSchoolDay(true);
