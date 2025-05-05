@@ -1,4 +1,6 @@
 import Expense from "../models/expense.model.js";
+import mongoose from 'mongoose';
+
 
 // POST /api/expenses/create
 export const createExpense = async (req, res) => {
