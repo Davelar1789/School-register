@@ -141,12 +141,17 @@ const ExpensesPage = () => {
                 <option value="">Select category</option>
                 <option value="Salaries">Salaries</option>
                 <option value="Utilities">Utilities</option>
+                <option value="Postage">Postage</option>
+                <option value="Telephone">Telephone</option>
                 <option value="Stationery">Stationery</option>
-                <option value="Maintenance">Maintenance</option>
-                <option value="Feeding">Feeding</option>
+                <option value="Cleaning and Sanitation">Cleaning and Sanitation</option>
+                <option value="Depreciation">Depreciation</option>
                 <option value="Transport">Transport</option>
+                <option value="Feeding">Feeding</option>
+                <option value="Maintenance">Maintenance</option>
                 <option value="Other">Other</option>
-              </select>
+             </select>
+
               <label>Amount</label>
               <input
                 type="number"
