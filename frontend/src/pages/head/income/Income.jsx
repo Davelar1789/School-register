@@ -50,7 +50,7 @@ const IncomeStatement = () => {
           </div>
         ))}
         <div className="statement-total">
-          <strong>Total Income:</strong>
+          <strong>Total Income</strong>
           <strong>GHC{totalIncome.toLocaleString()}</strong>
         </div>
       </div>
@@ -64,22 +64,22 @@ const IncomeStatement = () => {
           </div>
         ))}
         <div className="statement-total">
-          <strong>Total Expenses:</strong>
+          <strong>Total Expenses</strong>
           <strong>GHC{totalExpenses.toLocaleString()}</strong>
         </div>
       </div>
 
       <div className="statement-summary">
         <div className="summary-row">
-          <span>Net Profit Before Tax:</span>
+          <span>Net Profit Before Tax</span>
           <span>GHC{netProfit.toLocaleString()}</span>
         </div>
         <div className="summary-row">
-          <span>Tax:</span>
+          <span>Tax</span>
           <span>GHC{tax.toLocaleString()}</span>
         </div>
         <div className="summary-row net-profit">
-          <span>Net Profit After Tax:</span>
+          <span>Net Profit After Tax</span>
           <span>GHC{netProfitaftertax.toLocaleString()}</span>
         </div>
       </div>
