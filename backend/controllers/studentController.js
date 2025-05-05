@@ -305,7 +305,14 @@ export const getAttendanceForClassOnDate = async (req, res) => {
 
     // Disallow weekends
     if (currentDay === 0 || currentDay === 6) {
-      return res.status(400).json({ message: "Selected date is a weekend." });
+      return res.status(200).json({
+        isSchoolDay: false,
+        message: "Selected date is a weekend.",
+        date: targetDate,
+        attendance: [],
+        termStartDate: null,
+        termEndDate: null,
+      });
     }
 
     targetDate.setHours(0, 0, 0, 0); // Normalize
@@ -317,6 +324,9 @@ export const getAttendanceForClassOnDate = async (req, res) => {
     }
 
     const results = [];
+    let termStartDate = null;
+    let termEndDate = null;
+    let foundTerm = false;
 
     for (const student of students) {
       const currentTerm = await TermSession.findOne({
@@ -327,6 +337,13 @@ export const getAttendanceForClassOnDate = async (req, res) => {
       });
 
       if (!currentTerm) continue; // Skip students with no active term
+
+      if (!foundTerm) {
+        // Set term range once from first student with active term
+        termStartDate = currentTerm.startDate;
+        termEndDate = currentTerm.endDate;
+        foundTerm = true;
+      }
 
       const academicYear = student.academicRecords.find(
         (rec) => rec.yearLabel === currentTerm.yearLabel
@@ -351,9 +368,18 @@ export const getAttendanceForClassOnDate = async (req, res) => {
       });
     }
 
-    res.status(200).json({ date: targetDate, attendance: results });
+    // If no student had a valid term, return isSchoolDay: false
+    const isSchoolDay = foundTerm;
+
+    return res.status(200).json({
+      date: targetDate,
+      attendance: results,
+      isSchoolDay,
+      termStartDate,
+      termEndDate,
+    });
   } catch (err) {
     console.error("Error fetching attendance:", err);
-    res.status(500).json({ message: "Error fetching attendance", error: err.message });
+    return res.status(500).json({ message: "Error fetching attendance", error: err.message });
   }
 };
