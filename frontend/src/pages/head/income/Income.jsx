@@ -1,5 +1,7 @@
 import React from "react";
 import "./Income.modules.css";
+import Header from "../../../components/Admin/Header2";
+import Sidebar from "../../../components/Admin/Sidebar";
 
 const IncomeStatement = () => {
   // Dummy data – replace with real data or props
@@ -21,6 +23,9 @@ const IncomeStatement = () => {
   const netProfit = totalIncome - totalExpenses;
 
   return (
+    <div>
+        <Header />
+        <Sidebar />
     <div className="income-statement">
       <h2>Income Statement</h2>
 
@@ -62,6 +67,7 @@ const IncomeStatement = () => {
           <span>₦{netProfit.toLocaleString()}</span>
         </div>
       </div>
+    </div>
     </div>
   );
 };
