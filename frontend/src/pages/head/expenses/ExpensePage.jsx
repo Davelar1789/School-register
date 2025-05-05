@@ -1,145 +1,178 @@
-// IncomeStatement.js
-import React, { useEffect, useState } from 'react';
-import './Income.modules.css';
-import Header from '../../../components/Admin/Header2';
-import Sidebar from '../../../components/Admin/Sidebar';
-import api from '../../../api/axios';
+import React, { useState, useEffect } from "react";
+import "./Expense.modules.css";
+import Header from "../../../components/Admin/Header2";
+import Sidebar from "../../../components/Admin/Sidebar";
+import api from "../../../api/axios"; // <-- make sure this points to your Axios instance
 
-const IncomeStatement = () => {
-  const [tuitionFee, setTuitionFee] = useState(0);
-  const [expenseTotals, setExpenseTotals] = useState({});
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+const ExpensesPage = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [newExpense, setNewExpense] = useState({
+    date: "",
+    description: "",
+    category: "",
+    amount: "",
+  });
+  const [expenses, setExpenses] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const schoolData = JSON.parse(localStorage.getItem('schoolData'));
+  const schoolData = JSON.parse(localStorage.getItem("schoolData"));
   const schoolId = schoolData?._id;
 
-  const incomeItems = [
-    { label: 'Tuition Fees', amount: tuitionFee },
-    { label: 'Feeding Fees', amount: 200 },
-    { label: 'Donations', amount: 500 },
-    { label: 'Grants', amount: 400 },
-  ];
-
-  const expenseCategories = [
-    'Salaries',
-    'Utilities',
-    'Postage',
-    'Telephone',
-    'Stationery',
-    'Cleaning and Sanitation',
-    'Depreciation',
-    'Transport',
-    'Feeding cost',
-    'Maintenance',
-    'Other',
-  ];
-
-  const expenseItems = expenseCategories.map((category) => ({
-    label: category,
-    amount: expenseTotals[category] || 0,
-  }));
-
-  const totalIncome = incomeItems.reduce((sum, item) => sum + item.amount, 0);
-  const totalExpenses = expenseItems.reduce((sum, item) => sum + item.amount, 0);
-  const netProfit = totalIncome - totalExpenses;
-  const tax = 250;
-  const netProfitAfterTax = netProfit - tax;
-
   useEffect(() => {
-    const fetchData = async () => {
-      if (!schoolId) {
-        setError('School ID not found. Please log in again.');
-        setLoading(false);
-        return;
-      }
+    const fetchExpenses = async () => {
+      if (!schoolId) return;
 
       try {
-        const token = localStorage.getItem('token');
-
-        const [tuitionRes, expensesRes] = await Promise.all([
-          api.get(`/api/fees/total-paid/${schoolId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          api.get(`/api/expenses/category-totals/${schoolId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-        ]);
-
-        setTuitionFee(tuitionRes.data.totalFeesPaid || 0);
-        setExpenseTotals(expensesRes.data || {});
+        setLoading(true);
+        const token = localStorage.getItem("token");
+        const response = await api.get(`/api/expenses/${schoolId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setExpenses(response.data);
       } catch (err) {
-        console.error('Error fetching data:', err);
-        setError('Failed to load income statement data');
+        console.error("Error fetching expenses:", err);
+        setError("Failed to load expenses.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    fetchExpenses();
   }, [schoolId]);
 
-  if (loading) return <p>Loading income statement...</p>;
-  if (error) return <p>{error}</p>;
+  const handleInputChange = (e) => {
+    setNewExpense({ ...newExpense, [e.target.name]: e.target.value });
+  };
+
+  const handleAddExpense = async () => {
+    const { date, description, category, amount } = newExpense;
+    if (!date || !description || !category || !amount) return;
+
+    try {
+      const token = localStorage.getItem("token");
+      const response = await api.post(
+        "/api/expenses/create",
+        { date, description, category, amount },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setExpenses([response.data, ...expenses]);
+      setNewExpense({ date: "", description: "", category: "", amount: "" });
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error("Error adding expense:", err);
+      setError("Failed to add expense.");
+    }
+  };
 
   return (
     <div>
       <Header />
       <Sidebar />
-      <div className="income-statement">
-        <h2>
-          <strong>Income Statement For The Year Ending 31st August, 2025</strong>
-        </h2>
+      <div className="expenses-container">
+        <div className="expenses-header">
+          <h2>Expenses</h2>
+          <button className="add-expense-btn" onClick={() => setIsModalOpen(true)}>
+            Add Expense
+          </button>
+        </div>
 
-        <div className="statement-section">
-          <h3>
-            <strong>Revenue</strong>
-          </h3>
-          {incomeItems.map((item, index) => (
-            <div key={index} className="statement-row">
-              <span>{item.label}</span>
-              <span>GHC {item.amount.toLocaleString()}</span>
+        {loading ? (
+          <p>Loading expenses...</p>
+        ) : error ? (
+          <p style={{ color: "red" }}>{error}</p>
+        ) : (
+          <table className="expenses-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Amount (GHC)</th>
+              </tr>
+            </thead>
+            <tbody>
+              {expenses.length === 0 ? (
+                <tr>
+                  <td colSpan="4" style={{ textAlign: "center" }}>
+                    No expenses recorded.
+                  </td>
+                </tr>
+              ) : (
+                expenses.map((expense, index) => (
+                  <tr key={index}>
+                    <td>{new Date(expense.date).toLocaleDateString()}</td>
+                    <td>{expense.description}</td>
+                    <td>{expense.category}</td>
+                    <td>{parseFloat(expense.amount).toLocaleString()}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        )}
+
+        {isModalOpen && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h3>Add New Expense</h3>
+              <label>Date</label>
+              <input
+                type="date"
+                name="date"
+                value={newExpense.date}
+                onChange={handleInputChange}
+              />
+              <label>Description</label>
+              <input
+                type="text"
+                name="description"
+                value={newExpense.description}
+                onChange={handleInputChange}
+              />
+              <label>Category</label>
+              <select name="category" value={newExpense.category} onChange={handleInputChange}>
+                <option value="">Select category</option>
+                <option value="Salaries">Salaries</option>
+                <option value="Utilities">Utilities</option>
+                <option value="Postage">Postage</option>
+                <option value="Telephone">Telephone</option>
+                <option value="Stationery">Stationery</option>
+                <option value="Cleaning and Sanitation">Cleaning and Sanitation</option>
+                <option value="Depreciation">Depreciation</option>
+                <option value="Transport">Transport</option>
+                <option value="Feeding">Feeding</option>
+                <option value="Maintenance">Maintenance</option>
+                <option value="Other">Other</option>
+             </select>
+
+              <label>Amount</label>
+              <input
+                type="number"
+                name="amount"
+                value={newExpense.amount}
+                onChange={handleInputChange}
+              />
+              <div className="modal-buttons">
+                <button className="save-btn" onClick={handleAddExpense}>
+                  Save
+                </button>
+                <button className="cancel-btn" onClick={() => setIsModalOpen(false)}>
+                  Cancel
+                </button>
+              </div>
             </div>
-          ))}
-          <div className="statement-total">
-            <strong>Total Revenue</strong>
-            <strong>GHC {totalIncome.toLocaleString()}</strong>
           </div>
-        </div>
-
-        <div className="statement-section">
-          <h3>
-            <strong>Operating Expenses</strong>
-          </h3>
-          {expenseItems.map((item, index) => (
-            <div key={index} className="statement-row">
-              <span>{item.label}</span>
-              <span>GHC {item.amount.toLocaleString()}</span>
-            </div>
-          ))}
-          <div className="statement-total">
-            <strong>Total Operating Expenses</strong>
-            <strong>GHC {totalExpenses.toLocaleString()}</strong>
-          </div>
-        </div>
-
-        <div>
-          <div className="summary-row">
-            <span>Net Profit Before Tax</span>
-            <span>GHC {netProfit.toLocaleString()}</span>
-          </div>
-          <div className="summary-row">
-            <span>Tax</span>
-            <span>GHC {tax.toLocaleString()}</span>
-          </div>
-          <div className="summary-row net-profit">
-            <span>Net Profit After Tax</span>
-            <span>GHC {netProfitAfterTax.toLocaleString()}</span>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
 };
 
-export default IncomeStatement;
+export default ExpensesPage;
