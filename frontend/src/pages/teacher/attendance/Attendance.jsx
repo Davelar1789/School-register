@@ -63,24 +63,28 @@ const Attendance = () => {
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
+  
       if (res.data.isSchoolDay) {
         setIsSchoolDay(true);
         setAttendanceData({});
-        setTermRange({
-          start: new Date(res.data.termStartDate),
-          end: new Date(res.data.termEndDate),
-        });
+        const termStart = new Date(res.data.termStartDate);
+        const termEnd = new Date(res.data.termEndDate);
+        setTermRange({ start: termStart, end: termEnd });
+  
+        // ✅ Debug logs
+        console.log("✅ Term Start Date:", termStart.toDateString());
+        console.log("✅ Term End Date:", termEnd.toDateString());
+        console.log("✅ Selected Date:", date.toDateString());
       } else {
         setIsSchoolDay(false);
+        console.log("⚠️ Not a school day:", date.toDateString());
       }
     } catch (err) {
       setIsSchoolDay(false);
-      if (err.response?.data?.message) {
-        toast.error(err.response.data.message);
-      }
+      console.error("🚫 Error fetching date status:", err.response?.data?.message || err.message);
     }
   };
+  
 
   const handleSubmit = async () => {
     try {
