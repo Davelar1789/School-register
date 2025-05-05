@@ -1,155 +1,152 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../../api/axios";
-import { FaUserCheck, FaCalendarAlt } from "react-icons/fa";
+import Header from "../../../components/Teacher/TeacherHeader";
+import Sidebar from "../../../components/Teacher/TeacherSidebar";
+import { format } from "date-fns";
 import toast from "react-hot-toast";
 import "./Attendance.modules.css";
-import Sidebar from "../../../components/Teacher/TeacherSidebar";
-import Header from "../../../components/Teacher/TeacherHeader";
 
 const Attendance = () => {
   const [classes, setClasses] = useState([]);
   const [selectedClassId, setSelectedClassId] = useState("");
   const [students, setStudents] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [attendanceData, setAttendanceData] = useState({});
-  const [currentDate, setCurrentDate] = useState(new Date());
+  const [loading, setLoading] = useState(false);
 
-  // Fetch classes assigned to teacher
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [termRange, setTermRange] = useState({ start: null, end: null });
+  const [isSchoolDay, setIsSchoolDay] = useState(false);
+
+  const token = localStorage.getItem("token");
+
   const fetchClasses = async () => {
-    setLoading(true);
     try {
-      const token = localStorage.getItem("token");
+      setLoading(true);
       const res = await axios.get("/api/teachers/teacher/teacher-classes", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setClasses(res.data.classes || []);
     } catch (err) {
-      console.error("Error fetching classes:", err);
+      toast.error("Failed to load classes");
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch students in the selected class
   const fetchStudents = async (classId) => {
-    setLoading(true);
     try {
-      const token = localStorage.getItem("token");
+      setLoading(true);
       const res = await axios.get(`/api/student/class/${classId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const fetchedStudents = res.data.students || res.data || [];
-      setStudents(fetchedStudents);
-
-      // Initialize attendance as true for all unless overridden below
-      const defaultAttendance = {};
-      fetchedStudents.forEach((student) => {
-        defaultAttendance[student._id] = true;
+      const fetched = res.data.students || [];
+      setStudents(fetched);
+      const initialAttendance = {};
+      fetched.forEach((s) => {
+        initialAttendance[s._id] = true;
       });
-
-      // Then check if there's already attendance for this class and date
-      const attendanceRes = await axios.post(
-        "/api/student/fetch-attendance",
-        {
-          classId,
-          date: currentDate,
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      const existing = attendanceRes.data.attendance || [];
-
-      existing.forEach((record) => {
-        defaultAttendance[record.studentId] = record.present;
-      });
-
-      setAttendanceData(defaultAttendance);
+      setAttendanceData(initialAttendance);
     } catch (err) {
-      console.error("Error fetching students or attendance:", err);
-      toast.error("Failed to fetch students or attendance");
+      toast.error("Error loading students");
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle checkbox toggle
-  const handleAttendanceChange = (studentId) => {
+  const fetchDateStatus = async (classId, date) => {
+    try {
+      const res = await axios.post(
+        "/api/student/fetch-attendance",
+        {
+          classId,
+          date: date.toISOString(),
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      if (res.data.isSchoolDay) {
+        setIsSchoolDay(true);
+        setAttendanceData({});
+        setTermRange({
+          start: new Date(res.data.termStartDate),
+          end: new Date(res.data.termEndDate),
+        });
+      } else {
+        setIsSchoolDay(false);
+      }
+    } catch (err) {
+      setIsSchoolDay(false);
+      if (err.response?.data?.message) {
+        toast.error(err.response.data.message);
+      }
+    }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const payload = {
+        classId: selectedClassId,
+        attendance: Object.entries(attendanceData).map(([id, present]) => ({
+          studentId: id,
+          present,
+        })),
+      };
+      await axios.post("/api/student/mark-attendance", payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success("Attendance submitted!");
+    } catch (err) {
+      toast.error("Failed to submit attendance");
+    }
+  };
+
+  const handleCheckboxChange = (studentId) => {
     setAttendanceData((prev) => ({
       ...prev,
       [studentId]: !prev[studentId],
     }));
   };
 
-  // Submit attendance
-  const handleSubmit = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const payload = {
-        classId: selectedClassId,
-        date: currentDate,
-        attendance: Object.entries(attendanceData).map(
-          ([studentId, present]) => ({
-            studentId,
-            present,
-          })
-        ),
-      };
-
-      await axios.post("/api/student/mark-attendance", payload, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      toast.success("Attendance submitted successfully!");
-      fetchStudents(selectedClassId); // Refresh state after marking
-    } catch (err) {
-      console.error("Failed to submit attendance:", err);
-      toast.error("Failed to submit attendance");
-    }
+  const goToPreviousDay = () => {
+    const prev = new Date(currentDate);
+    prev.setDate(prev.getDate() - 1);
+    setCurrentDate(prev);
   };
 
-  // Prevent moving into future days
-  const isFutureDate = (date) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const input = new Date(date);
-    input.setHours(0, 0, 0, 0);
-    return input > today;
+  const goToNextDay = () => {
+    const next = new Date(currentDate);
+    next.setDate(next.getDate() + 1);
+    setCurrentDate(next);
   };
 
-  const changeDate = (direction) => {
-    setCurrentDate((prev) => {
-      const newDate = new Date(prev);
-      newDate.setDate(newDate.getDate() + direction);
-      return newDate;
-    });
-  };
-
+  // Load initial class list
   useEffect(() => {
     fetchClasses();
   }, []);
 
+  // When class or date changes
   useEffect(() => {
     if (selectedClassId) {
       fetchStudents(selectedClassId);
+      fetchDateStatus(selectedClassId, currentDate);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedClassId, currentDate]);
+
+  const isWeekend = (date) => {
+    const day = date.getDay();
+    return day === 0 || day === 6;
+  };
+
+  const disablePrev = termRange.start && currentDate <= termRange.start;
+  const disableNext = termRange.end && currentDate >= termRange.end;
 
   return (
     <div>
       <Header />
-      <div>
+      <div className="main-wrapper">
         <Sidebar />
-
         <div className="attendance-page">
-          <h2>
-            <FaUserCheck /> Attendance Page
-          </h2>
+          <h2>Teacher Attendance</h2>
 
           <div className="class-select">
             <label>Select Class:</label>
@@ -157,9 +154,10 @@ const Attendance = () => {
               value={selectedClassId}
               onChange={(e) => {
                 setSelectedClassId(e.target.value);
+                setCurrentDate(new Date()); // reset to today on class change
               }}
             >
-              <option value="">-- Choose a class --</option>
+              <option value="">-- Select Class --</option>
               {classes.map((cls) => (
                 <option key={cls._id} value={cls._id}>
                   {cls.className}
@@ -168,19 +166,23 @@ const Attendance = () => {
             </select>
           </div>
 
-          <div className="date-navigation">
-            <button onClick={() => changeDate(-1)}>← Previous</button>
-            <span>
-              <FaCalendarAlt /> {currentDate.toDateString()}
-            </span>
-            <button onClick={() => changeDate(1)} disabled={isFutureDate(new Date(currentDate.getTime() + 86400000))}>
-              Next →
+          <div className="date-nav">
+            <button onClick={goToPreviousDay} disabled={disablePrev}>
+              Previous
+            </button>
+            <span>{format(currentDate, "EEEE, MMMM d, yyyy")}</span>
+            <button onClick={goToNextDay} disabled={disableNext}>
+              Next
             </button>
           </div>
 
           {loading && <p>Loading...</p>}
 
-          {!loading && students.length > 0 && (
+          {!loading && !isSchoolDay && (
+            <p className="no-school">No school for today</p>
+          )}
+
+          {!loading && isSchoolDay && students.length > 0 && (
             <div className="attendance-table">
               <table>
                 <thead>
@@ -197,20 +199,16 @@ const Attendance = () => {
                         <input
                           type="checkbox"
                           checked={attendanceData[student._id] || false}
-                          onChange={() => handleAttendanceChange(student._id)}
-                          disabled={isFutureDate(currentDate)}
+                          onChange={() => handleCheckboxChange(student._id)}
                         />
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-
-              {!isFutureDate(currentDate) && (
-                <button className="submit-attendance-btn" onClick={handleSubmit}>
-                  Submit Attendance
-                </button>
-              )}
+              <button onClick={handleSubmit} className="submit-attendance-btn">
+                Submit Attendance
+              </button>
             </div>
           )}
         </div>

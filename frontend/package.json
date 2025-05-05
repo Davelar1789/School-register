@@ -20,6 +20,7 @@
     "axios": "^1.7.2",
     "backend": "file:..",
     "chart.js": "^4.4.3",
+    "date-fns": "^4.1.0",
     "firebase": "^10.12.4",
     "i18next": "^23.12.2",
     "i18next-browser-languagedetector": "^8.0.0",
