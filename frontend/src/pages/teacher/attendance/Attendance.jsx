@@ -46,7 +46,6 @@ const Attendance = () => {
         initialAttendance[s._id] = true;
       });
       setAttendanceData(initialAttendance);
-      console.log("✅ Students fetched:", fetched);
     } catch (err) {
       toast.error("Error loading students");
     } finally {
