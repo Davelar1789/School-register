@@ -82,3 +82,8 @@
     }
   }
   
+  @media screen and (min-width: 768px) {
+    .income-statement {
+        margin-left: 250px;
+    }
+  }
