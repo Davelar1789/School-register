@@ -42,7 +42,7 @@ const IncomeStatement = () => {
       <h2>Income Statement</h2>
 
       <div className="statement-section">
-        <h3>Revenue</h3>
+        <h3><strong>Revenue</strong></h3>
         {incomeItems.map((item, index) => (
           <div key={index} className="statement-row">
             <span>{item.label}</span>
@@ -56,7 +56,7 @@ const IncomeStatement = () => {
       </div>
 
       <div className="statement-section">
-        <h3>Expenses</h3>
+        <h3><strong>Expenses</strong></h3>
         {expenseItems.map((item, index) => (
           <div key={index} className="statement-row">
             <span>{item.label}</span>
