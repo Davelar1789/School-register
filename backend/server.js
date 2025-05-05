@@ -26,7 +26,7 @@ const PORT = process.env.PORT || 5000;
 const corsConfig = {
   origin: ["https://school-register-ruby.vercel.app"], // Frontend origin
   credentials: true, // Allow cookies
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allow all required methods
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"], // Allow all required methods
   allowedHeaders: ["Content-Type", "Authorization"], // Allow required headers
 };
 app.use(cors(corsConfig));
