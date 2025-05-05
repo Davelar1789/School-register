@@ -13,12 +13,7 @@
   color: white;
   z-index: 1000; /* Ensures it stays above other content */
 }
-.logo {
-  margin-top: 50px;
-}
-.school-name {
-  margin-top: 50px;
-}
+
 .header-left {
   display: flex;
   align-items: center;
@@ -185,4 +180,13 @@
   border-radius: 5px;
   cursor: pointer;
   transition: 0.3s;
+}
+
+@media screen and (min-width: 768px) {
+  .logo {
+    margin-top: 50px;
+  }
+  .school-name {
+    margin-top: 50px;
+  }
 }
