@@ -140,31 +140,31 @@ const Header = () => {
       </div>
 
         <ul className="sidebar-nav">
-              <li>
-                <NavLink to="/teacher-dashboard" className={({ isActive }) => isActive ? "active" : ""}>
-                  <FaHome className="icon" /> Dashboard
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/chat" className={({ isActive }) => isActive ? "active" : ""}>
-                  <FaComments className="icon" /> Chat
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/my-classes" className={({ isActive }) => isActive ? "active" : ""}>
-                  <FaUserGraduate className="icon" />My Classes
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/teachers" className={({ isActive }) => isActive ? "active" : ""}>
-                  <FaChalkboardTeacher className="icon" />Gradebook
-                </NavLink>
-              </li>
-              <li>
-                <NavLink to="/events" className={({ isActive }) => isActive ? "active" : ""}>
-                  <FaCalendar className="icon" /> Events
-                </NavLink>
-              </li>
+               <li>
+                        <NavLink to="/teacher-dashboard" className={({ isActive }) => isActive ? "active" : ""}>
+                          <FaHome className="icon" /> Dashboard
+                        </NavLink>
+                      </li>
+                      <li>
+                        <NavLink to="/my-classes" className={({ isActive }) => isActive ? "active" : ""}>
+                          <FaUserGraduate className="icon" />My Classes
+                        </NavLink>
+                      </li>
+                      <li>
+                        <NavLink to="/attendance" className={({ isActive }) => isActive ? "active" : ""}>
+                          <FaComments className="icon" /> Attendance
+                        </NavLink>
+                      </li>
+                      <li>
+                        <NavLink to="/teachers" className={({ isActive }) => isActive ? "active" : ""}>
+                          <FaChalkboardTeacher className="icon" />Gradebook
+                        </NavLink>
+                      </li>
+                      <li>
+                        <NavLink to="/events" className={({ isActive }) => isActive ? "active" : ""}>
+                          <FaCalendar className="icon" /> Events
+                        </NavLink>
+                      </li>
               <li onClick={handleLogout} style={{ cursor: "pointer" }}>
   <div className="nav-link-custom">
     <FaSignOutAlt className="icon" /> Logout
