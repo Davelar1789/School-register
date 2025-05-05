@@ -8,6 +8,7 @@ import whatsappRoutes from "./whatsapp/routes.js";
 import schoolRoutes from "./routes/SchoolRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import saRoutes from "./routes/Saschool.js";
+import expenseRoutes from "./routes/expenseRoutes.js";
 import studentRoutes from "./routes/student.js"
 import teacherRoutes from "./routes/teacherRoutes.js";
 import classRoutes from "./routes/classRoutes.js";
@@ -50,6 +51,7 @@ app.use("/api/classes", classRoutes);
 app.use("/api/fees", feesRoutes);
 app.use("/api/terms", termsRoutes);
 app.use("/api/whatsapp", whatsappRoutes);
+app.use("/api/expenses", expenseRoutes);
 
 
 

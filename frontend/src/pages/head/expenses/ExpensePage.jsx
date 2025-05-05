@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Expense.modules.css";
 import Header from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
+import api from "../../../api"; // <-- make sure this points to your Axios instance
 
 const ExpensesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -11,19 +12,63 @@ const ExpensesPage = () => {
     category: "",
     amount: "",
   });
-
   const [expenses, setExpenses] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const schoolData = JSON.parse(localStorage.getItem("schoolData"));
+  const schoolId = schoolData?._id;
+
+  useEffect(() => {
+    const fetchExpenses = async () => {
+      if (!schoolId) return;
+
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("token");
+        const response = await api.get(`/api/expenses/${schoolId}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setExpenses(response.data);
+      } catch (err) {
+        console.error("Error fetching expenses:", err);
+        setError("Failed to load expenses.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchExpenses();
+  }, [schoolId]);
 
   const handleInputChange = (e) => {
     setNewExpense({ ...newExpense, [e.target.name]: e.target.value });
   };
 
-  const handleAddExpense = () => {
-    if (!newExpense.date || !newExpense.description || !newExpense.category || !newExpense.amount) return;
+  const handleAddExpense = async () => {
+    const { date, description, category, amount } = newExpense;
+    if (!date || !description || !category || !amount) return;
 
-    setExpenses([...expenses, newExpense]);
-    setNewExpense({ date: "", description: "", category: "", amount: "" });
-    setIsModalOpen(false);
+    try {
+      const token = localStorage.getItem("token");
+      const response = await api.post(
+        "/api/expenses/create",
+        { date, description, category, amount },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setExpenses([response.data, ...expenses]);
+      setNewExpense({ date: "", description: "", category: "", amount: "" });
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error("Error adding expense:", err);
+      setError("Failed to add expense.");
+    }
   };
 
   return (
@@ -38,32 +83,40 @@ const ExpensesPage = () => {
           </button>
         </div>
 
-        <table className="expenses-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Description</th>
-              <th>Category</th>
-              <th>Amount (GHC)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {expenses.length === 0 ? (
+        {loading ? (
+          <p>Loading expenses...</p>
+        ) : error ? (
+          <p style={{ color: "red" }}>{error}</p>
+        ) : (
+          <table className="expenses-table">
+            <thead>
               <tr>
-                <td colSpan="4" style={{ textAlign: "center" }}>No expenses recorded.</td>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Amount (GHC)</th>
               </tr>
-            ) : (
-              expenses.map((expense, index) => (
-                <tr key={index}>
-                  <td>{expense.date}</td>
-                  <td>{expense.description}</td>
-                  <td>{expense.category}</td>
-                  <td>{parseFloat(expense.amount).toLocaleString()}</td>
+            </thead>
+            <tbody>
+              {expenses.length === 0 ? (
+                <tr>
+                  <td colSpan="4" style={{ textAlign: "center" }}>
+                    No expenses recorded.
+                  </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                expenses.map((expense, index) => (
+                  <tr key={index}>
+                    <td>{new Date(expense.date).toLocaleDateString()}</td>
+                    <td>{expense.description}</td>
+                    <td>{expense.category}</td>
+                    <td>{parseFloat(expense.amount).toLocaleString()}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        )}
 
         {isModalOpen && (
           <div className="modal-overlay">
@@ -102,8 +155,12 @@ const ExpensesPage = () => {
                 onChange={handleInputChange}
               />
               <div className="modal-buttons">
-                <button className="save-btn" onClick={handleAddExpense}>Save</button>
-                <button className="cancel-btn" onClick={() => setIsModalOpen(false)}>Cancel</button>
+                <button className="save-btn" onClick={handleAddExpense}>
+                  Save
+                </button>
+                <button className="cancel-btn" onClick={() => setIsModalOpen(false)}>
+                  Cancel
+                </button>
               </div>
             </div>
           </div>
