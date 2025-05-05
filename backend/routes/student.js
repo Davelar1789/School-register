@@ -19,9 +19,9 @@ const router = express.Router();
 // CRUD routes
 router.post("/", protect, createStudent);
 router.get("/", protect, getAllStudents);
+router.post("/mark-attendance", protect, markAttendance);
 router.get("/search", searchStudents); // ?query=John
 router.get("/class/:classId", protect, getStudentsByClass);
-router.post("/mark-attendance", protect, markAttendance);
 router.get("/:id", getStudentById);
 router.get("/school/:schoolId", getStudentsBySchool);
 router.put("/:id", updateStudent);
