@@ -182,7 +182,7 @@
   transition: 0.3s;
 }
 
-@media screen and (min-width: 768px) {
+@media screen and (max-width: 768px) {
   .logo {
     margin-top: 50px;
   }
