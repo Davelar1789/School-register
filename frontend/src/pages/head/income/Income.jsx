@@ -9,21 +9,21 @@ const IncomeStatement = () => {
   const incomeItems = [
     { label: "Tuition Fees", amount: 500 },
     { label: "Feeding Fees", amount: 200 },
-    { label: "Donations", amount: 750 },
-    { label: "Grants", amount: 450 },
+    { label: "Donations", amount: 500 },
+    { label: "Grants", amount: 400 },
   ];
 
   const expenseItems = [
     { label: "Salaries", amount: 300 },
-    { label: "Utilities", amount: 40 },
-    { label: "Postage", amount: 40 },
-    { label: "Telephone", amount: 40 },
-    { label: "Stationery", amount: 40 },
-    { label: "Cleaning and Sanitation", amount: 40 },
-    { label: "Depreciation", amount: 40 },
-    { label: "Transport", amount: 40 },
-    { label: "Feeding cost", amount: 40 },
-    { label: "Maintenance", amount: 25 },
+    { label: "Utilities", amount: 50 },
+    { label: "Postage", amount: 50 },
+    { label: "Telephone", amount: 50 },
+    { label: "Stationery", amount: 50 },
+    { label: "Cleaning and Sanitation", amount: 50 },
+    { label: "Depreciation", amount: 50 },
+    { label: "Transport", amount: 50 },
+    { label: "Feeding cost", amount: 50 },
+    { label: "Maintenance", amount: 50 },
   ];
 
   const totalIncome = incomeItems.reduce((sum, item) => sum + item.amount, 0);
