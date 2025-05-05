@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./Expense.modules.css";
 import Header from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
-import api from "../../../api"; // <-- make sure this points to your Axios instance
+import api from "../../../api/axios"; // <-- make sure this points to your Axios instance
 
 const ExpensesPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
