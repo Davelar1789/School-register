@@ -39,7 +39,7 @@ const Attendance = () => {
       const res = await axios.get(`/api/student/class/${classId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const fetched = res.data.students || [];
+      const fetched = Array.isArray(res.data) ? res.data : res.data.students || [];
       setStudents(fetched);
       const initialAttendance = {};
       fetched.forEach((s) => {
