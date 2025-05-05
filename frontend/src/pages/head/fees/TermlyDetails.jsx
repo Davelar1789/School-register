@@ -171,7 +171,7 @@ const [newTermData, setNewTermData] = useState({
     }
   
     try {
-      await api.patch(`/terms/update-term-dates/${selectedTermForDateEdit._id}`, {
+      await api.patch(`/api/terms/update-term-dates/${selectedTermForDateEdit._id}`, {
         startDate: newStartDate,
       });
   
@@ -193,7 +193,7 @@ const [newTermData, setNewTermData] = useState({
     }
   
     try {
-      await api.patch(`/terms/update-term-dates/${selectedTermForDateEdit._id}`, {
+      await api.patch(`/api/terms/update-term-dates/${selectedTermForDateEdit._id}`, {
         endDate: newEndDate,
       });
   
