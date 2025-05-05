@@ -480,6 +480,7 @@ const [viewedStudent, setViewedStudent] = useState(null);
               <p><strong>Method:</strong> {payment.method}</p>
               {payment.note && <p><strong>Note:</strong> {payment.note}</p>}
               <hr />
+              <button>Send Receipt</button>
             </li>
           ))}
         </ul>
