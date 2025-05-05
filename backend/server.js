@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
-
+import whatsappRoutes from "./whatsapp/routes.js";
 import schoolRoutes from "./routes/SchoolRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import saRoutes from "./routes/Saschool.js";
@@ -48,6 +48,7 @@ app.use("/api/teachers", teacherRoutes);
 app.use("/api/classes", classRoutes);
 app.use("/api/fees", feesRoutes);
 app.use("/api/terms", termsRoutes);
+app.use("/api/whatsapp", whatsappRoutes);
 
 
 

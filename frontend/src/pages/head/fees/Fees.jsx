@@ -29,6 +29,22 @@ const [viewedStudent, setViewedStudent] = useState(null);
     fetchClasses();
   }, []);
 
+  const sendWhatsAppReceipt = async (payment) => {
+    try {
+      const response = await api.post("/api/whatsapp/send-whatsapp-receipt", {
+        phoneNumber: payment.phone, // make sure this is available
+        studentName: payment.studentName,
+        amount: payment.amount,
+        date: new Date(payment.date).toLocaleDateString(),
+      });
+  
+      toast.success("Receipt sent via WhatsApp!");
+    } catch (error) {
+      console.error("WhatsApp receipt error:", error);
+      toast.error("Failed to send WhatsApp receipt.");
+    }
+  };
+
   const fetchStudents = async () => {
     try {
       setLoading(true);
@@ -480,7 +496,11 @@ const [viewedStudent, setViewedStudent] = useState(null);
               <p><strong>Method:</strong> {payment.method}</p>
               {payment.note && <p><strong>Note:</strong> {payment.note}</p>}
               <hr />
-              <button>Send Receipt</button>
+              <button
+        onClick={() => sendWhatsAppReceipt(payment)}
+      >
+        Send Receipt
+      </button>
             </li>
           ))}
         </ul>
