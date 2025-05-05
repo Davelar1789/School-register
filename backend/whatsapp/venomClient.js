@@ -9,9 +9,11 @@ export const initializeWhatsApp = async () => {
   await restoreSessionFromDB(); // restore before creating client
 
   whatsappClient = await create({
-    session: "session", // uses .venom/session.json
+    session: "session",
     multidevice: true,
-    headless: true,
+    headless: false, // <--- This opens a visible browser window
+    useChrome: true,
+    logQR: true,     
   });
 
   // Save after QR scan or reconnect

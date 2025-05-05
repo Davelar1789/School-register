@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { initializeWhatsApp } from './whatsapp/venomClient.js';
 
 import whatsappRoutes from "./whatsapp/routes.js";
 import schoolRoutes from "./routes/SchoolRoutes.js";
@@ -70,6 +71,7 @@ app.get("/api/user-data", authToken, async (req, res) => {
   }
 });
 
+initializeWhatsApp().catch(console.error);
 
 // Global Error Handler
 app.use((err, req, res, next) => {
