@@ -69,7 +69,7 @@ const IncomeStatement = () => {
         </div>
       </div>
 
-      <div className="statement-summary">
+      <div>
         <div className="summary-row">
           <span>Net Profit Before Tax</span>
           <span>GHC{netProfit.toLocaleString()}</span>
