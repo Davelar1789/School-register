@@ -128,6 +128,34 @@ export const fetchFees = async (req, res) => {
   }
 };
 
+export const fetchTotalFeesPaid = async (req, res) => {
+  try {
+    const schoolId = req.params.schoolId;
+
+    // Get all students in this school
+    const students = await Students.find({ schoolId });
+
+    let totalFeesPaid = 0;
+
+    // Loop through each student's academic records
+    students.forEach(student => {
+      student.academicRecords.forEach(year => {
+        year.terms.forEach(term => {
+          if (term.fees && term.fees.amountPaid) {
+            totalFeesPaid += term.fees.amountPaid;
+          }
+        });
+      });
+    });
+
+    res.status(200).json({ totalFeesPaid });
+  } catch (error) {
+    console.error("Error calculating total fees paid:", error);
+    res.status(500).json({ message: 'Server error while calculating fees.' });
+  }
+};
+
+
 export const getRecentPayments = async (req, res) => {
   const { studentId } = req.params;
 
