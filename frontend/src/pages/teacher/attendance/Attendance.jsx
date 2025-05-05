@@ -63,6 +63,8 @@ const Attendance = () => {
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      console.log("📦 Raw response:", res.data);
+
   
       if (res.data.isSchoolDay) {
         setIsSchoolDay(true);
