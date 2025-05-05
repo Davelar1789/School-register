@@ -147,7 +147,7 @@ const ExpensesPage = () => {
                 <option value="Cleaning and Sanitation">Cleaning and Sanitation</option>
                 <option value="Depreciation">Depreciation</option>
                 <option value="Transport">Transport</option>
-                <option value="Feeding">Feeding</option>
+                <option value="Feeding cost">Feeding Cost</option>
                 <option value="Maintenance">Maintenance</option>
                 <option value="Other">Other</option>
              </select>
