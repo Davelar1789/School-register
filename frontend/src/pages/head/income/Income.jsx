@@ -65,7 +65,10 @@ const IncomeStatement = () => {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
-
+        console.log("Tuition fees response:", tuitionRes.data);
+        console.log("Expenses response:", expensesRes.data);
+    
+    
         setTuitionFee(tuitionRes.data.totalFeesPaid || 0);
         setExpenseTotals(expensesRes.data || {});
       } catch (err) {
