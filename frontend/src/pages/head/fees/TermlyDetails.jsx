@@ -3,6 +3,7 @@ import api from "../../../api/axios";
 import toast from "react-hot-toast";
 import Header from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
+import { MdEdit } from 'react-icons/md';
 import "./TermlyDetails.modules.css"; // Create and style accordingly
 
 const TermSessionsManager = () => {
@@ -19,6 +20,10 @@ const TermSessionsManager = () => {
   const [editedClassFees, setEditedClassFees] = useState([]);
   const [showCreateTermModal, setShowCreateTermModal] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isStartModalOpen, setIsStartModalOpen] = useState(false);
+  const [isEndModalOpen, setIsEndModalOpen] = useState(false);
+  const [newStartDate, setNewStartDate] = useState('');
+  const [newEndDate, setNewEndDate] = useState('');
 const [newTermData, setNewTermData] = useState({
   termName: "",
   startDate: "",
@@ -158,6 +163,17 @@ const [newTermData, setNewTermData] = useState({
       }
   };
 
+  const handleStartDateSave = () => {
+    // You'll connect this to your backend later
+    console.log(`New start date for ${termName}:`, newStartDate);
+    setIsStartModalOpen(false);
+  };
+
+  const handleEndDateSave = () => {
+    console.log(`New end date for ${termName}:`, newEndDate);
+    setIsEndModalOpen(false);
+  };
+
   return (
     <div className="termlyy-container">
       <Sidebar />
@@ -188,23 +204,25 @@ const [newTermData, setNewTermData] = useState({
               const term = terms.find((t) => t.termName === termName);
               return (
                 <div key={termName} className="term-card">
-                  <h4>{termName}</h4>
-                  {term ? (
-                    <>
-                      <p>
-                        Start Date: {new Date(term.startDate).toLocaleDateString()}
-                      </p>
-                      <p>
-                        End Date: {new Date(term.endDate).toLocaleDateString()}
-                      </p>
-                      <button onClick={() => handleEditFees(term)}>Edit Fees</button>
-                    </>
-                  ) : (
-                    <>
+                <h4>{termName}</h4>
+                {term ? (
+                  <>
+                    <p>
+                      Start Date: {new Date(term.startDate).toLocaleDateString()}
+                      <MdEdit onClick={() => setIsStartModalOpen(true)} style={{ marginLeft: 8, cursor: 'pointer' }} />
+                    </p>
+                    <p>
+                      End Date: {new Date(term.endDate).toLocaleDateString()}
+                      <MdEdit onClick={() => setIsEndModalOpen(true)} style={{ marginLeft: 8, cursor: 'pointer' }} />
+                    </p>
+                    <button onClick={() => handleEditFees(term)}>Edit Fees</button>
+                  </>
+                ) : (
+                  <>
                     <p>Term not created yet.</p>
                     <button onClick={() => handleCreateTerm(term)}>Create</button>
-                    </>
-                  )}
+                  </>
+                )}
                 </div>
               );
             })}
@@ -307,6 +325,37 @@ const [newTermData, setNewTermData] = useState({
   </div>
 )}
 
+{/* Start Date Modal */}
+{isStartModalOpen && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Edit Start Date</h3>
+            <input
+              type="date"
+              value={newStartDate}
+              onChange={(e) => setNewStartDate(e.target.value)}
+            />
+            <button onClick={handleStartDateSave}>Save</button>
+            <button onClick={() => setIsStartModalOpen(false)}>Cancel</button>
+          </div>
+        </div>
+      )}
+
+      {/* End Date Modal */}
+      {isEndModalOpen && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3>Edit End Date</h3>
+            <input
+              type="date"
+              value={newEndDate}
+              onChange={(e) => setNewEndDate(e.target.value)}
+            />
+            <button onClick={handleEndDateSave}>Save</button>
+            <button onClick={() => setIsEndModalOpen(false)}>Cancel</button>
+          </div>
+        </div>
+      )}
 
     </div>
     </div>
