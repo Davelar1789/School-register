@@ -39,7 +39,7 @@ const IncomeStatement = () => {
         <Header />
         <Sidebar />
     <div className="income-statement">
-      <h2>Income Statement</h2>
+      <h2><strong>Income Statement</strong></h2>
 
       <div className="statement-section">
         <h3><strong>Revenue</strong></h3>
