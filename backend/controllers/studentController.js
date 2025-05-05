@@ -296,24 +296,64 @@ export const getAttendanceForToday = async (req, res) => {
 export const getAttendanceForClassOnDate = async (req, res) => {
   try {
     const { classId, date } = req.body;
+    if (!classId || !date) {
+      return res.status(400).json({ message: "Class ID and date are required." });
+    }
 
     const targetDate = new Date(date);
-    targetDate.setHours(0, 0, 0, 0);
+    const currentDay = targetDate.getDay(); // 0 (Sun) to 6 (Sat)
 
-    const nextDay = new Date(targetDate);
-    nextDay.setDate(targetDate.getDate() + 1);
+    // Disallow weekends
+    if (currentDay === 0 || currentDay === 6) {
+      return res.status(400).json({ message: "Selected date is a weekend." });
+    }
 
-    const attendance = await Attendance.find({
-      classId,
-      date: {
-        $gte: targetDate,
-        $lt: nextDay,
-      },
-    });
+    targetDate.setHours(0, 0, 0, 0); // Normalize
 
-    res.status(200).json({ attendance });
+    const students = await Students.find({ classes: classId });
+
+    if (!students.length) {
+      return res.status(404).json({ message: "No students found in this class." });
+    }
+
+    const results = [];
+
+    for (const student of students) {
+      const currentTerm = await TermSession.findOne({
+        schoolId: student.schoolId,
+        startDate: { $lte: targetDate },
+        endDate: { $gte: targetDate },
+        isActive: true,
+      });
+
+      if (!currentTerm) continue; // Skip students with no active term
+
+      const academicYear = student.academicRecords.find(
+        (rec) => rec.yearLabel === currentTerm.yearLabel
+      );
+      if (!academicYear) continue;
+
+      const studentTerm = academicYear.terms.find(
+        (term) => term.termName === currentTerm.termName
+      );
+      if (!studentTerm) continue;
+
+      const currentWeek = Math.ceil(targetDate.getDate() / 7);
+      const dayIndex = currentDay - 1;
+
+      const attendanceRecord = studentTerm.attendance.find(a => a.week === currentWeek);
+      const isPresent = attendanceRecord?.days?.[dayIndex] || false;
+
+      results.push({
+        studentId: student._id,
+        name: student.name,
+        present: isPresent,
+      });
+    }
+
+    res.status(200).json({ date: targetDate, attendance: results });
   } catch (err) {
     console.error("Error fetching attendance:", err);
-    res.status(500).json({ message: "Error fetching attendance" });
+    res.status(500).json({ message: "Error fetching attendance", error: err.message });
   }
 };
