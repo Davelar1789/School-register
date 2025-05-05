@@ -173,20 +173,25 @@ const Attendance = () => {
           </div>
 
           <div className="date-nav">
-            <button onClick={goToPreviousDay} disabled={disablePrev}>
+            <button onClick={goToPreviousDay} disabled={disablePrev || !selectedClassId}>
               Previous
             </button>
             <span>{format(currentDate, "EEEE, MMMM d, yyyy")}</span>
-            <button onClick={goToNextDay} disabled={disableNext}>
+            <button onClick={goToNextDay} disabled={disableNext || !selectedClassId}>
               Next
             </button>
           </div>
 
           {loading && <p>Loading...</p>}
 
-          {!loading && !isSchoolDay && (
+          {!loading && !selectedClassId && (
+            <p className="no-class">Please select a class</p>
+            )}
+
+            {!loading && selectedClassId && !isSchoolDay && (
             <p className="no-school">No school for today</p>
-          )}
+            )}
+
 
           {!loading && isSchoolDay && students.length > 0 && (
             <div className="attendance-table">
