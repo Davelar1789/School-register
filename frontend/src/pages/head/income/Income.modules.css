@@ -1,0 +1,84 @@
+.income-statement {
+    max-width: 700px;
+    margin: 30px auto;
+    padding: 25px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    font-family: "Segoe UI", sans-serif;
+    color: #333;
+  }
+  
+  .income-statement h2 {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #2c3e50;
+  }
+  
+  .statement-section {
+    margin-bottom: 30px;
+  }
+  
+  .statement-section h3 {
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 6px;
+    margin-bottom: 15px;
+    color: #444;
+  }
+  
+  .statement-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px dashed #e0e0e0;
+  }
+  
+  .statement-total {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    padding-top: 10px;
+    border-top: 2px solid #ddd;
+    margin-top: 10px;
+  }
+  
+  .statement-summary {
+    padding: 15px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+  }
+  
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 16px;
+  }
+  
+  .summary-row.net-profit {
+    font-weight: bold;
+    color: #2ecc71;
+    border-top: 2px solid #dcdcdc;
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+  
+  @media screen and (max-width: 600px) {
+    .income-statement {
+      padding: 15px;
+    }
+  
+    .statement-row,
+    .statement-total,
+    .summary-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  
+    .statement-row span,
+    .statement-total strong,
+    .summary-row span {
+      padding: 2px 0;
+    }
+  }
+  

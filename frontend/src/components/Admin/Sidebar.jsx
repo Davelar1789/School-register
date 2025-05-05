@@ -149,6 +149,11 @@ const Sidebar = () => {
           <FaUserGraduate className="icon" /> Fees 
         </NavLink>
       </li>
+       <li>
+                <NavLink to="/income" onClick={() => setSidebarOpen(false)}>
+                  <FaChalkboardTeacher className="icon" /> Income Statement
+                </NavLink>
+              </li>
       <li>
         <NavLink to="/students" className={({ isActive }) => isActive ? "active" : ""}>
           <FaUserGraduate className="icon" /> Student <span className="badge">{schoolStats.numberOfStudents}

@@ -182,6 +182,11 @@ const Header = () => {
           </NavLink>
         </li>
         <li>
+          <NavLink to="/income" onClick={() => setSidebarOpen(false)}>
+            <FaChalkboardTeacher className="icon" /> Income Statement
+          </NavLink>
+        </li>
+        <li>
           <NavLink to="/students" onClick={() => setSidebarOpen(false)}>
             <FaUserGraduate className="icon" /> Student
             <span className="badge">{schoolStats.numberOfStudents}</span>
