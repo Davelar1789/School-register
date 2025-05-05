@@ -138,7 +138,7 @@ const ExpensesPage = () => {
               />
               <label>Category</label>
               <select name="category" value={newExpense.category} onChange={handleInputChange}>
-                <option value="">Select category2</option>
+                <option value="">Select category</option>
                 <option value="Salaries">Salaries</option>
                 <option value="Utilities">Utilities</option>
                 <option value="Postage">Postage</option>
