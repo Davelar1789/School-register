@@ -292,3 +292,28 @@ export const getAttendanceForToday = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch attendance", error: err.message });
   }
 };
+
+export const getAttendanceForClassOnDate = async (req, res) => {
+  try {
+    const { classId, date } = req.body;
+
+    const targetDate = new Date(date);
+    targetDate.setHours(0, 0, 0, 0);
+
+    const nextDay = new Date(targetDate);
+    nextDay.setDate(targetDate.getDate() + 1);
+
+    const attendance = await Attendance.find({
+      classId,
+      date: {
+        $gte: targetDate,
+        $lt: nextDay,
+      },
+    });
+
+    res.status(200).json({ attendance });
+  } catch (err) {
+    console.error("Error fetching attendance:", err);
+    res.status(500).json({ message: "Error fetching attendance" });
+  }
+};
