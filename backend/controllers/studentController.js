@@ -411,3 +411,51 @@ export const deleteAllStudents = async (req, res) => {
     res.status(500).json({ message: "Failed to delete students", error: error.message });
   }
 };
+
+export const migrateAttendanceBooleans = async (req, res) => {
+  try {
+    const students = await Students.find({});
+    let updatedCount = 0;
+
+    for (const student of students) {
+      let modified = false;
+
+      for (const year of student.academicRecords || []) {
+        for (const term of year.terms || []) {
+          for (const record of term.attendance || []) {
+            const original = [...record.days];
+
+            // Convert each boolean to its new string value
+            record.days = record.days.map((day) =>
+              day === true ? "present" : "not_marked"
+            );
+
+            // Only mark as modified if anything changed
+            if (JSON.stringify(original) !== JSON.stringify(record.days)) {
+              modified = true;
+            }
+          }
+        }
+      }
+
+      if (modified) {
+        student.markModified("academicRecords");
+        await student.save();
+        updatedCount++;
+        console.log(`✅ Migrated attendance for: ${student.name}`);
+      }
+    }
+
+    console.log(`🎉 Migration complete. Updated ${updatedCount} student(s).`);
+    res.status(200).json({
+      message: "Migration complete",
+      updatedStudents: updatedCount,
+    });
+  } catch (error) {
+    console.error("🔥 Migration failed:", error);
+    res.status(500).json({
+      message: "Migration failed",
+      error: error.message,
+    });
+  }
+};
