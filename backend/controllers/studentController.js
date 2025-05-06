@@ -180,7 +180,7 @@ export const getStudentsByClass = async (req, res) => {
 
 export const markAttendance = async (req, res) => {
   const { classId, attendance } = req.body;
-  const date = new Date(); // Use server time for marking
+  const date = new Date(); // Server time
 
   try {
     for (const record of attendance) {
@@ -191,56 +191,54 @@ export const markAttendance = async (req, res) => {
         return res.status(404).json({ message: `Student not found: ${studentId}` });
       }
 
-      console.log("👤 Student found:", { id: student._id, name: student.name });
-
-      // Locate academic year
       const year = date.getFullYear();
       const academicYearIndex = student.academicRecords.findIndex((rec) =>
         rec.yearLabel.includes(year.toString())
       );
+
       if (academicYearIndex === -1) {
         return res.status(400).json({ message: "Academic year not found" });
       }
-      const academicYear = student.academicRecords[academicYearIndex];
 
-      // Get latest term
+      const academicYear = student.academicRecords[academicYearIndex];
       const currentTermIndex = academicYear.terms.length - 1;
       const currentTerm = academicYear.terms[currentTermIndex];
+
       if (!currentTerm) {
         return res.status(400).json({ message: "Term not found" });
       }
 
-      // Calculate current week
-      const currentWeek = Math.ceil(date.getDate() / 7);
+      const currentDay = date.getDate();
+      const currentWeek = Math.ceil(currentDay / 7);
 
-      // Find or create weekAttendance
       let weekAttendance = currentTerm.attendance.find((a) => a.week === currentWeek);
       if (!weekAttendance) {
-        weekAttendance = { week: currentWeek, days: Array(5).fill(false) };
+        weekAttendance = { week: currentWeek, days: Array(5).fill("not_marked") };
         currentTerm.attendance.push(weekAttendance);
       }
 
-      const dayIndex = date.getDay() - 1; // Mon = 0
+      const jsDay = date.getDay();
+      const dayIndex = jsDay - 1; // Mon=0 ... Fri=4
+
       if (dayIndex >= 0 && dayIndex <= 4) {
-        weekAttendance.days[dayIndex] = present === true; // 👈 ensure it's a real boolean
+        const alreadyMarked = weekAttendance.days[dayIndex] !== "not_marked";
+        if (alreadyMarked) {
+          return res.status(400).json({ message: "Attendance already marked for today." });
+        }
+
+        // Set attendance for the day
+        weekAttendance.days[dayIndex] = present ? "present" : "absent";
       }
 
-      // Mark modified
-      const modifiedPath = `academicRecords.${academicYearIndex}.terms.${currentTermIndex}.attendance`;
-      student.markModified(modifiedPath);
-
-      // Save student FIRST
-      await student.save();
-
-      // ✅ AFTER save, recalculate totalAttendance
+      // 🔁 Recalculate total present days
       const allAttendance = currentTerm.attendance.flatMap((w) => w.days);
-      currentTerm.totalAttendance = allAttendance.filter((val) => val === true).length;
+      currentTerm.totalAttendance = allAttendance.filter((val) => val === "present").length;
 
-      // Save again (with updated totalAttendance)
-      student.markModified(`academicRecords.${academicYearIndex}.terms.${currentTermIndex}.totalAttendance`);
+      // 🛠️ Track changes
+      const modPath = `academicRecords.${academicYearIndex}.terms.${currentTermIndex}`;
+      student.markModified(modPath);
+
       await student.save();
-
-      console.log("✅ Attendance saved & totalAttendance recalculated.");
     }
 
     res.json({ message: "Attendance marked successfully" });
@@ -249,6 +247,7 @@ export const markAttendance = async (req, res) => {
     res.status(500).json({ message: "Failed to mark attendance", error: err.message });
   }
 };
+
 
 
 

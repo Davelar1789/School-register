@@ -2,8 +2,12 @@ import { Schema, model } from "mongoose";
 
 const attendanceSchema = new Schema({
   week: Number,
-  days: [Boolean], // Array of 5 booleans representing attendance
-});
+  days: {
+    type: [String],
+    enum: ["present", "absent", "not_marked"],
+    default: ["not_marked", "not_marked", "not_marked", "not_marked", "not_marked"]
+  }
+  });
 
 const subjectSchema = new Schema({
   name: String,
