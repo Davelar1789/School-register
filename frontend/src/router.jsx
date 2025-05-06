@@ -6,7 +6,9 @@ import ApplyS from "./pages/general/admission/ApplyStudent";
 import Students from "./pages/head/students/Students"
 // import Dashboard from "./pages/admin2/dashboard/Dashboard";
 // import Events from "./pages/admin2/events/Events";
-import Fees from "./pages/head/fees/Fees";
+import Fees from "./pages/head/fees/MainPage";
+import SchoolFees from "./pages/head/fees/Fees";
+import FeedingFee from "./pages/head/fees/FeedingFee";
 // import Cashbook from "./pages/admin2/cashbook/Cashbook";
 import TermlyDetails from "./pages/head/fees/TermlyDetails";
 // import TDashboard from "./pages/teacher/dashboard/Dashboard";
@@ -170,6 +172,22 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["admin"]}>
             <Classes />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "school-fees",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <SchoolFees />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "feeding-fee",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <FeedingFee />
           </ProtectedRoute>
         ),
       },
