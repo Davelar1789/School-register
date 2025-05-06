@@ -316,11 +316,11 @@ const [viewedStudent, setViewedStudent] = useState(null);
               <thead>
                 <tr>
                   <th>Name</th>
-                  <th>Fees Owed</th>
-                  <th>Fees Paid</th>
+                  <th className="nothing">Fees Owed</th>
+                  <th className="nothing">Fees Paid</th>
                   <th>Balance</th>
                   <th>Payments</th>
-                  <th>Payment History</th>
+                  <th className="nothing">Payment History</th>
                   {/* <th>Actions</th> */}
                 </tr>
               </thead>
@@ -355,8 +355,8 @@ const [viewedStudent, setViewedStudent] = useState(null);
                     return (
                     <tr key={student._id}>
                         <td>{student.name}</td>
-                        <td>GHC {feesOwed}</td>
-                        <td>GHC {feesPaid}</td>
+                        <td className="nothing">GHC {feesOwed}</td>
+                        <td className="nothing">GHC {feesPaid}</td>
                         <td>GHC {balance}</td>
                         <td>
                             <button className="fees-add" onClick={() => {
@@ -366,7 +366,7 @@ const [viewedStudent, setViewedStudent] = useState(null);
                             <FaPlus /> Add New Payment
                             </button>
                         </td>
-                        <td>
+                        <td className="nothing">
                         <button onClick={() => handleViewPayments(student)} className="fees-view">
                             View
                         </button>

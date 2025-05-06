@@ -221,3 +221,15 @@
         margin-left: 250px;
     }
 }
+
+@media (min-width: 768px) and (max-width: 900px) {
+  .nothing {
+    display: none !important;
+  }
+}
+
+@media (max-width: 654px) {
+  .nothing {
+    display: none !important;
+  }
+}
