@@ -17,8 +17,8 @@ const IncomeStatement = () => {
   const incomeItems = [
     { label: 'Tuition Fees', amount: tuitionFee },
     { label: 'Feeding Fees', amount: 200 },
-    { label: 'Donations', amount: 500 },
-    { label: 'Grants', amount: 400 },
+    { label: 'Donations', amount: 0 },
+    { label: 'Grants', amount: 0 },
   ];
 
   const expenseCategories = [
