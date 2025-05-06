@@ -176,11 +176,17 @@ const Header = () => {
             <FaComments className="icon" /> Termly Details
           </NavLink>
         </li>
-        <li>
-          <NavLink to="/fees" onClick={() => setSidebarOpen(false)}>
-            <FaChalkboardTeacher className="icon" /> Fees
-          </NavLink>
-        </li>
+        <NavLink 
+          to="/fees"
+          className={({ isActive, location }) =>
+            ["/fees", "/school-fees", "/feeding-fee"].includes(location.pathname)
+              ? "active"
+              : ""
+          }
+        >
+          <FaUserGraduate className="icon" /> Fees
+        </NavLink>
+
         <li>
           <NavLink to="/expenses" onClick={() => setSidebarOpen(false)}>
             <FaCalendar className="icon" /> Expenses
