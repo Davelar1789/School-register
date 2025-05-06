@@ -2,12 +2,20 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
+import { toast } from "react-hot-toast";
 import "./MainPage.modules.css";
 
 const Fees = () => {
   const navigate = useNavigate();
 
+
   const handleNavigate = (route) => {
+    if (route === "/feeding-fee") {
+      toast.info("Page under maintenance. Try again later", {
+      });
+      return;
+    }
+
     navigate(route);
   };
 
