@@ -202,7 +202,7 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* <div className="overview-section4">
+              <div className="overview-section4">
                 <div className="overview-card students4">
                   <div className="card-header4">
                     <i className="fas fa-user-graduate4"></i>
@@ -246,7 +246,7 @@ const Dashboard = () => {
                   </div>
                   <div className="wave-chart green-wave4"></div>
                 </div>
-              </div> */}
+              </div>
 
               {/* Recent Activities */}
               <div className="recent-activities">
