@@ -203,7 +203,7 @@ const Dashboard = () => {
               </div>
 
               <div className="overview-section4">
-                <div className="overview-card students4">
+                <div className="overview-card4 students4">
                   <div className="card-header4">
                     <i className="fas fa-user-graduate4"></i>
                     <div className="card-info4">
@@ -211,10 +211,10 @@ const Dashboard = () => {
                       <p>Total Students</p>
                     </div>
                   </div>
-                  <div className="wave-chart blue-wave4"></div>
+                  <div className="wave-chart4 blue-wave4"></div>
                 </div>
 
-                <div className="overview-card teachers4">
+                <div className="overview-card4 teachers4">
                   <div className="card-header4">
                     <i className="fas fa-user4"></i>
                     <div className="card-info4">
@@ -222,10 +222,10 @@ const Dashboard = () => {
                       <p>Total Teachers</p>
                     </div>
                   </div>
-                  <div className="wave-chart pink-wave4"></div>
+                  <div className="wave-chart4 pink-wave4"></div>
                 </div>
 
-                <div className="overview-card classes4">
+                <div className="overview-card4 classes4">
                   <div className="card-header4">
                     <i className="fas fa-users4"></i>
                     <div className="card-info4">
@@ -233,10 +233,10 @@ const Dashboard = () => {
                       <p>Active Classes</p>
                     </div>
                   </div>
-                  <div className="wave-chart orange-wave4"></div>
+                  <div className="wave-chart4 orange-wave4"></div>
                 </div>
 
-                <div className="overview-card requests4">
+                <div className="overview-card4 requests4">
                   <div className="card-header4">
                     <i className="fas fa-money-check-alt4"></i>
                     <div className="card-info4">
@@ -244,7 +244,7 @@ const Dashboard = () => {
                       <p>Pending Requests</p>
                     </div>
                   </div>
-                  <div className="wave-chart green-wave4"></div>
+                  <div className="wave-chart4 green-wave4"></div>
                 </div>
               </div>
 
