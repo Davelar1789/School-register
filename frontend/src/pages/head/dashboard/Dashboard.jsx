@@ -202,6 +202,52 @@ const Dashboard = () => {
                 </div>
               </div>
 
+              <div className="overview-section4">
+                <div className="overview-card students4">
+                  <div className="card-header4">
+                    <i className="fas fa-user-graduate4"></i>
+                    <div className="card-info4">
+                      <h3>{schoolStats.numberOfStudents}</h3>
+                      <p>Total Students</p>
+                    </div>
+                  </div>
+                  <div className="wave-chart blue-wave4"></div>
+                </div>
+
+                <div className="overview-card teachers4">
+                  <div className="card-header4">
+                    <i className="fas fa-user4"></i>
+                    <div className="card-info4">
+                      <h3>{schoolStats.numberOfTeachers}</h3>
+                      <p>Total Teachers</p>
+                    </div>
+                  </div>
+                  <div className="wave-chart pink-wave4"></div>
+                </div>
+
+                <div className="overview-card classes4">
+                  <div className="card-header4">
+                    <i className="fas fa-users4"></i>
+                    <div className="card-info4">
+                      <h3>{schoolStats.numberOfClasses}</h3>
+                      <p>Active Classes</p>
+                    </div>
+                  </div>
+                  <div className="wave-chart orange-wave4"></div>
+                </div>
+
+                <div className="overview-card requests4">
+                  <div className="card-header4">
+                    <i className="fas fa-money-check-alt4"></i>
+                    <div className="card-info4">
+                      <h3>0</h3>
+                      <p>Pending Requests</p>
+                    </div>
+                  </div>
+                  <div className="wave-chart green-wave4"></div>
+                </div>
+              </div>
+
               {/* Recent Activities */}
               <div className="recent-activities">
                 <h3>Recent Activities</h3>

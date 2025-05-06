@@ -23,7 +23,7 @@ const Footer = () => {
         <div className="footerSection">
           <h3 id="contact">Contact Us</h3>
           <p><FaEnvelope className="icon" /> info@schoolms.com</p>
-          <p><FaPhone className="icon" /> +233 123 456 789</p>
+          <p><FaPhone className="icon" /> +233 557 625 112</p>
           <p><FaMapMarkerAlt className="icon" /> Accra, Ghana</p>
         </div>
 
