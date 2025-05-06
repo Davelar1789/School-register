@@ -197,7 +197,7 @@ const Attendance = () => {
             <button onClick={goToPreviousDay} disabled={disablePrev || !selectedClassId}>
               Previous
             </button>
-            <span>{format(currentDate, "EEEE, MMMM d, yyyy")}</span>
+            <span className="date-col">{format(currentDate, "EEEE, MMMM d, yyyy")}</span>
             <button onClick={goToNextDay} disabled={disableNext || !selectedClassId}>
               Next
             </button>

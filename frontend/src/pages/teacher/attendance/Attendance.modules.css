@@ -92,6 +92,10 @@
   font-weight: 500;
 }
 
+.date-col {
+  color: white;
+}
+
 .date-nav button {
   padding: 10px 18px;
   font-size: 15px;
