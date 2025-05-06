@@ -2,7 +2,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
-import "./MainPage.css";
+import "./MainPage.modules.css";
 
 const Fees = () => {
   const navigate = useNavigate();
