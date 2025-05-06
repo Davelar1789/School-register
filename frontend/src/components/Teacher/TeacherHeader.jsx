@@ -45,9 +45,12 @@ const Header = () => {
       id: decoded.id,
       fullName: decoded.fullName,
       role: decoded.role,
-      schoolName: decoded.schoolName,
     });
 
+    setSchool({
+      name: decoded.schoolName,
+    });
+    
     fetchSchool(decoded.id);
   }, [navigate]);
 
