@@ -1,7 +1,6 @@
 .attendance-page {
   padding: 40px 20px;
   font-family: 'Segoe UI', sans-serif;
-  color: white;
   min-height: 100vh;
 }
 
@@ -24,6 +23,7 @@
 .class-select label {
   font-weight: 600;
   font-size: 16px;
+  color: black;
 }
 
 .class-select select {
@@ -55,6 +55,10 @@
   background-color: #f1f1f1;
   color: #222;
   font-weight: 600;
+}
+
+.attendance-table body {
+  color: black;
 }
 
 .attendance-table td input[type="checkbox"] {
