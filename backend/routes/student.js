@@ -12,7 +12,8 @@ import {
   getStudentsByClass, 
   markAttendance,
   getAttendanceForToday,
-  getAttendanceForClassOnDate
+  getAttendanceForClassOnDate,
+  deleteAllStudents,
 } from "../controllers/studentController.js";
 import { protect } from "../middleware/authMiddleware.js"; // if you're using JWT middleware
 
@@ -24,6 +25,7 @@ router.get("/", protect, getAllStudents);
 router.post("/mark-attendance", protect, markAttendance);
 router.get("/search", searchStudents); // ?query=John
 router.post("/fetch-attendance", getAttendanceForClassOnDate);
+router.delete("/all", deleteAllStudents); // DELETE /api/students/all
 router.get("/today/:studentId", getAttendanceForToday);
 router.get("/class/:classId", protect, getStudentsByClass);
 router.get("/:id", getStudentById);

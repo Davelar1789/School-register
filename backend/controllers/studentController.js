@@ -400,3 +400,14 @@ export const getAttendanceForClassOnDate = async (req, res) => {
     return res.status(500).json({ message: "Error fetching attendance", error: err.message });
   }
 };
+
+export const deleteAllStudents = async (req, res) => {
+  try {
+    const result = await Students.deleteMany({});
+    console.log(`🧹 Deleted ${result.deletedCount} student(s) from the database.`);
+    res.status(200).json({ message: "All students deleted successfully", deletedCount: result.deletedCount });
+  } catch (error) {
+    console.error("❌ Error deleting students:", error.message);
+    res.status(500).json({ message: "Failed to delete students", error: error.message });
+  }
+};
