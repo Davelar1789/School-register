@@ -107,6 +107,9 @@ const Attendance = () => {
     }
   }, [selectedClassId]);
   
+  const isTodayMarked = Object.values(attendanceData).every(
+    (status) => status !== "not_marked"
+  );
   
 
   const handleSubmit = async () => {
@@ -128,11 +131,15 @@ const Attendance = () => {
   };
 
   const handleCheckboxChange = (studentId) => {
-    setAttendanceData((prev) => ({
-      ...prev,
-      [studentId]: !prev[studentId],
-    }));
+    setAttendanceData((prev) => {
+      const current = prev[studentId];
+      return {
+        ...prev,
+        [studentId]: current === "present" ? "absent" : "present",
+      };
+    });
   };
+  
 
   const goToPreviousDay = () => {
     const prev = new Date(currentDate);
@@ -228,19 +235,24 @@ const Attendance = () => {
                     <tr key={student._id}>
                       <td>{student.name}</td>
                       <td>
-                        <input
+                      <input
                           type="checkbox"
-                          checked={attendanceData[student._id] || false}
+                          checked={attendanceData[student._id] === "present"}
                           onChange={() => handleCheckboxChange(student._id)}
+                          disabled={isTodayMarked}
                         />
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-              <button onClick={handleSubmit} className="submit-attendance-btn">
-                Submit Attendance
-              </button>
+              {isTodayMarked ? (
+                <div className="attendance-submitted-msg">Attendance already submitted ✅</div>
+              ) : (
+                <button onClick={handleSubmit} className="submit-attendance-btn">
+                  Submit Attendance
+                </button>
+              )}
             </div>
           )}
         </div>
