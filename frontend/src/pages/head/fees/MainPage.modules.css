@@ -1,7 +1,7 @@
 /* Container Setup */
 .fees-main2 {
     flex: 1;
-    background-color: #f9fafc;
+    background-color: #1b1c30;
     padding: 20px;
     min-height: 100vh;
     box-sizing: border-box;
@@ -15,7 +15,7 @@
   
   .fees-title {
     font-size: 2.5rem;
-    color: #1a1a2e;
+    color: royalblue;
     margin-bottom: 30px;
     font-weight: bold;
     text-align: center;
@@ -45,12 +45,12 @@
   .fees-box h2 {
     font-size: 1.6rem;
     margin-bottom: 10px;
-    color: #2f4f4f;
+    color: black;
   }
   
   .fees-box p {
     font-size: 0.95rem;
-    color: #555;
+    color: black;
   }
   
   .fees-box:hover {
