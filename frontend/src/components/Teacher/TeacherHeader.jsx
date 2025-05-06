@@ -155,7 +155,7 @@ const Header = () => {
                           <FaComments className="icon" /> Attendance
                         </NavLink>
                       </li>
-                      <li>
+                      {/* <li>
                         <NavLink to="/teachers" className={({ isActive }) => isActive ? "active" : ""}>
                           <FaChalkboardTeacher className="icon" />Gradebook
                         </NavLink>
@@ -164,7 +164,7 @@ const Header = () => {
                         <NavLink to="/events" className={({ isActive }) => isActive ? "active" : ""}>
                           <FaCalendar className="icon" /> Events
                         </NavLink>
-                      </li>
+                      </li> */}
               <li onClick={handleLogout} style={{ cursor: "pointer" }}>
   <div className="nav-link-custom">
     <FaSignOutAlt className="icon" /> Logout
