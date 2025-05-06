@@ -3,7 +3,7 @@ import {
   FaBell, FaEnvelope, FaCog, FaUser, FaSearch,
   FaHome, FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt
 } from "react-icons/fa";
-import { useNavigate, NavLink } from "react-router-dom";
+import { useNavigate, NavLink, useLocation } from "react-router-dom";
 import { toast } from "react-hot-toast";
 import api from "../../api/axios";
 import { jwtDecode } from "jwt-decode";
@@ -12,6 +12,8 @@ import "./Header2.modules.css";
 
 const Header = () => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const location = useLocation();
+  const isFeesActive = ["/fees", "/school-fees", "/feeding-fee"].includes(location.pathname);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [school, setSchool] = useState(null);
@@ -176,17 +178,11 @@ const Header = () => {
             <FaComments className="icon" /> Termly Details
           </NavLink>
         </li>
-        <NavLink 
-          to="/fees"
-          className={({ isActive, location }) =>
-            ["/fees", "/school-fees", "/feeding-fee"].includes(location.pathname)
-              ? "active"
-              : ""
-          }
-        >
-          <FaUserGraduate className="icon" /> Fees
-        </NavLink>
-
+        <li>
+          <NavLink to="/fees" className={isFeesActive ? "active" : ""}>
+            <FaUserGraduate className="icon" /> Fees
+          </NavLink>
+        </li>
         <li>
           <NavLink to="/expenses" onClick={() => setSidebarOpen(false)}>
             <FaCalendar className="icon" /> Expenses
