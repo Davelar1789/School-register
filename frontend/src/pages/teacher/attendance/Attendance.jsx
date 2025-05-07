@@ -72,9 +72,21 @@ const Attendance = () => {
         const termEnd = new Date(res.data.termEndDate);
         setTermRange({ start: termStart, end: termEnd });
   
-        // NEW: Attendance for that date
         const attendanceForDay = res.data.attendanceForDay || {};
-        setAttendanceData(attendanceForDay);
+  
+        // FIX: make sure all students are included
+        const fullAttendance = {};
+        students.forEach((s) => {
+          fullAttendance[s._id] = attendanceForDay[s._id] || "not_marked";
+        });
+  
+        setAttendanceData(fullAttendance);
+  
+        // MARKED LOGIC (✅ New and Corrected)
+        const allMarked = Object.values(fullAttendance).every(
+          (v) => v === "present" || v === "absent"
+        );
+        setIsTodayMarked(allMarked);
       }
   
       return isSchool;
@@ -84,6 +96,7 @@ const Attendance = () => {
       return false;
     }
   };
+  
   
   useEffect(() => {
     const runChecks = async () => {
@@ -106,10 +119,6 @@ const Attendance = () => {
       setIsSchoolDay(false);
     }
   }, [selectedClassId]);
-  
-  const isTodayMarked = Object.values(attendanceData).every(
-    (status) => status !== "not_marked"
-  );
   
 
   const handleSubmit = async () => {
