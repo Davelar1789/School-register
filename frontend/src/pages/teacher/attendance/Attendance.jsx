@@ -22,92 +22,114 @@ const Attendance = () => {
 
   const fetchClasses = async () => {
     try {
+      console.log("Fetching teacher classes...");
       setLoading(true);
       const res = await axios.get("/api/teachers/teacher/teacher-classes", {
         headers: { Authorization: `Bearer ${token}` },
       });
+      console.log("Classes fetched:", res.data.classes);
       setClasses(res.data.classes || []);
-    } catch {
+    } catch (err) {
+      console.error("Error fetching classes:", err);
       toast.error("Failed to load classes");
     } finally {
       setLoading(false);
     }
   };
-
+  
   const fetchStudents = async (classId) => {
     try {
+      console.log("Fetching students for class:", classId);
       setLoading(true);
       const res = await axios.get(`/api/student/class/${classId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      console.log("Raw students response:", res.data);
       const fetched = Array.isArray(res.data) ? res.data : res.data.students || [];
+      console.log("Students fetched:", fetched);
       setStudents(fetched);
+  
       const initialAttendance = {};
       fetched.forEach((s) => {
         initialAttendance[s._id] = "not_marked";
       });
+      console.log("Initial attendance data set:", initialAttendance);
       setAttendanceData(initialAttendance);
-    } catch {
+    } catch (err) {
+      console.error("Error fetching students:", err);
       toast.error("Error loading students");
     } finally {
       setLoading(false);
     }
   };
-
+  
   const fetchDateStatus = async (classId, date) => {
     try {
+      console.log(`Checking school day status for ${date.toISOString()}...`);
       const res = await axios.post(
         "/api/student/fetch-attendance",
         { classId, date: date.toISOString() },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-
+      console.log("Date status response:", res.data);
+  
       const isSchool = res.data.isSchoolDay;
       setIsSchoolDay(isSchool);
-
+  
       if (isSchool) {
         const termStart = new Date(res.data.termStartDate);
         const termEnd = new Date(res.data.termEndDate);
+        console.log("Term range:", { termStart, termEnd });
         setTermRange({ start: termStart, end: termEnd });
-
+  
         const attendanceForDay = res.data.attendanceForDay || {};
-
+        console.log("Attendance for day:", attendanceForDay);
+  
         const fullAttendance = {};
         students.forEach((s) => {
           fullAttendance[s._id] = attendanceForDay[s._id] || "not_marked";
         });
-
+  
+        console.log("Full attendance prepared:", fullAttendance);
         setAttendanceData(fullAttendance);
-
+  
         const allMarked = Object.values(fullAttendance).every(
           (status) => status === "present" || status === "absent"
         );
+        console.log("Is today's attendance fully marked?", allMarked);
         setIsTodayMarked(allMarked);
       }
-
+  
       return isSchool;
     } catch (err) {
+      console.error("Error checking date status:", err);
       setIsSchoolDay(false);
       return false;
     }
   };
-
+  
   useEffect(() => {
     if (!selectedClassId) {
+      console.log("No class selected, resetting student list and school day status.");
       setStudents([]);
       setIsSchoolDay(false);
       return;
     }
-
+  
     const runChecks = async () => {
+      console.log("Running checks for class:", selectedClassId, "on date:", currentDate);
       const isValid = await fetchDateStatus(selectedClassId, currentDate);
-      if (isValid) await fetchStudents(selectedClassId);
-      else setStudents([]);
+      if (isValid) {
+        await fetchStudents(selectedClassId);
+      } else {
+        console.log("Invalid school day, clearing student list.");
+        setStudents([]);
+      }
     };
-
+  
     runChecks();
   }, [selectedClassId, currentDate]);
-
+  
   const handleSubmit = async () => {
     try {
       const payload = {
@@ -117,26 +139,29 @@ const Attendance = () => {
           present: status === "present",
         })),
       };
-
+      console.log("Submitting attendance payload:", payload);
+  
       await axios.post("/api/student/mark-attendance", payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
+  
       toast.success("Attendance submitted!");
       setIsTodayMarked(true);
     } catch (err) {
+      console.error("Error submitting attendance:", err);
       toast.error(err.response?.data?.message || "Failed to submit attendance");
     }
   };
-
+  
   const handleCheckboxChange = (studentId) => {
     setAttendanceData((prev) => {
       const current = prev[studentId];
       const newStatus = current === "present" ? "absent" : "present";
+      console.log(`Changing status for ${studentId} from ${current} to ${newStatus}`);
       return { ...prev, [studentId]: newStatus };
     });
   };
-
+  
   const goToPreviousDay = () => {
     const prev = new Date(currentDate);
     prev.setDate(prev.getDate() - 1);
