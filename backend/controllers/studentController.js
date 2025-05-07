@@ -183,33 +183,37 @@ export const markAttendance = async (req, res) => {
   const date = new Date(); // Server time
 
   try {
+    const currentDay = date.getDate();
+    const currentWeek = Math.ceil(currentDay / 7);
+    const jsDay = date.getDay();
+    const dayIndex = jsDay - 1; // Monday = 0
+
+    if (dayIndex < 0 || dayIndex > 4) {
+      return res.status(400).json({ message: "Today is not a school day." });
+    }
+
+    let marked = 0;
+    let alreadyMarked = 0;
+
     for (const record of attendance) {
       const { studentId, present } = record;
 
       const student = await Students.findById(studentId);
       if (!student) {
-        return res.status(404).json({ message: `Student not found: ${studentId}` });
+        continue; // Skip if student not found
       }
 
       const year = date.getFullYear();
       const academicYearIndex = student.academicRecords.findIndex((rec) =>
         rec.yearLabel.includes(year.toString())
       );
-
-      if (academicYearIndex === -1) {
-        return res.status(400).json({ message: "Academic year not found" });
-      }
+      if (academicYearIndex === -1) continue;
 
       const academicYear = student.academicRecords[academicYearIndex];
       const currentTermIndex = academicYear.terms.length - 1;
       const currentTerm = academicYear.terms[currentTermIndex];
 
-      if (!currentTerm) {
-        return res.status(400).json({ message: "Term not found" });
-      }
-
-      const currentDay = date.getDate();
-      const currentWeek = Math.ceil(currentDay / 7);
+      if (!currentTerm) continue;
 
       let weekAttendance = currentTerm.attendance.find((a) => a.week === currentWeek);
       if (!weekAttendance) {
@@ -217,36 +221,37 @@ export const markAttendance = async (req, res) => {
         currentTerm.attendance.push(weekAttendance);
       }
 
-      const jsDay = date.getDay();
-      const dayIndex = jsDay - 1; // Mon=0 ... Fri=4
-
-      if (dayIndex >= 0 && dayIndex <= 4) {
-        const alreadyMarked = weekAttendance.days[dayIndex] !== "not_marked";
-        if (alreadyMarked) {
-          return res.status(400).json({ message: "Attendance already marked for today." });
-        }
-
-        // Set attendance for the day
-        weekAttendance.days[dayIndex] = present ? "present" : "absent";
+      const currentStatus = weekAttendance.days[dayIndex];
+      if (currentStatus !== "not_marked") {
+        alreadyMarked++;
+        continue;
       }
 
-      // 🔁 Recalculate total present days
+      weekAttendance.days[dayIndex] = present ? "present" : "absent";
+
+      // Recalculate total "present"
       const allAttendance = currentTerm.attendance.flatMap((w) => w.days);
       currentTerm.totalAttendance = allAttendance.filter((val) => val === "present").length;
 
-      // 🛠️ Track changes
+      // Mark modified path
       const modPath = `academicRecords.${academicYearIndex}.terms.${currentTermIndex}`;
       student.markModified(modPath);
 
       await student.save();
+      marked++;
     }
 
-    res.json({ message: "Attendance marked successfully" });
+    return res.json({
+      message: `Attendance marking completed.`,
+      updated: marked,
+      skipped: alreadyMarked,
+    });
   } catch (err) {
     console.error("🔥 Error while marking attendance:", err);
     res.status(500).json({ message: "Failed to mark attendance", error: err.message });
   }
 };
+
 
 
 
@@ -318,10 +323,9 @@ export const getAttendanceForClassOnDate = async (req, res) => {
     }
 
     const targetDate = new Date(date);
-    const currentDay = targetDate.getDay(); // 0 (Sun) to 6 (Sat)
+    const dayOfWeek = targetDate.getDay(); // 0 (Sun) - 6 (Sat)
 
-    // Disallow weekends
-    if (currentDay === 0 || currentDay === 6) {
+    if (dayOfWeek === 0 || dayOfWeek === 6) {
       return res.status(200).json({
         isSchoolDay: false,
         message: "Selected date is a weekend.",
@@ -329,21 +333,25 @@ export const getAttendanceForClassOnDate = async (req, res) => {
         attendance: [],
         termStartDate: null,
         termEndDate: null,
+        attendanceSubmitted: false,
       });
     }
 
-    targetDate.setHours(0, 0, 0, 0); // Normalize
-
+    targetDate.setHours(0, 0, 0, 0);
     const students = await Students.find({ classes: classId });
 
     if (!students.length) {
       return res.status(404).json({ message: "No students found in this class." });
     }
 
-    const attendanceForDay = {};
+    const results = [];
     let termStartDate = null;
     let termEndDate = null;
     let foundTerm = false;
+    let allMarked = true;
+
+    const currentWeek = Math.ceil(targetDate.getDate() / 7);
+    const dayIndex = dayOfWeek - 1; // Mon = 0
 
     for (const student of students) {
       const currentTerm = await TermSession.findOne({
@@ -353,10 +361,9 @@ export const getAttendanceForClassOnDate = async (req, res) => {
         isActive: true,
       });
 
-      if (!currentTerm) continue; // Skip students with no active term
+      if (!currentTerm) continue;
 
       if (!foundTerm) {
-        // Set term range once from first student with active term
         termStartDate = currentTerm.startDate;
         termEndDate = currentTerm.endDate;
         foundTerm = true;
@@ -372,35 +379,35 @@ export const getAttendanceForClassOnDate = async (req, res) => {
       );
       if (!studentTerm) continue;
 
-      const currentWeek = Math.ceil(targetDate.getDate() / 7);
-      const dayIndex = currentDay - 1;
-    
       const attendanceRecord = studentTerm.attendance.find(a => a.week === currentWeek);
-      const raw = attendanceRecord?.days?.[dayIndex];
-    
-      let status = "not_marked";
-      if (raw === true) status = "present";
-      else if (raw === false) status = "absent";
-    
-      attendanceForDay[student._id] = status;
-    }
+      const status = attendanceRecord?.days?.[dayIndex] || "not_marked";
 
-    // If no student had a valid term, return isSchoolDay: false
-    const isSchoolDay = foundTerm;
+      if (status === "not_marked") {
+        allMarked = false;
+      }
+
+      results.push({
+        studentId: student._id,
+        name: student.name,
+        status, // "present", "absent", "not_marked"
+      });
+    }
 
     return res.status(200).json({
       date: targetDate,
-      attendanceForDay,
-      isSchoolDay,
+      attendance: results,
+      isSchoolDay: foundTerm,
       termStartDate,
       termEndDate,
+      attendanceSubmitted: allMarked && results.length > 0,
     });
-    
+
   } catch (err) {
     console.error("Error fetching attendance:", err);
     return res.status(500).json({ message: "Error fetching attendance", error: err.message });
   }
 };
+
 
 // export const deleteAllStudents = async (req, res) => {
 //   try {
