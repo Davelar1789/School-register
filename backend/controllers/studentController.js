@@ -374,16 +374,15 @@ export const getAttendanceForClassOnDate = async (req, res) => {
 
       const currentWeek = Math.ceil(targetDate.getDate() / 7);
       const dayIndex = currentDay - 1;
-
+    
       const attendanceRecord = studentTerm.attendance.find(a => a.week === currentWeek);
-      const isPresent = attendanceRecord?.days?.[dayIndex] || false;
-
-      attendanceForDay[student._id] = isPresent === true
-  ? "present"
-  : isPresent === false
-  ? "absent"
-  : "not_marked";
-
+      const raw = attendanceRecord?.days?.[dayIndex];
+    
+      let status = "not_marked";
+      if (raw === true) status = "present";
+      else if (raw === false) status = "absent";
+    
+      attendanceForDay[student._id] = status;
     }
 
     // If no student had a valid term, return isSchoolDay: false
