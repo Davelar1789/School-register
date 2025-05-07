@@ -1,3 +1,4 @@
+// Same imports...
 import React, { useEffect, useState } from "react";
 import axios from "../../../api/axios";
 import Header from "../../../components/Teacher/TeacherHeader";
@@ -19,97 +20,95 @@ const Attendance = () => {
 
   const token = localStorage.getItem("token");
 
-  // Fetch all teacher's assigned classes
-  useEffect(() => {
-    const fetchClasses = async () => {
-      try {
-        setLoading(true);
-        const res = await axios.get("/api/teachers/teacher/teacher-classes", {
-          headers: { Authorization: `Bearer ${token}` },
+  const fetchClasses = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get("/api/teachers/teacher/teacher-classes", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setClasses(res.data.classes || []);
+    } catch {
+      toast.error("Failed to load classes");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchStudents = async (classId) => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`/api/student/class/${classId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const fetched = Array.isArray(res.data) ? res.data : res.data.students || [];
+      setStudents(fetched);
+
+      // Init attendance data with not_marked for everyone
+      const initialAttendance = {};
+      fetched.forEach((s) => {
+        initialAttendance[s._id] = "not_marked";
+      });
+      setAttendanceData(initialAttendance);
+    } catch {
+      toast.error("Error loading students");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchDateStatus = async (classId, date) => {
+    try {
+      const res = await axios.post(
+        "/api/student/fetch-attendance",
+        { classId, date: date.toISOString() },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      const isSchool = res.data.isSchoolDay;
+      setIsSchoolDay(isSchool);
+
+      if (isSchool) {
+        const termStart = new Date(res.data.termStartDate);
+        const termEnd = new Date(res.data.termEndDate);
+        setTermRange({ start: termStart, end: termEnd });
+
+        const attendanceForDay = res.data.attendanceForDay || {};
+
+        const fullAttendance = {};
+        students.forEach((s) => {
+          fullAttendance[s._id] = attendanceForDay[s._id] || "not_marked";
         });
-        setClasses(res.data.classes || []);
-      } catch {
-        toast.error("Failed to load classes");
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchClasses();
-  }, [token]);
+        setAttendanceData(fullAttendance);
 
-  // Unified effect: fetch students and attendance data on class/date change
-  useEffect(() => {
-    const loadAttendanceData = async () => {
-      if (!selectedClassId) {
-        setStudents([]);
-        setAttendanceData({});
-        setIsSchoolDay(false);
-        return;
-      }
-
-      try {
-        setLoading(true);
-        setAttendanceData({});
-        setIsTodayMarked(false);
-
-        // Fetch students
-        const studentRes = await axios.get(`/api/student/class/${selectedClassId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const fetchedStudents = Array.isArray(studentRes.data)
-          ? studentRes.data
-          : studentRes.data.students || [];
-        setStudents(fetchedStudents);
-
-        // Fetch attendance
-        const attendanceRes = await axios.post(
-          "/api/student/fetch-attendance",
-          {
-            classId: selectedClassId,
-            date: currentDate.toISOString(),
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
+        const allMarked = Object.values(fullAttendance).every(
+          (status) => status === "present" || status === "absent"
         );
-
-        const isSchool = attendanceRes.data.isSchoolDay;
-        setIsSchoolDay(isSchool);
-
-        if (isSchool) {
-          const termStart = new Date(attendanceRes.data.termStartDate);
-          const termEnd = new Date(attendanceRes.data.termEndDate);
-          setTermRange({ start: termStart, end: termEnd });
-
-          const attendanceForDay = attendanceRes.data.attendanceForDay || {};
-          const fullAttendance = {};
-
-          fetchedStudents.forEach((student) => {
-            fullAttendance[student._id] = attendanceForDay[student._id] || "not_marked";
-          });
-
-          setAttendanceData(fullAttendance);
-
-          const allMarked = Object.values(fullAttendance).every(
-            (status) => status === "present" || status === "absent"
-          );
-          setIsTodayMarked(allMarked);
-        }
-      } catch (err) {
-        console.error("Error fetching attendance:", err);
-        toast.error("Failed to load attendance data");
-        setStudents([]);
-        setIsSchoolDay(false);
-      } finally {
-        setLoading(false);
+        setIsTodayMarked(allMarked);
       }
+
+      return isSchool;
+    } catch (err) {
+      setIsSchoolDay(false);
+      return false;
+    }
+  };
+
+  useEffect(() => {
+    if (!selectedClassId) {
+      setStudents([]);
+      setIsSchoolDay(false);
+      return;
+    }
+
+    const runChecks = async () => {
+      await fetchStudents(selectedClassId);                // 🟢 First, fetch students
+      await fetchDateStatus(selectedClassId, currentDate); // 🟢 Then, fetch attendance
     };
 
-    loadAttendanceData();
-  }, [selectedClassId, currentDate, token]);
+    runChecks();
+  }, [selectedClassId, currentDate]);
 
-  // Submit attendance
   const handleSubmit = async () => {
     try {
       const payload = {
@@ -131,7 +130,6 @@ const Attendance = () => {
     }
   };
 
-  // Handle checkbox toggle
   const handleCheckboxChange = (studentId) => {
     setAttendanceData((prev) => {
       const current = prev[studentId];
@@ -140,7 +138,6 @@ const Attendance = () => {
     });
   };
 
-  // Navigate dates
   const goToPreviousDay = () => {
     const prev = new Date(currentDate);
     prev.setDate(prev.getDate() - 1);
@@ -152,6 +149,10 @@ const Attendance = () => {
     next.setDate(next.getDate() + 1);
     setCurrentDate(next);
   };
+
+  useEffect(() => {
+    fetchClasses();
+  }, []);
 
   const disablePrev = termRange.start && currentDate <= termRange.start;
   const disableNext = termRange.end && currentDate >= termRange.end;
@@ -170,7 +171,7 @@ const Attendance = () => {
               value={selectedClassId}
               onChange={(e) => {
                 setSelectedClassId(e.target.value);
-                setCurrentDate(new Date());
+                setCurrentDate(new Date()); // Reset to today
               }}
             >
               <option value="">-- Select Class --</option>
