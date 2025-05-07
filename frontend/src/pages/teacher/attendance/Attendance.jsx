@@ -39,74 +39,60 @@ const Attendance = () => {
 
   const fetchStudents = async (classId) => {
     try {
-      console.log("Fetching students for class:", classId);
       setLoading(true);
       const res = await axios.get(`/api/student/class/${classId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("Raw students response:", res.data);
       const fetched = Array.isArray(res.data) ? res.data : res.data.students || [];
-      console.log("Students fetched:", fetched);
       setStudents(fetched);
-
-      const initialAttendance = {};
-      fetched.forEach((s) => {
-        initialAttendance[s._id] = "not_marked";
-      });
-      console.log("Initial attendance data set:", initialAttendance);
-      setAttendanceData(initialAttendance);
+      return fetched; // ✅ return the list
     } catch (err) {
-      console.error("Error fetching students:", err);
       toast.error("Error loading students");
+      return [];
     } finally {
       setLoading(false);
     }
   };
+  
 
-  const fetchDateStatus = async (classId, date) => {
+  const fetchDateStatus = async (classId, date, studentsList = []) => {
     try {
-      console.log(`Checking school day status for ${date.toISOString()}...`);
       const res = await axios.post(
         "/api/student/fetch-attendance",
         { classId, date: date.toISOString() },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      console.log("Date status response:", res.data);
-
+  
       const isSchool = res.data.isSchoolDay;
       setIsSchoolDay(isSchool);
-
+  
       if (isSchool) {
         const termStart = new Date(res.data.termStartDate);
         const termEnd = new Date(res.data.termEndDate);
-        console.log("Term range:", { termStart, termEnd });
         setTermRange({ start: termStart, end: termEnd });
-
+  
         const attendanceForDay = res.data.attendanceForDay || {};
-        console.log("Attendance for day:", attendanceForDay);
-
         const fullAttendance = {};
-        students.forEach((s) => {
+        studentsList.forEach((s) => {
           fullAttendance[s._id] = attendanceForDay[s._id] || "not_marked";
         });
-
-        console.log("Full attendance prepared:", fullAttendance);
+  
         setAttendanceData(fullAttendance);
-
+  
         const allMarked = Object.values(fullAttendance).every(
           (status) => status === "present" || status === "absent"
         );
         console.log("Is today's attendance fully marked?", allMarked);
         setIsTodayMarked(allMarked);
       }
-
+  
       return isSchool;
     } catch (err) {
-      console.error("Error checking date status:", err);
       setIsSchoolDay(false);
       return false;
     }
   };
+  
 
   useEffect(() => {
     if (!selectedClassId) {
@@ -117,13 +103,13 @@ const Attendance = () => {
     }
 
     const runChecks = async () => {
-      await fetchStudents(selectedClassId); // ✅ Fetch students first
-      await fetchDateStatus(selectedClassId, currentDate); // ✅ Then check date status
-    };
+      const fetchedStudents = await fetchStudents(selectedClassId); // Fetch and store locally
+      await fetchDateStatus(selectedClassId, currentDate, fetchedStudents); // Pass them in
+    };    
   
     runChecks();
   }, [selectedClassId, currentDate]);
-  
+
   const handleSubmit = async () => {
     try {
       const payload = {
