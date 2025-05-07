@@ -1,23 +1,21 @@
-// Same imports...
 import React, { useEffect, useState } from "react";
 import axios from "../../../api/axios";
 import Header from "../../../components/Teacher/TeacherHeader";
 import Sidebar from "../../../components/Teacher/TeacherSidebar";
-import { format } from "date-fns";
 import toast from "react-hot-toast";
+import { startOfWeek, addDays, format } from "date-fns";
 import "./Attendance.modules.css";
+
+const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
 const Attendance = () => {
   const [classes, setClasses] = useState([]);
   const [selectedClassId, setSelectedClassId] = useState("");
   const [students, setStudents] = useState([]);
+  const [weekStartDate, setWeekStartDate] = useState(startOfWeek(new Date(), { weekStartsOn: 1 }));
   const [attendanceData, setAttendanceData] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [isTodayMarked, setIsTodayMarked] = useState(false);
-  const [currentDate, setCurrentDate] = useState(new Date());
   const [termRange, setTermRange] = useState({ start: null, end: null });
-  const [isSchoolDay, setIsSchoolDay] = useState(false);
-
+  const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token");
 
   const fetchClasses = async () => {
@@ -34,128 +32,112 @@ const Attendance = () => {
     }
   };
 
-  const fetchStudents = async (classId) => {
+  const fetchAttendanceForWeek = async (classId, startDate) => {
     try {
       setLoading(true);
-      const res = await axios.get(`/api/student/class/${classId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const fetched = Array.isArray(res.data) ? res.data : res.data.students || [];
-      setStudents(fetched);
+      const res = await axios.post(
+        "/api/student/fetch-week-attendance",
+        { classId, weekStartDate: startDate.toISOString() },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-      // Init attendance data with not_marked for everyone
-      const initialAttendance = {};
-      fetched.forEach((s) => {
-        initialAttendance[s._id] = "not_marked";
+      const students = res.data.students || [];
+      const weekAttendance = res.data.attendanceForWeek || {};
+
+      const attendanceMap = {};
+      students.forEach((s) => {
+        attendanceMap[s._id] = {};
+        weekdays.forEach((day) => {
+          attendanceMap[s._id][day] = weekAttendance[s._id]?.[day] || "not_marked";
+        });
       });
-      setAttendanceData(initialAttendance);
-    } catch {
-      toast.error("Error loading students");
+
+      setStudents(students);
+      setAttendanceData(attendanceMap);
+      setTermRange({
+        start: new Date(res.data.termStartDate),
+        end: new Date(res.data.termEndDate),
+      });
+    } catch (err) {
+      toast.error("Failed to fetch weekly attendance");
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchDateStatus = async (classId, date) => {
-    try {
-      const res = await axios.post(
-        "/api/student/fetch-attendance",
-        { classId, date: date.toISOString() },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      const isSchool = res.data.isSchoolDay;
-      setIsSchoolDay(isSchool);
-
-      if (isSchool) {
-        const termStart = new Date(res.data.termStartDate);
-        const termEnd = new Date(res.data.termEndDate);
-        setTermRange({ start: termStart, end: termEnd });
-
-        const attendanceForDay = res.data.attendanceForDay || {};
-
-        const fullAttendance = {};
-        students.forEach((s) => {
-          fullAttendance[s._id] = attendanceForDay[s._id] || "not_marked";
-        });
-
-        setAttendanceData(fullAttendance);
-
-        const allMarked = Object.values(fullAttendance).every(
-          (status) => status === "present" || status === "absent"
-        );
-        setIsTodayMarked(allMarked);
+  const handleCheckboxChange = (studentId, day) => {
+    setAttendanceData((prev) => {
+      const current = prev[studentId][day];
+      if (current === "not_marked") {
+        return {
+          ...prev,
+          [studentId]: {
+            ...prev[studentId],
+            [day]: "present",
+          },
+        };
+      } else if (current === "present") {
+        return {
+          ...prev,
+          [studentId]: {
+            ...prev[studentId],
+            [day]: "absent",
+          },
+        };
+      } else {
+        return {
+          ...prev,
+          [studentId]: {
+            ...prev[studentId],
+            [day]: "not_marked",
+          },
+        };
       }
-
-      return isSchool;
-    } catch (err) {
-      setIsSchoolDay(false);
-      return false;
-    }
+    });
   };
-
-  useEffect(() => {
-    if (!selectedClassId) {
-      setStudents([]);
-      setIsSchoolDay(false);
-      return;
-    }
-
-    const runChecks = async () => {
-      await fetchStudents(selectedClassId);                // 🟢 First, fetch students
-      await fetchDateStatus(selectedClassId, currentDate); // 🟢 Then, fetch attendance
-    };
-
-    runChecks();
-  }, [selectedClassId, currentDate]);
 
   const handleSubmit = async () => {
     try {
       const payload = {
         classId: selectedClassId,
-        attendance: Object.entries(attendanceData).map(([studentId, status]) => ({
+        weekStartDate,
+        attendance: Object.entries(attendanceData).map(([studentId, days]) => ({
           studentId,
-          present: status === "present",
+          days,
         })),
       };
 
-      await axios.post("/api/student/mark-attendance", payload, {
+      await axios.post("/api/student/mark-week-attendance", payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      toast.success("Attendance submitted!");
-      setIsTodayMarked(true);
+      toast.success("Weekly attendance submitted!");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to submit attendance");
+      toast.error("Failed to submit attendance");
     }
   };
 
-  const handleCheckboxChange = (studentId) => {
-    setAttendanceData((prev) => {
-      const current = prev[studentId];
-      const newStatus = current === "present" ? "absent" : "present";
-      return { ...prev, [studentId]: newStatus };
-    });
+  const goToPrevWeek = () => {
+    setWeekStartDate((prev) => addDays(prev, -7));
   };
 
-  const goToPreviousDay = () => {
-    const prev = new Date(currentDate);
-    prev.setDate(prev.getDate() - 1);
-    setCurrentDate(prev);
-  };
-
-  const goToNextDay = () => {
-    const next = new Date(currentDate);
-    next.setDate(next.getDate() + 1);
-    setCurrentDate(next);
+  const goToNextWeek = () => {
+    setWeekStartDate((prev) => addDays(prev, 7));
   };
 
   useEffect(() => {
     fetchClasses();
   }, []);
 
-  const disablePrev = termRange.start && currentDate <= termRange.start;
-  const disableNext = termRange.end && currentDate >= termRange.end;
+  useEffect(() => {
+    if (selectedClassId) {
+      fetchAttendanceForWeek(selectedClassId, weekStartDate);
+    }
+  }, [selectedClassId, weekStartDate]);
+
+  const disablePrev = termRange.start && weekStartDate <= termRange.start;
+  const disableNext =
+    termRange.end && addDays(weekStartDate, 4) >= termRange.end;
 
   return (
     <div>
@@ -163,16 +145,13 @@ const Attendance = () => {
       <div className="main-wrapper">
         <Sidebar />
         <div className="attendance-page">
-          <h2>Teacher Attendance</h2>
+          <h2>Weekly Attendance</h2>
 
           <div className="class-select">
             <label>Select Class:</label>
             <select
               value={selectedClassId}
-              onChange={(e) => {
-                setSelectedClassId(e.target.value);
-                setCurrentDate(new Date()); // Reset to today
-              }}
+              onChange={(e) => setSelectedClassId(e.target.value)}
             >
               <option value="">-- Select Class --</option>
               {classes.map((cls) => (
@@ -184,55 +163,54 @@ const Attendance = () => {
           </div>
 
           <div className="date-nav">
-            <button onClick={goToPreviousDay} disabled={disablePrev || !selectedClassId}>
-              Previous
+            <button onClick={goToPrevWeek} disabled={disablePrev}>
+              Previous Week
             </button>
-            <span className="date-col">{format(currentDate, "EEEE, MMMM d, yyyy")}</span>
-            <button onClick={goToNextDay} disabled={disableNext || !selectedClassId}>
-              Next
+            <span className="date-col">
+              Week of {format(weekStartDate, "MMMM d, yyyy")}
+            </span>
+            <button onClick={goToNextWeek} disabled={disableNext}>
+              Next Week
             </button>
           </div>
 
           {loading && <p>Loading...</p>}
-          {!loading && !selectedClassId && <p className="no-class">Please select a class</p>}
-          {!loading && selectedClassId && !isSchoolDay && (
-            <p className="no-school">No school for today</p>
-          )}
-
-          {!loading && isSchoolDay && students.length > 0 && (
+          {!loading && students.length > 0 && (
             <div className="attendance-table">
               <table>
                 <thead>
                   <tr>
                     <th>Student</th>
-                    <th>Present</th>
+                    {weekdays.map((day) => (
+                      <th key={day}>{day}</th>
+                    ))}
                   </tr>
                 </thead>
                 <tbody>
                   {students.map((student) => (
                     <tr key={student._id}>
                       <td>{student.name}</td>
-                      <td>
-                        <input
-                          type="checkbox"
-                          checked={attendanceData[student._id] === "present"}
-                          onChange={() => handleCheckboxChange(student._id)}
-                          disabled={isTodayMarked}
-                        />
-                      </td>
+                      {weekdays.map((day) => (
+                        <td key={day}>
+                          <input
+                            type="checkbox"
+                            checked={attendanceData[student._id]?.[day] === "present"}
+                            onChange={() =>
+                              handleCheckboxChange(student._id, day)
+                            }
+                            disabled={
+                              attendanceData[student._id]?.[day] !== "not_marked"
+                            }
+                          />
+                        </td>
+                      ))}
                     </tr>
                   ))}
                 </tbody>
               </table>
-              {isTodayMarked ? (
-                <div className="attendance-submitted-msg">
-                  Attendance already submitted ✅
-                </div>
-              ) : (
-                <button onClick={handleSubmit} className="submit-attendance-btn">
-                  Submit Attendance
-                </button>
-              )}
+              <button onClick={handleSubmit} className="submit-attendance-btn">
+                Submit Weekly Attendance
+              </button>
             </div>
           )}
         </div>
@@ -242,3 +220,6 @@ const Attendance = () => {
 };
 
 export default Attendance;
+
+
+ 

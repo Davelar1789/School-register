@@ -467,3 +467,107 @@ export const getAttendanceForClassOnDate = async (req, res) => {
 //     });
 //   }
 // };
+
+export const fetchWeeklyAttendance = async (req, res) => {
+  try {
+    const { classId, weekStartDate } = req.body;
+    const startDate = new Date(weekStartDate);
+
+    const term = await TermSession.findOne({
+      termStartDate: { $lte: startDate },
+      termEndDate: { $gte: startDate },
+    });
+
+    if (!term) {
+      return res.status(400).json({ message: "Week is not in an active term" });
+    }
+
+    const students = await Students.find({ classId });
+
+    const attendanceForWeek = {};
+
+    students.forEach((student) => {
+      const record = student.academicRecords.find(
+        (r) => r.termId.toString() === term._id.toString()
+      );
+      if (!record) return;
+
+      const weekRecord = record.terms[0].attendance.find(
+        (week) => new Date(week.weekStartDate).toDateString() === startDate.toDateString()
+      );
+
+      const daysMap = {};
+      ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].forEach((day, i) => {
+        daysMap[day] = weekRecord?.days?.[i] || "not_marked";
+      });
+
+      attendanceForWeek[student._id] = daysMap;
+    });
+
+    res.json({
+      termStartDate: term.startDate,
+      termEndDate: term.endDate,
+      students,
+      attendanceForWeek,
+    });
+  } catch (err) {
+    console.error("Error fetching weekly attendance:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export const markWeeklyAttendance = async (req, res) => {
+  try {
+    const { classId, weekStartDate, attendance } = req.body;
+    const startDate = new Date(weekStartDate);
+
+    const term = await TermSession.findOne({
+      termStartDate: { $lte: startDate },
+      termEndDate: { $gte: startDate },
+    });
+
+    if (!term) {
+      return res.status(400).json({ message: "Week is not in an active term" });
+    }
+
+    for (const { studentId, days } of attendance) {
+      const student = await Students.findById(studentId);
+      if (!student) continue;
+
+      let record = student.academicRecords.find(
+        (r) => r.termId.toString() === term._id.toString()
+      );
+
+      if (!record) {
+        record = {
+          termId: term._id,
+          terms: [{ attendance: [] }],
+        };
+        student.academicRecords.push(record);
+      }
+
+      let weekRecord = record.terms[0].attendance.find(
+        (week) => new Date(week.weekStartDate).toDateString() === startDate.toDateString()
+      );
+
+      if (!weekRecord) {
+        weekRecord = { weekStartDate: startDate, days: ["not_marked", "not_marked", "not_marked", "not_marked", "not_marked"] };
+        record.terms[0].attendance.push(weekRecord);
+      }
+
+      // Update each day's attendance
+      ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"].forEach((day, i) => {
+        if (days[day]) {
+          weekRecord.days[i] = days[day];
+        }
+      });
+
+      await student.save();
+    }
+
+    res.json({ message: "Weekly attendance submitted successfully" });
+  } catch (err) {
+    console.error("Error marking weekly attendance:", err);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
