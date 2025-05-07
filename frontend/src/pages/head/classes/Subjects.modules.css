@@ -64,6 +64,8 @@
     justify-content: center;
     align-items: center;
     z-index: 1000;
+    padding: 20px; /* Optional: adds spacing so modal never touches screen edge */
+    box-sizing: border-box;
   }
   
   .modal {
@@ -72,8 +74,11 @@
     border-radius: 10px;
     width: 400px;
     max-width: 90%;
+    max-height: 90vh; /* Prevents modal from growing too tall */
+    overflow-y: auto; /* Enables scrolling if content is too tall */
     box-shadow: 0 0 10px rgba(0,0,0,0.2);
   }
+  
   
   .modal input[type="text"] {
     width: 100%;
