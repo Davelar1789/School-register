@@ -1,3 +1,4 @@
+// Same imports...
 import React, { useEffect, useState } from "react";
 import axios from "../../../api/axios";
 import Header from "../../../components/Teacher/TeacherHeader";
@@ -26,7 +27,7 @@ const Attendance = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setClasses(res.data.classes || []);
-    } catch (err) {
+    } catch {
       toast.error("Failed to load classes");
     } finally {
       setLoading(false);
@@ -46,7 +47,7 @@ const Attendance = () => {
         initialAttendance[s._id] = "not_marked";
       });
       setAttendanceData(initialAttendance);
-    } catch (err) {
+    } catch {
       toast.error("Error loading students");
     } finally {
       setLoading(false);
@@ -57,105 +58,84 @@ const Attendance = () => {
     try {
       const res = await axios.post(
         "/api/student/fetch-attendance",
-        {
-          classId,
-          date: date.toISOString(),
-        },
+        { classId, date: date.toISOString() },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-  
+
       const isSchool = res.data.isSchoolDay;
       setIsSchoolDay(isSchool);
-  
+
       if (isSchool) {
         const termStart = new Date(res.data.termStartDate);
         const termEnd = new Date(res.data.termEndDate);
         setTermRange({ start: termStart, end: termEnd });
-  
+
         const attendanceForDay = res.data.attendanceForDay || {};
-  
-        // FIX: make sure all students are included
+
         const fullAttendance = {};
         students.forEach((s) => {
           fullAttendance[s._id] = attendanceForDay[s._id] || "not_marked";
         });
-  
+
         setAttendanceData(fullAttendance);
-  
-        // MARKED LOGIC (✅ New and Corrected)
+
         const allMarked = Object.values(fullAttendance).every(
           (status) => status === "present" || status === "absent"
         );
         setIsTodayMarked(allMarked);
-        
       }
-  
+
       return isSchool;
     } catch (err) {
       setIsSchoolDay(false);
-      console.error("🚫 Error fetching date status:", err.response?.data?.message || err.message);
       return false;
     }
   };
-  
-  
-  useEffect(() => {
-    const runChecks = async () => {
-      if (selectedClassId && currentDate) {
-        const isValidSchoolDay = await fetchDateStatus(selectedClassId, currentDate);
-        if (isValidSchoolDay) {
-          await fetchStudents(selectedClassId);
-        } else {
-          setStudents([]); // Clear table if not a school day
-        }
-      }
-    };
-    runChecks();
-  }, [selectedClassId, currentDate]);
 
-  
   useEffect(() => {
     if (!selectedClassId) {
       setStudents([]);
       setIsSchoolDay(false);
+      return;
     }
-  }, [selectedClassId]);
-  
+
+    const runChecks = async () => {
+      const isValid = await fetchDateStatus(selectedClassId, currentDate);
+      if (isValid) await fetchStudents(selectedClassId);
+      else setStudents([]);
+    };
+
+    runChecks();
+  }, [selectedClassId, currentDate]);
 
   const handleSubmit = async () => {
     try {
       const payload = {
         classId: selectedClassId,
-        attendance: Object.entries(attendanceData).map(([id, present]) => ({
-          studentId: id,
-          present,
+        attendance: Object.entries(attendanceData).map(([studentId, status]) => ({
+          studentId,
+          present: status === "present",
         })),
       };
+
       await axios.post("/api/student/mark-attendance", payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
       toast.success("Attendance submitted!");
+      setIsTodayMarked(true);
     } catch (err) {
-      toast.error("Failed to submit attendance");
+      toast.error(err.response?.data?.message || "Failed to submit attendance");
     }
   };
 
   const handleCheckboxChange = (studentId) => {
     setAttendanceData((prev) => {
       const current = prev[studentId];
-      let newStatus = "present";
-      if (current === "present") newStatus = "absent";
-      else if (current === "absent") newStatus = "present";
-      else if (current === "not_marked") newStatus = "present";
-  
-      return {
-        ...prev,
-        [studentId]: newStatus,
-      };
+      const newStatus = current === "present" ? "absent" : "present";
+      return { ...prev, [studentId]: newStatus };
     });
   };
-  
-  
 
   const goToPreviousDay = () => {
     const prev = new Date(currentDate);
@@ -169,23 +149,9 @@ const Attendance = () => {
     setCurrentDate(next);
   };
 
-  // Load initial class list
   useEffect(() => {
     fetchClasses();
   }, []);
-
-  // When class or date changes
-  useEffect(() => {
-    if (selectedClassId) {
-      fetchStudents(selectedClassId);
-      fetchDateStatus(selectedClassId, currentDate);
-    }
-  }, [selectedClassId, currentDate]);
-
-  const isWeekend = (date) => {
-    const day = date.getDay();
-    return day === 0 || day === 6;
-  };
 
   const disablePrev = termRange.start && currentDate <= termRange.start;
   const disableNext = termRange.end && currentDate >= termRange.end;
@@ -204,7 +170,7 @@ const Attendance = () => {
               value={selectedClassId}
               onChange={(e) => {
                 setSelectedClassId(e.target.value);
-                setCurrentDate(new Date()); // reset to today on class change
+                setCurrentDate(new Date());
               }}
             >
               <option value="">-- Select Class --</option>
@@ -227,15 +193,10 @@ const Attendance = () => {
           </div>
 
           {loading && <p>Loading...</p>}
-
-          {!loading && !selectedClassId && (
-            <p className="no-class">Please select a class</p>
-            )}
-
-            {!loading && selectedClassId && !isSchoolDay && (
+          {!loading && !selectedClassId && <p className="no-class">Please select a class</p>}
+          {!loading && selectedClassId && !isSchoolDay && (
             <p className="no-school">No school for today</p>
-            )}
-
+          )}
 
           {!loading && isSchoolDay && students.length > 0 && (
             <div className="attendance-table">
@@ -251,20 +212,21 @@ const Attendance = () => {
                     <tr key={student._id}>
                       <td>{student.name}</td>
                       <td>
-                      <input
-                        type="checkbox"
-                        checked={attendanceData[student._id] === "present"}
-                        onChange={() => handleCheckboxChange(student._id)}
-                        disabled={isTodayMarked}
-                      />
-
+                        <input
+                          type="checkbox"
+                          checked={attendanceData[student._id] === "present"}
+                          onChange={() => handleCheckboxChange(student._id)}
+                          disabled={isTodayMarked}
+                        />
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
               {isTodayMarked ? (
-                <div className="attendance-submitted-msg">Attendance already submitted ✅</div>
+                <div className="attendance-submitted-msg">
+                  Attendance already submitted ✅
+                </div>
               ) : (
                 <button onClick={handleSubmit} className="submit-attendance-btn">
                   Submit Attendance
