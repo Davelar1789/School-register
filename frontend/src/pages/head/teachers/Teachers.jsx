@@ -216,7 +216,7 @@ const TeachersDashboard = () => {
                     <option value="Female">Female</option>
                   </select>
                   <input type="tel" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleInput} required />
-                  <input type="email" name="email" placeholder="Email (optional)" value={formData.email} onChange={handleInput} />
+                  <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleInput} />
                   
                   <label>Type of Teacher:</label>
                     <select
