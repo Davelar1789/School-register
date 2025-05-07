@@ -43,7 +43,7 @@ const Attendance = () => {
       setStudents(fetched);
       const initialAttendance = {};
       fetched.forEach((s) => {
-        initialAttendance[s._id] = true;
+        initialAttendance[s._id] = "not_marked";
       });
       setAttendanceData(initialAttendance);
     } catch (err) {
@@ -133,12 +133,18 @@ const Attendance = () => {
   const handleCheckboxChange = (studentId) => {
     setAttendanceData((prev) => {
       const current = prev[studentId];
+      let newStatus = "present";
+      if (current === "present") newStatus = "absent";
+      else if (current === "absent") newStatus = "present";
+      else if (current === "not_marked") newStatus = "present";
+  
       return {
         ...prev,
-        [studentId]: current === "present" ? "absent" : "present",
+        [studentId]: newStatus,
       };
     });
   };
+  
   
 
   const goToPreviousDay = () => {
