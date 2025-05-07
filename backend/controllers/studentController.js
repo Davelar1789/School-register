@@ -340,7 +340,7 @@ export const getAttendanceForClassOnDate = async (req, res) => {
       return res.status(404).json({ message: "No students found in this class." });
     }
 
-    const results = [];
+    const attendanceForDay = {};
     let termStartDate = null;
     let termEndDate = null;
     let foundTerm = false;
@@ -378,11 +378,12 @@ export const getAttendanceForClassOnDate = async (req, res) => {
       const attendanceRecord = studentTerm.attendance.find(a => a.week === currentWeek);
       const isPresent = attendanceRecord?.days?.[dayIndex] || false;
 
-      results.push({
-        studentId: student._id,
-        name: student.name,
-        present: isPresent,
-      });
+      attendanceForDay[student._id] = isPresent === true
+  ? "present"
+  : isPresent === false
+  ? "absent"
+  : "not_marked";
+
     }
 
     // If no student had a valid term, return isSchoolDay: false
@@ -390,11 +391,12 @@ export const getAttendanceForClassOnDate = async (req, res) => {
 
     return res.status(200).json({
       date: targetDate,
-      attendance: results,
+      attendanceForDay,
       isSchoolDay,
       termStartDate,
       termEndDate,
     });
+    
   } catch (err) {
     console.error("Error fetching attendance:", err);
     return res.status(500).json({ message: "Error fetching attendance", error: err.message });

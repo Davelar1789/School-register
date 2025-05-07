@@ -68,13 +68,13 @@ const Attendance = () => {
       setIsSchoolDay(isSchool);
   
       if (isSchool) {
-        setAttendanceData({});
         const termStart = new Date(res.data.termStartDate);
         const termEnd = new Date(res.data.termEndDate);
         setTermRange({ start: termStart, end: termEnd });
   
-      } else {
-        console.log("⚠️ Not a school day:", date.toDateString());
+        // NEW: Attendance for that date
+        const attendanceForDay = res.data.attendanceForDay || {};
+        setAttendanceData(attendanceForDay);
       }
   
       return isSchool;
@@ -84,7 +84,7 @@ const Attendance = () => {
       return false;
     }
   };
-
+  
   useEffect(() => {
     const runChecks = async () => {
       if (selectedClassId && currentDate) {
