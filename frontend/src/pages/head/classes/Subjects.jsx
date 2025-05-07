@@ -111,7 +111,7 @@ const Subjects = () => {
           <thead>
             <tr>
               <th>Name</th>
-              <th>Classes</th>
+              {/* <th>Classes</th> */}
               <th>Actions</th>
             </tr>
           </thead>
@@ -119,7 +119,7 @@ const Subjects = () => {
             {subjects.map((subj) => (
               <tr key={subj._id}>
                 <td>{subj.name}</td>
-                <td>{(subj.classes || []).map(cid => classes.find(c => c._id === cid)?.className).join(", ")}</td>
+                {/* <td>{(subj.classes || []).map(cid => classes.find(c => c._id === cid)?.className).join(", ")}</td> */}
                 <td>
                   <button onClick={() => openModal(subj)}><MdEdit /></button>
                   <button onClick={() => handleDelete(subj._id)}><MdDelete /></button>
