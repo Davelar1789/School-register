@@ -72,11 +72,14 @@ const Attendance = () => {
         setTermRange({ start: termStart, end: termEnd });
   
         const attendanceForDay = res.data.attendanceForDay || {};
+        console.log("Attendance for day:", attendanceForDay);
+
         const fullAttendance = {};
         studentsList.forEach((s) => {
           fullAttendance[s._id] = attendanceForDay[s._id] || "not_marked";
         });
-  
+        console.log("Full attendance prepared:", fullAttendance);
+
         setAttendanceData(fullAttendance);
   
         const allMarked = Object.values(fullAttendance).every(
