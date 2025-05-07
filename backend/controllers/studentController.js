@@ -393,14 +393,19 @@ export const getAttendanceForClassOnDate = async (req, res) => {
       });
     }
 
-    return res.status(200).json({
-      date: targetDate,
-      attendance: results,
-      isSchoolDay: foundTerm,
-      termStartDate,
-      termEndDate,
-      attendanceSubmitted: allMarked && results.length > 0,
-    });
+    const attendanceForDay = {};
+results.forEach((r) => {
+  attendanceForDay[r.studentId] = r.status;
+});
+
+return res.status(200).json({
+  isSchoolDay: foundTerm,
+  termStartDate,
+  termEndDate,
+  attendanceForDay, // 👈 match frontend
+  attendanceSubmitted: allMarked && results.length > 0,
+});
+
 
   } catch (err) {
     console.error("Error fetching attendance:", err);
