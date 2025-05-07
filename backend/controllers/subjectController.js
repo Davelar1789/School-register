@@ -1,4 +1,4 @@
-import Subject from "../models/Subject.model.js";
+import Subject from "../models/subject.model.js";
 
 // Create a new subject
 export const createSubject = async (req, res) => {
