@@ -173,7 +173,7 @@ const Sidebar = () => {
         </NavLink>
       </li>
       <li>
-        <NavLink to="/classes" className={({ isActive }) => isActive ? "active" : ""}>
+        <NavLink to="/classes-main" className={({ isActive }) => isActive ? "active" : ""}>
           <FaChalkboardTeacher className="icon" /> Classes
         </NavLink>
       </li>

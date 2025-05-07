@@ -57,6 +57,8 @@ import AddAdmin from "./pages/superadmin/addAdmin/addAdmin";
 import Attendance from "./pages/teacher/attendance/Attendance";
 import Income from "./pages/head/income/Income";
 import Expenses from "./pages/head/expenses/ExpensePage";
+import Subjects from "./pages/head/classes/Subjects";
+import MainClasses from "./pages/head/classes/MainPage";
 
 const router = createBrowserRouter([
   {
@@ -172,6 +174,22 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["admin"]}>
             <Classes />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "classes-main",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <MainClasses />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "subjects",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <Subjects />
           </ProtectedRoute>
         ),
       },

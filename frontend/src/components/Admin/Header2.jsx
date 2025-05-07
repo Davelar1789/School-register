@@ -205,7 +205,7 @@ const Header = () => {
           </NavLink>
         </li>
         <li>
-          <NavLink to="/classes" onClick={() => setSidebarOpen(false)}>
+          <NavLink to="/classes-main" onClick={() => setSidebarOpen(false)}>
             <FaChalkboardTeacher className="icon" /> Classes
           </NavLink>
         </li>
