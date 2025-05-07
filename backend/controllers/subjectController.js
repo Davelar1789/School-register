@@ -3,41 +3,62 @@ import Subject from "../models/subject.model.js";
 // Create a new subject
 export const createSubject = async (req, res) => {
   try {
-    console.log("Create Subject Request Body:", req.body); // log incoming request
+    console.log("📩 Create Subject Request Body:", req.body);
 
-    const { name, school, class: classId } = req.body;
+    const { name, school, class: classId, classes } = req.body;
 
-    if (!name || !school || !classId) {
-      console.log("Missing fields:", { name, school, classId });
-      return res.status(400).json({ message: "Name, school, and class are required." });
+    // Prefer `classes` if present (array), fallback to `class`
+    const classIds = Array.isArray(classes)
+      ? classes
+      : classId
+      ? [classId]
+      : [];
+
+    if (!name || !school || !classIds.length) {
+      console.log("⚠️ Missing required fields:", {
+        name,
+        school,
+        classId,
+        classes,
+      });
+      return res.status(400).json({
+        message: "Name, school, and at least one class are required.",
+      });
     }
 
-    // If classId is an array (for multiple classes), handle each
-    const classIds = Array.isArray(classId) ? classId : [classId];
     const createdSubjects = [];
 
     for (let id of classIds) {
+      console.log(`🔍 Checking subject existence for class: ${id}`);
       const existing = await Subject.findOne({ name, school, class: id });
+
       if (existing) {
-        console.log(`Subject already exists for class ${id}`);
+        console.log(`❌ Subject '${name}' already exists for class ${id}`);
         continue;
       }
 
       const newSubject = new Subject({ name, school, class: id });
       await newSubject.save();
+      console.log(`✅ Created subject '${name}' for class ${id}`);
       createdSubjects.push(newSubject);
     }
 
     if (createdSubjects.length === 0) {
-      return res.status(400).json({ message: "Subject already exists for all selected classes." });
+      return res.status(400).json({
+        message: "Subject already exists for all selected classes.",
+      });
     }
 
     res.status(201).json(createdSubjects);
   } catch (err) {
-    console.error("Create Subject Error:", err);
-    res.status(500).json({ message: "Server error", error: err.message });
+    console.error("🔥 Create Subject Error:", err);
+    res.status(500).json({
+      message: "Server error while creating subject",
+      error: err.message,
+    });
   }
 };
+
 
 
 // Get all subjects for a specific class in a school
