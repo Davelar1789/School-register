@@ -117,19 +117,13 @@ const Attendance = () => {
     }
 
     const runChecks = async () => {
-      console.log("Running checks for class:", selectedClassId, "on date:", currentDate);
-      const isValid = await fetchDateStatus(selectedClassId, currentDate);
-      if (isValid) {
-        await fetchStudents(selectedClassId);
-      } else {
-        console.log("Invalid school day, clearing student list.");
-        setStudents([]);
-      }
+      await fetchStudents(selectedClassId); // ✅ Fetch students first
+      await fetchDateStatus(selectedClassId, currentDate); // ✅ Then check date status
     };
-
+  
     runChecks();
   }, [selectedClassId, currentDate]);
-
+  
   const handleSubmit = async () => {
     try {
       const payload = {
