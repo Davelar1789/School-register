@@ -5,8 +5,8 @@
   .subjects-main {
     flex: 1;
     padding: 20px;
-    background: #f9f9f9;
     min-height: 100vh;
+    background-color: #1b1c30;
   }
   
   .subjects-header {
@@ -107,4 +107,11 @@
   .modal-actions button:last-child {
     background-color: #dc3545;
     color: white;
+  }
+
+  @media (min-width: 768px) {
+    .subjects-main {
+        margin-left: 250px;
+        margin-top: 50px;
+    }
   }

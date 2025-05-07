@@ -100,8 +100,8 @@ const Subjects = () => {
   return (
     <div className="subjects-container">
       <Sidebar />
+      <Header />
       <div className="subjects-main">
-        <Header />
         <div className="subjects-header">
           <h2>Subjects</h2>
           <button className="add-button" onClick={() => openModal()}>Add Subject</button>
