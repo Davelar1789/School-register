@@ -3,18 +3,18 @@ import Subject from "../models/Subject.model.js";
 // Create a new subject
 export const createSubject = async (req, res) => {
   try {
-    const { name, school } = req.body;
+    const { name, school, class: classId } = req.body;
 
-    if (!name || !school) {
-      return res.status(400).json({ message: "Name and school are required." });
+    if (!name || !school || !classId) {
+      return res.status(400).json({ message: "Name, school, and class are required." });
     }
 
-    const existing = await Subject.findOne({ name, school });
+    const existing = await Subject.findOne({ name, school, class: classId });
     if (existing) {
-      return res.status(400).json({ message: "Subject already exists for this school." });
+      return res.status(400).json({ message: "Subject already exists for this class." });
     }
 
-    const newSubject = new Subject({ name, school });
+    const newSubject = new Subject({ name, school, class: classId });
     await newSubject.save();
 
     res.status(201).json(newSubject);
@@ -24,11 +24,19 @@ export const createSubject = async (req, res) => {
   }
 };
 
-// Get all subjects for a school
+// Get all subjects for a specific class in a school
 export const getSubjectsBySchool = async (req, res) => {
   try {
     const { schoolId } = req.params;
-    const subjects = await Subject.find({ school: schoolId }).sort({ name: 1 });
+    const { classId } = req.query;
+
+    const query = { school: schoolId };
+    if (classId) query.class = classId;
+
+    const subjects = await Subject.find(query)
+      .populate("class", "name")
+      .sort({ name: 1 });
+
     res.status(200).json(subjects);
   } catch (err) {
     res.status(500).json({ message: "Error fetching subjects", error: err.message });
@@ -39,7 +47,7 @@ export const getSubjectsBySchool = async (req, res) => {
 export const getSubjectById = async (req, res) => {
   try {
     const { id } = req.params;
-    const subject = await Subject.findById(id);
+    const subject = await Subject.findById(id).populate("class", "name");
     if (!subject) {
       return res.status(404).json({ message: "Subject not found" });
     }
@@ -53,9 +61,14 @@ export const getSubjectById = async (req, res) => {
 export const updateSubject = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name } = req.body;
+    const { name, class: classId } = req.body;
 
-    const updated = await Subject.findByIdAndUpdate(id, { name }, { new: true });
+    const updated = await Subject.findByIdAndUpdate(
+      id,
+      { name, class: classId },
+      { new: true }
+    );
+
     if (!updated) {
       return res.status(404).json({ message: "Subject not found" });
     }
