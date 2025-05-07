@@ -28,6 +28,11 @@ const teacherSchema = new mongoose.Schema({
   },
   address: String,
   qualification: String,
+  teacherType: {
+    type: String,
+    enum: ["Class Teacher", "Subject Teacher", "Both"],
+    required: true,
+  },  
   subjectSpecialization: {
     type: [String],
     default: [],

@@ -49,6 +49,12 @@ export const createTeacher = async (req, res) => {
       return res.status(400).json({ message: "Email is already in use by a system user" });
     }
 
+    const { teacherType } = req.body;
+      if (!["Class Teacher", "Subject Teacher", "Both"].includes(teacherType)) {
+        return res.status(400).json({ message: "Invalid teacher type" });
+      }
+
+
     const staffId = await generateStaffId();
 
     // Build new teacher
