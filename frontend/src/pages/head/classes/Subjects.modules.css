@@ -88,10 +88,21 @@
     border-radius: 4px;
   }
   
-  .class-checkboxes label {
-    display: block;
-    margin-bottom: 5px;
+  .class-checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 24px;
   }
+
+  .class-checkboxes label {
+    display: flex;
+    align-items: center; /* Vertically centers checkbox and text */
+    gap: 8px; /* Adds space between checkbox and class name */
+    margin-bottom: 8px;
+    cursor: pointer;
+    font-size: 16px; /* Optional: consistent font sizing */
+  }
+  
   
   .modal-actions {
     display: flex;
