@@ -83,10 +83,10 @@ const TeachersDashboard = () => {
         gender: "",
         phone: "",
         email: "",
-        subjectSpecialization: [],
+        teacherType: "",
         joinedDate: "",
         status: "Active",
-      });
+      });      
     } catch (err) {
       console.error("Failed to add teacher", err);
       toast.error('Failed to add teacher. Please try again.');
