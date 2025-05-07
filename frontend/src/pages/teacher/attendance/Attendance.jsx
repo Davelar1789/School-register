@@ -12,7 +12,7 @@ const Attendance = () => {
   const [students, setStudents] = useState([]);
   const [attendanceData, setAttendanceData] = useState({});
   const [loading, setLoading] = useState(false);
-
+  const [isTodayMarked, setIsTodayMarked] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [termRange, setTermRange] = useState({ start: null, end: null });
   const [isSchoolDay, setIsSchoolDay] = useState(false);
@@ -84,9 +84,10 @@ const Attendance = () => {
   
         // MARKED LOGIC (✅ New and Corrected)
         const allMarked = Object.values(fullAttendance).every(
-          (v) => v === "present" || v === "absent"
+          (status) => status === "present" || status === "absent"
         );
         setIsTodayMarked(allMarked);
+        
       }
   
       return isSchool;
@@ -251,11 +252,12 @@ const Attendance = () => {
                       <td>{student.name}</td>
                       <td>
                       <input
-                          type="checkbox"
-                          checked={attendanceData[student._id] === "present"}
-                          onChange={() => handleCheckboxChange(student._id)}
-                          disabled={isTodayMarked}
-                        />
+                        type="checkbox"
+                        checked={attendanceData[student._id] === "present"}
+                        onChange={() => handleCheckboxChange(student._id)}
+                        disabled={isTodayMarked}
+                      />
+
                       </td>
                     </tr>
                   ))}
