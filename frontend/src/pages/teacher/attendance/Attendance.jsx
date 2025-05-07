@@ -190,13 +190,13 @@ const Attendance = () => {
           </div>
 
           <div className="date-nav">
-            {/* <button onClick={goToPreviousDay} disabled={disablePrev || !selectedClassId}>
+            <button onClick={goToPreviousDay} disabled={disablePrev || !selectedClassId}>
               Previous
-            </button> */}
+            </button>
             <span className="date-col">{format(currentDate, "EEEE, MMMM d, yyyy")}</span>
-            {/* <button onClick={goToNextDay} disabled={disableNext || !selectedClassId}>
+            <button onClick={goToNextDay} disabled={disableNext || !selectedClassId}>
               Next
-            </button> */}
+            </button>
           </div>
 
           {loading && <p>Loading...</p>}
