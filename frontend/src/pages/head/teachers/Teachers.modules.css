@@ -309,6 +309,27 @@ body {
     min-width: 200px;
   }
 
+  .teacher-type-dropdown {
+    width: 100%;
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    font-size: 15px;
+    margin-bottom: 15px;
+    transition: border 0.2s ease;
+  }
+  
+  .teacher-type-dropdown:focus {
+    border-color: #0077ff;
+    outline: none;
+  }
+
+  .teacher-type-dropdown:hover {
+    border-color: #005bb5;
+  }
+  
+
   @media screen and (min-width: 768px){
     .teachers-container {
       margin-left: 250px;

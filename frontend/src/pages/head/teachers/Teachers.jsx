@@ -11,13 +11,6 @@ import { toast } from "react-hot-toast";
 import fetchSchoolData from "../../../utils/fetchSchoolData";
 
 
-const allSubjects = [
-  "Mathematics", "English Language", "Integrated Science", "Natural Science", "Social Studies",
-  "Ghanaian Language", "Computing", "RME", "OWOP",
-  "Career Technology", "Creative Arts", "French", "Economics", "Business Studies",
-   "Agricultural Science", "Spanish", "Yoruba", "Others"
-];
-
 const TeachersDashboard = () => {
   const [teachers, setTeachers] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,10 +23,11 @@ const TeachersDashboard = () => {
     gender: "",
     phone: "",
     email: "",
-    subjectSpecialization: [],
+    teacherType: "", // NEW FIELD
     joinedDate: "",
     status: "Active",
   });
+  
 
   const token = localStorage.getItem("token");
   let schoolId = null;
@@ -224,18 +218,19 @@ const TeachersDashboard = () => {
                   <input type="tel" name="phone" placeholder="Phone Number" value={formData.phone} onChange={handleInput} required />
                   <input type="email" name="email" placeholder="Email (optional)" value={formData.email} onChange={handleInput} />
                   
-                  <label>Select Subject(s):</label>
-                  <div className="subject-selection">
-                    {allSubjects.map(subject => (
-                      <span
-                        key={subject}
-                        className={`subject-tag ${formData.subjectSpecialization.includes(subject) ? "selected" : ""}`}
-                        onClick={() => handleSubjectClick(subject)}
-                      >
-                        {subject}
-                      </span>
-                    ))}
-                  </div>
+                  <label>Type of Teacher:</label>
+                    <select
+                      name="teacherType"
+                      value={formData.teacherType}
+                      onChange={handleInput}
+                      className="teacher-type-dropdown"
+                      required
+                    >
+                      <option value="">Select Teacher Type</option>
+                      <option value="Class Teacher">Class Teacher</option>
+                      <option value="Subject Teacher">Subject Teacher</option>
+                      <option value="Both">Both Class and Subject Teacher</option>
+                    </select>
 
                   <label>Date Joined:</label>
                   <input type="date" name="joinedDate" value={formData.joinedDate} onChange={handleInput} required />
