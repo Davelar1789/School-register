@@ -349,14 +349,22 @@ export const getAttendanceForToday = async (req, res) => {
 export const getAttendanceForClassOnDate = async (req, res) => {
   try {
     const { classId, date } = req.body;
+    console.log("📥 Incoming Request - Get Attendance For Class On Date");
+    console.log("📌 Class ID:", classId);
+    console.log("📅 Date:", date);
+
     if (!classId || !date) {
+      console.warn("⚠️ Missing classId or date in request body");
       return res.status(400).json({ message: "Class ID and date are required." });
     }
 
     const targetDate = new Date(new Date(date).toISOString().split("T")[0]);
     const dayOfWeek = targetDate.getUTCDay(); // 0 (Sun) - 6 (Sat)
+    console.log("📆 Target Date (normalized):", targetDate.toISOString());
+    console.log("🗓️ Day of Week:", dayOfWeek, "(0 = Sun, 6 = Sat)");
 
     if (dayOfWeek === 0 || dayOfWeek === 6) {
+      console.log("🚫 Selected date is a weekend. No attendance expected.");
       return res.status(200).json({
         isSchoolDay: false,
         message: "Selected date is a weekend.",
@@ -369,7 +377,10 @@ export const getAttendanceForClassOnDate = async (req, res) => {
     }
 
     const students = await Students.find({ classes: classId });
+    console.log(`👥 Found ${students.length} student(s) in class ${classId}`);
+
     if (!students.length) {
+      console.warn("❌ No students found in the class.");
       return res.status(404).json({ message: "No students found in this class." });
     }
 
@@ -381,8 +392,12 @@ export const getAttendanceForClassOnDate = async (req, res) => {
 
     const currentWeek = Math.ceil(targetDate.getUTCDate() / 7);
     const dayIndex = dayOfWeek - 1; // Mon = 0
+    console.log("🧮 Calculated Week of Month:", currentWeek);
+    console.log("📍 Day Index (Mon=0):", dayIndex);
 
     for (const student of students) {
+      console.log(`🔎 Checking student: ${student.name} (${student._id})`);
+
       const currentTerm = await TermSession.findOne({
         schoolId: student.schoolId,
         startDate: { $lte: targetDate },
@@ -390,23 +405,35 @@ export const getAttendanceForClassOnDate = async (req, res) => {
         isActive: true,
       });
 
-      if (!currentTerm) continue;
+      if (!currentTerm) {
+        console.warn(`⚠️ No active term found for student ${student.name}`);
+        continue;
+      }
 
       if (!foundTerm) {
         termStartDate = currentTerm.startDate;
         termEndDate = currentTerm.endDate;
         foundTerm = true;
+        console.log("✅ Term Found:");
+        console.log("   📅 Term Start:", termStartDate);
+        console.log("   📅 Term End:", termEndDate);
       }
 
       const academicYear = student.academicRecords.find(
         (rec) => rec.yearLabel === currentTerm.yearLabel
       );
-      if (!academicYear) continue;
+      if (!academicYear) {
+        console.warn(`⚠️ Academic year mismatch for student ${student.name}`);
+        continue;
+      }
 
       const studentTerm = academicYear.terms.find(
         (term) => term.termName === currentTerm.termName
       );
-      if (!studentTerm) continue;
+      if (!studentTerm) {
+        console.warn(`⚠️ Term data not found for ${student.name} in ${currentTerm.termName}`);
+        continue;
+      }
 
       const attendanceRecord = studentTerm.attendance.find(a => a.week === currentWeek);
       const status = attendanceRecord?.days?.[dayIndex] || "not_marked";
@@ -414,6 +441,8 @@ export const getAttendanceForClassOnDate = async (req, res) => {
       if (status === "not_marked") {
         allMarked = false;
       }
+
+      console.log(`   ➡️ Status for ${student.name}:`, status);
 
       results.push({
         studentId: student._id,
@@ -427,6 +456,9 @@ export const getAttendanceForClassOnDate = async (req, res) => {
       attendanceForDay[r.studentId] = r.status;
     });
 
+    console.log("📊 Attendance Summary:", attendanceForDay);
+    console.log("✅ All attendance marked?", allMarked);
+
     return res.status(200).json({
       isSchoolDay: foundTerm,
       termStartDate,
@@ -436,10 +468,11 @@ export const getAttendanceForClassOnDate = async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Error fetching attendance:", err);
+    console.error("🔥 Error fetching attendance:", err);
     return res.status(500).json({ message: "Error fetching attendance", error: err.message });
   }
 };
+
 
 
 // export const deleteAllStudents = async (req, res) => {
