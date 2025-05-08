@@ -28,9 +28,9 @@ router.post("/", protect, createStudent);
 router.get("/", protect, getAllStudents);
 router.post("/mark-attendance", protect, markAttendance);
 router.get("/search", searchStudents); // ?query=John
-router.post("/fetch-attendancee", getAttendanceForClassOnDate);
+router.post("/fetch-attendance", getAttendanceForClassOnDate);
 router.post("/fetch-weekly-attendance", protect, fetchWeeklyAttendance);
-router.post("/fetch-attendance", protect, fetchAttendanceForDate);
+router.post("/fetch-attendancee", protect, fetchAttendanceForDate);
 router.post("/mark-weekly-attendance", protect, markWeeklyAttendance);
 // router.post("/migrate-attendance", migrateAttendanceBooleans);
 // router.delete("/all-time", deleteAllStudents); // DELETE /api/students/all

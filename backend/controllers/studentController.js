@@ -421,9 +421,8 @@ export const getAttendanceForClassOnDate = async (req, res) => {
       return res.status(400).json({ message: "Class ID and date are required." });
     }
 
-    const targetDate = new Date(new Date(date).toISOString().split("T")[0]);
+    const targetDate = new Date(date);
     const dayOfWeek = targetDate.getUTCDay(); // 0 (Sun) - 6 (Sat)
-    
 
     if (dayOfWeek === 0 || dayOfWeek === 6) {
       console.log("🚫 Selected date is a weekend. No attendance expected.");
@@ -439,72 +438,57 @@ export const getAttendanceForClassOnDate = async (req, res) => {
     }
 
     const students = await Students.find({ classes: classId });
-    console.log(`👥 Found ${students.length} student(s) in class ${classId}`);
-
     if (!students.length) {
       console.warn("❌ No students found in the class.");
       return res.status(404).json({ message: "No students found in this class." });
     }
 
-    const results = [];
     let termStartDate = null;
     let termEndDate = null;
     let foundTerm = false;
     let allMarked = true;
 
-    const currentWeek = Math.ceil(targetDate.getUTCDate() / 7);
-    const dayIndex = dayOfWeek - 1; // Mon = 0
-    console.log("🧮 Calculated Week of Month:", currentWeek);
-    console.log("📍 Day Index (Mon=0):", dayIndex);
+    // Fetch the active term session
+    const currentTerm = await TermSession.findOne({
+      schoolId: students[0]?.schoolId,
+      startDate: { $lte: targetDate },
+      endDate: { $gte: targetDate },
+      isActive: true,
+    });
+
+    if (!currentTerm) {
+      console.warn("⚠️ No active term found.");
+      return res.status(404).json({ message: "No active term found." });
+    }
+
+    termStartDate = new Date(currentTerm.startDate);
+    termEndDate = new Date(currentTerm.endDate);
+    foundTerm = true;
+
+    console.log(`✅ Active Term Found: Start (${termStartDate.toDateString()}) → End (${termEndDate.toDateString()})`);
+
+    // Calculate term week dynamically
+    const daysElapsed = Math.floor((targetDate - termStartDate) / (1000 * 60 * 60 * 24));
+    const termWeek = Math.floor(daysElapsed / 7) + 1;
+
+    console.log(`🗓️ Term Week: ${termWeek}`);
+
+    const results = [];
+    const dayIndex = dayOfWeek - 1; // Monday = 0
 
     for (const student of students) {
-      console.log(`🔎 Checking student: ${student.name} (${student._id})`);
+      const academicYear = student.academicRecords.find(rec => rec.yearLabel === currentTerm.yearLabel);
+      if (!academicYear) continue;
 
-      const currentTerm = await TermSession.findOne({
-        schoolId: student.schoolId,
-        startDate: { $lte: targetDate },
-        endDate: { $gte: targetDate },
-        isActive: true,
-      });
+      const studentTerm = academicYear.terms.find(term => term.termName === currentTerm.termName);
+      if (!studentTerm) continue;
 
-      if (!currentTerm) {
-        console.warn(`⚠️ No active term found for student ${student.name}`);
-        continue;
-      }
-
-      if (!foundTerm) {
-        termStartDate = currentTerm.startDate;
-        termEndDate = currentTerm.endDate;
-        foundTerm = true;
-        console.log("✅ Term Found:");
-        console.log("   📅 Term Start:", termStartDate);
-        console.log("   📅 Term End:", termEndDate);
-      }
-
-      const academicYear = student.academicRecords.find(
-        (rec) => rec.yearLabel === currentTerm.yearLabel
-      );
-      if (!academicYear) {
-        console.warn(`⚠️ Academic year mismatch for student ${student.name}`);
-        continue;
-      }
-
-      const studentTerm = academicYear.terms.find(
-        (term) => term.termName === currentTerm.termName
-      );
-      if (!studentTerm) {
-        console.warn(`⚠️ Term data not found for ${student.name} in ${currentTerm.termName}`);
-        continue;
-      }
-
-      const attendanceRecord = studentTerm.attendance.find(a => a.week === currentWeek);
+      const attendanceRecord = studentTerm.attendance.find(a => a.week === termWeek);
       const status = attendanceRecord?.days?.[dayIndex] || "not_marked";
 
       if (status === "not_marked") {
         allMarked = false;
       }
-
-      console.log(`   ➡️ Status for ${student.name}:`, status);
 
       results.push({
         studentId: student._id,
@@ -513,19 +497,12 @@ export const getAttendanceForClassOnDate = async (req, res) => {
       });
     }
 
-    const attendanceForDay = {};
-    results.forEach((r) => {
-      attendanceForDay[r.studentId] = r.status;
-    });
-
-    console.log("📊 Attendance Summary:", attendanceForDay);
-    console.log("✅ All attendance marked?", allMarked);
-
     return res.status(200).json({
       isSchoolDay: foundTerm,
       termStartDate,
       termEndDate,
-      attendanceForDay,
+      termWeek,
+      attendanceForDay: results.reduce((acc, r) => ({ ...acc, [r.studentId]: r.status }), {}),
       attendanceSubmitted: allMarked && results.length > 0,
     });
 
@@ -534,7 +511,6 @@ export const getAttendanceForClassOnDate = async (req, res) => {
     return res.status(500).json({ message: "Error fetching attendance", error: err.message });
   }
 };
-
 
 
 // export const deleteAllStudents = async (req, res) => {
