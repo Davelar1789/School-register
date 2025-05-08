@@ -181,6 +181,9 @@ export const getStudentsByClass = async (req, res) => {
 export const markAttendance = async (req, res) => {
   const { classId, attendance, date } = req.body;
 
+  console.log('Received attendance for:', date, classId, attendance);
+
+
   if (!classId || !attendance || !date) {
     return res.status(400).json({ message: "Class ID, attendance, and date are required." });
   }
