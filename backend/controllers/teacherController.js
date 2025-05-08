@@ -291,4 +291,32 @@ export const getTeacherClasses = async (req, res) => {
   }
 };
 
+export const getTeacherSubjects = async (req, res) => {
+  const { teacherId } = req.params;
 
+  try {
+    const classes = await Class.find({ "subjects.teachers": teacherId })
+      .populate("subjects.subject", "name") // subject name
+      .select("className level subjects");
+
+    // Filter out only the subjects this teacher handles
+    const result = [];
+
+    for (const cls of classes) {
+      const teacherSubjects = cls.subjects
+        .filter(sub => sub.teachers.includes(teacherId))
+        .map(sub => ({
+          subjectName: sub.subject?.name || "Unknown",
+          className: cls.className,
+          level: cls.level,
+        }));
+
+      result.push(...teacherSubjects);
+    }
+
+    return res.status(200).json({ subjects: result });
+  } catch (error) {
+    console.error("Error fetching teacher subjects:", error);
+    return res.status(500).json({ message: "Server error fetching subjects" });
+  }
+};
