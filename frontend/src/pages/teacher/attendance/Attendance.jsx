@@ -117,6 +117,7 @@ const Attendance = () => {
     try {
       const payload = {
         classId: selectedClassId,
+        date: currentDate.toISOString(), // ✅ include the date here
         attendance: Object.entries(attendanceData).map(([studentId, status]) => ({
           studentId,
           present: status === "present",
