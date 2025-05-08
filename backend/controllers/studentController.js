@@ -280,20 +280,8 @@ export const fetchAttendanceForDate = async (req, res) => {
   try {
     console.log('Fetching students for class ID:', classId);
     // First, fetch the class and get the list of student IDs
-    const classDoc = await Class.findById(classId).lean();
+    const students = await Students.find({ classes: classId });
 
-    if (!classDoc || !classDoc.students || classDoc.students.length === 0) {
-      console.log("No students found for class ID:", classId);
-      return res.status(200).json({
-        isSchoolDay,
-        attendanceForDay: {},
-        termStartDate,
-        termEndDate,
-      });
-    }
-
-    // Then fetch the student documents using those IDs
-    const students = await Students.find({ _id: { $in: classDoc.students } }).lean();
 
     if (!students || students.length === 0) {
       console.log('No students found for class ID:', classId);
