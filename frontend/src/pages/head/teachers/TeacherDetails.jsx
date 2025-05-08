@@ -179,27 +179,33 @@ const [selectedSubjects, setSelectedSubjects] = useState([]);
     <p>Select a class and then choose the specific subjects this teacher handles in that class.</p>
 
     <select
-      value={selectedClassForSubjects}
-      onChange={(e) => {
-        const classId = e.target.value;
-        setSelectedClassForSubjects(classId);
-        fetchSubjectsForClass(classId);
-      }}
-      className="class-dropdown"
-    >
-      <option value="">Select a class</option>
-      {allClasses
-        .filter((cls) =>
-          teacher.teacherType === "Both"
-            ? !assignedClasses.some((assigned) => assigned._id === cls._id)
-            : true
-        )
-        .map((cls) => (
-          <option key={cls._id} value={cls._id}>
-            {cls.className}
-          </option>
-        ))}
-    </select>
+  value={selectedClassForSubjects}
+  onChange={async (e) => {
+    const classId = e.target.value;
+    setSelectedClassForSubjects(classId);
+
+    // ✅ Assign teacher to the selected class immediately
+    await handleAssignClass(classId);
+
+    // ✅ Then load subjects for this class
+    fetchSubjectsForClass(classId);
+  }}
+  className="class-dropdown"
+>
+  <option value="">Select a class</option>
+  {allClasses
+    .filter((cls) =>
+      teacher.teacherType === "Both"
+        ? !assignedClasses.some((assigned) => assigned._id === cls._id)
+        : true
+    )
+    .map((cls) => (
+      <option key={cls._id} value={cls._id}>
+        {cls.className}
+      </option>
+    ))}
+</select>
+
 
     {availableSubjects.length > 0 && (
       <>
