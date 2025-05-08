@@ -204,28 +204,6 @@ export const markAttendance = async (req, res) => {
     return res.status(400).json({ message: "Selected date is not a school day (Mon-Fri)." });
   }
 
-  // Find Monday of the week the term started
-const termStartDate = new Date(currentTerm.fees.startDate);
-const termStartDay = termStartDate.getUTCDay(); // 0 = Sunday
-const termStartMonday = new Date(termStartDate);
-termStartMonday.setUTCDate(termStartDate.getUTCDate() - ((termStartDay + 6) % 7)); // Push to Monday
-
-console.log("🏫 Term starts on:", termStartDate.toISOString());
-console.log("📆 First Monday of term week:", termStartMonday.toISOString());
-
-// Normalize current attendance date (also to Monday of that week)
-const currentDateMonday = new Date(targetDate);
-const currentDay = currentDateMonday.getUTCDay();
-currentDateMonday.setUTCDate(currentDateMonday.getUTCDate() - ((currentDay + 6) % 7));
-
-console.log("🗓️ Current attendance date's Monday:", currentDateMonday.toISOString());
-
-// Calculate term week: difference in Mondays / 7 days + 1
-const msDiff = currentDateMonday - termStartMonday;
-const weekOfTerm = Math.floor(msDiff / (7 * 24 * 60 * 60 * 1000)) + 1;
-
-console.log("📊 Term Week Number (1-based):", weekOfTerm);
-
   let marked = 0;
   let alreadyMarked = 0;
 
@@ -261,11 +239,26 @@ console.log("📊 Term Week Number (1-based):", weekOfTerm);
 
       console.log(`📚 Found term "${currentTerm.termName}" for ${student.name}`);
 
+      // 📌 Move week calculation here, now that we have currentTerm
+      const termStartDate = new Date(currentTerm.fees.startDate);
+      const termStartDay = termStartDate.getUTCDay(); // 0 = Sunday
+      const termStartMonday = new Date(termStartDate);
+      termStartMonday.setUTCDate(termStartDate.getUTCDate() - ((termStartDay + 6) % 7));
+
+      const currentDateMonday = new Date(targetDate);
+      const currentDay = currentDateMonday.getUTCDay();
+      currentDateMonday.setUTCDate(currentDateMonday.getUTCDate() - ((currentDay + 6) % 7));
+
+      const msDiff = currentDateMonday - termStartMonday;
+      const weekOfTerm = Math.floor(msDiff / (7 * 24 * 60 * 60 * 1000)) + 1;
+
+      console.log("📊 Term Week Number (1-based):", weekOfTerm);
+
       let weekAttendance = currentTerm.attendance.find((a) => a.week === weekOfTerm);
       if (!weekAttendance) {
         weekAttendance = { week: weekOfTerm, days: Array(5).fill("not_marked") };
         currentTerm.attendance.push(weekAttendance);
-        console.log(`➕ Created new attendance entry for week ${weekOfMonth}`);
+        console.log(`➕ Created new attendance entry for week ${weekOfTerm}`);
       }
 
       const currentStatus = weekAttendance.days[dayIndex];
@@ -282,8 +275,8 @@ console.log("📊 Term Week Number (1-based):", weekOfTerm);
       currentTerm.totalAttendance = allAttendance.filter((val) => val === "present").length;
       console.log(`📈 Total 'present' days after update: ${currentTerm.totalAttendance}`);
 
-      student.markModified("academicRecords"); // ✅ Fully informs Mongoose
-await student.save(); // ✅ Actually persists the change
+      student.markModified("academicRecords");
+      await student.save();
 
       console.log(`💾 Saved attendance for student ${student.name}`);
       marked++;
@@ -303,6 +296,7 @@ await student.save(); // ✅ Actually persists the change
     res.status(500).json({ message: "Failed to mark attendance", error: err.message });
   }
 };
+
 
 
 
