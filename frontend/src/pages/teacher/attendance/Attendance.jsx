@@ -165,8 +165,6 @@ const Attendance = () => {
   const disablePrev = termRange.start && currentDate <= termRange.start;
   const disableNext = termRange.end && currentDate >= termRange.end;
 
-
-
   return (
     <div>
       <Header />

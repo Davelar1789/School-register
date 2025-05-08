@@ -181,18 +181,13 @@ export const getStudentsByClass = async (req, res) => {
 export const markAttendance = async (req, res) => {
   const { classId, attendance, date } = req.body;
 
-  console.log("📥 Received attendance marking request");
-  console.log("➡️ Class ID:", classId);
-  console.log("➡️ Date:", date);
-  console.log("➡️ Attendance Records Count:", attendance?.length);
-
   if (!classId || !attendance || !date) {
     return res.status(400).json({ message: "Class ID, attendance, and date are required." });
   }
 
-  const targetDate = new Date(new Date(date).toISOString().split("T")[0]);
-  const jsDay = targetDate.getUTCDay(); // 0 = Sun
-  const dayIndex = jsDay - 1; // 0 = Mon
+  const targetDate = new Date(new Date(date).toISOString().split("T")[0]); // Normalize to midnight UTC
+  const jsDay = targetDate.getUTCDay(); // Sunday = 0, Monday = 1
+  const dayIndex = jsDay - 1; // 0 = Monday, 4 = Friday
 
   if (dayIndex < 0 || dayIndex > 4) {
     return res.status(400).json({ message: "Selected date is not a school day (Mon-Fri)." });
@@ -202,53 +197,45 @@ export const markAttendance = async (req, res) => {
   let alreadyMarked = 0;
 
   try {
-    for (const record of attendance) {
-      const { studentId, present } = record;
+    for (const { studentId, present } of attendance) {
       const student = await Students.findById(studentId);
       if (!student) continue;
 
       const year = targetDate.getUTCFullYear();
-      const academicYear = student.academicRecords.find(rec =>
-        rec.yearLabel.includes(year.toString())
-      );
-
+      const academicYear = student.academicRecords.find(rec => rec.yearLabel.includes(year.toString()));
       if (!academicYear) continue;
 
       const currentTerm = academicYear.terms[academicYear.terms.length - 1];
-      if (!currentTerm || !currentTerm.fees || !currentTerm.fees.startDate) continue;
+      if (!currentTerm || !currentTerm.fees?.startDate) continue;
 
-      const termStart = new Date(currentTerm.fees.startDate);
-      const termStartDay = termStart.getUTCDay();
-      const termStartMonday = new Date(termStart);
-      termStartMonday.setUTCDate(termStartMonday.getUTCDate() - ((termStartDay + 6) % 7));
+      const termStart = new Date(new Date(currentTerm.fees.startDate).toISOString().split("T")[0]);
+      const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+      const msDiff = targetDate.getTime() - termStart.getTime();
+      const weekOfTerm = Math.floor(msDiff / msPerWeek) + 1;
 
-      const currentDateMonday = new Date(targetDate);
-      const currentDay = currentDateMonday.getUTCDay();
-      currentDateMonday.setUTCDate(currentDateMonday.getUTCDate() - ((currentDay + 6) % 7));
-
-      const msDiff = currentDateMonday - termStartMonday;
-      const weekOfTerm = Math.floor(msDiff / (7 * 24 * 60 * 60 * 1000)) + 1;
-
-      if (isNaN(weekOfTerm) || weekOfTerm < 1) {
-        console.warn(`⚠️ Invalid week number for student ${student.name}`);
+      if (weekOfTerm < 1) {
+        console.warn(`⚠️ Target date is before term start for ${student.name}`);
         continue;
       }
 
-      console.log(`📚 Term: ${currentTerm.termName} | Week: ${weekOfTerm}`);
-
+      // Create the week if it doesn't exist
       let weekAttendance = currentTerm.attendance.find(w => w.week === weekOfTerm);
       if (!weekAttendance) {
         weekAttendance = { week: weekOfTerm, days: Array(5).fill("not_marked") };
         currentTerm.attendance.push(weekAttendance);
-        console.log(`➕ Created week ${weekOfTerm} for ${student.name}`);
+        console.log(`➕ Created attendance for Week ${weekOfTerm} | Student: ${student.name}`);
       }
 
+      // Prevent overriding if already marked
       if (weekAttendance.days[dayIndex] !== "not_marked") {
         alreadyMarked++;
         continue;
       }
 
+      // Mark attendance
       weekAttendance.days[dayIndex] = present ? "present" : "absent";
+
+      // Update totalAttendance count
       const allDays = currentTerm.attendance.flatMap(w => w.days);
       currentTerm.totalAttendance = allDays.filter(d => d === "present").length;
 
@@ -258,7 +245,7 @@ export const markAttendance = async (req, res) => {
     }
 
     return res.json({
-      message: `Attendance marked for ${targetDate.toISOString().split("T")[0]}`,
+      message: `✅ Attendance recorded for ${targetDate.toISOString().split("T")[0]}`,
       updated: marked,
       skipped: alreadyMarked
     });
@@ -268,8 +255,77 @@ export const markAttendance = async (req, res) => {
   }
 };
 
+export const fetchAttendanceForDate = async (req, res) => {
+  const { classId, date } = req.body;
 
+  if (!classId || !date) {
+    return res.status(400).json({ message: "Class ID and date are required." });
+  }
 
+  const targetDate = new Date(new Date(date).toISOString().split("T")[0]); // Strip time
+  const jsDay = targetDate.getUTCDay();
+  const dayIndex = jsDay - 1; // Monday = 0
+
+  if (dayIndex < 0 || dayIndex > 4) {
+    return res.json({ isSchoolDay: false, message: "Weekend – no school." });
+  }
+
+  try {
+    const students = await Students.find({ classId });
+
+    if (!students || students.length === 0) {
+      return res.status(404).json({ message: "No students found for this class." });
+    }
+
+    const attendanceMap = {};
+    let termStartDate = null;
+    let termEndDate = null;
+
+    for (const student of students) {
+      const year = targetDate.getUTCFullYear();
+      const academicYear = student.academicRecords.find(rec => rec.yearLabel.includes(year.toString()));
+      if (!academicYear) {
+        attendanceMap[student._id] = "not_marked";
+        continue;
+      }
+
+      const currentTerm = academicYear.terms[academicYear.terms.length - 1];
+      if (!currentTerm || !currentTerm.fees?.startDate) {
+        attendanceMap[student._id] = "not_marked";
+        continue;
+      }
+
+      const termStart = new Date(new Date(currentTerm.fees.startDate).toISOString().split("T")[0]);
+      const termEnd = currentTerm.fees.endDate ? new Date(currentTerm.fees.endDate) : null;
+
+      if (!termStartDate) termStartDate = termStart;
+      if (!termEndDate && termEnd) termEndDate = termEnd;
+
+      const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+      const weekDiff = Math.floor((targetDate - termStart) / msPerWeek) + 1;
+
+      if (weekDiff < 1) {
+        attendanceMap[student._id] = "not_marked";
+        continue;
+      }
+
+      const weekAttendance = currentTerm.attendance.find(w => w.week === weekDiff);
+      const status = weekAttendance?.days?.[dayIndex] || "not_marked";
+
+      attendanceMap[student._id] = status;
+    }
+
+    return res.json({
+      isSchoolDay: true,
+      attendanceForDay: attendanceMap,
+      termStartDate: termStartDate.toISOString(),
+      termEndDate: termEndDate ? termEndDate.toISOString() : null,
+    });
+  } catch (err) {
+    console.error("❌ Error fetching attendance:", err);
+    return res.status(500).json({ message: "Server error fetching attendance", error: err.message });
+  }
+};
 
 
 export const getAttendanceForToday = async (req, res) => {
@@ -333,9 +389,6 @@ export const getAttendanceForToday = async (req, res) => {
 export const getAttendanceForClassOnDate = async (req, res) => {
   try {
     const { classId, date } = req.body;
-    console.log("📥 Incoming Request - Get Attendance For Class On Date");
-    console.log("📌 Class ID:", classId);
-    console.log("📅 Date:", date);
 
     if (!classId || !date) {
       console.warn("⚠️ Missing classId or date in request body");
@@ -344,8 +397,7 @@ export const getAttendanceForClassOnDate = async (req, res) => {
 
     const targetDate = new Date(new Date(date).toISOString().split("T")[0]);
     const dayOfWeek = targetDate.getUTCDay(); // 0 (Sun) - 6 (Sat)
-    console.log("📆 Target Date (normalized):", targetDate.toISOString());
-    console.log("🗓️ Day of Week:", dayOfWeek, "(0 = Sun, 6 = Sat)");
+    
 
     if (dayOfWeek === 0 || dayOfWeek === 6) {
       console.log("🚫 Selected date is a weekend. No attendance expected.");
