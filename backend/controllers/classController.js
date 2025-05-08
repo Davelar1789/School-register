@@ -183,3 +183,41 @@ export const getSubjectsByClass = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch subjects for this class" });
   }
 };
+
+// POST /api/classes/assign-subject-teacher
+export const assignSubjectTeacher = async (req, res) => {
+  const { teacherId, classId, subjectIds } = req.body;
+
+  if (!teacherId || !classId || !subjectIds || subjectIds.length === 0) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
+
+  try {
+    // Step 1: Find the class
+    const schoolClass = await Class.findById(classId);
+    if (!schoolClass) {
+      return res.status(404).json({ message: "Class not found" });
+    }
+
+    // Step 2: Assign teacher to selected subjects
+    subjectIds.forEach(subjectId => {
+      const subject = schoolClass.subjects.find(sub => sub._id.toString() === subjectId);
+      if (subject) {
+        if (!subject.teachers) subject.teachers = [];
+
+        // Prevent duplicate assignments
+        if (!subject.teachers.includes(teacherId)) {
+          subject.teachers.push(teacherId);
+        }
+      }
+    });
+
+    await schoolClass.save();
+
+    return res.status(200).json({ message: "Subjects assigned successfully" });
+  } catch (error) {
+    console.error("Error assigning subject-teacher:", error);
+    return res.status(500).json({ message: "Server error while assigning subjects" });
+  }
+};
+
