@@ -9,10 +9,13 @@
   overflow-y: auto;
 }
   
-  .subjects-container {
-    max-width: 900px;
-    margin: 0 auto;
-  }
+.subjects-container {
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+}
+
   
   .subjects-container h2 {
     margin-bottom: 20px;
