@@ -3,6 +3,7 @@ import Class from "../models/Class.model.js";
 import Students from "../models/Student.model.js"; // ✅ Add this
 import Teacher from "../models/Teacher.model.js"; // ✅ Also recommended
 import School from "../models/School.model.js";
+import Subject from "../models/subject.model.js"; // make sure this is the right path
 
 // Create a new class
 export const createClass = async (req, res) => {
@@ -167,5 +168,18 @@ export const recalculateClassesForSchool = async (req, res) => {
   } catch (error) {
     console.error("Error recalculating number of classes:", error.stack);
     res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+export const getSubjectsByClass = async (req, res) => {
+  const { id: classId } = req.params;
+
+  try {
+    const subjects = await Subject.find({ classes: classId }).select("name _id");
+
+    res.status(200).json(subjects);
+  } catch (error) {
+    console.error("Error fetching subjects for class:", error);
+    res.status(500).json({ message: "Failed to fetch subjects for this class" });
   }
 };

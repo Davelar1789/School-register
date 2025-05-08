@@ -11,6 +11,9 @@ const TeacherDetails = () => {
   const [teacher, setTeacher] = useState(null);
   const [allClasses, setAllClasses] = useState([]);
   const [assignedClasses, setAssignedClasses] = useState([]);
+  const [selectedClassForSubjects, setSelectedClassForSubjects] = useState('');
+const [availableSubjects, setAvailableSubjects] = useState([]);
+const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -46,7 +49,6 @@ const TeacherDetails = () => {
       }
     }
   };
-  
 
   const handleAssignClass = async (classId) => {
     if (!classId) return;
@@ -66,7 +68,41 @@ const TeacherDetails = () => {
       toast.error('Failed to assign class');
     }
   };
+
+  const fetchSubjectsForClass = async (classId) => {
+    if (!classId) return;
+    try {
+      const { data } = await axios.get(`/api/classes/${classId}/subjects`);
+      setAvailableSubjects(data.subjects || []);
+      setSelectedSubjects([]); // Reset previous selection
+    } catch (error) {
+      toast.error("Failed to load subjects for selected class");
+    }
+  };
+
+  const handleAssignSubjects = async () => {
+    if (!selectedClassForSubjects || selectedSubjects.length === 0) {
+      toast.error("Please select both class and subjects");
+      return;
+    }
   
+    try {
+      const { data } = await axios.post(`/api/classes/assign-subject-teacher`, {
+        teacherId: id,
+        classId: selectedClassForSubjects,
+        subjectIds: selectedSubjects,
+      });
+  
+      fetchTeacher(); // Refresh to reflect changes
+      toast.success(data.message || "Subjects assigned successfully");
+      setSelectedClassForSubjects('');
+      setAvailableSubjects([]);
+      setSelectedSubjects([]);
+    } catch (error) {
+      console.error("Assign subject-teacher failed:", error.response?.data || error.message);
+      toast.error("Failed to assign subjects");
+    }
+  };
   
   
   if (loading) return <p>Loading...</p>;
@@ -99,26 +135,102 @@ const TeacherDetails = () => {
           </div>
         </div>
 
-        <div className="class-assignment">
-          <h3>Assign Classes</h3>
-          <select onChange={(e) => handleAssignClass(e.target.value)} className="class-dropdown">
-            <option value="">Select a class</option>
-            {allClasses.map((cls) => (
-              <option key={cls._id} value={cls._id}>
-                {cls.className}
-              </option>
-            ))}
-          </select>
+        {teacher.teacherType === "Class Teacher" && (
+  <div className="class-assignment">
+    <h3>Assign Class (as Class Teacher)</h3>
+    <select onChange={(e) => handleAssignClass(e.target.value)} className="class-dropdown">
+      <option value="">Select a class</option>
+      {allClasses.map((cls) => (
+        <option key={cls._id} value={cls._id}>
+          {cls.className}
+        </option>
+      ))}
+    </select>
 
-          <div className="assigned-classes-list">
-            <h4>Currently Assigned Classes:</h4>
-            <ul>
-              {assignedClasses.map((cls, index) => (
-                <li key={index}>{cls.className || cls}</li>
-              ))}
-            </ul>
-          </div>
+    <p className="info-text">
+      As a class teacher, the teacher will automatically gain access to all subjects in this class.
+    </p>
+  </div>
+)}
+
+{["Subject Teacher", "Both"].includes(teacher.teacherType) && (
+  <div className="class-assignment">
+    {teacher.teacherType === "Both" && (
+      <>
+        <h3>Assign Class Teacher Class</h3>
+        <select onChange={(e) => handleAssignClass(e.target.value)} className="class-dropdown">
+          <option value="">Select a class</option>
+          {allClasses.map((cls) => (
+            <option key={cls._id} value={cls._id}>
+              {cls.className}
+            </option>
+          ))}
+        </select>
+
+        <p className="info-text">
+          This is the teacher’s primary class. They will automatically have access to all its subjects.
+        </p>
+
+        <hr style={{ margin: '1rem 0' }} />
+      </>
+    )}
+
+    <h3>Assign Subject Classes</h3>
+    <p>Select a class and then choose the specific subjects this teacher handles in that class.</p>
+
+    <select
+      value={selectedClassForSubjects}
+      onChange={(e) => {
+        const classId = e.target.value;
+        setSelectedClassForSubjects(classId);
+        fetchSubjectsForClass(classId);
+      }}
+      className="class-dropdown"
+    >
+      <option value="">Select a class</option>
+      {allClasses
+        .filter((cls) =>
+          teacher.teacherType === "Both"
+            ? !assignedClasses.some((assigned) => assigned._id === cls._id)
+            : true
+        )
+        .map((cls) => (
+          <option key={cls._id} value={cls._id}>
+            {cls.className}
+          </option>
+        ))}
+    </select>
+
+    {availableSubjects.length > 0 && (
+      <>
+        <div className="subject-checkboxes">
+          {availableSubjects.map((subject) => (
+            <label key={subject._id} className="subject-checkbox">
+              <input
+                type="checkbox"
+                value={subject._id}
+                checked={selectedSubjects.includes(subject._id)}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  const subjectId = subject._id;
+                  setSelectedSubjects((prev) =>
+                    checked ? [...prev, subjectId] : prev.filter((id) => id !== subjectId)
+                  );
+                }}
+              />
+              {subject.name}
+            </label>
+          ))}
         </div>
+
+        <button className="assign-btn" onClick={handleAssignSubjects}>
+          Assign Selected Subjects
+        </button>
+      </>
+    )}
+  </div>
+)}
+
       </div>
     </div>
   );
