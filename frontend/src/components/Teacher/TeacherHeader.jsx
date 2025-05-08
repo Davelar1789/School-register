@@ -173,6 +173,11 @@ const Header = () => {
                                  </NavLink>
                                </li>
                              )}
+                              <li>
+                                       <NavLink to="/attendance" className={({ isActive }) => isActive ? "active" : ""}>
+                                         <FaComments className="icon" /> Attendance
+                                       </NavLink>
+                                     </li>
                       {/* <li>
                         <NavLink to="/teachers" className={({ isActive }) => isActive ? "active" : ""}>
                           <FaChalkboardTeacher className="icon" />Gradebook
