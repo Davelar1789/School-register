@@ -184,7 +184,6 @@ export const getSubjectsByClass = async (req, res) => {
   }
 };
 
-// POST /api/classes/assign-subject-teacher
 export const assignSubjectTeacher = async (req, res) => {
   const { teacherId, classId, subjectIds } = req.body;
 
@@ -193,22 +192,32 @@ export const assignSubjectTeacher = async (req, res) => {
   }
 
   try {
-    // Step 1: Find the class
+    // Find the class
     const schoolClass = await Class.findById(classId);
     if (!schoolClass) {
       return res.status(404).json({ message: "Class not found" });
     }
 
-    // Step 2: Assign teacher to selected subjects
-    subjectIds.forEach(subjectId => {
-      const subject = schoolClass.subjects.find(sub => sub._id.toString() === subjectId);
-      if (subject) {
-        if (!subject.teachers) subject.teachers = [];
+    // Fetch all subjects in this school that include this class
+    const classSubjects = await Subject.find({
+      _id: { $in: subjectIds },
+      classes: classId
+    });
 
-        // Prevent duplicate assignments
-        if (!subject.teachers.includes(teacherId)) {
-          subject.teachers.push(teacherId);
+    classSubjects.forEach((subjectDoc) => {
+      const existing = schoolClass.subjects.find((sub) =>
+        sub.subject.toString() === subjectDoc._id.toString()
+      );
+
+      if (existing) {
+        if (!existing.teachers.includes(teacherId)) {
+          existing.teachers.push(teacherId);
         }
+      } else {
+        schoolClass.subjects.push({
+          subject: subjectDoc._id,
+          teachers: [teacherId],
+        });
       }
     });
 
@@ -220,4 +229,5 @@ export const assignSubjectTeacher = async (req, res) => {
     return res.status(500).json({ message: "Server error while assigning subjects" });
   }
 };
+
 
