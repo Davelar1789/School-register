@@ -181,65 +181,99 @@ export const getStudentsByClass = async (req, res) => {
 export const markAttendance = async (req, res) => {
   const { classId, attendance, date } = req.body;
 
+  console.log("📥 Received attendance marking request");
+  console.log("➡️ Class ID:", classId);
+  console.log("➡️ Date:", date);
+  console.log("➡️ Attendance Records Count:", attendance?.length);
+
   if (!classId || !attendance || !date) {
+    console.warn("⚠️ Missing required fields");
     return res.status(400).json({ message: "Class ID, attendance, and date are required." });
   }
 
-  // Normalize the date to midnight UTC to avoid mismatch
   const targetDate = new Date(new Date(date).toISOString().split("T")[0]);
-
   const jsDay = targetDate.getUTCDay(); // Sunday = 0
   const dayIndex = jsDay - 1; // Monday = 0
 
+  console.log("📅 Normalized Target Date:", targetDate.toISOString());
+  console.log("📆 Day of Week (0=Sun...6=Sat):", jsDay);
+  console.log("📌 Day Index for Attendance Array (0=Mon):", dayIndex);
+
   if (dayIndex < 0 || dayIndex > 4) {
+    console.warn("❌ Invalid school day. Not Monday to Friday.");
     return res.status(400).json({ message: "Selected date is not a school day (Mon-Fri)." });
   }
 
   const weekOfMonth = Math.ceil(targetDate.getUTCDate() / 7);
+  console.log("📊 Calculated Week of Month:", weekOfMonth);
 
   let marked = 0;
   let alreadyMarked = 0;
 
   try {
-    for (const record of attendance) {
+    for (const [i, record] of attendance.entries()) {
       const { studentId, present } = record;
+      console.log(`\n🔍 [${i + 1}] Processing studentId: ${studentId} | Present: ${present}`);
+
       const student = await Students.findById(studentId);
-      if (!student) continue;
+      if (!student) {
+        console.warn(`🚫 Student not found with ID: ${studentId}`);
+        continue;
+      }
 
       const year = targetDate.getUTCFullYear();
       const academicYearIndex = student.academicRecords.findIndex((rec) =>
         rec.yearLabel.includes(year.toString())
       );
-      if (academicYearIndex === -1) continue;
+
+      if (academicYearIndex === -1) {
+        console.warn(`⚠️ No academic year found for ${year} in student ${student.name}`);
+        continue;
+      }
 
       const academicYear = student.academicRecords[academicYearIndex];
       const currentTermIndex = academicYear.terms.length - 1;
       const currentTerm = academicYear.terms[currentTermIndex];
-      if (!currentTerm) continue;
+
+      if (!currentTerm) {
+        console.warn(`❌ No current term found for student ${student.name}`);
+        continue;
+      }
+
+      console.log(`📚 Found term "${currentTerm.termName}" for ${student.name}`);
 
       let weekAttendance = currentTerm.attendance.find((a) => a.week === weekOfMonth);
       if (!weekAttendance) {
         weekAttendance = { week: weekOfMonth, days: Array(5).fill("not_marked") };
         currentTerm.attendance.push(weekAttendance);
+        console.log(`➕ Created new attendance entry for week ${weekOfMonth}`);
       }
 
       const currentStatus = weekAttendance.days[dayIndex];
       if (currentStatus !== "not_marked") {
+        console.log(`⏭️ Already marked as ${currentStatus} for dayIndex ${dayIndex}`);
         alreadyMarked++;
         continue;
       }
 
       weekAttendance.days[dayIndex] = present ? "present" : "absent";
+      console.log(`✅ Marked student ${student.name} as "${weekAttendance.days[dayIndex]}"`);
 
       const allAttendance = currentTerm.attendance.flatMap((w) => w.days);
       currentTerm.totalAttendance = allAttendance.filter((val) => val === "present").length;
+      console.log(`📈 Total 'present' days after update: ${currentTerm.totalAttendance}`);
 
       const modPath = `academicRecords.${academicYearIndex}.terms.${currentTermIndex}`;
       student.markModified(modPath);
 
       await student.save();
+      console.log(`💾 Saved attendance for student ${student.name}`);
       marked++;
     }
+
+    console.log("\n📋 Attendance marking summary:");
+    console.log("➡️ Successfully Marked:", marked);
+    console.log("➡️ Skipped (Already Marked):", alreadyMarked);
 
     return res.json({
       message: `Attendance marking completed for ${targetDate.toISOString().split("T")[0]}.`,
@@ -251,6 +285,7 @@ export const markAttendance = async (req, res) => {
     res.status(500).json({ message: "Failed to mark attendance", error: err.message });
   }
 };
+
 
 
 export const getAttendanceForToday = async (req, res) => {
