@@ -59,6 +59,7 @@ import Income from "./pages/head/income/Income";
 import Expenses from "./pages/head/expenses/ExpensePage";
 import Subjects from "./pages/head/classes/Subjects";
 import MainClasses from "./pages/head/classes/MainPage";
+import TeacherSubjects from "./pages/teacher/mysubjects/MySubjects";
 
 const router = createBrowserRouter([
   {
@@ -158,6 +159,10 @@ const router = createBrowserRouter([
         element: <TeacherClasses />,
       },
       {
+        path: "my-subjects",
+        element: <TeacherSubjects />,
+      },
+      {
         path: "/class/:id",
         element: <ClassDetails />,
       },
@@ -193,6 +198,7 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+    
       {
         path: "school-fees",
         element: (

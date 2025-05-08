@@ -98,6 +98,11 @@ const SidebarTeacher = () => {
           </NavLink>
         </li>
         <li>
+          <NavLink to="/my-classes" className={({ isActive }) => isActive ? "active" : ""}>
+            <FaUserGraduate className="icon" />My Subjects
+          </NavLink>
+        </li>
+        <li>
           <NavLink to="/attendance" className={({ isActive }) => isActive ? "active" : ""}>
             <FaComments className="icon" /> Attendance
           </NavLink>
