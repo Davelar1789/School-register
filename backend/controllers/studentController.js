@@ -263,10 +263,9 @@ export const markAttendance = async (req, res) => {
       currentTerm.totalAttendance = allAttendance.filter((val) => val === "present").length;
       console.log(`📈 Total 'present' days after update: ${currentTerm.totalAttendance}`);
 
-      const modPath = `academicRecords.${academicYearIndex}.terms.${currentTermIndex}`;
-      student.markModified(modPath);
+      student.markModified("academicRecords"); // ✅ Fully informs Mongoose
+await student.save(); // ✅ Actually persists the change
 
-      await student.save();
       console.log(`💾 Saved attendance for student ${student.name}`);
       marked++;
     }
