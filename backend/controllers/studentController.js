@@ -187,7 +187,7 @@ export const markAttendance = async (req, res) => {
 
   const targetDate = new Date(new Date(date).toISOString().split("T")[0]); // Normalize to midnight UTC
   const jsDay = targetDate.getUTCDay(); // Sunday = 0, Monday = 1
-  const dayIndex = jsDay - 1; // 0 = Monday, 4 = Friday
+  const dayIndex = jsDay - 1; // Monday = 0, Friday = 4
 
   if (dayIndex < 0 || dayIndex > 4) {
     return res.status(400).json({ message: "Selected date is not a school day (Mon-Fri)." });
@@ -205,42 +205,33 @@ export const markAttendance = async (req, res) => {
       const academicYear = student.academicRecords.find(rec => rec.yearLabel.includes(year.toString()));
       if (!academicYear) continue;
 
-      const currentTerm = academicYear.terms[academicYear.terms.length - 1];
+      const currentTerm = academicYear.terms.find(term => term.termName === academicYear.terms[academicYear.terms.length - 1].termName);
       if (!currentTerm || !currentTerm.fees?.startDate) continue;
 
-      const termStart = new Date(new Date(currentTerm.fees.startDate).toISOString().split("T")[0]);
-      const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-      const msDiff = targetDate.getTime() - termStart.getTime();
-      const weekOfTerm = Math.floor(msDiff / msPerWeek) + 1;
-
-      if (weekOfTerm < 1) {
-        console.warn(`⚠️ Target date is before term start for ${student.name}`);
-        continue;
+      if (!Array.isArray(currentTerm.attendance)) {
+        currentTerm.attendance = [];
       }
 
-      // Create the week if it doesn't exist
+      const termStart = new Date(currentTerm.fees.startDate);
+      const weekOfTerm = Math.floor((targetDate - termStart) / (7 * 24 * 60 * 60 * 1000)) + 1;
+
       let weekAttendance = currentTerm.attendance.find(w => w.week === weekOfTerm);
       if (!weekAttendance) {
         weekAttendance = { week: weekOfTerm, days: Array(5).fill("not_marked") };
         currentTerm.attendance.push(weekAttendance);
-        console.log(`➕ Created attendance for Week ${weekOfTerm} | Student: ${student.name}`);
       }
 
-      // Prevent overriding if already marked
       if (weekAttendance.days[dayIndex] !== "not_marked") {
         alreadyMarked++;
         continue;
       }
 
-      // Mark attendance
       weekAttendance.days[dayIndex] = present ? "present" : "absent";
 
-      // Update totalAttendance count
       const allDays = currentTerm.attendance.flatMap(w => w.days);
       currentTerm.totalAttendance = allDays.filter(d => d === "present").length;
 
-      student.markModified("academicRecords");
-      await student.save();
+      await Students.findByIdAndUpdate(studentId, { academicRecords: student.academicRecords });
       marked++;
     }
 
@@ -249,6 +240,7 @@ export const markAttendance = async (req, res) => {
       updated: marked,
       skipped: alreadyMarked
     });
+
   } catch (err) {
     console.error("🔥 Error marking attendance:", err);
     return res.status(500).json({ message: "Error processing attendance", error: err.message });
