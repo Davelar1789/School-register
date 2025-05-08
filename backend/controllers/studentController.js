@@ -204,8 +204,27 @@ export const markAttendance = async (req, res) => {
     return res.status(400).json({ message: "Selected date is not a school day (Mon-Fri)." });
   }
 
-  const weekOfMonth = Math.ceil(targetDate.getUTCDate() / 7);
-  console.log("📊 Calculated Week of Month:", weekOfMonth);
+  // Find Monday of the week the term started
+const termStartDate = new Date(currentTerm.fees.startDate);
+const termStartDay = termStartDate.getUTCDay(); // 0 = Sunday
+const termStartMonday = new Date(termStartDate);
+termStartMonday.setUTCDate(termStartDate.getUTCDate() - ((termStartDay + 6) % 7)); // Push to Monday
+
+console.log("🏫 Term starts on:", termStartDate.toISOString());
+console.log("📆 First Monday of term week:", termStartMonday.toISOString());
+
+// Normalize current attendance date (also to Monday of that week)
+const currentDateMonday = new Date(targetDate);
+const currentDay = currentDateMonday.getUTCDay();
+currentDateMonday.setUTCDate(currentDateMonday.getUTCDate() - ((currentDay + 6) % 7));
+
+console.log("🗓️ Current attendance date's Monday:", currentDateMonday.toISOString());
+
+// Calculate term week: difference in Mondays / 7 days + 1
+const msDiff = currentDateMonday - termStartMonday;
+const weekOfTerm = Math.floor(msDiff / (7 * 24 * 60 * 60 * 1000)) + 1;
+
+console.log("📊 Term Week Number (1-based):", weekOfTerm);
 
   let marked = 0;
   let alreadyMarked = 0;
@@ -242,9 +261,9 @@ export const markAttendance = async (req, res) => {
 
       console.log(`📚 Found term "${currentTerm.termName}" for ${student.name}`);
 
-      let weekAttendance = currentTerm.attendance.find((a) => a.week === weekOfMonth);
+      let weekAttendance = currentTerm.attendance.find((a) => a.week === weekOfTerm);
       if (!weekAttendance) {
-        weekAttendance = { week: weekOfMonth, days: Array(5).fill("not_marked") };
+        weekAttendance = { week: weekOfTerm, days: Array(5).fill("not_marked") };
         currentTerm.attendance.push(weekAttendance);
         console.log(`➕ Created new attendance entry for week ${weekOfMonth}`);
       }
