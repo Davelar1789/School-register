@@ -5,24 +5,30 @@ import Header from "../../../components/Teacher/TeacherHeader";
 import "./MySubjects.modules.css";
 
 const MySubjects = () => {
-  const [subjects, setSubjects] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const teacherId = localStorage.getItem("teacherId"); // or from context/auth
-
-  useEffect(() => {
-    const fetchSubjects = async () => {
-      try {
-        const { data } = await axios.get(`/api/teachers/${teacherId}/subjects`);
-        setSubjects(data.subjects || []);
-      } catch (error) {
-        console.error("Failed to fetch subjects:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (teacherId) fetchSubjects();
-  }, [teacherId]);
+    const [subjects, setSubjects] = useState([]);
+    const [loading, setLoading] = useState(true);
+    
+    const teacher = JSON.parse(localStorage.getItem("teacher"));
+    const teacherId = teacher?.id;
+  
+    useEffect(() => {
+      if (!teacherId) return;
+  
+      const fetchSubjects = async () => {
+        try {
+          const { data } = await axios.get(`/api/teachers/${teacherId}/subjects`);
+          setSubjects(data.subjects || []);
+        } catch (error) {
+          console.error("Failed to fetch subjects:", error);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      fetchSubjects();
+    }, [teacherId]); // Depend on teacherId
+  
+  
 
   return (
     <div className="my-subjects-page">
