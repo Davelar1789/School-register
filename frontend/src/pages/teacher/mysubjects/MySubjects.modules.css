@@ -1,4 +1,13 @@
+.my-subjects-page {
+  display: flex;
+  height: 100vh;
+}
 
+.main-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
   
   .subjects-container {
     max-width: 900px;

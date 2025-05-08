@@ -31,10 +31,11 @@ const MySubjects = () => {
   
 
   return (
-    <div className="my-subjects-page">
+    <div className="my-subjects-page2">
       <Sidebar />
-      <div className="main-content">
         <Header />
+        <div className="my-subjects-page">
+        <div className="main-content">
         <div className="subjects-container">
           <h2>My Subjects</h2>
           {loading ? (
@@ -54,6 +55,7 @@ const MySubjects = () => {
           )}
         </div>
       </div>
+</div>
     </div>
   );
 };
