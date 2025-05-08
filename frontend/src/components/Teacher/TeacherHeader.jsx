@@ -15,6 +15,8 @@ const Header = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState(null);
   const [school, setSchool] = useState(null);
+  const [teacherType, setTeacherType] = useState("");
+
   const [schoolStats, setSchoolStats] = useState({
     numberOfStudents: 0,
     numberOfTeachers: 0,
@@ -33,26 +35,34 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      toast.error("Please login first.");
-      navigate("/sign-in");
-      return;
-    }
-
-    const decoded = jwtDecode(token);
-    setUser({
-      id: decoded.id,
-      fullName: decoded.fullName,
-      role: decoded.role,
-    });
-
-    setSchool({
-      name: decoded.schoolName,
-    });
-    
-    fetchSchool(decoded.id);
-  }, [navigate]);
+      const token = localStorage.getItem("token");
+      const teacherData = JSON.parse(localStorage.getItem("teacher"));
+  
+      if (!token || !teacherData) {
+        toast.error("Please login first.");
+        navigate("/sign-in");
+        return;
+      }
+  
+      try {
+        const decoded = jwtDecode(token);
+        console.log("Decoded token:", decoded);
+  
+        setUser({
+          fullName: decoded.fullName,
+          role: decoded.role,
+        });
+  
+        setSchool({
+          name: decoded.schoolName,
+        });
+  
+        setTeacherType(teacherData.teacherType || ""); // Set from localStorage
+      } catch (error) {
+        toast.error("Session expired. Please log in again.");
+        navigate("/sign-in");
+      }
+    }, [navigate]);
 
   const fetchSchool = async (userId) => {
     try {
@@ -148,16 +158,21 @@ const Header = () => {
                           <FaHome className="icon" /> Dashboard
                         </NavLink>
                       </li>
-                      <li>
-                        <NavLink to="/my-classes" className={({ isActive }) => isActive ? "active" : ""}>
-                          <FaUserGraduate className="icon" />My Classes
-                        </NavLink>
-                      </li>
-                      <li>
-                        <NavLink to="/attendance" className={({ isActive }) => isActive ? "active" : ""}>
-                          <FaComments className="icon" /> Attendance
-                        </NavLink>
-                      </li>
+                      {(teacherType === "Class Teacher" || teacherType === "Both") && (
+                               <li>
+                                 <NavLink to="/my-classes" className={({ isActive }) => isActive ? "active" : ""}>
+                                   <FaUserGraduate className="icon" /> My Classes
+                                 </NavLink>
+                               </li>
+                             )}
+                     
+                             {(teacherType === "Subject Teacher" || teacherType === "Both") && (
+                               <li>
+                                 <NavLink to="/my-subjects" className={({ isActive }) => isActive ? "active" : ""}>
+                                   <FaUserGraduate className="icon" /> My Subjects
+                                 </NavLink>
+                               </li>
+                             )}
                       {/* <li>
                         <NavLink to="/teachers" className={({ isActive }) => isActive ? "active" : ""}>
                           <FaChalkboardTeacher className="icon" />Gradebook

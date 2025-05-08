@@ -3,30 +3,26 @@ import {
   FaHome,
   FaComments,
   FaUserGraduate,
-  FaChalkboardTeacher,
-  FaCalendar,
   FaSignOutAlt,
 } from "react-icons/fa";
 import { useNavigate, NavLink } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { toast } from "react-hot-toast";
-import api from "../../api/axios"; // Ensure this points to your axios config
+import api from "../../api/axios";
 import Image1 from "../../assets/images/userrr.png";
 
 const SidebarTeacher = () => {
   const [user, setUser] = useState(null);
   const [school, setSchool] = useState(null);
-  const [schoolStats, setSchoolStats] = useState({
-    numberOfStudents: 0,
-    numberOfTeachers: 0,
-    numberOfClasses: 0,
-  });
+  const [teacherType, setTeacherType] = useState("");
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) {
+    const teacherData = JSON.parse(localStorage.getItem("teacher"));
+
+    if (!token || !teacherData) {
       toast.error("Please login first.");
       navigate("/sign-in");
       return;
@@ -45,26 +41,23 @@ const SidebarTeacher = () => {
         name: decoded.schoolName,
       });
 
-      // You can later fetch stats using decoded.schoolId if needed
+      setTeacherType(teacherData.teacherType || ""); // Set from localStorage
     } catch (error) {
       toast.error("Session expired. Please log in again.");
       navigate("/sign-in");
     }
   }, [navigate]);
 
-  const handleLogout = async () => {
-      try {
-        localStorage.clear(); // or just remove 'token' if you prefer
-        toast.success("Logged out successfully");
-        navigate("/sign-in"); // or your login route
-      } catch (error) {
-        console.error("Logout failed:", error);
-        toast.error("Logout failed. Please try again.");
-      }
-    };
-    
-    
-  
+  const handleLogout = () => {
+    try {
+      localStorage.clear();
+      toast.success("Logged out successfully");
+      navigate("/sign-in");
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast.error("Logout failed. Please try again.");
+    }
+  };
 
   if (!user) return null;
 
@@ -85,44 +78,41 @@ const SidebarTeacher = () => {
         </div>
       </div>
 
-      {/* Nav */}
+      {/* Navigation */}
       <ul className="sidebar-nav">
         <li>
           <NavLink to="/teacher-dashboard" className={({ isActive }) => isActive ? "active" : ""}>
             <FaHome className="icon" /> Dashboard
           </NavLink>
         </li>
-        <li>
-          <NavLink to="/my-classes" className={({ isActive }) => isActive ? "active" : ""}>
-            <FaUserGraduate className="icon" />My Classes
-          </NavLink>
-        </li>
-        <li>
-          <NavLink to="/my-classes" className={({ isActive }) => isActive ? "active" : ""}>
-            <FaUserGraduate className="icon" />My Subjects
-          </NavLink>
-        </li>
+
+        {(teacherType === "Class Teacher" || teacherType === "Both") && (
+          <li>
+            <NavLink to="/my-classes" className={({ isActive }) => isActive ? "active" : ""}>
+              <FaUserGraduate className="icon" /> My Classes
+            </NavLink>
+          </li>
+        )}
+
+        {(teacherType === "Subject Teacher" || teacherType === "Both") && (
+          <li>
+            <NavLink to="/my-subjects" className={({ isActive }) => isActive ? "active" : ""}>
+              <FaUserGraduate className="icon" /> My Subjects
+            </NavLink>
+          </li>
+        )}
+
         <li>
           <NavLink to="/attendance" className={({ isActive }) => isActive ? "active" : ""}>
             <FaComments className="icon" /> Attendance
           </NavLink>
         </li>
-        {/* <li>
-          <NavLink to="/teachers" className={({ isActive }) => isActive ? "active" : ""}>
-            <FaChalkboardTeacher className="icon" />Gradebook
-          </NavLink>
-        </li>
-        <li>
-          <NavLink to="/events" className={({ isActive }) => isActive ? "active" : ""}>
-            <FaCalendar className="icon" /> Events
-          </NavLink>
-        </li> */}
-        <li onClick={handleLogout} style={{ cursor: "pointer" }}>
-  <div className="nav-link-custom">
-    <FaSignOutAlt className="icon" /> Logout
-  </div>
-</li>
 
+        <li onClick={handleLogout} style={{ cursor: "pointer" }}>
+          <div className="nav-link-custom">
+            <FaSignOutAlt className="icon" /> Logout
+          </div>
+        </li>
       </ul>
     </div>
   );
