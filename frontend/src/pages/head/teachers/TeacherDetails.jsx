@@ -73,7 +73,7 @@ const [selectedSubjects, setSelectedSubjects] = useState([]);
     if (!classId) return;
     try {
       const { data } = await axios.get(`/api/classes/${classId}/subjects`);
-      setAvailableSubjects(data.subjects || []);
+      setAvailableSubjects(data || []);
       setSelectedSubjects([]); // Reset previous selection
     } catch (error) {
       toast.error("Failed to load subjects for selected class");
