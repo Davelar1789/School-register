@@ -41,7 +41,6 @@ const termSchema = new Schema({
   totalAttendance: { type: Number, default: 0 },
   subjects: [subjectSchema],
   fees: feesSchema,
-  feedingFees: { type: Map, of: Number, default: {} },
   startDate: { type: Date },
   endDate: { type: Date },
 });
@@ -62,6 +61,7 @@ const studentSchema = new Schema(
     images: [{ type: String }],
     academicRecords: [yearSchema], // <<< THIS HOLDS EVERYTHING
     schoolId: { type: Schema.Types.ObjectId, ref: "schools", required: true },
+    feedingFee: { type: Number, default: 0 }
   },
   { timestamps: true }
 );

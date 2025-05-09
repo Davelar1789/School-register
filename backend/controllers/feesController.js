@@ -1,29 +1,30 @@
 // controllers/feesController.js
 import Students from "../models/Student.model.js";
 import Classes from "../models/Class.model.js";
-import TermSession from "../models/TermSession.model.js";
 
-// ✅ Admin Sets Feeding Fee Per Class for a Term
+
+// ✅ Admin Sets Feeding Fee Per Class
 export const setFeedingFee = async (req, res) => {
-  const { yearLabel, termName, classId, feedingFee } = req.body;
+  const { classId, feedingFee } = req.body;
 
-  if (!yearLabel || !termName || !classId || !feedingFee) {
-    return res.status(400).json({ message: "All fields are required." });
+  if (!classId || !feedingFee) {
+    return res.status(400).json({ message: "Class ID and feeding fee are required." });
   }
 
   try {
-    // ✅ Fetch the term session for the given year and term
-    const term = await TermSession.findOne({ yearLabel, termName });
-
-    if (!term) {
-      return res.status(404).json({ message: "Term session not found." });
+    // ✅ Update the class's feeding fee
+    const classData = await Classes.findById(classId);
+    if (!classData) {
+      return res.status(404).json({ message: "Class not found." });
     }
 
-    // ✅ Set feeding fee for the specific class
-    term.feedingFees.set(classId, feedingFee);
-    await term.save();
+    classData.feedingFee = feedingFee;
+    await classData.save();
 
-    res.status(200).json({ message: `Feeding fee of ${feedingFee} set for class ${classId}.` });
+    // ✅ Update feeding fee for all students in the class
+    await Students.updateMany({ classes: classId }, { feedingFee });
+
+    res.status(200).json({ message: `Feeding fee of ${feedingFee} set for class ${classData.className}.` });
   } catch (error) {
     console.error("Error setting feeding fee:", error);
     res.status(500).json({ message: "Something went wrong." });
