@@ -29,14 +29,12 @@ const Attendance = () => {
 
   // Fetch the most recent term
   const fetchCurrentTerm = async () => {
-    if (!schoolId) return console.error("Error: schoolId is undefined!");
-
     try {
-      console.log("Fetching current term for school:", schoolId);
-      const { data } = await axios.get(`/api/terms/latest/${schoolId}`, {
+      console.log("Fetching current term...");
+      const { data } = await axios.get(`/api/terms/latest`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("Current term fetched successfully:", data);
+      console.log("Fetched Term:", data);
       setCurrentTerm(data);
     } catch (error) {
       console.error("Error fetching current term:", error.response?.data || error.message);
