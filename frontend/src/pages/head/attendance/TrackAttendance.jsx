@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../../api/axios";
 import toast from "react-hot-toast";
+import Header from "../../../components/Admin/Header2";
+import Sidebar from "../../../components/Admin/Sidebar";
 import "./TrackAttendance.modules.css";
 
 const TrackAttendance = () => {
@@ -76,6 +78,10 @@ const TrackAttendance = () => {
   }, []);
 
   return (
+    <div>
+        <Header />
+        <Sidebar />
+   
     <div className="track-attendance-container">
       <h2 className="track-attendance-title">Track Student Attendance</h2>
 
@@ -117,6 +123,7 @@ const TrackAttendance = () => {
       ) : (
         <p className="no-students-message">No attendance records found for this class.</p>
       )}
+    </div>
     </div>
   );
 };

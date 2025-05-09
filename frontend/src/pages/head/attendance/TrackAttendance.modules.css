@@ -44,3 +44,9 @@
     text-align: center;
     color: #888;
   }
+
+  @media (min-width: 768px) {
+    .track-attendance-container {
+        margin-left: 250px;
+    }
+  }
