@@ -52,7 +52,7 @@ const ManageFeedingFees = () => {
       const token = localStorage.getItem("token");
 
       // ✅ Send all feeding fees together
-      await axios.post("/api/feeding-fee/set", { feedingFees }, {
+      await axios.post("/api/fees/set-feeding-fee", { feedingFees }, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
