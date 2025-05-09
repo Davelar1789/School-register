@@ -199,11 +199,11 @@ const Header = () => {
             <span className="badge">{schoolStats.numberOfStudents}</span>
           </NavLink>
         </li>
-        {/* <li>
-          <NavLink to="/teachers" onClick={() => setSidebarOpen(false)}>
-            <FaChalkboardTeacher className="icon" /> Teacher
+        <li>
+          <NavLink to="/view-attendance" onClick={() => setSidebarOpen(false)}>
+            <FaChalkboardTeacher className="icon" /> View Attendance
           </NavLink>
-        </li> */}
+        </li>
         <li>
           <NavLink to="/classes-main" onClick={() => setSidebarOpen(false)}>
             <FaChalkboardTeacher className="icon" /> Classes
