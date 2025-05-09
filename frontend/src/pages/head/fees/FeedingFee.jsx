@@ -84,46 +84,45 @@ const FeedingFeePage = () => {
 
   return (
     <div className="feeding-fee-container">
-      <h2 className="feeding-fee-title">Feeding Fee Management</h2>
+    <h2 className="feeding-fee-title">Feeding Fee Management</h2>
 
-      {loading && <p className="loading-message">Loading data...</p>}
-
-      {classes.map((cls) => (
-        <div key={cls._id} className="class-section">
-          <h3>{cls.className}</h3>
-          
-          {/* ✅ Fetch students when class is loaded */}
-          <button onClick={() => fetchStudentsByClass(cls._id)} className="load-students-button">
-            Load Students
-          </button>
-
-          {/* Students Table */}
-          {studentsByClass[cls._id] && (
-            <table className="fee-table">
-              <thead>
-                <tr>
-                  <th>Student Name</th>
-                  <th>Feeding Fee</th>
-                  <th>Attendance Days</th>
-                  <th>Total Amount Paid</th>
-                </tr>
-              </thead>
-              <tbody>
-                {studentsByClass[cls._id].map(student => (
-                  <tr key={student._id} className="fee-row">
-                    <td>{student.name}</td>
-                    <td>{student.feedingFee}</td>
-                    <td>{student.totalAttendanceDays}</td>
-                    <td>{student.totalAmountPaid}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+    {/* ✅ Class Selector Dropdown */}
+    <select className="class-dropdown" onChange={(e) => fetchStudentsByClass(e.target.value)}>
+      <option value="">Select a class</option>
+      {classes.map(cls => (
+        <option key={cls._id} value={cls._id}>{cls.className}</option>
       ))}
-    </div>
-  );
+    </select>
+
+    {loading && <p className="loading-message">Loading data...</p>}
+
+    {/* ✅ Styled Student Fee Table */}
+    {students.length > 0 && (
+      <table className="fee-table">
+        <thead>
+          <tr>
+            <th>Student Name</th>
+            <th>Feeding Fee</th>
+            <th>Attendance Days</th>
+            <th>Total Amount Paid</th>
+          </tr>
+        </thead>
+        <tbody>
+          {students.map(student => (
+            <tr key={student._id} className="fee-row">
+              <td>{student.name}</td>
+              <td>{student.feedingFee}</td>
+              <td>{student.totalAttendanceDays}</td>
+              <td>{student.totalAmountPaid}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    )}
+  </div>
+);
 };
+
+
 
 export default FeedingFeePage;
