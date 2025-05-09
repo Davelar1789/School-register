@@ -10,11 +10,7 @@ const Fees = () => {
 
 
   const handleNavigate = (route) => {
-    if (route === "/feeding-fee") {
-      toast.info("Page under maintenance. Try again later", {
-      });
-      return;
-    }
+  
 
     navigate(route);
   };
