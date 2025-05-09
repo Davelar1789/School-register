@@ -30,9 +30,22 @@ const TrackAttendance = () => {
   // ✅ Fetch students with total attendance when a class is selected
   const fetchStudentsByClass = async (classId) => {
     if (!classId) return;
+    
     try {
       setLoading(true);
-      const { data } = await axios.get(`/api/attendance/student-total?termId=LATEST_TERM_ID&classId=${classId}`);
+  
+      // ✅ First, fetch the latest term
+      const termRes = await axios.get(`/api/terms/latest`);
+      const latestTerm = termRes.data?._id;
+  
+      if (!latestTerm) {
+        toast.error("Failed to fetch latest term");
+        return;
+      }
+  
+      // ✅ Then, use the term ID to fetch student attendance
+      const { data } = await axios.get(`/api/attendance/student-total?termId=${latestTerm}&classId=${classId}`);
+      
       setStudents(data || []);
     } catch (error) {
       toast.error("Failed to fetch student attendance");
