@@ -109,3 +109,9 @@
   cursor: pointer;
   margin-left: 10px;
 }
+
+@media (min-width: 768px) {
+  .attendance-container {
+    margin-left: 250px;
+  }
+}
