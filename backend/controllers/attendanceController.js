@@ -48,7 +48,7 @@ export const markAttendanceBatch = async (req, res) => {
       }
   
       // Prevent duplicate attendance for the same date
-      const existingRecords = await Attendance.find({ termId, classId, date });
+      const existingRecords = await Attendance.find({ termId, date });
       if (existingRecords.length > 0) {
         return res.status(400).json({ message: "Attendance for this date is already recorded." });
       }
