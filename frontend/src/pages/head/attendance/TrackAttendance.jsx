@@ -70,7 +70,7 @@ const TrackAttendance = () => {
               <th>Name</th>
               <th>ID No</th>
               <th>Total Present Days</th>
-              <th>Total School Days</th>
+              <th>Out Of</th>
             </tr>
           </thead>
           <tbody>
