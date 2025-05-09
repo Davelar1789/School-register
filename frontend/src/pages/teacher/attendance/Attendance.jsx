@@ -11,17 +11,23 @@ const Attendance = () => {
   const [loading, setLoading] = useState(false);
   const token = localStorage.getItem("token"); // Ensure you store the token properly
 
-  // ✅ Fetch the most recent term
-  const fetchCurrentTerm = async () => {
-    try {
-      const { data } = await axios.get(`/api/terms/latest/${schoolId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setCurrentTerm(data);
-    } catch (error) {
-      toast.error("Failed to fetch current term.");
-    }
-  };
+// Fetch the most recent term
+const fetchCurrentTerm = async () => {
+  console.log('Fetching current term for school ID:', schoolId);
+
+  try {
+    const { data } = await axios.get(`/api/terms/latest/${schoolId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    console.log('Current term fetched successfully:', data);
+    setCurrentTerm(data);
+  } catch (error) {
+    console.error('Error fetching current term:', error);
+    toast.error("Failed to fetch current term.");
+  }
+};
+
 
   // ✅ Fetch teacher's classes dynamically
   const fetchClasses = async () => {
