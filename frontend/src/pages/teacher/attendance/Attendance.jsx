@@ -3,7 +3,7 @@ import axios from "../../../api/axios";
 import toast from "react-hot-toast";
 import "./Attendance.modules.css";
 
-// Function to extract schoolId from the token
+// Function to extract schoolId from token
 const getSchoolIdFromToken = () => {
   const token = localStorage.getItem("token");
   if (!token) return null;
@@ -17,27 +17,35 @@ const getSchoolIdFromToken = () => {
   }
 };
 
+// Function to check if a date is a weekend
+const isWeekend = (date) => {
+  const day = new Date(date).getDay();
+  return day === 0 || day === 6; // Sunday (0) & Saturday (6)
+};
+
 const Attendance = () => {
   const [classes, setClasses] = useState([]);
   const [students, setStudents] = useState([]);
-  const [selectedClass, setSelectedClass] = useState("");
+  const [selectedClass, setSelectedClass] = useState(null);
   const [attendance, setAttendance] = useState({});
   const [currentTerm, setCurrentTerm] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [submittedDates, setSubmittedDates] = useState(new Set());
 
   const token = localStorage.getItem("token");
-  const schoolId = getSchoolIdFromToken(); // ✅ Extract schoolId dynamically
+  const schoolId = getSchoolIdFromToken(); // Extract schoolId dynamically
 
   // Fetch the most recent term
   const fetchCurrentTerm = async () => {
     if (!schoolId) return console.error("Error: schoolId is undefined!");
 
     try {
-      console.log("Fetching current term for school:", schoolId);
+      console.log("Fetching current term...");
       const { data } = await axios.get(`/api/terms/latest`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("Current term fetched successfully:", data);
+      console.log("Fetched Term:", data);
       setCurrentTerm(data);
     } catch (error) {
       console.error("Error fetching current term:", error.response?.data || error.message);
@@ -45,7 +53,7 @@ const Attendance = () => {
     }
   };
 
-  // Fetch teacher's classes dynamically
+  // Fetch teacher's classes
   const fetchClasses = async () => {
     try {
       setLoading(true);
@@ -60,53 +68,62 @@ const Attendance = () => {
     }
   };
 
- // Fetch students based on selected class
- const fetchStudents = async (classId) => {
-  if (!classId) return;
-  try {
-    console.log("Fetching students for class ID:", classId);
-    setLoading(true);
+  // Fetch students based on selected class
+  const fetchStudents = async (classId) => {
+    if (!classId) return;
+    try {
+      console.log("Fetching students for class ID:", classId);
+      setLoading(true);
 
-    const res = await axios.get(`/api/student/class/${classId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+      const res = await axios.get(`/api/student/class/${classId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    console.log("Raw API Response:", res.data); // ✅ Log raw response
+      console.log("Fetched Students:", res.data);
 
-    // Correctly extract student data
-    const studentData = Array.isArray(res.data) ? res.data : res.data.students || [];
-    
-    console.log("Students in state:", studentData); // ✅ Log extracted students
+      const studentData = Array.isArray(res.data) ? res.data : res.data.students || [];
 
-    setStudents(studentData);
-  } catch (err) {
-    console.error("Error loading students:", err);
-    toast.error("Failed to load students.");
-  } finally {
-    setLoading(false);
-  }
-};
-
+      setStudents(studentData);
+    } catch (err) {
+      toast.error("Failed to load students.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Handle attendance selection
   const handleAttendanceChange = (studentId, present) => {
     setAttendance({ ...attendance, [studentId]: present });
   };
 
-  // Submit attendance to the API
+  // Validate and submit attendance
   const submitAttendance = async () => {
     if (!currentTerm) return toast.error("Term not found!");
+    if (!selectedDate) return toast.error("Please select a date.");
+    if (isWeekend(selectedDate)) return toast.error("Cannot mark attendance on weekends.");
+    
+    const attendanceDate = new Date(selectedDate);
+    if (attendanceDate < new Date(currentTerm.startDate) || attendanceDate > new Date(currentTerm.endDate)) {
+      return toast.error("Selected date is outside the term period.");
+    }
+
+    if (submittedDates.has(selectedDate)) {
+      return toast.error("Attendance for this date is already recorded.");
+    }
+
     try {
       await Promise.all(
         Object.entries(attendance).map(([studentId, present]) =>
           axios.post("/api/attendance/mark", {
             studentId,
             termId: currentTerm._id,
-            date: new Date(),
+            date: selectedDate,
             present,
           }, { headers: { Authorization: `Bearer ${token}` } })
         )
       );
+
+      setSubmittedDates((prev) => new Set(prev).add(selectedDate));
       toast.success("Attendance marked successfully!");
     } catch (err) {
       toast.error("Error marking attendance.");
@@ -134,12 +151,25 @@ const Attendance = () => {
         ))}
       </select>
 
+      {/* Date Selector */}
+      <input 
+        type="date" 
+        className="date-selector"
+        value={selectedDate}
+        onChange={(e) => setSelectedDate(e.target.value)}
+        min={currentTerm?.startDate?.slice(0, 10)}
+        max={currentTerm?.endDate?.slice(0, 10)}
+      />
+
       {/* Students List */}
-      {students.length > 0 ? (
+      {loading ? (
+        <p className="loading-message">Loading students...</p>
+      ) : students.length > 0 ? (
         <table className="attendance-table">
           <thead>
             <tr>
               <th>Student Name</th>
+              <th>ID No</th>
               <th>Present?</th>
             </tr>
           </thead>
@@ -147,6 +177,7 @@ const Attendance = () => {
             {students.map(student => (
               <tr key={student._id} className="student-row">
                 <td className="student-name">{student.name}</td>
+                <td className="student-id">{student.idno}</td>
                 <td className="attendance-checkbox">
                   <input
                     type="checkbox"
