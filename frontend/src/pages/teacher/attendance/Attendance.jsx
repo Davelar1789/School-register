@@ -100,6 +100,10 @@ const Attendance = () => {
       console.log("Fetched Students:", res.data);
       const studentData = Array.isArray(res.data) ? res.data : res.data.students || [];
       setStudents(studentData);
+       // ✅ Automatically set today's date when a class is fetched
+    const today = new Date().toISOString().slice(0, 10); // Format YYYY-MM-DD
+    setSelectedDate(today);
+
     } catch (err) {
       console.error("Error loading students:", err);
       toast.error("Failed to load students.");
@@ -205,13 +209,14 @@ const Attendance = () => {
 
   {/* Date Selector */}
   <input 
-    type="date" 
-    className="date-selector"
-    value={selectedDate}
-    onChange={(e) => setSelectedDate(e.target.value)}
-    min={currentTerm?.startDate?.slice(0, 10)}
-    max={currentTerm?.endDate?.slice(0, 10)}
-  />
+  type="date" 
+  className="date-selector"
+  value={selectedDate} // ✅ Always starts with today's date
+  onChange={(e) => setSelectedDate(e.target.value)} // ✅ Allows manual update
+  min={currentTerm?.startDate?.slice(0, 10)}
+  max={currentTerm?.endDate?.slice(0, 10)}
+/>
+
 
   {/* Check if attendance already exists for the selected date */}
   {selectedClass && selectedDate && submittedDates.has(selectedDate) && (
