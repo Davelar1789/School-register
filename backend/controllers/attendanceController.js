@@ -34,26 +34,37 @@ export const markAttendance = async (req, res) => {
     }
   };
 
-export const markAttendanceBatch = async (req, res) => {
+  export const markAttendanceBatch = async (req, res) => {
+    console.log('Marking attendance batch for term ID:', req.body.termId, 'Date:', req.body.date);
+  
     try {
       const { termId, date, attendanceList } = req.body;
   
-      // Validate term session
+      console.log('Validating term session...');
       const term = await TermSession.findById(termId);
-      if (!term) return res.status(404).json({ message: "Term session not found." });
+      if (!term) {
+        console.log('Term session not found:', termId);
+        return res.status(404).json({ message: "Term session not found." });
+      }
+  
+      console.log('Term session found:', term);
   
       const attendanceDate = new Date(date);
+      console.log('Attendance date:', attendanceDate);
+  
       if (attendanceDate < term.startDate || attendanceDate > term.endDate || isWeekend(attendanceDate)) {
+        console.log('Invalid attendance date:', attendanceDate);
         return res.status(400).json({ message: "Invalid attendance date (must be within term and not on weekends)." });
       }
   
-      // Prevent duplicate attendance for the same date
+      console.log('Checking for existing attendance records...');
       const existingRecords = await Attendance.find({ termId, date });
       if (existingRecords.length > 0) {
+        console.log('Attendance already recorded for date:', date);
         return res.status(400).json({ message: "Attendance for this date is already recorded." });
       }
   
-      // Format batch attendance entries
+      console.log('Formatting batch attendance entries...');
       const attendanceEntries = attendanceList.map(({ studentId, present }) => ({
         studentId,
         termId,
@@ -61,14 +72,17 @@ export const markAttendanceBatch = async (req, res) => {
         present,
       }));
   
-      // Insert multiple entries at once
+      console.log('Inserting attendance records...');
       await Attendance.insertMany(attendanceEntries);
   
+      console.log('Attendance recorded successfully for all students.');
       res.status(201).json({ message: "Attendance recorded successfully for all students." });
     } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
+      console.error('Error marking attendance batch:', error);
+      res.status(500).json({ error: error.message });
+    }
   };
+  
 
   export const fetchAttendance = async (req, res) => {
     try {
