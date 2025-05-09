@@ -231,7 +231,7 @@ const Attendance = () => {
       <thead>
         <tr>
           <th>Student Name</th>
-          <th>ID No</th>
+          {/* <th>ID No</th> */}
           <th>Present?</th>
         </tr>
       </thead>
@@ -239,7 +239,7 @@ const Attendance = () => {
         {students.map(student => (
           <tr key={student._id} className="student-row">
             <td className="student-name">{student.name}</td>
-            <td className="student-id">{student.idno}</td>
+            {/* <td className="student-id">{student.idno}</td> */}
             <td className="attendance-checkbox">
               <input
                 type="checkbox"
