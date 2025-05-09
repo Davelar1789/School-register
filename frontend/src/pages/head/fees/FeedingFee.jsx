@@ -114,7 +114,7 @@ const FeedingFeePage = () => {
           </thead>
           <tbody>
             {students.map(student => (
-              <tr key={student._id} className="fee-row">
+              <tr key={student._id} className="fee-row2">
                 <td>{student.name}</td>
                 <td>{student.feedingFee}</td>
                 <td>{student.totalAttendanceDays}</td>
