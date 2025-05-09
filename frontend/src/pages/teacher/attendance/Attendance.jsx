@@ -2,6 +2,20 @@ import React, { useState, useEffect } from "react";
 import axios from "../../../api/axios";
 import toast from "react-hot-toast";
 
+// Function to extract schoolId from the token
+const getSchoolIdFromToken = () => {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+
+  try {
+    const decodedToken = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+    return decodedToken.schoolId || null;
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    return null;
+  }
+};
+
 const Attendance = () => {
   const [classes, setClasses] = useState([]);
   const [students, setStudents] = useState([]);
@@ -9,27 +23,28 @@ const Attendance = () => {
   const [attendance, setAttendance] = useState({});
   const [currentTerm, setCurrentTerm] = useState(null);
   const [loading, setLoading] = useState(false);
-  const token = localStorage.getItem("token"); // Ensure you store the token properly
 
-// Fetch the most recent term
-const fetchCurrentTerm = async () => {
-  console.log('Fetching current term for school ID:', schoolId);
+  const token = localStorage.getItem("token");
+  const schoolId = getSchoolIdFromToken(); // ✅ Extract schoolId dynamically
 
-  try {
-    const { data } = await axios.get(`/api/terms/latest/${schoolId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  // Fetch the most recent term
+  const fetchCurrentTerm = async () => {
+    if (!schoolId) return console.error("Error: schoolId is undefined!");
 
-    console.log('Current term fetched successfully:', data);
-    setCurrentTerm(data);
-  } catch (error) {
-    console.error('Error fetching current term:', error);
-    toast.error("Failed to fetch current term.");
-  }
-};
+    try {
+      console.log("Fetching current term for school:", schoolId);
+      const { data } = await axios.get(`/api/terms/latest/${schoolId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log("Current term fetched successfully:", data);
+      setCurrentTerm(data);
+    } catch (error) {
+      console.error("Error fetching current term:", error.response?.data || error.message);
+      toast.error("Failed to fetch current term.");
+    }
+  };
 
-
-  // ✅ Fetch teacher's classes dynamically
+  // Fetch teacher's classes dynamically
   const fetchClasses = async () => {
     try {
       setLoading(true);
@@ -44,7 +59,7 @@ const fetchCurrentTerm = async () => {
     }
   };
 
-  // ✅ Fetch students based on selected class
+  // Fetch students based on selected class
   const fetchStudents = async (classId) => {
     try {
       setLoading(true);
@@ -59,12 +74,12 @@ const fetchCurrentTerm = async () => {
     }
   };
 
-  // ✅ Handle attendance selection
+  // Handle attendance selection
   const handleAttendanceChange = (studentId, present) => {
     setAttendance({ ...attendance, [studentId]: present });
   };
 
-  // ✅ Submit attendance to the API
+  // Submit attendance to the API
   const submitAttendance = async () => {
     if (!currentTerm) return toast.error("Term not found!");
     try {
@@ -84,7 +99,7 @@ const fetchCurrentTerm = async () => {
     }
   };
 
-  // ✅ Fetch everything on component mount
+  // Fetch everything on component mount
   useEffect(() => {
     fetchCurrentTerm();
     fetchClasses();
@@ -95,10 +110,10 @@ const fetchCurrentTerm = async () => {
       <h2>Mark Attendance</h2>
 
       {/* Class Selector */}
-      <select onChange={(e) => { 
-          setSelectedClass(e.target.value);
-          fetchStudents(e.target.value);
-        }}>
+      <select onChange={(e) => {
+        setSelectedClass(e.target.value);
+        fetchStudents(e.target.value);
+      }}>
         <option value="">Select Class</option>
         {classes.map((cls) => (
           <option key={cls._id} value={cls._id}>{cls.className}</option>
