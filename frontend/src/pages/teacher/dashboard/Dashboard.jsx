@@ -20,7 +20,7 @@ const TeacherDashboard = () => {
   
         setClassCount(response.data.count);
       } catch (error) {
-        console.error("Error fetching class count:", error.response?.data || error.message);
+        // console.error("Error fetching class count:", error.response?.data || error.message);
       }
     };
   

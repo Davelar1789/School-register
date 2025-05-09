@@ -46,7 +46,7 @@ const Header = () => {
   
       try {
         const decoded = jwtDecode(token);
-        console.log("Decoded token:", decoded);
+        // console.log("Decoded token:", decoded);
   
         setUser({
           fullName: decoded.fullName,
@@ -78,7 +78,7 @@ const Header = () => {
         return;
       }
     } catch (error) {
-      console.error("Error fetching school:", error);
+      // console.error("Error fetching school:", error);
     }
   };
 
@@ -90,7 +90,7 @@ const Header = () => {
       toast.success("Logged out successfully");
       navigate("/sign-in"); // or your login route
     } catch (error) {
-      console.error("Logout failed:", error);
+      // console.error("Logout failed:", error);
       toast.error("Logout failed. Please try again.");
     }
   };

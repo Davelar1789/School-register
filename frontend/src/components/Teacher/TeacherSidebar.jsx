@@ -30,7 +30,7 @@ const SidebarTeacher = () => {
 
     try {
       const decoded = jwtDecode(token);
-      console.log("Decoded token:", decoded);
+      // console.log("Decoded token:", decoded);
 
       setUser({
         fullName: decoded.fullName,
@@ -54,7 +54,7 @@ const SidebarTeacher = () => {
       toast.success("Logged out successfully");
       navigate("/sign-in");
     } catch (error) {
-      console.error("Logout failed:", error);
+      // console.error("Logout failed:", error);
       toast.error("Logout failed. Please try again.");
     }
   };

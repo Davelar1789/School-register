@@ -26,7 +26,7 @@ const Classes = () => {
       );
       setClasses(response.data.classes || []);
     } catch (err) {
-      console.error("Error fetching classes:", err);
+      // console.error("Error fetching classes:", err);
     } finally {
       setLoading(false);
     }

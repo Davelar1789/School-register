@@ -20,7 +20,7 @@ const ClassDetails = () => {
       });
       setClassData(response.data);
     } catch (err) {
-      console.error("Error fetching class details:", err);
+      // console.error("Error fetching class details:", err);
     } finally {
       setLoading(false);
     }

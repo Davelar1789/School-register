@@ -19,7 +19,7 @@ const MySubjects = () => {
           const { data } = await axios.get(`/api/teachers/${teacherId}/subjects`);
           setSubjects(data.subjects || []);
         } catch (error) {
-          console.error("Failed to fetch subjects:", error);
+          // console.error("Failed to fetch subjects:", error);
         } finally {
           setLoading(false);
         }

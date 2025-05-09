@@ -14,7 +14,7 @@ const getSchoolIdFromToken = () => {
     const decodedToken = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
     return decodedToken?.schoolId || null; // ✅ Added optional chaining for safety
   } catch (error) {
-    console.error("Error decoding token:", error);
+    // console.error("Error decoding token:", error);
     return null;
   }
 };
@@ -53,19 +53,19 @@ const Attendance = () => {
   // Fetch the most recent term
   const fetchCurrentTerm = async () => {
     if (!schoolId) {
-      console.error("Error: schoolId is undefined!");
+      // console.error("Error: schoolId is undefined!");
       return;
     }
 
     try {
-      console.log("Fetching current term...");
+      // console.log("Fetching current term...");
       const { data } = await axios.get(`/api/terms/latest`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("Fetched Term:", data);
+      // console.log("Fetched Term:", data);
       setCurrentTerm(data);
     } catch (error) {
-      console.error("Error fetching current term:", error.response?.data || error.message);
+      // console.error("Error fetching current term:", error.response?.data || error.message);
       toast.error("Failed to fetch current term.");
     }
   };
@@ -79,7 +79,7 @@ const Attendance = () => {
       });
       setClasses(res.data.classes || []);
     } catch (err) {
-      console.error("Error fetching classes:", err);
+      // console.error("Error fetching classes:", err);
       toast.error("Failed to load classes.");
     } finally {
       setLoading(false);
@@ -90,14 +90,14 @@ const Attendance = () => {
   const fetchStudents = async (classId) => {
     if (!classId) return;
     try {
-      console.log("Fetching students for class ID:", classId);
+      // console.log("Fetching students for class ID:", classId);
       setLoading(true);
 
       const res = await axios.get(`/api/student/class/${classId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      console.log("Fetched Students:", res.data);
+      // console.log("Fetched Students:", res.data);
       const studentData = Array.isArray(res.data) ? res.data : res.data.students || [];
       setStudents(studentData);
        // ✅ Automatically set today's date when a class is fetched
@@ -105,7 +105,7 @@ const Attendance = () => {
     setSelectedDate(today);
 
     } catch (err) {
-      console.error("Error loading students:", err);
+      // console.error("Error loading students:", err);
       toast.error("Failed to load students.");
     } finally {
       setLoading(false);
@@ -124,13 +124,13 @@ const Attendance = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
   
-      console.log("Fetched Attendance Records:", res.data);
+      // console.log("Fetched Attendance Records:", res.data);
   
       if (res.data.length > 0) {
         setSubmittedDates((prev) => new Set(prev).add(`${classId}_${date}`)); // ✅ Store as "classId_date"
       }
     } catch (err) {
-      console.error("Error checking attendance records:", err);
+      // console.error("Error checking attendance records:", err);
     }
   };
 
@@ -171,7 +171,7 @@ const Attendance = () => {
       setSubmittedDates((prev) => new Set(prev).add(`${selectedClass}_${selectedDate}`)); // ✅ Store class-specific attendance
       toast.success("Attendance marked successfully!");
     } catch (err) {
-      console.error("Error marking attendance:", err);
+      // console.error("Error marking attendance:", err);
       toast.error("Error marking attendance.");
     }
   };
