@@ -43,10 +43,6 @@ return (
               <p>{classCount}</p> {/* 🟢 Now dynamic */}
             </div>
             <div className="widget-card">
-              <h3>Students</h3>
-              <p>158</p>
-            </div>
-            <div className="widget-card">
               <h3>Assignments Due</h3>
               <p>3</p>
             </div>
