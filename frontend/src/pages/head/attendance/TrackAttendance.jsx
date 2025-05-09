@@ -30,12 +30,21 @@ const TrackAttendance = () => {
   // ✅ Fetch students with total attendance when a class is selected
   const fetchStudentsByClass = async (classId) => {
     if (!classId) return;
-    
+  
     try {
       setLoading(true);
   
-      // ✅ First, fetch the latest term
-      const termRes = await axios.get(`/api/terms/latest`);
+      const token = localStorage.getItem("token"); // ✅ Ensure token exists
+      if (!token) {
+        toast.error("Unauthorized: No token found. Please log in.");
+        return;
+      }
+  
+      // ✅ First, fetch the latest term with authentication
+      const termRes = await axios.get(`/api/terms/latest`, {
+        headers: { Authorization: `Bearer ${token}` }, // ✅ Include token
+      });
+  
       const latestTerm = termRes.data?._id;
   
       if (!latestTerm) {
@@ -43,12 +52,20 @@ const TrackAttendance = () => {
         return;
       }
   
-      // ✅ Then, use the term ID to fetch student attendance
-      const { data } = await axios.get(`/api/attendance/student-total?termId=${latestTerm}&classId=${classId}`);
-      
+      // ✅ Then, use the term ID to fetch student attendance with authentication
+      const { data } = await axios.get(`/api/attendance/student-total?termId=${latestTerm}&classId=${classId}`, {
+        headers: { Authorization: `Bearer ${token}` }, // ✅ Include token
+      });
+  
       setStudents(data || []);
     } catch (error) {
-      toast.error("Failed to fetch student attendance");
+      console.error("Error fetching student attendance:", error);
+      
+      if (error.response?.status === 401) {
+        toast.error("Unauthorized: Please log in again.");
+      } else {
+        toast.error("Failed to fetch student attendance.");
+      }
     } finally {
       setLoading(false);
     }
