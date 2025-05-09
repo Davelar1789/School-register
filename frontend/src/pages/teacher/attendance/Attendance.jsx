@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../../api/axios";
 import toast from "react-hot-toast";
+import "./Attendance.modules.css";
 
 // Function to extract schoolId from the token
 const getSchoolIdFromToken = () => {
