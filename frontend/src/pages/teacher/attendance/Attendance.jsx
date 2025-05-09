@@ -25,6 +25,7 @@ const isWeekend = (date) => {
 
 const Attendance = () => {
   const [classes, setClasses] = useState([]);
+  const [showModal, setShowModal] = useState(false);
   const [students, setStudents] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
   const [attendance, setAttendance] = useState({});
@@ -35,6 +36,17 @@ const Attendance = () => {
 
   const token = localStorage.getItem("token");
   const schoolId = getSchoolIdFromToken(); // ✅ Ensuring correct extraction
+
+
+   // ✅ Open confirmation modal
+   const handleSubmitClick = () => {
+    setShowModal(true);
+  };
+
+  // ✅ Close modal without submitting
+  const handleCancel = () => {
+    setShowModal(false);
+  };
 
   // Fetch the most recent term
   const fetchCurrentTerm = async () => {
@@ -122,6 +134,7 @@ const Attendance = () => {
   };
 
   const submitAttendance = async () => {
+    setShowModal(false);
     if (!currentTerm) return toast.error("Term not found!");
     if (!selectedDate) return toast.error("Please select a date.");
     if (isWeekend(selectedDate)) return toast.error("Cannot mark attendance on weekends.");
@@ -235,11 +248,23 @@ const Attendance = () => {
   {/* Dynamic Submit Button */}
   <button 
   className="submit-button" 
-  onClick={submitAttendance} 
+  onClick={handleSubmitClick} 
   disabled={!selectedClass || !students.length || submittedDates.has(`${selectedClass}_${selectedDate}`)}
 >
   {submittedDates.has(`${selectedClass}_${selectedDate}`) ? "Attendance already submitted for this class on this date" : "Submit Attendance"}
 </button>
+
+{showModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h3>Confirm Attendance Submission</h3>
+            <p>Are you sure you want to submit attendance for this class on {selectedDate}?</p>
+            <button className="modal-confirm" onClick={submitAttendance}>Confirm</button>
+            <button className="modal-cancel" onClick={handleCancel}>Cancel</button>
+          </div>
+        </div>
+      )}
+
 </div>
   );
 };
