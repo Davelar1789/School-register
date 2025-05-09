@@ -60,31 +60,30 @@ const Attendance = () => {
   };
 
  // Fetch students based on selected class
-const fetchStudents = async (classId) => {
-  console.log('Fetching students for class ID:', classId);
-
-  if (!classId) {
-    console.log('No class ID provided. Aborting fetch.');
-    return;
-  }
-
+ const fetchStudents = async (classId) => {
+  if (!classId) return;
   try {
+    console.log("Fetching students for class ID:", classId);
     setLoading(true);
-    console.log('Loading students...');
 
     const res = await axios.get(`/api/student/class/${classId}`, {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    console.log('Students fetched successfully:', res.data.students);
-    setStudents(res.data.students || []);
+    console.log("Raw API Response:", res.data); // ✅ Log raw response
+
+    // Correctly extract student data
+    const studentData = Array.isArray(res.data) ? res.data : res.data.students || [];
+    
+    console.log("Students in state:", studentData); // ✅ Log extracted students
+
+    setStudents(studentData);
   } catch (err) {
-    console.error('Error fetching students:', err);
-    toast.error("Error loading students");
+    console.error("Error loading students:", err);
+    toast.error("Failed to load students.");
   } finally {
     setLoading(false);
-    console.log('Loading state set to false.');
-  }
+  }
 };
 
 
