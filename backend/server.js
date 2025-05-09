@@ -28,7 +28,7 @@ const PORT = process.env.PORT || 5000;
 
 // Configure CORS (only allowing frontend hosted on Vercel)
 const corsConfig = {
-  origin: ["https://school-register-ruby.vercel.app"], // Frontend origin
+  origin: ["https://school-register-ruby.vercel.app", "https://jbrains.vercel.app"], // Frontend origin
   credentials: true, // Allow cookies
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"], // Allow all required methods
   allowedHeaders: ["Content-Type", "Authorization"], // Allow required headers
