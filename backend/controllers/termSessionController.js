@@ -277,7 +277,6 @@ export const getLatestTerm = async (req, res) => {
       return res.status(404).json({ message: "No active term found." });
     }
 
-    console.log("Latest Term Found:", latestTerm);
     res.status(200).json(latestTerm);
   } catch (error) {
     console.error("Error fetching latest term:", error);
