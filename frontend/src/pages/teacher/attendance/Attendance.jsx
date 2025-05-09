@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../../api/axios";
 import toast from "react-hot-toast";
+import Sidebar from "../../../components/Teacher/TeacherSidebar";
+import Header from "../../../components/Teacher/TeacherHeader";
 import "./Attendance.modules.css";
 
 // Function to extract schoolId from token
@@ -184,6 +186,9 @@ const Attendance = () => {
   }, [selectedClass, selectedDate]);
 
   return (
+    <div>
+      <Sidebar />
+      <Header />
     <div className="attendance-container">
   <h2 className="attendance-title">Mark Attendance</h2>
 
@@ -265,6 +270,7 @@ const Attendance = () => {
         </div>
       )}
 
+</div>
 </div>
   );
 };
