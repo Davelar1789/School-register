@@ -156,52 +156,69 @@ export const updateAttendance = async (req, res) => {
   }
 };
 
-import mongoose from "mongoose";
-
 export const fetchStudentAttendance = async (req, res) => {
-  try {
-    const { termId, classId, date } = req.query;
-    
-    if (!mongoose.Types.ObjectId.isValid(termId)) {
-      return res.status(400).json({ message: "Invalid term ID format." });
+    try {
+      const { termId, classId, date } = req.query;
+      
+      if (!mongoose.Types.ObjectId.isValid(termId)) {
+        return res.status(400).json({ message: "Invalid term ID format." });
+      }
+      
+      console.log("Fetching attendance for class:", classId, "and term:", termId);
+      
+      // Ensure term session exists
+      const term = await TermSession.findById(termId);
+      if (!term) return res.status(404).json({ message: "Term session not found." });
+  
+      // Calculate total school days from term start to today (excluding weekends)
+      const getSchoolDays = (startDate, endDate) => {
+        let totalDays = 0;
+        let currentDate = new Date(startDate);
+  
+        while (currentDate <= endDate) {
+          if (![0, 6].includes(currentDate.getDay())) { // Exclude weekends
+            totalDays++;
+          }
+          currentDate.setDate(currentDate.getDate() + 1);
+        }
+        return totalDays;
+      };
+  
+      const today = date ? new Date(date) : new Date();
+      const totalSchoolDays = getSchoolDays(term.startDate, today);
+      console.log("Total school days (excluding weekends):", totalSchoolDays);
+  
+      // Find students in the selected class
+      const students = await Students.find({ classes: classId }).select("_id name idno");
+      if (!students.length) {
+        console.warn("No students found for class:", classId);
+        return res.status(404).json({ message: "No students found for this class." });
+      }
+  
+      // Fetch attendance for each student
+      const studentAttendance = await Promise.all(
+        students.map(async (student) => {
+          const attendanceCount = await Attendance.countDocuments({ 
+            studentId: student._id, 
+            termId, 
+            present: true 
+          });
+  
+          return {
+            _id: student._id,
+            name: student.name,
+            idno: student.idno,
+            totalPresentDays: attendanceCount,
+            totalSchoolDays
+          };
+        })
+      );
+  
+      console.log("Fetched student attendance records:", studentAttendance.length);
+      res.status(200).json(studentAttendance);
+      
+    } catch (error) {
+      console.error("Error fetching student attendance:", error.message);
+      res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
-
-    console.log("Fetching attendance for class:", classId, "and term:", termId);
-
-    const term = await TermSession.findById(termId);
-    if (!term) return res.status(404).json({ message: "Term session not found." });
-
-    // ✅ Continue with existing logic
-    const today = date ? new Date(date) : new Date();
-    const totalSchoolDays = getSchoolDays(term.startDate, today);
-
-    const students = await Students.find({ classes: classId }).select("_id name idno");
-    if (!students.length) {
-      return res.status(404).json({ message: "No students found for this class." });
-    }
-
-    const studentAttendance = await Promise.all(
-      students.map(async (student) => {
-        const attendanceCount = await Attendance.countDocuments({ 
-          studentId: student._id, 
-          termId, 
-          present: true 
-        });
-
-        return {
-          _id: student._id,
-          name: student.name,
-          idno: student.idno,
-          totalPresentDays: attendanceCount,
-          totalSchoolDays
-        };
-      })
-    );
-
-    res.status(200).json(studentAttendance);
-    
-  } catch (error) {
-    console.error("Error fetching student attendance:", error.message);
-    res.status(500).json({ message: "Internal Server Error", error: error.message });
-  }
-};
+  };
