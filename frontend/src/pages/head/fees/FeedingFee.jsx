@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../../api/axios";
 import toast from "react-hot-toast";
-import "./feedingFeePage.css";
+import "./FeedingFee.modules.css";
 
 const FeedingFeePage = () => {
   const [classes, setClasses] = useState([]);
