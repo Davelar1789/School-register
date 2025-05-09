@@ -15,6 +15,7 @@ import classRoutes from "./routes/classRoutes.js";
 import feesRoutes from "./routes/feesRoutes.js";
 import termsRoutes from "./routes/termSessionRoutes.js";
 import subjectRoutes from "./routes/subjectRoutes.js";
+import attendanceRoutes from "./routes/attendanceRoutes.js";
 import { authToken } from "./middleware/authToken.js";
 import { verifyAdmin } from "./middleware/verifyAdmin.js";
 import { verifyTeacher } from "./middleware/verifyTeacher.js";
@@ -54,6 +55,7 @@ app.use("/api/terms", termsRoutes);
 app.use("/api/whatsapp", whatsappRoutes);
 app.use("/api/expenses", expenseRoutes);
 app.use("/api/subjects", subjectRoutes);
+app.use("/api/attendance", attendanceRoutes);
 
 
 app.get('/ping', (req, res) => {
