@@ -194,7 +194,7 @@ const [selectedSubjects, setSelectedSubjects] = useState([]);
 >
   <option value="">Select a class</option>
   {allClasses
-    .filter(cls => !selectedClasses.includes(cls._id)) // ✅ Filter out already selected classes
+    .filter(cls => !assignedClasses.includes(cls._id)) // ✅ Filter out already selected classes
     .map(cls => (
       <option key={cls._id} value={cls._id}>
         {cls.className}
