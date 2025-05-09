@@ -106,23 +106,24 @@ const Attendance = () => {
     if (attendanceDate < new Date(currentTerm.startDate) || attendanceDate > new Date(currentTerm.endDate)) {
       return toast.error("Selected date is outside the term period.");
     }
-
+  
     if (submittedDates.has(selectedDate)) {
       return toast.error("Attendance for this date is already recorded.");
     }
-
+  
+    // Prepare batch attendance list, defaulting unmarked students to absent
+    const attendanceList = students.map(student => ({
+      studentId: student._id,
+      present: attendance[student._id] || false, // Default to false if not marked
+    }));
+  
     try {
-      await Promise.all(
-        Object.entries(attendance).map(([studentId, present]) =>
-          axios.post("/api/attendance/mark", {
-            studentId,
-            termId: currentTerm._id,
-            date: selectedDate,
-            present,
-          }, { headers: { Authorization: `Bearer ${token}` } })
-        )
-      );
-
+      await axios.post("/api/attendance/mark-batch", {
+        termId: currentTerm._id,
+        date: selectedDate,
+        attendanceList,
+      }, { headers: { Authorization: `Bearer ${token}` } });
+  
       setSubmittedDates((prev) => new Set(prev).add(selectedDate));
       toast.success("Attendance marked successfully!");
     } catch (err) {
