@@ -22,19 +22,19 @@
     border-radius: 5px;
   }
   
-  .fee-table {
+  .fee-table2 {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
   }
   
-  .fee-table th, .fee-table td {
+  .fee-table2 th, .fee-table2 td {
     padding: 15px;
     border: 1px solid #ddd;
     text-align: center;
   }
   
-  .fee-table th {
+  .fee-table2 th {
     background-color: #4CAF50;
     color: white;
   }

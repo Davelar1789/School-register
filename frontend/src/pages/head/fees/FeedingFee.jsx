@@ -103,7 +103,7 @@ const FeedingFeePage = () => {
 
       {/* ✅ Styled Student Fee Table */}
       {students.length > 0 && (
-        <table className="fee-table">
+        <table className="fee-table2">
           <thead>
             <tr>
               <th>Student Name</th>
