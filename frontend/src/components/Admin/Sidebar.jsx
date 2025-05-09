@@ -162,16 +162,16 @@ const Sidebar = () => {
                 </NavLink>
               </li>
       <li>
-        <NavLink to="/students" className={({ isActive }) => isActive ? "active" : ""}>
-          <FaUserGraduate className="icon" /> Student <span className="badge">{schoolStats.numberOfStudents}
+        <NavLink to="/students-teachers" className={({ isActive }) => isActive ? "active" : ""}>
+          <FaUserGraduate className="icon" /> Students/Teachers <span className="badge">{schoolStats.numberOfStudents}
           </span>
         </NavLink>
       </li>
-      <li>
+      {/* <li>
         <NavLink to="/teachers" className={({ isActive }) => isActive ? "active" : ""}>
           <FaChalkboardTeacher className="icon" /> Teacher
         </NavLink>
-      </li>
+      </li> */}
       <li>
         <NavLink to="/classes-main" className={({ isActive }) => isActive ? "active" : ""}>
           <FaChalkboardTeacher className="icon" /> Classes

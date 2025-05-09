@@ -60,6 +60,7 @@ import Expenses from "./pages/head/expenses/ExpensePage";
 import Subjects from "./pages/head/classes/Subjects";
 import MainClasses from "./pages/head/classes/MainPage";
 import TeacherSubjects from "./pages/teacher/mysubjects/MySubjects";
+import StudentsTeachers from "./pages/head/students-teachers/MainPage";
 
 const router = createBrowserRouter([
   {
@@ -95,6 +96,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["admin"]}>
             <Students />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "students-teachers",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <StudentsTeachers />
           </ProtectedRoute>
         ),
       },
