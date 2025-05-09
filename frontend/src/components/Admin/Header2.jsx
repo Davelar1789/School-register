@@ -196,7 +196,6 @@ const Header = () => {
         <li>
           <NavLink to="/students-teachers" onClick={() => setSidebarOpen(false)}>
             <FaUserGraduate className="icon" /> Student/Teachers
-            <span className="badge">{schoolStats.numberOfStudents}</span>
           </NavLink>
         </li>
         <li>
