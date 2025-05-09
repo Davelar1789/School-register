@@ -34,33 +34,39 @@ const FeedingFeePage = () => {
     if (!classId) return;
     try {
       setLoading(true);
-
-      // ✅ First, get students for the class
-      const studentRes = await axios.get(`/api/student/class/${classId}`, {
+  
+      const token = localStorage.getItem("token");
+  
+      if (!token) {
+        toast.error("Unauthorized: No token found. Please log in.");
+        return;
+      }
+  
+      // ✅ First, fetch the latest term dynamically
+      const termRes = await axios.get(`/api/terms/latest`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
-      const students = studentRes.data || [];
-
-      // ✅ Then, fetch attendance for each student
+  
+      const latestTerm = termRes.data?._id;
+  
+      if (!latestTerm) {
+        toast.error("Failed to fetch latest term");
+        return;
+      }
+  
+      // ✅ Then, use the latest term ID to fetch student attendance
+      const { data } = await axios.get(`/api/attendance/student-total?termId=${latestTerm}&classId=${classId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+  
       const updatedStudents = await Promise.all(
-        students.map(async (student) => {
-          const attendanceRes = await axios.get(`/api/attendance/student-total?termId=LATEST_TERM_ID&classId=${classId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-
-          const attendanceRecord = attendanceRes.data.find(s => s._id === student._id);
-          const totalAttendanceDays = attendanceRecord?.totalPresentDays || 0;
-
-          return {
-            ...student,
-            feedingFee: student.feedingFee,
-            totalAttendanceDays,
-            totalAmountPaid: student.feedingFee * totalAttendanceDays, // ✅ Calculation
-          };
-        })
+        data.map((student) => ({
+          ...student,
+          feedingFee: student.feedingFee,
+          totalAmountPaid: student.feedingFee * student.totalPresentDays, // ✅ Calculation
+        }))
       );
-
+  
       setStudentsByClass((prev) => ({
         ...prev,
         [classId]: updatedStudents,
