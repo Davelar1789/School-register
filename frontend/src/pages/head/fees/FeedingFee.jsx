@@ -3,13 +3,14 @@ import axios from "../../../api/axios";
 import toast from "react-hot-toast";
 import "./FeedingFee.modules.css";
 
-const ManageFeedingFees = () => {
+const FeedingFeePage = () => {
   const [classes, setClasses] = useState([]);
-  const [feedingFees, setFeedingFees] = useState({});
+  const [studentsByClass, setStudentsByClass] = useState({});
   const [loading, setLoading] = useState(false);
 
   const schoolDataRaw = localStorage.getItem("schoolData");
   const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
+  const token = localStorage.getItem("token");
 
   // ✅ Fetch all classes in the school
   const fetchClasses = async () => {
@@ -17,17 +18,55 @@ const ManageFeedingFees = () => {
 
     try {
       setLoading(true);
-      const { data } = await axios.get(`/api/classes/school/${schoolId}`);
-      setClasses(data || []);
-
-      // ✅ Initialize feeding fee state for each class
-      const initialFees = {};
-      data.forEach(cls => {
-        initialFees[cls._id] = cls.feedingFee || ""; // Pre-fill with existing fees if available
+      const { data } = await axios.get(`/api/classes/school/${schoolId}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
-      setFeedingFees(initialFees);
+      setClasses(data || []);
     } catch (error) {
       toast.error("Failed to fetch class list");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ Fetch students and their attendance days for each class
+  const fetchStudentsByClass = async (classId) => {
+    if (!classId) return;
+    try {
+      setLoading(true);
+
+      // ✅ First, get students for the class
+      const studentRes = await axios.get(`/api/student/class/${classId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const students = studentRes.data || [];
+
+      // ✅ Then, fetch attendance for each student
+      const updatedStudents = await Promise.all(
+        students.map(async (student) => {
+          const attendanceRes = await axios.get(`/api/attendance/student-total?termId=LATEST_TERM_ID&classId=${classId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          const attendanceRecord = attendanceRes.data.find(s => s._id === student._id);
+          const totalAttendanceDays = attendanceRecord?.totalPresentDays || 0;
+
+          return {
+            ...student,
+            feedingFee: student.feedingFee,
+            totalAttendanceDays,
+            totalAmountPaid: student.feedingFee * totalAttendanceDays, // ✅ Calculation
+          };
+        })
+      );
+
+      setStudentsByClass((prev) => ({
+        ...prev,
+        [classId]: updatedStudents,
+      }));
+    } catch (error) {
+      toast.error("Failed to fetch student attendance.");
     } finally {
       setLoading(false);
     }
@@ -37,71 +76,48 @@ const ManageFeedingFees = () => {
     fetchClasses();
   }, []);
 
-  // ✅ Handle feeding fee input changes
-  const handleFeeChange = (classId, value) => {
-    setFeedingFees(prevFees => ({
-      ...prevFees,
-      [classId]: value,
-    }));
-  };
-
-  // ✅ Submit all feeding fees at once
-  const submitFeedingFees = async () => {
-    try {
-      setLoading(true);
-      const token = localStorage.getItem("token");
-
-      // ✅ Send all feeding fees together
-      await axios.post("/api/fees/set-feeding-fee", { feedingFees }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      toast.success("Feeding fees updated successfully!");
-      fetchClasses(); // Refresh data after submission
-    } catch (error) {
-      console.error("Error updating feeding fees:", error);
-      toast.error("Failed to update feeding fees.");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   return (
     <div className="feeding-fee-container">
-      <h2 className="feeding-fee-title">Manage Feeding Fees</h2>
+      <h2 className="feeding-fee-title">Feeding Fee Management</h2>
 
-      {loading && <p className="loading-message">Loading classes...</p>}
+      {loading && <p className="loading-message">Loading data...</p>}
 
-      <table className="fee-table">
-        <thead>
-          <tr>
-            <th>Class Name</th>
-            <th>Feeding Fee</th>
-          </tr>
-        </thead>
-        <tbody>
-          {classes.map(cls => (
-            <tr key={cls._id} className="fee-row">
-              <td>{cls.className}</td>
-              <td>
-                <input
-                  type="number"
-                  min="0"
-                  value={feedingFees[cls._id] || ""}
-                  onChange={(e) => handleFeeChange(cls._id, e.target.value)}
-                  className="fee-input"
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      {classes.map((cls) => (
+        <div key={cls._id} className="class-section">
+          <h3>{cls.className}</h3>
+          
+          {/* ✅ Fetch students when class is loaded */}
+          <button onClick={() => fetchStudentsByClass(cls._id)} className="load-students-button">
+            Load Students
+          </button>
 
-      <button className="submit-button" onClick={submitFeedingFees} disabled={loading}>
-        Submit All Feeding Fees
-      </button>
+          {/* Students Table */}
+          {studentsByClass[cls._id] && (
+            <table className="fee-table">
+              <thead>
+                <tr>
+                  <th>Student Name</th>
+                  <th>Feeding Fee</th>
+                  <th>Attendance Days</th>
+                  <th>Total Amount Paid</th>
+                </tr>
+              </thead>
+              <tbody>
+                {studentsByClass[cls._id].map(student => (
+                  <tr key={student._id} className="fee-row">
+                    <td>{student.name}</td>
+                    <td>{student.feedingFee}</td>
+                    <td>{student.totalAttendanceDays}</td>
+                    <td>{student.totalAmountPaid}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+      ))}
     </div>
   );
 };
 
-export default ManageFeedingFees;
+export default FeedingFeePage;
