@@ -258,23 +258,30 @@ export const updateTermDates = async (req, res) => {
 
 export const getLatestTerm = async (req, res) => {
   try {
-    const { schoolId } = req.params;
-    console.log("Fetching latest term for school:", schoolId); // Debugging log
+    const token = req.headers.authorization?.split(" ")[1]; // Extract token
+    if (!token) return res.status(401).json({ message: "Unauthorized access" });
+
+    const decodedToken = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+    const schoolId = decodedToken.schoolId;
+
+    console.log("Fetching latest term for school:", schoolId);
+
+    if (!schoolId) return res.status(400).json({ message: "Missing school ID in token" });
 
     const latestTerm = await TermSession.findOne({ schoolId })
       .sort({ startDate: -1 })
       .limit(1);
 
     if (!latestTerm) {
-      console.log("No active term found.");
-      return res.status(404).json({ message: "No active term found for this school." });
+      console.warn("No active term found for school:", schoolId);
+      return res.status(404).json({ message: "No active term found." });
     }
 
     console.log("Latest Term Found:", latestTerm);
     res.status(200).json(latestTerm);
   } catch (error) {
-    console.error("Error fetching latest term:", error.message);
-    res.status(500).json({ message: "Error fetching latest term.", error: error.message });
+    console.error("Error fetching latest term:", error);
+    res.status(500).json({ message: "Database query failed!", error: error.message });
   }
 };
 
