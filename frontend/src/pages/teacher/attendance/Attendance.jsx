@@ -121,35 +121,35 @@ const Attendance = () => {
     setAttendance((prev) => ({ ...prev, [studentId]: present }));
   };
 
-  // Validate and submit attendance
   const submitAttendance = async () => {
     if (!currentTerm) return toast.error("Term not found!");
     if (!selectedDate) return toast.error("Please select a date.");
     if (isWeekend(selectedDate)) return toast.error("Cannot mark attendance on weekends.");
-
+  
     const attendanceDate = new Date(selectedDate);
     if (attendanceDate < new Date(currentTerm.startDate) || attendanceDate > new Date(currentTerm.endDate)) {
       return toast.error("Selected date is outside the term period.");
     }
-
-    if (submittedDates.has(selectedDate)) {
-      return toast.error("Attendance for this date is already recorded.");
+  
+    if (submittedDates.has(`${selectedClass}_${selectedDate}`)) { // ✅ Class-specific check
+      return toast.error("Attendance for this class on this date is already recorded.");
     }
-
+  
     // Prepare batch attendance list, defaulting unmarked students to absent
     const attendanceList = students.map((student) => ({
       studentId: student._id,
       present: attendance[student._id] || false, // Default to false if not marked
     }));
-
+  
     try {
-      await axios.post("/api/attendance/mark-batch", {
+      await axios.post("/api/attendance/mark-batch", { 
         termId: currentTerm._id,
+        classId: selectedClass, // ✅ Include classId in request
         date: selectedDate,
         attendanceList,
       }, { headers: { Authorization: `Bearer ${token}` } });
-
-      setSubmittedDates((prev) => new Set(prev).add(selectedDate));
+  
+      setSubmittedDates((prev) => new Set(prev).add(`${selectedClass}_${selectedDate}`)); // ✅ Store class-specific attendance
       toast.success("Attendance marked successfully!");
     } catch (err) {
       console.error("Error marking attendance:", err);
