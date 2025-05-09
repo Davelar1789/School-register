@@ -48,3 +48,9 @@
     color: #888;
     font-size: 18px;
   }
+
+  @media (min-width: 768px) {
+    .feeding-fee-container {
+        margin-left: 250px;
+    }
+  }

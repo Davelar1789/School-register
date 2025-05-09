@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../../api/axios";
 import toast from "react-hot-toast";
+import Header from "../../../components/Admin/Header2";
+import Sidebar from "../../../components/Admin/Sidebar";
 import "./FeedingFee.modules.css";
 
 const FeedingFeePage = () => {
@@ -88,6 +90,9 @@ const FeedingFeePage = () => {
   }, []);
 
   return (
+    <div>
+<Header />
+<Sidebar />
     <div className="feeding-fee-container">
       <h2 className="feeding-fee-title">Feeding Fee Management</h2>
 
@@ -124,6 +129,7 @@ const FeedingFeePage = () => {
           </tbody>
         </table>
       )}
+    </div>
     </div>
   );
 };
