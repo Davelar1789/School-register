@@ -1,7 +1,7 @@
 import Attendance from "../models/Attendance.model.js";
 import TermSession from "../models/TermSession.model.js";
 import Students from "../models/Student.model.js";
-
+import mongoose from "mongoose";
 // Helper function to check if a date is a weekend
 const isWeekend = (date) => [0, 6].includes(new Date(date).getDay());
 
@@ -159,7 +159,7 @@ export const updateAttendance = async (req, res) => {
 export const fetchStudentAttendance = async (req, res) => {
     try {
       const { termId, classId, date } = req.query;
-      
+
       if (!mongoose.Types.ObjectId.isValid(termId)) {
         return res.status(400).json({ message: "Invalid term ID format." });
       }
