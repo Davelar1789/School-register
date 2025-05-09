@@ -41,7 +41,7 @@ const MySubjects = () => {
           {loading ? (
             <p>Loading...</p>
           ) : subjects.length === 0 ? (
-            <p>No subjects assigned yet.</p>
+            <p className="yet">No subjects assigned yet.</p>
           ) : (
             <div className="subject-cards">
               {subjects.map((item, index) => (

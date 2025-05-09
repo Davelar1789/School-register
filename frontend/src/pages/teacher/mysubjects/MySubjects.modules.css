@@ -16,7 +16,9 @@
   flex-direction: column;
 }
 
-  
+.yet {
+  color: white;
+}
   .subjects-container h2 {
     margin-bottom: 20px;
   }

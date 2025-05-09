@@ -44,15 +44,15 @@ return (
             </div>
             <div className="widget-card">
               <h3>Assignments Due</h3>
-              <p>3</p>
+              <p>0</p>
             </div>
             <div className="widget-card">
               <h3>Messages</h3>
-              <p>5</p>
+              <p>0</p>
             </div>
           </div>
 
-          <div className="dashboard-section">
+          {/* <div className="dashboard-section">
             <h2>Upcoming Classes</h2>
             <table className="dashboard-table">
               <thead>
@@ -87,7 +87,7 @@ return (
               <li>📢 Sent class announcement to JHS 2A</li>
               <li>📝 Uploaded quiz for JHS 3B - ICT</li>
             </ul>
-          </div>
+          </div> */}
         </main>
       </div>
     </div>
