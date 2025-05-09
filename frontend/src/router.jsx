@@ -61,6 +61,7 @@ import Subjects from "./pages/head/classes/Subjects";
 import MainClasses from "./pages/head/classes/MainPage";
 import TeacherSubjects from "./pages/teacher/mysubjects/MySubjects";
 import StudentsTeachers from "./pages/head/students-teachers/MainPage";
+import TrackAttendance from "./pages/head/attendance/TrackAttendance";
 
 const router = createBrowserRouter([
   {
@@ -104,6 +105,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["admin"]}>
             <StudentsTeachers />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "view-attendance",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <TrackAttendance />
           </ProtectedRoute>
         ),
       },
