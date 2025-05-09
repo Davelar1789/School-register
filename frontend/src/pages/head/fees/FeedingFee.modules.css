@@ -1,0 +1,57 @@
+.feeding-fee-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .feeding-fee-title {
+    text-align: center;
+    font-size: 24px;
+    color: #333;
+  }
+  
+  .fee-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .fee-table th, .fee-table td {
+    padding: 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+  }
+  
+  .fee-row {
+    background: #ffffff;
+  }
+  
+  .fee-input {
+    width: 100px;
+    padding: 6px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .submit-button {
+    padding: 10px 20px;
+    background: green;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: block;
+    margin: 20px auto;
+  }
+  
+  .submit-button:disabled {
+    background: gray;
+    cursor: not-allowed;
+  }
+  
+  .loading-message {
+    text-align: center;
+    color: #888;
+  }
