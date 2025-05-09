@@ -10,7 +10,7 @@ const getSchoolIdFromToken = () => {
 
   try {
     const decodedToken = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
-    return decodedToken.schoolId || null;
+    return decodedToken?.schoolId || null; // ✅ Added optional chaining for safety
   } catch (error) {
     console.error("Error decoding token:", error);
     return null;
@@ -20,7 +20,7 @@ const getSchoolIdFromToken = () => {
 // Function to check if a date is a weekend
 const isWeekend = (date) => {
   const day = new Date(date).getDay();
-  return day === 0 || day === 6; // Sunday (0) & Saturday (6)
+  return day === 0 || day === 6; // ✅ Simplified with clearer readability
 };
 
 const Attendance = () => {
@@ -34,11 +34,14 @@ const Attendance = () => {
   const [submittedDates, setSubmittedDates] = useState(new Set());
 
   const token = localStorage.getItem("token");
-  const schoolId = getSchoolIdFromToken(); // Extract schoolId dynamically
+  const schoolId = getSchoolIdFromToken(); // ✅ Ensuring correct extraction
 
   // Fetch the most recent term
   const fetchCurrentTerm = async () => {
-    if (!schoolId) return console.error("Error: schoolId is undefined!");
+    if (!schoolId) {
+      console.error("Error: schoolId is undefined!");
+      return;
+    }
 
     try {
       console.log("Fetching current term...");
@@ -62,7 +65,8 @@ const Attendance = () => {
       });
       setClasses(res.data.classes || []);
     } catch (err) {
-      toast.error("Failed to load classes");
+      console.error("Error fetching classes:", err);
+      toast.error("Failed to load classes.");
     } finally {
       setLoading(false);
     }
@@ -80,20 +84,40 @@ const Attendance = () => {
       });
 
       console.log("Fetched Students:", res.data);
-
       const studentData = Array.isArray(res.data) ? res.data : res.data.students || [];
-
       setStudents(studentData);
     } catch (err) {
+      console.error("Error loading students:", err);
       toast.error("Failed to load students.");
     } finally {
       setLoading(false);
     }
   };
 
+  // Check if attendance has already been submitted for this date
+  const fetchAttendanceForDate = async (classId, date) => {
+    if (!classId || !date || !currentTerm) return;
+    try {
+      console.log(`Checking attendance records for class ${classId} on ${date}...`);
+
+      const res = await axios.get(`/api/attendance/fetch`, {
+        params: { termId: currentTerm._id, classId, date },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      console.log("Fetched Attendance Records:", res.data);
+
+      if (res.data.length > 0) {
+        setSubmittedDates((prev) => new Set(prev).add(date));
+      }
+    } catch (err) {
+      console.error("Error checking attendance records:", err);
+    }
+  };
+
   // Handle attendance selection
   const handleAttendanceChange = (studentId, present) => {
-    setAttendance({ ...attendance, [studentId]: present });
+    setAttendance((prev) => ({ ...prev, [studentId]: present }));
   };
 
   // Validate and submit attendance
@@ -101,32 +125,33 @@ const Attendance = () => {
     if (!currentTerm) return toast.error("Term not found!");
     if (!selectedDate) return toast.error("Please select a date.");
     if (isWeekend(selectedDate)) return toast.error("Cannot mark attendance on weekends.");
-    
+
     const attendanceDate = new Date(selectedDate);
     if (attendanceDate < new Date(currentTerm.startDate) || attendanceDate > new Date(currentTerm.endDate)) {
       return toast.error("Selected date is outside the term period.");
     }
-  
+
     if (submittedDates.has(selectedDate)) {
       return toast.error("Attendance for this date is already recorded.");
     }
-  
+
     // Prepare batch attendance list, defaulting unmarked students to absent
-    const attendanceList = students.map(student => ({
+    const attendanceList = students.map((student) => ({
       studentId: student._id,
       present: attendance[student._id] || false, // Default to false if not marked
     }));
-  
+
     try {
       await axios.post("/api/attendance/mark-batch", {
         termId: currentTerm._id,
         date: selectedDate,
         attendanceList,
       }, { headers: { Authorization: `Bearer ${token}` } });
-  
+
       setSubmittedDates((prev) => new Set(prev).add(selectedDate));
       toast.success("Attendance marked successfully!");
     } catch (err) {
+      console.error("Error marking attendance:", err);
       toast.error("Error marking attendance.");
     }
   };
@@ -137,67 +162,84 @@ const Attendance = () => {
     fetchClasses();
   }, []);
 
+  // Automatically check if attendance exists when a class and date are selected
+  useEffect(() => {
+    if (selectedClass && selectedDate) {
+      fetchAttendanceForDate(selectedClass, selectedDate);
+    }
+  }, [selectedClass, selectedDate]);
+
   return (
     <div className="attendance-container">
-      <h2 className="attendance-title">Mark Attendance</h2>
+  <h2 className="attendance-title">Mark Attendance</h2>
 
-      {/* Class Selector */}
-      <select className="class-selector" onChange={(e) => {
-        setSelectedClass(e.target.value);
-        fetchStudents(e.target.value);
-      }}>
-        <option value="">Select Class</option>
-        {classes.map((cls) => (
-          <option key={cls._id} value={cls._id}>{cls.className}</option>
+  {/* Class Selector */}
+  <select className="class-selector" onChange={(e) => {
+    setSelectedClass(e.target.value);
+    fetchStudents(e.target.value);
+  }}>
+    <option value="">Select Class</option>
+    {classes.map((cls) => (
+      <option key={cls._id} value={cls._id}>{cls.className}</option>
+    ))}
+  </select>
+
+  {/* Date Selector */}
+  <input 
+    type="date" 
+    className="date-selector"
+    value={selectedDate}
+    onChange={(e) => setSelectedDate(e.target.value)}
+    min={currentTerm?.startDate?.slice(0, 10)}
+    max={currentTerm?.endDate?.slice(0, 10)}
+  />
+
+  {/* Check if attendance already exists for the selected date */}
+  {selectedClass && selectedDate && submittedDates.has(selectedDate) && (
+    <p className="attendance-warning">⚠️ Attendance for this date is already submitted.</p>
+  )}
+
+  {/* Students List */}
+  {loading ? (
+    <p className="loading-message">Loading students...</p>
+  ) : students.length > 0 ? (
+    <table className="attendance-table">
+      <thead>
+        <tr>
+          <th>Student Name</th>
+          <th>ID No</th>
+          <th>Present?</th>
+        </tr>
+      </thead>
+      <tbody>
+        {students.map(student => (
+          <tr key={student._id} className="student-row">
+            <td className="student-name">{student.name}</td>
+            <td className="student-id">{student.idno}</td>
+            <td className="attendance-checkbox">
+              <input
+                type="checkbox"
+                checked={attendance[student._id] || false}
+                onChange={(e) => handleAttendanceChange(student._id, e.target.checked)}
+              />
+            </td>
+          </tr>
         ))}
-      </select>
+      </tbody>
+    </table>
+  ) : (
+    <p className="no-students-message">No students found for this class.</p>
+  )}
 
-      {/* Date Selector */}
-      <input 
-        type="date" 
-        className="date-selector"
-        value={selectedDate}
-        onChange={(e) => setSelectedDate(e.target.value)}
-        min={currentTerm?.startDate?.slice(0, 10)}
-        max={currentTerm?.endDate?.slice(0, 10)}
-      />
-
-      {/* Students List */}
-      {loading ? (
-        <p className="loading-message">Loading students...</p>
-      ) : students.length > 0 ? (
-        <table className="attendance-table">
-          <thead>
-            <tr>
-              <th>Student Name</th>
-              <th>ID No</th>
-              <th>Present?</th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.map(student => (
-              <tr key={student._id} className="student-row">
-                <td className="student-name">{student.name}</td>
-                <td className="student-id">{student.idno}</td>
-                <td className="attendance-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={attendance[student._id] || false}
-                    onChange={(e) => handleAttendanceChange(student._id, e.target.checked)}
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p className="no-students-message">No students found for this class.</p>
-      )}
-
-      <button className="submit-button" onClick={submitAttendance} disabled={!selectedClass || !students.length}>
-        Submit Attendance
-      </button>
-    </div>
+  {/* Dynamic Submit Button */}
+  <button 
+    className="submit-button" 
+    onClick={submitAttendance} 
+    disabled={!selectedClass || !students.length || submittedDates.has(selectedDate)}
+  >
+    {submittedDates.has(selectedDate) ? "Attendance already submitted for this date" : "Submit Attendance"}
+  </button>
+</div>
   );
 };
 
