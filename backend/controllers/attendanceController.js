@@ -7,32 +7,32 @@ const isWeekend = (date) => [0, 6].includes(new Date(date).getDay());
 
 // MARK ATTENDANCE
 export const markAttendance = async (req, res) => {
-  try {
-    const { studentId, termId, date, present } = req.body;
-
-    // Validate date against term session
-    const term = await TermSession.findById(termId);
-    if (!term) return res.status(404).json({ message: "Term session not found." });
-
-    const attendanceDate = new Date(date);
-    if (attendanceDate < term.startDate || attendanceDate > term.endDate || isWeekend(attendanceDate)) {
-      return res.status(400).json({ message: "Invalid attendance date (must be within term and not on weekends)." });
+    try {
+      const { studentId, termId, date, present } = req.body;
+  
+      // Validate date against term session
+      const term = await TermSession.findById(termId);
+      if (!term) return res.status(404).json({ message: "Term session not found." });
+  
+      const attendanceDate = new Date(date);
+      if (attendanceDate < term.startDate || attendanceDate > term.endDate || isWeekend(attendanceDate)) {
+        return res.status(400).json({ message: "Invalid attendance date (must be within term and not on weekends)." });
+      }
+  
+      // Prevent duplicate attendance records
+      const existingAttendance = await Attendance.findOne({ studentId, termId, date });
+      if (existingAttendance) {
+        return res.status(400).json({ message: "Attendance for this student on this date is already recorded." });
+      }
+  
+      // Create attendance entry
+      const newAttendance = new Attendance({ studentId, termId, date, present });
+      await newAttendance.save();
+      res.status(201).json({ message: "Attendance recorded successfully." });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
     }
-
-    // Prevent duplicate attendance records
-    const existingAttendance = await Attendance.findOne({ studentId, termId, date });
-    if (existingAttendance) {
-      return res.status(400).json({ message: "Attendance for this student on this date is already recorded." });
-    }
-
-    // Create attendance entry
-    const newAttendance = new Attendance({ studentId, termId, date, present });
-    await newAttendance.save();
-    res.status(201).json({ message: "Attendance recorded successfully." });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
+  };
 
 export const markAttendanceBatch = async (req, res) => {
     try {
@@ -70,8 +70,7 @@ export const markAttendanceBatch = async (req, res) => {
     }
   };
 
-// FETCH ATTENDANCE (by class, student, or term)
-export const fetchAttendance = async (req, res) => {
+  export const fetchAttendance = async (req, res) => {
     try {
       const { termId, studentId, classId, date } = req.query;
       
@@ -108,7 +107,11 @@ export const fetchAttendance = async (req, res) => {
       console.log("Executing attendance query:", query);
       
       const attendanceRecords = await Attendance.find(query)
-        .populate("studentId", "name idno")
+        .populate({
+          path: "studentId",
+          model: "students", // ✅ Explicitly reference registered model name
+          select: "name idno"
+        })
         .populate("termId", "termName");
   
       console.log("Attendance records found:", attendanceRecords.length);
@@ -118,7 +121,7 @@ export const fetchAttendance = async (req, res) => {
       console.error("Error fetching attendance records:", error.message);
       res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
-  };
+};
 
 // UPDATE ATTENDANCE (Optional)
 export const updateAttendance = async (req, res) => {
