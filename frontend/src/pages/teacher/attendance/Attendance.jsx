@@ -97,18 +97,19 @@ const Attendance = () => {
   // Check if attendance has already been submitted for this date
   const fetchAttendanceForDate = async (classId, date) => {
     if (!classId || !date || !currentTerm) return;
+    
     try {
       console.log(`Checking attendance records for class ${classId} on ${date}...`);
-
+  
       const res = await axios.get(`/api/attendance/fetch`, {
-        params: { termId: currentTerm._id, classId, date },
+        params: { termId: currentTerm._id, classId, date }, // ✅ Now class-specific
         headers: { Authorization: `Bearer ${token}` },
       });
-
+  
       console.log("Fetched Attendance Records:", res.data);
-
+  
       if (res.data.length > 0) {
-        setSubmittedDates((prev) => new Set(prev).add(date));
+        setSubmittedDates((prev) => new Set(prev).add(`${classId}_${date}`)); // ✅ Store as "classId_date"
       }
     } catch (err) {
       console.error("Error checking attendance records:", err);
@@ -233,12 +234,12 @@ const Attendance = () => {
 
   {/* Dynamic Submit Button */}
   <button 
-    className="submit-button" 
-    onClick={submitAttendance} 
-    disabled={!selectedClass || !students.length || submittedDates.has(selectedDate)}
-  >
-    {submittedDates.has(selectedDate) ? "Attendance already submitted for this date" : "Submit Attendance"}
-  </button>
+  className="submit-button" 
+  onClick={submitAttendance} 
+  disabled={!selectedClass || !students.length || submittedDates.has(`${selectedClass}_${selectedDate}`)}
+>
+  {submittedDates.has(`${selectedClass}_${selectedDate}`) ? "Attendance already submitted for this class on this date" : "Submit Attendance"}
+</button>
 </div>
   );
 };
