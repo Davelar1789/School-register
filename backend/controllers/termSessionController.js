@@ -255,3 +255,21 @@ export const updateTermDates = async (req, res) => {
     res.status(500).json({ message: "Failed to update term dates", error });
   }
 };
+
+export const getLatestTerm = async (req, res) => {
+  try {
+    const { schoolId } = req.params;
+
+    const latestTerm = await TermSession.findOne({ schoolId })
+      .sort({ startDate: -1 }) // Sort by latest startDate
+      .limit(1);
+
+    if (!latestTerm) {
+      return res.status(404).json({ message: "No active term found for this school." });
+    }
+
+    res.status(200).json(latestTerm);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching latest term.", error: error.message });
+  }
+};
