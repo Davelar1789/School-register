@@ -50,7 +50,7 @@ const ClassDetails = () => {
               <div className="student-avatar">{student.name[0]}</div>
               <div className="student-details">
                 <h4>{student.name}</h4>
-                <p>ID: {student.idno}</p>
+                {/* <p>ID: {student.idno}</p> */}
               </div>
             </div>
           ))}
