@@ -38,7 +38,7 @@ export const markAttendance = async (req, res) => {
     console.log('Marking attendance batch for term ID:', req.body.termId, 'Date:', req.body.date);
   
     try {
-      const { termId, date, attendanceList } = req.body;
+      const { termId, date, attendanceList, classId } = req.body; // ✅ Include classId in request
   
       console.log('Validating term session...');
       const term = await TermSession.findById(termId);
@@ -58,16 +58,17 @@ export const markAttendance = async (req, res) => {
       }
   
       console.log('Checking for existing attendance records...');
-      const existingRecords = await Attendance.find({ termId, date });
+      const existingRecords = await Attendance.find({ termId, classId, date }); // ✅ Now class-specific
       if (existingRecords.length > 0) {
-        console.log('Attendance already recorded for date:', date);
-        return res.status(400).json({ message: "Attendance for this date is already recorded." });
+        console.log('Attendance already recorded for class:', classId, 'Date:', date);
+        return res.status(400).json({ message: "Attendance for this class on this date is already recorded." });
       }
   
       console.log('Formatting batch attendance entries...');
       const attendanceEntries = attendanceList.map(({ studentId, present }) => ({
         studentId,
         termId,
+        classId, // ✅ Include classId in saved records
         date,
         present,
       }));
@@ -75,12 +76,13 @@ export const markAttendance = async (req, res) => {
       console.log('Inserting attendance records...');
       await Attendance.insertMany(attendanceEntries);
   
-      console.log('Attendance recorded successfully for all students.');
-      res.status(201).json({ message: "Attendance recorded successfully for all students." });
+      console.log('Attendance recorded successfully for all students in class:', classId);
+      res.status(201).json({ message: "Attendance recorded successfully for all students in this class." });
+  
     } catch (error) {
       console.error('Error marking attendance batch:', error);
-      res.status(500).json({ error: error.message });
-    }
+      res.status(500).json({ error: error.message });
+    }
   };
   
 
