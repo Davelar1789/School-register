@@ -41,6 +41,7 @@ const termSchema = new Schema({
   totalAttendance: { type: Number, default: 0 },
   subjects: [subjectSchema],
   fees: feesSchema,
+  feedingFees: { type: Map, of: Number, default: {} },
   startDate: { type: Date },
   endDate: { type: Date },
 });

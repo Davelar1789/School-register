@@ -1,6 +1,34 @@
 // controllers/feesController.js
 import Students from "../models/Student.model.js";
 import Classes from "../models/Class.model.js";
+import TermSession from "../models/TermSession.model.js";
+
+// ✅ Admin Sets Feeding Fee Per Class for a Term
+export const setFeedingFee = async (req, res) => {
+  const { yearLabel, termName, classId, feedingFee } = req.body;
+
+  if (!yearLabel || !termName || !classId || !feedingFee) {
+    return res.status(400).json({ message: "All fields are required." });
+  }
+
+  try {
+    // ✅ Fetch the term session for the given year and term
+    const term = await TermSession.findOne({ yearLabel, termName });
+
+    if (!term) {
+      return res.status(404).json({ message: "Term session not found." });
+    }
+
+    // ✅ Set feeding fee for the specific class
+    term.feedingFees.set(classId, feedingFee);
+    await term.save();
+
+    res.status(200).json({ message: `Feeding fee of ${feedingFee} set for class ${classId}.` });
+  } catch (error) {
+    console.error("Error setting feeding fee:", error);
+    res.status(500).json({ message: "Something went wrong." });
+  }
+};
 
 // Admin sets fees for all students in a class for a specific term
 export const setClassFees = async (req, res) => {
