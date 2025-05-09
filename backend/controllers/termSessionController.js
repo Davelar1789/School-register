@@ -259,17 +259,22 @@ export const updateTermDates = async (req, res) => {
 export const getLatestTerm = async (req, res) => {
   try {
     const { schoolId } = req.params;
+    console.log("Fetching latest term for school:", schoolId); // Debugging log
 
     const latestTerm = await TermSession.findOne({ schoolId })
-      .sort({ startDate: -1 }) // Sort by latest startDate
+      .sort({ startDate: -1 })
       .limit(1);
 
     if (!latestTerm) {
+      console.log("No active term found.");
       return res.status(404).json({ message: "No active term found for this school." });
     }
 
+    console.log("Latest Term Found:", latestTerm);
     res.status(200).json(latestTerm);
   } catch (error) {
+    console.error("Error fetching latest term:", error.message);
     res.status(500).json({ message: "Error fetching latest term.", error: error.message });
   }
 };
+
