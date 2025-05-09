@@ -194,18 +194,13 @@ const [selectedSubjects, setSelectedSubjects] = useState([]);
 >
   <option value="">Select a class</option>
   {allClasses
-    .filter((cls) =>
-      teacher.teacherType === "Both"
-        ? !assignedClasses.some((assigned) => assigned._id === cls._id)
-        : true
-    )
-    .map((cls) => (
+    .filter(cls => !selectedClasses.includes(cls._id)) // ✅ Filter out already selected classes
+    .map(cls => (
       <option key={cls._id} value={cls._id}>
         {cls.className}
       </option>
     ))}
 </select>
-
 
     {availableSubjects.length > 0 && (
       <>
