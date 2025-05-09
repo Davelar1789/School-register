@@ -19,7 +19,7 @@ const getSchoolIdFromToken = () => {
 const Attendance = () => {
   const [classes, setClasses] = useState([]);
   const [students, setStudents] = useState([]);
-  const [selectedClass, setSelectedClass] = useState(null);
+  const [selectedClass, setSelectedClass] = useState("");
   const [attendance, setAttendance] = useState({});
   const [currentTerm, setCurrentTerm] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -29,12 +29,14 @@ const Attendance = () => {
 
   // Fetch the most recent term
   const fetchCurrentTerm = async () => {
+    if (!schoolId) return console.error("Error: schoolId is undefined!");
+
     try {
-      console.log("Fetching current term...");
+      console.log("Fetching current term for school:", schoolId);
       const { data } = await axios.get(`/api/terms/latest`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      console.log("Fetched Term:", data);
+      console.log("Current term fetched successfully:", data);
       setCurrentTerm(data);
     } catch (error) {
       console.error("Error fetching current term:", error.response?.data || error.message);
@@ -59,6 +61,7 @@ const Attendance = () => {
 
   // Fetch students based on selected class
   const fetchStudents = async (classId) => {
+    if (!classId) return;
     try {
       setLoading(true);
       const res = await axios.get(`/api/student/class/${classId}`, {
@@ -104,11 +107,11 @@ const Attendance = () => {
   }, []);
 
   return (
-    <div>
-      <h2>Mark Attendance</h2>
+    <div className="attendance-container">
+      <h2 className="attendance-title">Mark Attendance</h2>
 
       {/* Class Selector */}
-      <select onChange={(e) => {
+      <select className="class-selector" onChange={(e) => {
         setSelectedClass(e.target.value);
         fetchStudents(e.target.value);
       }}>
@@ -119,8 +122,8 @@ const Attendance = () => {
       </select>
 
       {/* Students List */}
-      {students.length > 0 && (
-        <table>
+      {students.length > 0 ? (
+        <table className="attendance-table">
           <thead>
             <tr>
               <th>Student Name</th>
@@ -129,9 +132,9 @@ const Attendance = () => {
           </thead>
           <tbody>
             {students.map(student => (
-              <tr key={student._id}>
-                <td>{student.name}</td>
-                <td>
+              <tr key={student._id} className="student-row">
+                <td className="student-name">{student.name}</td>
+                <td className="attendance-checkbox">
                   <input
                     type="checkbox"
                     checked={attendance[student._id] || false}
@@ -142,9 +145,11 @@ const Attendance = () => {
             ))}
           </tbody>
         </table>
+      ) : (
+        <p className="no-students-message">No students found for this class.</p>
       )}
 
-      <button onClick={submitAttendance} disabled={!selectedClass || !students.length}>
+      <button className="submit-button" onClick={submitAttendance} disabled={!selectedClass || !students.length}>
         Submit Attendance
       </button>
     </div>
