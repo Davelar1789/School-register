@@ -5,28 +5,24 @@ import Classes from "../models/Class.model.js";
 
 // ✅ Admin Sets Feeding Fee Per Class
 export const setFeedingFee = async (req, res) => {
-  const { classId, feedingFee } = req.body;
+  const { feedingFees } = req.body; // ✅ Expecting an object with classId: fee
 
-  if (!classId || !feedingFee) {
-    return res.status(400).json({ message: "Class ID and feeding fee are required." });
+  if (!feedingFees || typeof feedingFees !== "object") {
+    return res.status(400).json({ message: "Invalid data format." });
   }
 
   try {
-    // ✅ Update the class's feeding fee
-    const classData = await Classes.findById(classId);
-    if (!classData) {
-      return res.status(404).json({ message: "Class not found." });
-    }
+    // ✅ Update feeding fees for all classes in one request
+    const updatePromises = Object.entries(feedingFees).map(async ([classId, fee]) => {
+      await Classes.findByIdAndUpdate(classId, { feedingFee: fee });
+      await Students.updateMany({ classes: classId }, { feedingFee: fee });
+    });
 
-    classData.feedingFee = feedingFee;
-    await classData.save();
+    await Promise.all(updatePromises);
 
-    // ✅ Update feeding fee for all students in the class
-    await Students.updateMany({ classes: classId }, { feedingFee });
-
-    res.status(200).json({ message: `Feeding fee of ${feedingFee} set for class ${classData.className}.` });
+    res.status(200).json({ message: "Feeding fees updated successfully for all classes." });
   } catch (error) {
-    console.error("Error setting feeding fee:", error);
+    console.error("Error updating feeding fees:", error);
     res.status(500).json({ message: "Something went wrong." });
   }
 };
