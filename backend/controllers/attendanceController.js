@@ -91,14 +91,12 @@ export const markAttendance = async (req, res) => {
       const { termId, studentId, classId, date } = req.query;
       
       // ✅ Log received parameters
-      console.log("Received query params:", { termId, studentId, classId, date });
   
       let query = {};
       if (termId) query.termId = termId;
       if (studentId) query.studentId = studentId;
   
       if (classId) {
-        console.log("Fetching students for class:", classId);
         const students = await Students.find({ classes: classId }).select("_id");
   
         if (!students.length) {
@@ -109,7 +107,6 @@ export const markAttendance = async (req, res) => {
       }
   
       if (date) {
-        console.log("Validating date format:", date);
         const formattedDate = new Date(date);
   
         if (isNaN(formattedDate.getTime())) {
@@ -120,7 +117,6 @@ export const markAttendance = async (req, res) => {
         query.date = formattedDate;
       }
   
-      console.log("Executing attendance query:", query);
       
       const attendanceRecords = await Attendance.find(query)
         .populate({
@@ -130,7 +126,6 @@ export const markAttendance = async (req, res) => {
         })
         .populate("termId", "termName");
   
-      console.log("Attendance records found:", attendanceRecords.length);
   
       res.status(200).json(attendanceRecords);
     } catch (error) {
@@ -164,7 +159,6 @@ export const fetchStudentAttendance = async (req, res) => {
         return res.status(400).json({ message: "Invalid term ID format." });
       }
       
-      console.log("Fetching attendance for class:", classId, "and term:", termId);
       
       // Ensure term session exists
       const term = await TermSession.findById(termId);
@@ -186,7 +180,6 @@ export const fetchStudentAttendance = async (req, res) => {
   
       const today = date ? new Date(date) : new Date();
       const totalSchoolDays = getSchoolDays(term.startDate, today);
-      console.log("Total school days (excluding weekends):", totalSchoolDays);
   
       // Find students in the selected class
       const students = await Students.find({ classes: classId }).select("_id name idno");
@@ -214,7 +207,6 @@ export const fetchStudentAttendance = async (req, res) => {
         })
       );
   
-      console.log("Fetched student attendance records:", studentAttendance.length);
       res.status(200).json(studentAttendance);
       
     } catch (error) {
