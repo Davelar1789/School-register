@@ -7,7 +7,7 @@ import Students from "./pages/head/students/Students"
 // import Dashboard from "./pages/admin2/dashboard/Dashboard";
 // import Events from "./pages/admin2/events/Events";
 import Fees from "./pages/head/fees/MainPage";
-import SchoolFees from "./pages/head/fees/Fees";
+import SchoolFees from "./pages/head/schoolfees/Fees";
 import FeedingFee from "./pages/head/fees/FeedingFee";
 // import Cashbook from "./pages/admin2/cashbook/Cashbook";
 import TermlyDetails from "./pages/head/fees/TermlyDetails";
