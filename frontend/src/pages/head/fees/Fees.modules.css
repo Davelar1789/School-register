@@ -77,18 +77,18 @@
     overflow-x: auto;
   }
   
-  .fees-table {
+  .fees-table4 {
     width: 100%;
     border-collapse: collapse;
   }
   
-  .fees-table th, .fees-table td {
+  .fees-table4 th, .fees-table4 td {
     border: 1px solid #ddd;
     padding: 12px 15px;
     text-align: left;
   }
   
-  .fees-table th {
+  .fees-table4 th {
     background-color: #f4f4f4;
   }
   

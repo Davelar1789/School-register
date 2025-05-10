@@ -312,7 +312,7 @@ const [viewedStudent, setViewedStudent] = useState(null);
           ) : filteredStudents.length === 0 ? (
             <p className="fees-empty">No students found.</p>
           ) : (
-            <table className="fees-table">
+            <table className="fees-table4">
               <thead>
                 <tr>
                   <th>Name</th>
