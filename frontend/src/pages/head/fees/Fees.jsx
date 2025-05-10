@@ -258,10 +258,10 @@ const [viewedStudent, setViewedStudent] = useState(null);
   return (
     <div className="fees-container">
       <Sidebar />
-      <div className="fees-main">
+      <div className="fees-main4">
         <Header />
         <div className="fees-side">
-        <div className="fees-header">
+        <div className="fees-header4">
           <h1>Fees Management</h1>
           <div className="fees-header-actions">
             <input

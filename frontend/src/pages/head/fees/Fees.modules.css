@@ -4,20 +4,20 @@
     background-color: #f5f7fa;
   }
   
-  .fees-main {
+  .fees-main4 {
     flex: 1;
     display: flex;
     flex-direction: column;
   }
   
-  .fees-header {
+  .fees-header4 {
     padding: 20px;
     background-color: white;
     border-bottom: 1px solid #e0e0e0;
     margin-top: 5px;
   }
   
-  .fees-header h1 {
+  .fees-header4 h1 {
     margin-bottom: 20px;
   }
   
