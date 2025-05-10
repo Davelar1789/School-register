@@ -1,40 +1,40 @@
-.fees-side4 {
+.time-side4 {
     display: flex;
     min-height: 100vh;
     background-color: #f5f7fa;
   }
   
-  .fees-main4 {
+  .time-main4 {
     flex: 1;
     display: flex;
     flex-direction: column;
   }
   
-  .fees-header4 {
+  .time-header4 {
     padding: 20px;
     background-color: white;
     border-bottom: 1px solid #e0e0e0;
     margin-top: 5px;
   }
   
-  .fees-header4 h1 {
+  .time-header4 h1 {
     margin-bottom: 20px;
   }
   
-  .fees-header-actions {
+  .time-header-actions {
     display: flex;
     align-items: center;
     gap: 10px;
   }
   
-  .fees-search, .fees-filter {
+  .time-search, .time-filter {
     padding: 8px 10px;
     border: 1px solid #ccc;
     border-radius: 6px;
     font-size: 14px;
   }
   
-  .fees-add {
+  .time-add {
     background-color: #2c7be5;
     color: white;
     padding: 9px 15px;
@@ -46,17 +46,17 @@
     cursor: pointer;
   }
   
-  .fees-add:hover {
+  .time-add:hover {
     background-color: #1a5fd0;
   }
   
-  .fees-summary {
+  .time-summary {
     display: flex;
     gap: 20px;
     padding: 20px;
   }
   
-  .fees-summary-box {
+  .time-summary-box {
     flex: 1;
     background: white;
     border-radius: 8px;
@@ -67,58 +67,58 @@
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
   }
   
-  .fees-summary-icon {
+  .time-summary-icon {
     font-size: 40px;
     color: #4caf50;
   }
   
-  .fees-tableWrapper {
+  .time-tableWrapper {
     padding: 20px;
     overflow-x: auto;
   }
   
-  .fees-table4 {
+  .time-table4 {
     width: 100%;
     border-collapse: collapse;
   }
   
-  .fees-table4 th, .fees-table4 td {
+  .time-table4 th, .time-table4 td {
     border: 1px solid #ddd;
     padding: 12px 15px;
     text-align: left;
   }
   
-  .fees-table4 th {
+  .time-table4 th {
     background-color: #f4f4f4;
   }
   
-  .fees-actions {
+  .time-actions {
     display: flex;
     gap: 10px;
   }
   
-  .fees-edit, .fees-delete {
+  .time-edit, .time-delete {
     background: none;
     border: none;
     cursor: pointer;
     font-size: 18px;
   }
   
-  .fees-edit {
+  .time-edit {
     color: #4caf50;
   }
   
-  .fees-delete {
+  .time-delete {
     color: #f44336;
   }
   
-  .fees-loading, .fees-empty {
+  .time-loading, .time-empty {
     padding: 20px;
     text-align: center;
     color: #555;
   }
 
-  .modal-overlay {
+  .modal-overlay76 {
     position: fixed;
     top: 0;
     left: 0;
@@ -131,7 +131,7 @@
     z-index: 999;
   }
   
-  .modal-content {
+  .modal-content76 {
     background: white;
     padding: 2rem;
     border-radius: 8px;
@@ -140,7 +140,7 @@
     position: relative;
   }
   
-  .modal-close {
+  .modal-close76 {
     position: absolute;
     top: 10px;
     right: 15px;
@@ -150,25 +150,25 @@
     cursor: pointer;
   }
   
-  .modal-field {
+  .modal-field76 {
     margin-bottom: 1rem;
   }
   
-  .modal-field label {
+  .modal-field76 label {
     display: block;
     font-weight: bold;
     margin-bottom: 0.5rem;
   }
   
-  .modal-field input,
-  .modal-field select,
-  .modal-field textarea {
+  .modal-field76 input,
+  .modal-field76 select,
+  .modal-field76 textarea {
     width: 100%;
     padding: 0.5rem;
     font-size: 1rem;
   }
   
-  .modal-save {
+  .modal-save76 {
     background-color: #4CAF50;
     color: white;
     padding: 0.75rem;
@@ -179,7 +179,7 @@
     cursor: pointer;
   }
   
-  .payment-history-list {
+  .payment-history-list76 {
     list-style: none;
     padding: 0;
     margin: 20px 0;
@@ -190,26 +190,26 @@
     background-color: #f9f9f9;
   }
   
-  .payment-history-list li {
+  .payment-history-list76 li {
     padding: 15px;
     border-bottom: 1px solid #eee;
   }
   
-  .payment-history-list li:last-child {
+  .payment-history-list76 li:last-child {
     border-bottom: none;
   }
   
-  .payment-history-list p {
+  .payment-history-list76 p {
     margin: 5px 0;
     font-size: 14px;
     color: #333;
   }
   
-  .payment-history-list strong {
+  .payment-history-list76 strong {
     color: #444;
   }
   
-  .payment-history-list hr {
+  .payment-history-list76 hr {
     margin-top: 10px;
     border: none;
     border-top: 1px solid #ccc;
@@ -217,7 +217,7 @@
   
   
 @media screen and (min-width: 768px) {
-    .fees-side4 {
+    .time-side4 {
         margin-left: 250px;
     }
 }

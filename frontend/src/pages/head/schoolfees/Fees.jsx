@@ -256,25 +256,25 @@ const [viewedStudent, setViewedStudent] = useState(null);
   
 
   return (
-    <div className="fees-container">
+    <div className="time-container">
       <Sidebar />
       <Header />
-      <div className="fees-main4">
-        <div className="fees-side4">
-        <div className="fees-header4">
+      <div className="time-main4">
+        <div className="time-side4">
+        <div className="time-header4">
           <h1>Fees Management</h1>
-          <div className="fees-header-actions">
+          <div className="time-header-actions">
             <input
               type="text"
               placeholder="Search by name or ID"
               value={searchTerm}
               onChange={handleSearch}
-              className="fees-search"
+              className="time-search"
             />
             <select
               value={selectedClass}
               onChange={handleFilterClass}
-              className="fees-filter"
+              className="time-filter"
             >
               <option value="">All Classes</option>
               {allClasses.map((cls) => (
@@ -289,16 +289,16 @@ const [viewedStudent, setViewedStudent] = useState(null);
         </div>
         </div>
 
-        <div className="fees-summary">
-          <div className="fees-summary-box">
-            <FaMoneyBillWave className="fees-summary-icon" />
+        <div className="time-summary">
+          <div className="time-summary-box">
+            <FaMoneyBillWave className="time-summary-icon" />
             <div>
               <h3>Total Fees Collected This Term</h3>
               <p>GHC {totalFeesCollected.toLocaleString()}</p>
             </div>
           </div>
-          <div className="fees-summary-box">
-            <FaMoneyBillWave className="fees-summary-icon" />
+          <div className="time-summary-box">
+            <FaMoneyBillWave className="time-summary-icon" />
             <div>
               <h3>Outstanding Arrears</h3>
               <p>GHC {totalOutstandingArrears.toLocaleString()}</p>
@@ -306,13 +306,13 @@ const [viewedStudent, setViewedStudent] = useState(null);
           </div>
         </div>
 
-        <div className="fees-tableWrapper">
+        <div className="time-tableWrapper">
           {loading ? (
-            <p className="fees-loading">Loading students...</p>
+            <p className="time-loading">Loading students...</p>
           ) : filteredStudents.length === 0 ? (
-            <p className="fees-empty">No students found.</p>
+            <p className="time-empty">No students found.</p>
           ) : (
-            <table className="fees-table4">
+            <table className="time-table4">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -359,7 +359,7 @@ const [viewedStudent, setViewedStudent] = useState(null);
                         <td className="nothing">GHC {feesPaid}</td>
                         <td>GHC {balance}</td>
                         <td>
-                            <button className="fees-add" onClick={() => {
+                            <button className="time-add" onClick={() => {
                             setSelectedStudent(student); // auto-select this student
                             setIsModalOpen(true);
                             }}>
@@ -367,7 +367,7 @@ const [viewedStudent, setViewedStudent] = useState(null);
                             </button>
                         </td>
                         <td className="nothing">
-                        <button onClick={() => handleViewPayments(student)} className="fees-view">
+                        <button onClick={() => handleViewPayments(student)} className="time-view">
                             View
                         </button>
                         </td>
@@ -388,11 +388,11 @@ const [viewedStudent, setViewedStudent] = useState(null);
           )}
         </div>
         {isModalOpen && selectedStudent && (
-  <div className="modal-overlay">
-    <div className="modal-content">
+  <div className="modal-overlay76">
+    <div className="modal-content76">
       <h2>Add New Payment</h2>
       <button
-        className="modal-close"
+        className="modal-close76"
         onClick={() => {
           setIsModalOpen(false);
           setSelectedStudent(null);
@@ -404,12 +404,12 @@ const [viewedStudent, setViewedStudent] = useState(null);
         X
       </button>
 
-      <div className="modal-field">
+      <div className="modal-field76">
         <label>Student:</label>
         <p>{selectedStudent.name} ({selectedStudent.idno})</p>
       </div>
 
-      <div className="modal-field">
+      <div className="modal-field76">
         <label>Current Balance:</label>
         <p>
           GHC {(() => {
@@ -431,7 +431,7 @@ const [viewedStudent, setViewedStudent] = useState(null);
         </p>
       </div>
 
-      <div className="modal-field">
+      <div className="modal-field76">
         <label>Payment Amount (GHC):</label>
         <input
           type="number"
@@ -440,7 +440,7 @@ const [viewedStudent, setViewedStudent] = useState(null);
         />
       </div>
 
-      <div className="modal-field">
+      <div className="modal-field76">
         <label>Payment Date:</label>
         <input
           type="date"
@@ -449,7 +449,7 @@ const [viewedStudent, setViewedStudent] = useState(null);
         />
       </div>
 
-      <div className="modal-field">
+      <div className="modal-field76">
         <label>Payment Method:</label>
         <select
           value={paymentMethod}
@@ -461,7 +461,7 @@ const [viewedStudent, setViewedStudent] = useState(null);
         </select>
       </div>
 
-      <div className="modal-field">
+      <div className="modal-field76">
         <label>Notes (optional):</label>
         <textarea
           value={paymentNote}
@@ -470,7 +470,7 @@ const [viewedStudent, setViewedStudent] = useState(null);
         />
       </div>
 
-      <button className="modal-save" onClick={handleSavePayment}>
+      <button className="modal-save76" onClick={handleSavePayment}>
         Save Payment
       </button>
     </div>
@@ -478,17 +478,17 @@ const [viewedStudent, setViewedStudent] = useState(null);
 )}
 
 {viewModalOpen && (
-  <div className="modal-overlay">
-    <div className="modal-content">
+  <div className="modal-overlay76">
+    <div className="modal-content76">
       <h2>Recent Payments</h2>
-      <button className="modal-close" onClick={() => setViewModalOpen(false)}>X</button>
+      <button className="modal-close76" onClick={() => setViewModalOpen(false)}>X</button>
 
       <p><strong>{viewedStudent.name}</strong> ({viewedStudent.idno})</p>
 
       {paymentHistory.length === 0 ? (
         <p>No recent payments found.</p>
       ) : (
-        <ul className="payment-history-list">
+        <ul className="payment-history-list76">
           {paymentHistory.map((payment, idx) => (
             <li key={idx}>
               <p><strong>Amount:</strong> GHC {payment.amount}</p>
