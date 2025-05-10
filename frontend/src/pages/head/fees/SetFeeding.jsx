@@ -67,12 +67,12 @@ const ManageFeedingFees = () => {
   };
 
   return (
-    <div className="feeding-fee-container">
-      <h2 className="feeding-fee-title">Manage Feeding Fees</h2>
+    <div className="feeding-fee-container22">
+      <h2 className="feeding-fee-title22">Manage Feeding Fees</h2>
 
-      {loading && <p className="loading-message">Loading classes...</p>}
+      {loading && <p className="loading-message22">Loading classes...</p>}
 
-      <table className="fee-table">
+      <table className="fee-table22">
         <thead>
           <tr>
             <th>Class Name</th>
@@ -81,7 +81,7 @@ const ManageFeedingFees = () => {
         </thead>
         <tbody>
           {classes.map(cls => (
-            <tr key={cls._id} className="fee-row">
+            <tr key={cls._id} className="fee-row22">
               <td>{cls.className}</td>
               <td>
                 <input
@@ -89,7 +89,7 @@ const ManageFeedingFees = () => {
                   min="0"
                   value={feedingFees[cls._id] || ""}
                   onChange={(e) => handleFeeChange(cls._id, e.target.value)}
-                  className="fee-input"
+                  className="fee-input22"
                 />
               </td>
             </tr>
@@ -97,7 +97,7 @@ const ManageFeedingFees = () => {
         </tbody>
       </table>
 
-      <button className="submit-button" onClick={submitFeedingFees} disabled={loading}>
+      <button className="submit-button22" onClick={submitFeedingFees} disabled={loading}>
         Submit All Feeding Fees
       </button>
     </div>
