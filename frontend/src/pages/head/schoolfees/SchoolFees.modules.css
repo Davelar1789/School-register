@@ -285,6 +285,7 @@
 @media screen and (min-width: 768px) {
   .time-side4 {
       margin-left: 250px !important;
+      margin-top: 50px !important;
   }
 }
 
