@@ -256,7 +256,7 @@ const [viewedStudent, setViewedStudent] = useState(null);
   
 
   return (
-    <div className="time-container">
+    <div>
       <Sidebar />
       <Header />
       <div className="time-main4">
