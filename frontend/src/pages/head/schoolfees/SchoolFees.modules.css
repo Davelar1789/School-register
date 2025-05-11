@@ -274,7 +274,7 @@
   }
 
   .time-summary {
-    flex-direction: column;
+    flex-direction: row;
   }
 
   .modal-content76 {
