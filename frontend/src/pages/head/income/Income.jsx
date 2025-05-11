@@ -1,4 +1,3 @@
-// IncomeStatement.js
 import React, { useEffect, useState } from 'react';
 import './Income.modules.css';
 import Header from '../../../components/Admin/Header2';
@@ -7,44 +6,13 @@ import api from '../../../api/axios';
 
 const IncomeStatement = () => {
   const [tuitionFee, setTuitionFee] = useState(0);
+  const [feedingFeeTotal, setFeedingFeeTotal] = useState(0); // ✅ Added state
   const [expenseTotals, setExpenseTotals] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const schoolData = JSON.parse(localStorage.getItem('schoolData'));
   const schoolId = schoolData?._id;
-
-  const incomeItems = [
-    { label: 'Tuition Fees', amount: tuitionFee },
-    { label: 'Feeding Fees', amount: 200 },
-    { label: 'Donations', amount: 0 },
-    { label: 'Grants', amount: 0 },
-  ];
-
-  const expenseCategories = [
-    'Salaries',
-    'Utilities',
-    'Postage',
-    'Telephone',
-    'Stationery',
-    'Cleaning and Sanitation',
-    'Depreciation',
-    'Transport',
-    'Feeding cost',
-    'Maintenance',
-    'Other',
-  ];
-
-  const expenseItems = expenseCategories.map((category) => ({
-    label: category,
-    amount: expenseTotals[category] || 0,
-  }));
-
-  const totalIncome = incomeItems.reduce((sum, item) => sum + item.amount, 0);
-  const totalExpenses = expenseItems.reduce((sum, item) => sum + item.amount, 0);
-  const netProfit = totalIncome - totalExpenses;
-  const tax = 250;
-  const netProfitAfterTax = netProfit - tax;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -57,20 +25,21 @@ const IncomeStatement = () => {
       try {
         const token = localStorage.getItem('token');
 
-        const [tuitionRes, expensesRes] = await Promise.all([
-          api.get(`/api/fees/total-paid/${schoolId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          api.get(`/api/expenses/category-totals/${schoolId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
+        // ✅ Fetch all required data
+        const [tuitionRes, feedingRes, expensesRes] = await Promise.all([
+          api.get(`/api/fees/total-paid/${schoolId}`, { headers: { Authorization: `Bearer ${token}` } }),
+          api.get(`/api/feeding/total-income/${schoolId}`, { headers: { Authorization: `Bearer ${token}` } }), // ✅ Fetch total feeding fees paid
+          api.get(`/api/expenses/category-totals/${schoolId}`, { headers: { Authorization: `Bearer ${token}` } }),
         ]);
+
         console.log("Tuition fees response:", tuitionRes.data);
+        console.log("Feeding fees response:", feedingRes.data);
         console.log("Expenses response:", expensesRes.data);
-    
-    
+
         setTuitionFee(tuitionRes.data.totalFeesPaid || 0);
+        setFeedingFeeTotal(feedingRes.data.totalFeedingPaid || 0); // ✅ Set total feeding fees paid
         setExpenseTotals(expensesRes.data || {});
+
       } catch (err) {
         console.error('Error fetching data:', err);
         setError('Failed to load income statement data');
@@ -85,19 +54,38 @@ const IncomeStatement = () => {
   if (loading) return <p>Loading income statement...</p>;
   if (error) return <p>{error}</p>;
 
+  const incomeItems = [
+    { label: 'Tuition Fees', amount: tuitionFee },
+    { label: 'Feeding Fees', amount: feedingFeeTotal }, // ✅ Updated feeding fee amount
+    { label: 'Donations', amount: 0 },
+    { label: 'Grants', amount: 0 },
+  ];
+
+  const expenseCategories = [
+    'Salaries', 'Utilities', 'Postage', 'Telephone', 'Stationery', 'Cleaning and Sanitation',
+    'Depreciation', 'Transport', 'Feeding cost', 'Maintenance', 'Other',
+  ];
+
+  const expenseItems = expenseCategories.map((category) => ({
+    label: category,
+    amount: expenseTotals[category] || 0,
+  }));
+
+  const totalIncome = incomeItems.reduce((sum, item) => sum + item.amount, 0);
+  const totalExpenses = expenseItems.reduce((sum, item) => sum + item.amount, 0);
+  const netProfit = totalIncome - totalExpenses;
+  const tax = 250;
+  const netProfitAfterTax = netProfit - tax;
+
   return (
     <div>
       <Header />
       <Sidebar />
       <div className="income-statement">
-        <h2>
-          <strong>Income Statement For The Year Ending 31st August, 2025</strong>
-        </h2>
+        <h2><strong>Income Statement For The Year Ending 31st August, 2025</strong></h2>
 
         <div className="statement-section">
-          <h3>
-            <strong>Revenue</strong>
-          </h3>
+          <h3><strong>Revenue</strong></h3>
           {incomeItems.map((item, index) => (
             <div key={index} className="statement-row">
               <span>{item.label}</span>
@@ -111,9 +99,7 @@ const IncomeStatement = () => {
         </div>
 
         <div className="statement-section">
-          <h3>
-            <strong>Operating Expenses</strong>
-          </h3>
+          <h3><strong>Operating Expenses</strong></h3>
           {expenseItems.map((item, index) => (
             <div key={index} className="statement-row">
               <span>{item.label}</span>
