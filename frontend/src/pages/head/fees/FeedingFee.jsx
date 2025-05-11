@@ -10,6 +10,7 @@ const FeedingFeePage = () => {
   const [selectedClass, setSelectedClass] = useState("");
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [totalClassPaid, setTotalClassPaid] = useState(0); // ✅ New state
 
   const schoolDataRaw = localStorage.getItem("schoolData");
   const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
@@ -78,10 +79,29 @@ const FeedingFeePage = () => {
       });
 
       setStudents(updatedStudents);
+      
+      // ✅ Calculate total feeding amount paid for the class
+      const totalPaid = updatedStudents.reduce((sum, student) => sum + student.totalAmountPaid, 0);
+      setTotalClassPaid(totalPaid);
+
+      // ✅ Send total to backend (you’ll later create a backend field for this)
+      await updateClassTotalPaid(classId, totalPaid);
+
     } catch (error) {
       toast.error("Failed to fetch student attendance.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // ✅ Send total feeding amount paid for the class to the backend
+  const updateClassTotalPaid = async (classId, totalPaid) => {
+    try {
+      await axios.put(`/api/classes/update-feeding-total/${classId}`, { totalFeedingPaid: totalPaid }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+    } catch (error) {
+      console.error("Failed to update class total feeding paid:", error);
     }
   };
 
@@ -91,49 +111,52 @@ const FeedingFeePage = () => {
 
   return (
     <div>
-<Header />
-<Sidebar />
-    <div className="feeding-fee-container">
-      <h2 className="feeding-fee-title">Feeding Fee Management</h2>
+      <Header />
+      <Sidebar />
+      <div className="feeding-fee-container">
+        <h2 className="feeding-fee-title">Feeding Fee Management</h2>
 
-      {/* ✅ Class Selector Dropdown */}
-      <select className="class-dropdown" onChange={(e) => fetchStudentsByClass(e.target.value)}>
-        <option value="">Select a class</option>
-        {classes.map(cls => (
-          <option key={cls._id} value={cls._id}>{cls.className}</option>
-        ))}
-      </select>
+        {/* ✅ Class Selector Dropdown */}
+        <select className="class-dropdown" onChange={(e) => fetchStudentsByClass(e.target.value)}>
+          <option value="">Select a class</option>
+          {classes.map(cls => (
+            <option key={cls._id} value={cls._id}>{cls.className}</option>
+          ))}
+        </select>
 
-      {loading && <p className="loading-message">Loading data...</p>}
+        {loading && <p className="loading-message">Loading data...</p>}
 
-      <div>
-        <h3>Total Feeding Fee For {cls.className}</h3>
-      </div>
+        {/* ✅ Display Total Feeding Paid for Class */}
+        {selectedClass && students.length > 0 && (
+          <div className="total-feeding-paid">
+            <h3>Total Feeding Paid for Class: <span>GHC {totalClassPaid.toLocaleString()}</span></h3>
+          </div>
+        )}
 
-      {/* ✅ Styled Student Fee Table */}
-      {students.length > 0 && (
-        <table className="fee-table2">
-          <thead>
-            <tr>
-              <th>Student Name</th>
-              <th>Feeding Fee</th>
-              <th>Attendance Days</th>
-              <th>Total Amount Paid</th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.map(student => (
-              <tr key={student._id} className="fee-row2">
-                <td>{student.name}</td>
-                <td>{student.feedingFee}</td>
-                <td>{student.totalAttendanceDays}</td>
-                <td>{student.totalAmountPaid}</td>
+        {/* ✅ Styled Student Fee Table */}
+        {students.length > 0 && (
+          <table className="fee-table2">
+            <thead>
+              <tr>
+                <th>Student Name</th>
+                <th>Feeding Fee</th>
+                <th>Attendance Days</th>
+                <th>Total Amount Paid</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </div>
+            </thead>
+            <tbody>
+              {students.map(student => (
+                <tr key={student._id} className="fee-row2">
+                  <td>{student.name}</td>
+                  <td>{student.feedingFee}</td>
+                  <td>{student.totalAttendanceDays}</td>
+                  <td>{student.totalAmountPaid}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
     </div>
   );
 };

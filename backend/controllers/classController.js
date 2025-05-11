@@ -230,4 +230,27 @@ export const assignSubjectTeacher = async (req, res) => {
   }
 };
 
+// ✅ Update total feeding paid for a class
+export const updateTotalFeedingPaid = async (req, res) => {
+  const { classId } = req.params;
+  const { totalFeedingPaid } = req.body;
 
+  try {
+    const classToUpdate = await Class.findById(classId);
+    if (!classToUpdate) {
+      return res.status(404).json({ message: "Class not found" });
+    }
+
+    // ✅ Update feeding total
+    classToUpdate.totalFeedingPaid = totalFeedingPaid;
+    await classToUpdate.save();
+
+    res.status(200).json({
+      message: "Total feeding paid updated successfully",
+      totalFeedingPaid,
+    });
+  } catch (error) {
+    console.error("Error updating total feeding paid:", error);
+    res.status(500).json({ message: "Server error updating total feeding paid" });
+  }
+};
