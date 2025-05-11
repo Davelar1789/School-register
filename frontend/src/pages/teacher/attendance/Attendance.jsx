@@ -170,6 +170,9 @@ const Attendance = () => {
   
       setSubmittedDates((prev) => new Set(prev).add(`${selectedClass}_${selectedDate}`)); // ✅ Store class-specific attendance
       toast.success("Attendance marked successfully!");
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } catch (err) {
       // console.error("Error marking attendance:", err);
       toast.error("Error marking attendance.");
