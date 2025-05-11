@@ -1,17 +1,17 @@
 .time-side4 {
-    display: flex;
-    min-height: 100vh;
-    background-color: #f5f7fa;
+    display: flex !important;
+    min-height: 100vh !important;
+    background-color: #f5f7fa !important;
   }
   
   .time-main4 {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
+    flex: 1 !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
   
   .time-header4 {
-    padding: 20px;
+    padding: 20px !important;
     background-color: white;
     border-bottom: 1px solid #e0e0e0;
     margin-top: 5px;
@@ -51,18 +51,18 @@
   }
   
   .time-summary {
-    display: flex;
+    display: flex !important;
     gap: 20px;
     padding: 20px;
   }
   
   .time-summary-box {
-    flex: 1;
+    flex: 1 !important;
     background: white;
     border-radius: 8px;
     padding: 20px;
-    display: flex;
-    align-items: center;
+    display: flex !important;
+    align-items: center !important;
     gap: 15px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
   }
