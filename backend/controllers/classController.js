@@ -254,3 +254,23 @@ export const updateTotalFeedingPaid = async (req, res) => {
     res.status(500).json({ message: "Server error updating total feeding paid" });
   }
 };
+
+export const getTotalFeedingPaid = async (req, res) => {
+  const { schoolId } = req.params;
+
+  try {
+    // ✅ Find all classes belonging to this school and sum the `totalFeedingPaid`
+    const totalFeedingPaid = await Class.aggregate([
+      { $match: { school: schoolId } }, // Filter by school ID
+      { $group: { _id: null, total: { $sum: "$totalFeedingPaid" } } } // Sum feeding fees
+    ]);
+
+    res.status(200).json({
+      message: "Total feeding paid fetched successfully",
+      totalFeedingPaid: totalFeedingPaid.length ? totalFeedingPaid[0].total : 0, // Return total or 0 if no classes found
+    });
+  } catch (error) {
+    console.error("Error fetching total feeding paid:", error);
+    res.status(500).json({ message: "Server error fetching total feeding paid" });
+  }
+};

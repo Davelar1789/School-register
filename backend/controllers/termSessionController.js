@@ -264,7 +264,6 @@ export const getLatestTerm = async (req, res) => {
     const decodedToken = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
     const schoolId = decodedToken.schoolId;
 
-    console.log("Fetching latest term for school:", schoolId);
 
     if (!schoolId) return res.status(400).json({ message: "Missing school ID in token" });
 

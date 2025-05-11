@@ -1,6 +1,6 @@
 // routes/classRoutes.js
 import express from "express";
-import { createClass, patchStudentClasses, assignSubjectTeacher, recalculateClassesForSchool, updateTotalFeedingPaid, getSubjectsByClass, getClassesBySchool, getClassById, assignTeacherToClass, assignStudentToClass } from "../controllers/classController.js";
+import { createClass, patchStudentClasses, assignSubjectTeacher, getTotalFeedingPaid, recalculateClassesForSchool, updateTotalFeedingPaid, getSubjectsByClass, getClassesBySchool, getClassById, assignTeacherToClass, assignStudentToClass } from "../controllers/classController.js";
 
 const router = express.Router();
 
@@ -8,6 +8,7 @@ const router = express.Router();
 router.post("/", createClass);
 router.patch("/patch-classes", patchStudentClasses); 
 router.put("/update-feeding-total/:classId", updateTotalFeedingPaid);
+router.get("/total-income/:schoolId", getTotalFeedingPaid);
 router.patch("/recalculate-classes/:schoolId", recalculateClassesForSchool);
 // GET /api/classes/school/:schoolId
 router.get("/school/:schoolId", getClassesBySchool);
