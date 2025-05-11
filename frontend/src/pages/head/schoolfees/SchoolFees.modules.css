@@ -269,7 +269,7 @@
 /* Responsive tweaks */
 @media (max-width: 768px) {
   .time-header-actions {
-    flex-direction: column;
+    flex-direction: row;
     align-items: flex-start;
   }
 
