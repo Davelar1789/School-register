@@ -106,6 +106,10 @@ const FeedingFeePage = () => {
 
       {loading && <p className="loading-message">Loading data...</p>}
 
+      <div>
+        <h3>Total Feeding Fee For {cls.className}</h3>
+      </div>
+
       {/* ✅ Styled Student Fee Table */}
       {students.length > 0 && (
         <table className="fee-table2">
