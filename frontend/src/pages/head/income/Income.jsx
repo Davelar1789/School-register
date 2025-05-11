@@ -28,7 +28,7 @@ const IncomeStatement = () => {
         // ✅ Fetch all required data
         const [tuitionRes, feedingRes, expensesRes] = await Promise.all([
           api.get(`/api/fees/total-paid/${schoolId}`, { headers: { Authorization: `Bearer ${token}` } }),
-          api.get(`/api/feeding/total-income/${schoolId}`, { headers: { Authorization: `Bearer ${token}` } }), // ✅ Fetch total feeding fees paid
+          api.get(`/api/classes/total-income/${schoolId}`, { headers: { Authorization: `Bearer ${token}` } }), // ✅ Fetch total feeding fees paid
           api.get(`/api/expenses/category-totals/${schoolId}`, { headers: { Authorization: `Bearer ${token}` } }),
         ]);
 
