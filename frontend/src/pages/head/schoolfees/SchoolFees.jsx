@@ -260,7 +260,38 @@ const [viewedStudent, setViewedStudent] = useState(null);
       <Sidebar />
       <Header />
       <div className="time-main4">
+        <div className="time-side4">
+        <div className="time-header4">
+          <h1>Fees Management</h1>
+          <div className="time-header-actions">
+            <input
+              type="text"
+              placeholder="Search by name or ID"
+              value={searchTerm}
+              onChange={handleSearch}
+              className="time-search"
+            />
+            <select
+              value={selectedClass}
+              onChange={handleFilterClass}
+              className="time-filter"
+            >
+              <option value="">All Classes</option>
+              {allClasses.map((cls) => (
+                <option key={cls._id} value={cls._id}>
+                  {cls.className}
+                </option>
+              ))}
+            </select>
+            {/* <button className="fees-add" onClick={() => setIsModalOpen(true)}>
+                <FaPlus /> Add New Payment
+            </button> */}
+        </div>
+        </div>
+
         
+
+        </div>
       </div>
     </div>
   );
