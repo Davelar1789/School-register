@@ -4,6 +4,7 @@ import Students from "../models/Student.model.js"; // ✅ Add this
 import Teacher from "../models/Teacher.model.js"; // ✅ Also recommended
 import School from "../models/School.model.js";
 import Subject from "../models/subject.model.js"; // make sure this is the right path
+import mongoose from "mongoose";
 
 // Create a new class
 export const createClass = async (req, res) => {
