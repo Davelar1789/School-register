@@ -88,15 +88,19 @@ export const markAttendanceBatch = async (req, res) => {
         console.log(`Preparing to send email to: ${teacherEmail}...`);
 
       try {
-    const info = await sendMail(
+    console.log(`📧 Preparing to send email to: ${teacherEmail}...`);
+
+    const emailResponse = await sendMail(
         teacherEmail,
         "Attendance Submitted",
         `Attendance for class ${classId} on ${date} has been successfully recorded.`
     );
 
-    console.log(`✅ Email sent successfully! Response: ${JSON.stringify(info, null, 2)}`); // Log the full response
-    res.status(201).json({ message: "Attendance recorded successfully and email sent to the teacher." });
+    console.log(`✅ Email sent successfully! Response: ${JSON.stringify(emailResponse, null, 2)}`); // Log full details
 
+    res.status(201).json({ message: "Attendance recorded successfully and email sent to the teacher.", emailResponse });
+
+    console.log("Raw Nodemailer response:", emailResponse);
 } catch (emailError) {
     console.error("❌ Error sending email:", emailError);
     res.status(500).json({ message: "Attendance recorded, but email sending failed." });
