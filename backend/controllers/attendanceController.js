@@ -1,6 +1,6 @@
 import Attendance from "../models/Attendance.model.js";
 import TermSession from "../models/TermSession.model.js";
-import Class from '../models/Class.js'; // ✅ Import the Class model
+import Class from '../models/Class.model.js'; // ✅ Import the Class model
 import Students from "../models/Student.model.js";
 import mongoose from "mongoose";
 import { sendMail } from './mailerController.js';
