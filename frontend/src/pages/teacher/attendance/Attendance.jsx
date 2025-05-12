@@ -19,6 +19,13 @@ const getSchoolIdFromToken = () => {
   }
 };
 
+const teacherData = JSON.parse(localStorage.getItem("teacher")); // Retrieve teacher object
+const teacherEmail = teacherData?.email; // Extract email
+
+if (!teacherEmail) {
+    console.error("Teacher email not found in local storage.");
+}
+
 // Function to check if a date is a weekend
 const isWeekend = (date) => {
   const day = new Date(date).getDay();
@@ -162,12 +169,13 @@ const Attendance = () => {
   
     try {
       await axios.post("/api/attendance/mark-batch", { 
-        termId: currentTerm._id,
-        classId: selectedClass, // ✅ Include classId in request
-        date: selectedDate,
-        attendanceList,
-      }, { headers: { Authorization: `Bearer ${token}` } });
-  
+    termId: currentTerm._id,
+    classId: selectedClass,
+    date: selectedDate,
+    attendanceList,
+    teacherEmail, // ✅ Send teacher email from frontend
+}, { headers: { Authorization: `Bearer ${token}` } });
+
       setSubmittedDates((prev) => new Set(prev).add(`${selectedClass}_${selectedDate}`)); // ✅ Store class-specific attendance
       toast.success("Attendance marked successfully!");
       setTimeout(() => {
