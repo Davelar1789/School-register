@@ -87,20 +87,20 @@ export const markAttendanceBatch = async (req, res) => {
         // **Send confirmation email to the teacher**
         console.log(`Preparing to send email to: ${teacherEmail}...`);
 
-        try {
-            const emailResponse = await sendMail(
-                teacherEmail,
-                "Attendance Submitted",
-                `Attendance for Class ID: ${classId} on ${date} has been successfully recorded.`
-            );
+      try {
+    const info = await sendMail(
+        teacherEmail,
+        "Attendance Submitted",
+        `Attendance for class ${classId} on ${date} has been successfully recorded.`
+    );
 
-            console.log(`✅ Email sent successfully: ${JSON.stringify(emailResponse)}`);
-            return res.status(201).json({ message: "Attendance recorded successfully and email sent to the teacher." });
+    console.log(`✅ Email sent successfully! Response: ${JSON.stringify(info, null, 2)}`); // Log the full response
+    res.status(201).json({ message: "Attendance recorded successfully and email sent to the teacher." });
 
-        } catch (emailError) {
-            console.error("❌ Error sending email:", emailError);
-            return res.status(500).json({ message: "Attendance recorded, but email sending failed." });
-        }
+} catch (emailError) {
+    console.error("❌ Error sending email:", emailError);
+    res.status(500).json({ message: "Attendance recorded, but email sending failed." });
+}
 
     } catch (error) {
         console.error("❌ Error marking attendance batch:", error);
