@@ -86,51 +86,54 @@ export const markAttendance = async (req, res) => {
   };
   
 
-  export const fetchAttendance = async (req, res) => {
+export const fetchAttendance = async (req, res) => {
     try {
-      const { termId, studentId, classId, date } = req.query;
-      
-      // ✅ Log received parameters
-  
-      let query = {};
-      if (termId) query.termId = termId;
-      if (studentId) query.studentId = studentId;
-  
-      if (classId) {
-        const students = await Students.find({ classes: classId }).select("_id");
-  
-        if (!students.length) {
-          console.warn("No students found for class:", classId);
+        const { termId, studentId, classId, date } = req.query;
+
+        // ✅ Log received parameters
+        console.log("Received Query Params:", { termId, studentId, classId, date });
+
+        let query = {};
+        if (termId) query.termId = termId;
+        if (studentId) query.studentId = studentId;
+
+        if (classId) {
+            const students = await Students.find({ classes: classId }).select("_id");
+
+            if (!students.length) {
+                console.warn("No students found for class:", classId);
+            }
+
+            query.studentId = { $in: students.map((s) => s._id) };
         }
-  
-        query.studentId = { $in: students.map((s) => s._id) };
-      }
-  
-      if (date) {
-        const formattedDate = new Date(date);
-  
-        if (isNaN(formattedDate.getTime())) {
-          console.error("Invalid date format:", date);
-          return res.status(400).json({ message: "Invalid date format. Please use YYYY-MM-DD." });
+
+        if (date) {
+            const formattedDate = new Date(date);
+
+            if (isNaN(formattedDate.getTime())) {
+                console.error("Invalid date format:", date);
+                return res.status(400).json({ message: "Invalid date format. Please use YYYY-MM-DD." });
+            }
+
+            query.date = formattedDate;
         }
-  
-        query.date = formattedDate;
-      }
-  
-      
-      const attendanceRecords = await Attendance.find(query)
-        .populate({
-          path: "studentId",
-          model: "students", // ✅ Explicitly reference registered model name
-          select: "name idno"
-        })
-        .populate("termId", "termName");
-  
-  
-      res.status(200).json(attendanceRecords);
+
+        console.log("Final Query Object:", query);
+
+        const attendanceRecords = await Attendance.find(query)
+            .populate({
+                path: "studentId",
+                model: "students", // ✅ Explicitly reference registered model name
+                select: "name idno"
+            })
+            .populate("termId", "termName");
+
+        console.log("Fetched Attendance Records:", attendanceRecords.length);
+
+        res.status(200).json(attendanceRecords);
     } catch (error) {
-      console.error("Error fetching attendance records:", error.message);
-      res.status(500).json({ message: "Internal Server Error", error: error.message });
+        console.error("Error fetching attendance records:", error.message);
+        res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
 };
 
