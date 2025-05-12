@@ -2,6 +2,8 @@ import Attendance from "../models/Attendance.model.js";
 import TermSession from "../models/TermSession.model.js";
 import Students from "../models/Student.model.js";
 import mongoose from "mongoose";
+import { sendMail } from './mailerController.js';
+
 // Helper function to check if a date is a weekend
 const isWeekend = (date) => [0, 6].includes(new Date(date).getDay());
 
@@ -34,56 +36,67 @@ export const markAttendance = async (req, res) => {
     }
   };
 
-  export const markAttendanceBatch = async (req, res) => {
+ 
+export const markAttendanceBatch = async (req, res) => {
     console.log('Marking attendance batch for term ID:', req.body.termId, 'Date:', req.body.date);
-  
+
     try {
-      const { termId, date, attendanceList, classId } = req.body; // ✅ Include classId in request
-  
-      console.log('Validating term session...');
-      const term = await TermSession.findById(termId);
-      if (!term) {
-        console.log('Term session not found:', termId);
-        return res.status(404).json({ message: "Term session not found." });
-      }
-  
-      console.log('Term session found:', term);
-  
-      const attendanceDate = new Date(date);
-      console.log('Attendance date:', attendanceDate);
-  
-      if (attendanceDate < term.startDate || attendanceDate > term.endDate || isWeekend(attendanceDate)) {
-        console.log('Invalid attendance date:', attendanceDate);
-        return res.status(400).json({ message: "Invalid attendance date (must be within term and not on weekends)." });
-      }
-  
-      console.log('Checking for existing attendance records...');
-      const existingRecords = await Attendance.find({ termId, classId, date }); // ✅ Now class-specific
-      if (existingRecords.length > 0) {
-        console.log('Attendance already recorded for class:', classId, 'Date:', date);
-        return res.status(400).json({ message: "Attendance for this class on this date is already recorded." });
-      }
-  
-      console.log('Formatting batch attendance entries...');
-      const attendanceEntries = attendanceList.map(({ studentId, present }) => ({
-        studentId,
-        termId,
-        classId, // ✅ Include classId in saved records
-        date,
-        present,
-      }));
-  
-      console.log('Inserting attendance records...');
-      await Attendance.insertMany(attendanceEntries);
-  
-      console.log('Attendance recorded successfully for all students in class:', classId);
-      res.status(201).json({ message: "Attendance recorded successfully for all students in this class." });
-  
+        const { termId, date, attendanceList, classId, teacherEmail } = req.body; // ✅ Receive teacher's email from frontend
+
+        if (!teacherEmail) {
+            console.log('Teacher email not provided.');
+            return res.status(400).json({ message: "Teacher email is required." });
+        }
+
+        console.log('Validating term session...');
+        const term = await TermSession.findById(termId);
+        if (!term) {
+            console.log('Term session not found:', termId);
+            return res.status(404).json({ message: "Term session not found." });
+        }
+
+        const attendanceDate = new Date(date);
+
+        if (attendanceDate < term.startDate || attendanceDate > term.endDate || isWeekend(attendanceDate)) {
+            console.log('Invalid attendance date:', attendanceDate);
+            return res.status(400).json({ message: "Invalid attendance date (must be within term and not on weekends)." });
+        }
+
+        console.log('Checking for existing attendance records...');
+        const existingRecords = await Attendance.find({ termId, classId, date });
+        if (existingRecords.length > 0) {
+            console.log('Attendance already recorded for class:', classId, 'Date:', date);
+            return res.status(400).json({ message: "Attendance for this class on this date is already recorded." });
+        }
+
+        console.log('Formatting batch attendance entries...');
+        const attendanceEntries = attendanceList.map(({ studentId, present }) => ({
+            studentId,
+            termId,
+            classId,
+            date,
+            present,
+        }));
+
+        console.log('Inserting attendance records...');
+        await Attendance.insertMany(attendanceEntries);
+
+        console.log('Attendance recorded successfully for all students in class:', classId);
+
+        // **Send confirmation email to the teacher**
+        await sendMail(
+            teacherEmail,
+            "Attendance Submitted",
+            `Attendance for class ${classId} on ${date} has been successfully recorded.`
+        );
+
+        res.status(201).json({ message: "Attendance recorded successfully and email sent to the teacher." });
+
     } catch (error) {
-      console.error('Error marking attendance batch:', error);
-      res.status(500).json({ error: error.message });
+        console.error('Error marking attendance batch:', error);
+        res.status(500).json({ error: error.message });
     }
-  };
+};
   
 
 export const fetchAttendance = async (req, res) => {
