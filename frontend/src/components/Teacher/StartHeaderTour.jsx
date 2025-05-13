@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useTour } from "react-shepherd";
 import jwtDecode from "jwt-decode";  // Make sure to install this if not yet
-import api from "../api/axios"; // adjust if needed
+import api from "../../api/axios"; // adjust if needed
 
 const StartHeaderTour = () => {
   const tour = useTour();
