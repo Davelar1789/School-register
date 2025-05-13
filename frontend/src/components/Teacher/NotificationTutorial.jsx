@@ -18,7 +18,9 @@ const NotificationTutorial = ({ isOpen, setIsOpen }) => {
             onRequestClose={() => setIsOpen(false)} // ✅ Close when clicking outside or pressing ESC
             getCurrentStep={(step) => setCurrentStep(step)}
             showCloseButton={true} // ✅ Ensures visible close button
-            lastStepNextButton={<button onClick={() => setIsOpen(false)}>Got It</button>} // ✅ Manual close button
+            lastStepNextButton={
+                <button onClick={() => setIsOpen(false)}>Got It</button> // ✅ Fix: Properly closes tutorial
+            }
         />
     );
 };
