@@ -24,7 +24,7 @@ const NotificationsPage = () => {
         <div>
             <Sidebar />
             <Header />
-        <div>
+        <div className="main-thing">
             <h2>Notifications</h2>
             {notifications.map((notif, index) => (
                 <div key={index} style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
