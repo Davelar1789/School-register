@@ -20,6 +20,7 @@ import termsRoutes from "./routes/termSessionRoutes.js";
 import subjectRoutes from "./routes/subjectRoutes.js";
 import attendanceRoutes from "./routes/attendanceRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
+import tutorialRoutes from "./routes/tutorialRoutes.js";
 
 // Middleware
 import { authToken } from "./middleware/authToken.js";
@@ -91,6 +92,7 @@ app.use("/api/expenses", expenseRoutes);
 app.use("/api/subjects", subjectRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/notification", notificationRoutes);
+app.use("/api/tutorial", tutorialRoutes);
 
 app.get("/ping", (req, res) => {
     res.status(200).send("Pong!");

@@ -59,6 +59,7 @@ const teacherSchema = new mongoose.Schema({
     enum: ["used", "not used"],
     default: "not used"
   },
+  seenTutorial: { type: Boolean, default: false },
 }, { timestamps: true });
 
 // Method to compare password
