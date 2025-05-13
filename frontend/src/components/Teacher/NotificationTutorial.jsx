@@ -13,10 +13,6 @@ const NotificationTutorial = ({ isOpen, setIsOpen, step }) => {
             {
                 selector: ".main-thing", // ✅ Notification page
                 content: "This is where all your notifications appear. You can mark them as read or clear them.",
-            },
-            {
-                selector: ".clear-all-btn", // ✅ Clear All button
-                content: "Click here to remove all notifications at once.",
             }
         ];
 
