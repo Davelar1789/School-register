@@ -3,9 +3,12 @@ import Header from "../../../components/Teacher/TeacherHeader";
 import Sidebar from "../../../components/Teacher/TeacherSidebar";
 import api from "../../../api/axios";
 import "./TeacherDashboard.modules.css";
+import NotificationTutorial from "../../components/Teacher/NotificationTutorial";
+import { jwtDecode } from "jwt-decode";
 
 const TeacherDashboard = () => {
   const [classCount, setClassCount] = useState(0);
+      const [showTutorial, setShowTutorial] = useState(false);
 
   useEffect(() => {
     const fetchClasses = async () => {
@@ -26,6 +29,21 @@ const TeacherDashboard = () => {
   
     fetchClasses();
   }, []);
+
+   // ✅ Retrieve `seenTutorial` from JWT token
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) return;
+
+        try {
+            const decodedToken = jwtDecode(token);
+            if (!decodedToken?.seenTutorial) {
+                setShowTutorial(true); // ✅ Start tutorial immediately when dashboard loads
+            }
+        } catch (error) {
+            console.error("❌ Error decoding token:", error);
+        }
+    }, []);
   
   
 return (
@@ -33,6 +51,7 @@ return (
       <Header />
       <div className="dashboard-body">
         <Sidebar />
+        {showTutorial && <NotificationTutorial isOpen={showTutorial} step="dashboard" />}
         <main className="dashboard-main2">
           <h1 className="dashboard-title">Welcome, Teacher!</h1>
           <p className="dashboard-subtitle">Here’s your activity overview</p>
