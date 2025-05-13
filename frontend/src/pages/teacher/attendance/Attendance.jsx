@@ -147,47 +147,49 @@ const Attendance = () => {
     setAttendance((prev) => ({ ...prev, [studentId]: present }));
   };
 
-  const submitAttendance = async () => {
-    setShowModal(false);
-    if (!currentTerm) return toast.error("Term not found!");
-    if (!selectedDate) return toast.error("Please select a date.");
-    if (isWeekend(selectedDate)) return toast.error("Cannot mark attendance on weekends.");
-  
-    const attendanceDate = new Date(selectedDate);
-    if (attendanceDate < new Date(currentTerm.startDate) || attendanceDate > new Date(currentTerm.endDate)) {
-      return toast.error("Selected date is outside the term period.");
-    }
-  
-    if (submittedDates.has(`${selectedClass}_${selectedDate}`)) { // ✅ Class-specific check
-      return toast.error("Attendance for this class on this date is already recorded.");
-    }
-  
-    // Prepare batch attendance list, defaulting unmarked students to absent
-    const attendanceList = students.map((student) => ({
-      studentId: student._id,
-      present: attendance[student._id] || false, // Default to false if not marked
-    }));
-  
-    try {
-      await axios.post("/api/attendance/mark-batch", { 
-    termId: currentTerm._id,
-    classId: selectedClass,
-    date: selectedDate,
-    attendanceList,
-    teacherEmail, // ✅ Send teacher email from frontend
-    teacherId,
-}, { headers: { Authorization: `Bearer ${token}` } });
+const submitAttendance = async () => {
+  setShowModal(false);
+  if (!currentTerm) return toast.error("Term not found!");
+  if (!selectedDate) return toast.error("Please select a date.");
+  if (isWeekend(selectedDate)) return toast.error("Cannot mark attendance on weekends.");
+  const attendanceDate = new Date(selectedDate);
+  if (attendanceDate < new Date(currentTerm.startDate) || attendanceDate > new Date(currentTerm.endDate)) {
+    return toast.error("Selected date is outside the term period.");
+  }
+  if (submittedDates.has(`${selectedClass}_${selectedDate}`)) {
+    // Class-specific check
+    return toast.error("Attendance for this class on this date is already recorded.");
+  }
+  // Prepare batch attendance list, defaulting unmarked students to absent
+  const attendanceList = students.map((student) => ({
+    studentId: student._id,
+    present: attendance[student._id] || false, // Default to false if not marked
+  }));
+  try {
+    const payload = {
+      termId: currentTerm._id,
+      classId: selectedClass,
+      date: selectedDate,
+      attendanceList,
+    };
+    if (teacherEmail) payload.teacherEmail = teacherEmail;
+    if (teacherId) payload.teacherId = teacherId;
+    await axios.post("/api/attendance/mark-batch", payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    setSubmittedDates((prev) => new Set(prev).add(`${selectedClass}_${selectedDate}`)); // Store class-specific attendance
+    toast.success("Attendance marked successfully!");
+    // setTimeout(() => {
+    //   window.location.reload();
+    // }, 1500);
+  } catch (err) {
+    // console.error("Error marking attendance:", err);
+    toast.error("Error marking attendance.");
+  }
+};
 
-      setSubmittedDates((prev) => new Set(prev).add(`${selectedClass}_${selectedDate}`)); // ✅ Store class-specific attendance
-      toast.success("Attendance marked successfully!");
-      // setTimeout(() => {
-      //   window.location.reload();
-      // }, 1500);
-    } catch (err) {
-      // console.error("Error marking attendance:", err);
-      toast.error("Error marking attendance.");
-    }
-  };
 
   // Fetch everything on component mount
   useEffect(() => {
