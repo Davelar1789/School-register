@@ -8,6 +8,19 @@ import socket from "../../../components/Teacher/Socket"; // ✅ Persistent WebSo
 const NotificationsPage = ({ teacherId }) => { // ✅ Pass teacherId for fetching
     const [notifications, setNotifications] = useState([]);
 
+    const getSchoolIdFromToken = () => {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+
+  try {
+    const decodedToken = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+    return decodedToken?.schoolId || null; // ✅ Added optional chaining for safety
+  } catch (error) {
+    // console.error("Error decoding token:", error);
+    return null;
+  }
+}; 
+
     const teacherData = JSON.parse(localStorage.getItem("teacher")); // Retrieve teacher object
 const teacherId = teacherData?.id
 
