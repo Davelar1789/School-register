@@ -1,10 +1,10 @@
-import { useEffect } from "react";
-import { useTour } from "react-shepherd";
-import jwtDecode from "jwt-decode";  // Make sure to install this if not yet
-import api from "../../api/axios"; // adjust if needed
+import { useEffect, useContext } from "react";
+import jwtDecode from "jwt-decode"; // Make sure to install this if not yet
+import api from "../../api/axios"; // Adjust if needed
+import { ShepherdTourContext } from "react-shepherd"; // Import the ShepherdTourContext to manage the tour flow
 
 const StartHeaderTour = () => {
-  const tour = useTour();
+  const { tour } = useContext(ShepherdTourContext);  // Access the tour context to start the tour
 
   // Step 1: Decode the token and get the `seenTutorial` status
   const getTeacherData = () => {
@@ -30,8 +30,8 @@ const StartHeaderTour = () => {
     // Step 2: Start the tour if not seen
     const notificationEl = document.querySelector(".notification-wrapper");
 
-    if (notificationEl) {
-      tour.start();
+    if (notificationEl && tour) {
+      tour.start(); // Start the tour when the notification element is found
 
       // Step 3: Update backend and token after tour
       tour.on("complete", async () => {
@@ -49,7 +49,7 @@ const StartHeaderTour = () => {
         }
       });
     }
-  }, []);  // Empty dependency array ensures this runs only once
+  }, [tour]);  // Empty dependency array ensures this runs only once
 
   return null;
 };
