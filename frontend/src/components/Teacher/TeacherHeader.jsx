@@ -10,6 +10,7 @@ import { jwtDecode } from "jwt-decode";
 import Image1 from "../../assets/images/userrr.png";
 import "./Header2.modules.css";
 import socket from "./Socket";
+import NotificationTutorial from "./NotificationTutorial";
 
 const Header = () => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -18,7 +19,7 @@ const Header = () => {
   const [school, setSchool] = useState(null);
   const [teacherType, setTeacherType] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
-
+const [showTutorial, setShowTutorial] = useState(false);
   const [schoolStats, setSchoolStats] = useState({
     numberOfStudents: 0,
     numberOfTeachers: 0,
@@ -66,6 +67,57 @@ const Header = () => {
       }
     }, [navigate]);
 
+     const getTeacherData = () => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) return null;
+
+            const decodedToken = jwtDecode(token);
+            return {
+                id: decodedToken?.id || null,
+                seenTutorial: decodedToken?.seenTutorial || false
+            };
+        } catch (error) {
+            console.error("❌ Error decoding token:", error);
+            return null;
+        }
+    };
+
+    const teacherData2 = getTeacherData();
+    const teacherId = teacherData2?.id;
+
+    // ✅ Fetch unread notifications count
+    useEffect(() => {
+        const fetchUnreadCount = async () => {
+            if (!teacherId) return;
+
+            try {
+                const response = await axios.get(`/api/notification/unread-count/${teacherId}`);
+                setUnreadCount(response.data.count || 0);
+            } catch (error) {
+                console.error("❌ Error fetching unread count:", error);
+            }
+        };
+
+        fetchUnreadCount();
+    }, [teacherId]);
+
+    // ✅ Show tutorial highlighting the bell icon when header loads
+    useEffect(() => {
+        if (!teacherData2?.seenTutorial) {
+            setShowTutorial(true); // ✅ Start tutorial automatically
+        }
+    }, [teacherData2]);
+
+    // ✅ Continue tutorial when the bell icon is clicked
+    const handleNotificationClick = async () => {
+        if (!teacherData2?.seenTutorial) {
+            navigate("/notifications2?startTutorial=true"); // ✅ Pass flag to continue tutorial
+        } else {
+            navigate("/notifications2");
+        }
+    };
+
   const fetchSchool = async (userId) => {
     try {
       const cached = localStorage.getItem("schoolData");
@@ -86,33 +138,6 @@ const Header = () => {
 
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
 
-  const getTeacherId = () => {
-        try {
-            const teacherData = JSON.parse(localStorage.getItem("teacher"));
-            return teacherData?.id || null;
-        } catch (error) {
-            console.error("❌ Error retrieving teacher ID:", error);
-            return null;
-        }
-    };
-
-    const teacherId = getTeacherId();
-
-    // ✅ Fetch unread notifications count on page load
-    useEffect(() => {
-        const fetchUnreadCount = async () => {
-            if (!teacherId) return;
-
-            try {
-                const response = await api.get(`/api/notification/unread-count/${teacherId}`);
-                setUnreadCount(response.data.count || 0);
-            } catch (error) {
-                console.error("❌ Error fetching unread count:", error);
-            }
-        };
-
-        fetchUnreadCount();
-    }, [teacherId]);
 
     // ✅ WebSocket Listener for Real-Time Badge Updates
     useEffect(() => {
@@ -124,18 +149,6 @@ const Header = () => {
             socket.off("new-notification");
         };
     }, []);
-
-    // ✅ Reset badge count when user visits notifications page
-    const handleNotificationClick = async () => {
-        navigate("/notifications2");
-
-        try {
-            await api.put(`/api/notification/mark-all-read/${teacherId}`);
-            setUnreadCount(0); // ✅ Reset unread count after visiting the page
-        } catch (error) {
-            console.error("❌ Error marking notifications as read:", error);
-        }
-    };
 
   const handleLogout = async () => {
     try {
@@ -169,6 +182,7 @@ const Header = () => {
         )}
 
        <div className="header-right">
+        {showTutorial && <NotificationTutorial isOpen={showTutorial} step="header" />}
         <div className="notification-wrapper">
                 <FaBell className="icon clickable" onClick={handleNotificationClick} style={{ cursor: "pointer" }} />
                 {unreadCount > 0 && <span className="notification-badge" onClick={handleNotificationClick}>{unreadCount}</span>}

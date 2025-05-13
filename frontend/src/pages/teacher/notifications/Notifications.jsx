@@ -1,25 +1,36 @@
 import { useEffect, useState } from "react";
-import axios from "axios"; // ✅ Fetch notifications from backend
+import { jwtDecode } from "jwt-decode"; // ✅ Import for decoding the token
+import axios from "../../../api/axios";
 import Sidebar from "../../../components/Teacher/TeacherSidebar";
 import Header from "../../../components/Teacher/TeacherHeader";
 import "./Notifications.modules.css";
 import socket from "../../../components/Teacher/Socket"; // ✅ Persistent WebSocket connection
+import NotificationTutorial from "../../../components/Teacher/NotificationTutorial"; // ✅ Tutorial component
+import { useLocation } from "react-router-dom";
 
 const NotificationsPage = () => {
     const [notifications, setNotifications] = useState([]);
+    const [showTutorial, setShowTutorial] = useState(false); // ✅ Tracks tutorial visibility
 
-    // ✅ Retrieve teacher ID from local storage
-    const getTeacherId = () => {
+    // ✅ Retrieve teacher ID & tutorial status from JWT token
+    const getTeacherData = () => {
         try {
-            const teacherData = JSON.parse(localStorage.getItem("teacher"));
-            return teacherData?.id || null; // ✅ Ensure it's valid
+            const token = localStorage.getItem("token");
+            if (!token) return null;
+
+            const decodedToken = jwtDecode(token);
+            return {
+                id: decodedToken?.id || null,
+                seenTutorial: decodedToken?.seenTutorial || false
+            };
         } catch (error) {
-            console.error("❌ Error retrieving teacher ID:", error);
+            console.error("❌ Error decoding token:", error);
             return null;
         }
     };
 
-    const teacherId = getTeacherId();
+    const teacherData = getTeacherData();
+    const teacherId = teacherData?.id;
 
     // ✅ Fetch stored notifications from backend
     useEffect(() => {
@@ -30,7 +41,7 @@ const NotificationsPage = () => {
             }
 
             try {
-                const response = await axios.get(`https://school-register-a2bx.onrender.com/api/notification/teacher/${teacherId}`);
+                const response = await axios.get(`/api/notification/teacher/${teacherId}`);
                 console.log("🔎 Fetched notifications:", response.data);
 
                 if (Array.isArray(response.data)) {
@@ -48,6 +59,23 @@ const NotificationsPage = () => {
         fetchNotifications();
     }, [teacherId]);
 
+    // ✅ Show tutorial if teacher hasn't seen it yet
+    useEffect(() => {
+        if (!teacherData?.seenTutorial) {
+            setShowTutorial(true);
+        }
+    }, [teacherData]);
+
+    // ✅ Mark tutorial as seen in backend
+    const handleTutorialComplete = async () => {
+        try {
+            await axios.put(`/api/tutorials/mark-seen/${teacherId}`);
+            setShowTutorial(false); // ✅ Hide tutorial after marking it as seen
+        } catch (error) {
+            console.error("❌ Error marking tutorial as seen:", error);
+        }
+    };
+
     // ✅ WebSocket Listener for Real-Time Notifications
     useEffect(() => {
         socket.on("connect", () => console.log("✅ WebSocket connected:", socket.id));
@@ -62,12 +90,13 @@ const NotificationsPage = () => {
             socket.off("new-notification"); // ✅ Cleanup on unmount
         };
     }, []);
-// ✅ Function to clear all notifications for the teacher
+
+    // ✅ Function to clear all notifications for the teacher
     const handleClearAll = async () => {
         if (!teacherId) return;
         
         try {
-            await axios.delete(`https://school-register-a2bx.onrender.com/api/notification/clear-all/${teacherId}`);
+            await axios.delete(`/api/notification/clear-all/${teacherId}`);
             setNotifications([]); // ✅ Clear notifications in the UI immediately
             console.log("✅ All notifications cleared!");
         } catch (error) {
@@ -79,15 +108,20 @@ const NotificationsPage = () => {
         <div>
             <Sidebar />
             <Header />
+
+            {/* ✅ Show tutorial only when needed */}
+            {showTutorial && <NotificationTutorial isOpen={showTutorial} onComplete={handleTutorialComplete} />}
+
             <div className="main-thing">
-                <h2>📢 Notifications</h2>
-                 <div className="notifications-header">
+                <div className="notifications-header">
+                    <h2>📢 Notifications</h2>
                     {notifications.length > 0 && (
                         <button className="clear-all-btn" onClick={handleClearAll}>
                             Clear All
                         </button>
                     )}
                 </div>
+
                 {notifications.length === 0 ? (
                     <p>No new notifications</p>
                 ) : (
