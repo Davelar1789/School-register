@@ -1,31 +1,23 @@
 import { useEffect, useState } from "react";
-import { io } from "socket.io-client";
 import Sidebar from "../../../components/Teacher/TeacherSidebar";
 import Header from "../../../components/Teacher/TeacherHeader";
 import "./Notifications.modules.css";
-
-const socket = io("https://school-register-a2bx.onrender.com", { transports: ['websocket'] }); // ✅ Enforce WebSocket transport
+import socket from "../../../socket"; // ✅ Import the persistent socket instance
 
 const NotificationsPage = () => {
     const [notifications, setNotifications] = useState([]);
-useEffect(() => {
-    socket.on("connect", () => {
-        console.log("✅ Frontend successfully connected to WebSocket!");
-    });
 
-    socket.on("disconnect", () => {
-        console.log("❌ Frontend disconnected from WebSocket!");
-    });
+    useEffect(() => {
+        socket.on("new-notification", (notification) => {
+            console.log("🔔 Notification received in frontend:", notification);
+            setNotifications((prev) => [notification, ...prev]); // ✅ Store notifications persistently
+        });
 
-    socket.on("new-notification", (notification) => {
-        console.log("🔔 Notification received in frontend:", notification); // ✅ Debugging log
-        setNotifications((prev) => [notification, ...prev]); // ✅ Update notifications state
-    });
+        return () => {
+            socket.off("new-notification"); // ✅ Prevent multiple listeners on re-renders
+        };
+    }, []);
 
-    return () => {
-        socket.off("new-notification"); // ✅ Cleanup WebSocket listener
-    };
-}, []);
        
     return (
         <div>
