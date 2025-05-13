@@ -3,12 +3,9 @@ import Header from "../../../components/Teacher/TeacherHeader";
 import Sidebar from "../../../components/Teacher/TeacherSidebar";
 import api from "../../../api/axios";
 import "./TeacherDashboard.modules.css";
-import NotificationTutorial from "../../../components/Teacher/NotificationTutorial";
-import { jwtDecode } from "jwt-decode";
 
 const TeacherDashboard = () => {
   const [classCount, setClassCount] = useState(0);
-      const [showTutorial, setShowTutorial] = useState(false);
 
   useEffect(() => {
     const fetchClasses = async () => {
