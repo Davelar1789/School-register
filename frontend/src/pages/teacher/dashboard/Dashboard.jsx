@@ -51,7 +51,7 @@ return (
       <Header />
       <div className="dashboard-body">
         <Sidebar />
-        {showTutorial && <NotificationTutorial isOpen={showTutorial} step="dashboard" />}
+                    {showTutorial && <NotificationTutorial isOpen={showTutorial} step="header" />}
         <main className="dashboard-main2">
           <h1 className="dashboard-title">Welcome, Teacher!</h1>
           <p className="dashboard-subtitle">Here’s your activity overview</p>

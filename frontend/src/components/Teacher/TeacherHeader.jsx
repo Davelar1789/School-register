@@ -166,6 +166,7 @@ const [showTutorial, setShowTutorial] = useState(false);
   return (
     <>
       <header className="header2">
+                {showTutorial && <NotificationTutorial isOpen={showTutorial} step="header" />}
         <div className="header-left">
           <div className="menu-icon" onClick={toggleSidebar}>
             <span className="bar long"></span>
@@ -183,7 +184,6 @@ const [showTutorial, setShowTutorial] = useState(false);
         )}
 
        <div className="header-right">
-        {showTutorial && <NotificationTutorial isOpen={showTutorial} step="header" />}
         <div className="notification-wrapper">
                 <FaBell className="icon clickable" onClick={handleNotificationClick} style={{ cursor: "pointer" }} />
                 {unreadCount > 0 && <span className="notification-badge" onClick={handleNotificationClick}>{unreadCount}</span>}
