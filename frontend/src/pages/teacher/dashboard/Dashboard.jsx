@@ -30,20 +30,6 @@ const TeacherDashboard = () => {
     fetchClasses();
   }, []);
 
-   // ✅ Retrieve `seenTutorial` from JWT token
-    useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-
-        try {
-            const decodedToken = jwtDecode(token);
-            if (!decodedToken?.seenTutorial) {
-                setShowTutorial(true); // ✅ Start tutorial immediately when dashboard loads
-            }
-        } catch (error) {
-            console.error("❌ Error decoding token:", error);
-        }
-    }, []);
   
   
 return (

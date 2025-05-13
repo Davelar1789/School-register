@@ -60,13 +60,6 @@ const NotificationsPage = () => {
         fetchNotifications();
     }, [teacherId]);
 
-    // ✅ Show tutorial if teacher hasn't seen it yet
-    useEffect(() => {
-        if (!teacherData?.seenTutorial) {
-            setShowTutorial(true);
-        }
-    }, [teacherData]);
-
     // ✅ Mark tutorial as seen in backend
     const handleTutorialComplete = async () => {
         try {
