@@ -11,12 +11,12 @@ const NotificationsPage = () => {
 
     useEffect(() => {
         socket.on("new-notification", (notification) => {
-            console.log("🔔 New notification received:", notification);
-            setNotifications((prev) => [notification, ...prev]); // ✅ Add new notifications to list
+            console.log("🔔 Notification received in frontend:", notification); // ✅ Debugging log
+            setNotifications((prev) => [notification, ...prev]);
         });
 
         return () => {
-            socket.off("new-notification"); // ✅ Clean up listener on unmount
+            socket.off("new-notification"); // ✅ Cleanup WebSocket listener
         };
     }, []);
 
