@@ -7,8 +7,14 @@ export const createNotification = async (userIds = [], teacherIds = [], title, m
         const notification = new Notification({ userIds, teacherIds, title, message, type });
         await notification.save();
 
-        // ✅ Emit real-time notifications
-        io.emit("new-notification", { userIds, teacherIds, title, message, type });
+        // ✅ Emit full notification object
+        io.emit("new-notification", {
+            _id: notification._id,
+            title: notification.title,
+            message: notification.message,
+            type: notification.type,
+            createdAt: notification.createdAt,
+        });
 
         console.log(`🔔 Notification sent in real-time for ${userIds.length} admins & ${teacherIds.length} teachers: ${title}`);
         return notification;
