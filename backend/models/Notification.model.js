@@ -1,29 +1,33 @@
-import mongoose from "mongoose";
-
-const NotificationSchema = new mongoose.Schema(
-  {
-    userId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
+const notificationSchema = new mongoose.Schema({
+    userIds: [{ // ✅ Keep user notifications for admins
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+    }],
+    teacherIds: [{ // ✅ New field for teachers
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Teacher",
+    }],
     title: {
-      type: String,
-      required: true,
+        type: String,
+        required: true,
+        trim: true,
     },
     message: {
-      type: String,
-      required: true,
+        type: String,
+        required: true,
+        trim: true,
     },
-    recipients: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
-    isRead: {
-      type: Boolean,
-      default: false,
+    type: {
+        type: String,
+        enum: ["attendance", "payment", "reminder", "general"],
+        required: true,
     },
-  },
-  { timestamps: true }
-);
-
-const Notification = mongoose.model("Notification", NotificationSchema);
-
-export default Notification;
+    readBy: [{ // ✅ Track who has read the notification
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+    }],
+    createdAt: {
+        type: Date,
+        default: Date.now,
+    },
+}, { timestamps: true });

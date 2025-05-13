@@ -3,6 +3,7 @@ import TermSession from "../models/TermSession.model.js";
 import Class from '../models/Class.model.js'; // ✅ Import the Class model
 import Students from "../models/Student.model.js";
 import mongoose from "mongoose";
+import { createNotification } from "../controllers/NotificationController.js";
 import { sendMail } from './mailerController.js';
 
 // Helper function to check if a date is a weekend
@@ -43,11 +44,11 @@ export const markAttendanceBatch = async (req, res) => {
     console.log(`Marking attendance batch for Term ID: ${req.body.termId}, Date: ${req.body.date}`);
 
     try {
-        const { termId, date, attendanceList, classId, teacherEmail } = req.body;
+        const { termId, date, attendanceList, classId, teacherEmail, teacherId } = req.body; // ✅ Now receiving teacherId from frontend
 
-        if (!teacherEmail) {
-            console.log('Error: Teacher email not provided.');
-            return res.status(400).json({ message: "Teacher email is required." });
+        if (!teacherEmail || !teacherId) { // ✅ Validate both teacherEmail & teacherId
+            console.log('Error: Teacher email or ID not provided.');
+            return res.status(400).json({ message: "Teacher email and ID are required." });
         }
 
         console.log(`Fetching class details for Class ID: ${classId}...`);
@@ -57,8 +58,8 @@ export const markAttendanceBatch = async (req, res) => {
             return res.status(404).json({ message: "Class not found." });
         }
 
-        const className = classData.className; // ✅ Extract the class name
-        console.log(`Class name found: ${className}`);
+        const className = classData.className; // ✅ Extract class name
+        console.log(`Class name found: ${className}, Teacher ID received: ${teacherId}`);
 
         console.log(`Validating term session for Term ID: ${termId}...`);
         const term = await TermSession.findById(termId);
@@ -99,38 +100,47 @@ export const markAttendanceBatch = async (req, res) => {
         // **Send confirmation email to the teacher**
         console.log(`📧 Preparing to send email to: ${teacherEmail}...`);
 
-       try {
-    const emailMessage = `
-        Dear Teacher,  
-        
-        You have successfully submitted attendance for **${className}** on **${date}**.  
-        
-        Thank you for your time and dedication.  
-        
-        Best regards,  
-        **School Management Team**
-    `;
+        try {
+            const emailMessage = `
+                Dear Teacher,  
+                
+                You have successfully submitted attendance for **${className}** on **${date}**.  
+                
+                Thank you for your time and dedication.  
+                
+                Best regards,  
+                **School Management Team**
+            `;
 
-    console.log(`📧 Preparing to send email to: ${teacherEmail}...`);
+            const emailResponse = await sendMail(
+                teacherEmail,
+                "Attendance Submission Confirmation",
+                emailMessage // ✅ Use formatted message
+            );
 
-    const emailResponse = await sendMail(
-        teacherEmail,
-        "Attendance Submission Confirmation",
-        emailMessage // ✅ Use formatted message
-    );
+            console.log(`✅ Email sent successfully! Response: ${JSON.stringify(emailResponse, null, 2)}`);
+            res.status(201).json({ message: `Attendance recorded successfully for class "${className}", and email sent to the teacher.` });
 
-    console.log(`✅ Email sent successfully! Response: ${JSON.stringify(emailResponse, null, 2)}`);
-    res.status(201).json({ message: `Attendance recorded successfully for class "${className}", and email sent to the teacher.` });
+            // ✅ Trigger notification for the teacher using received `teacherId`
+            await createNotification(
+                [], // No users (admins) in this case
+                [teacherId], // ✅ Use received teacherId from frontend
+                "Attendance Successfully Recorded",
+                `Attendance for ${className} on ${date} has been successfully recorded.`,
+                "attendance"
+            );
 
-} catch (emailError) {
-    console.error("❌ Error sending email:", emailError);
-    res.status(500).json({ message: `Attendance recorded for class "${className}", but email sending failed.` });
-}
+        } catch (emailError) {
+            console.error("❌ Error sending email:", emailError);
+            res.status(500).json({ message: `Attendance recorded for class "${className}", but email sending failed.` });
+        }
+
     } catch (error) {
         console.error("❌ Error marking attendance batch:", error);
         res.status(500).json({ error: error.message });
     }
 };
+
   
 
 export const fetchAttendance = async (req, res) => {
