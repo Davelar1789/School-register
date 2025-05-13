@@ -105,12 +105,7 @@ const NotificationsPage = () => {
         }
     };
 
-    useEffect(() => {
-        const queryParams = new URLSearchParams(location.search);
-        if (queryParams.get("startTutorial") === "true") {
-            setTimeout(() => setShowTutorial(true), 500); // ✅ Delay start to ensure the first step closed
-        }
-    }, [location]);
+
 
     return (
         <div>
@@ -119,7 +114,6 @@ const NotificationsPage = () => {
 
             {/* ✅ Show tutorial only when needed */}
             {/* {showTutorial && <NotificationTutorial isOpen={showTutorial} step="notifications" onComplete={handleTutorialComplete} />} */}
-            {showTutorial && <NotificationTutorial isOpen={showTutorial} step="notifications" />}
             <div className="main-thing">
                 <div className="notifications-header">
                     <h2>📢 Notifications</h2>
