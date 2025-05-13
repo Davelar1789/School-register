@@ -24,6 +24,9 @@ const NotificationTutorial = ({ isOpen, setIsOpen, step }) => {
             isOpen={isOpen} 
             onRequestClose={() => setIsOpen(false)} 
             getCurrentStep={(step) => setCurrentStep(step)} // ✅ Auto-tracks the current step
+            showButtons={true} // ✅ Ensure navigation buttons appear
+            showCloseButton={true} // ✅ Adds a visible close (X) button
+            lastStepNextButton={<button onClick={() => setIsOpen(false)}>Got It</button>} // ✅ Adds a manual close button
         />
     );
 };
