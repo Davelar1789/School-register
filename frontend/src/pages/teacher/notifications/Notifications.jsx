@@ -7,26 +7,24 @@ import socket from "../../../components/Teacher/Socket"; // ✅ Import the persi
 const NotificationsPage = () => {
     const [notifications, setNotifications] = useState([]);
 
-    useEffect(() => {
-        console.log("✅ Listening for notifications...");
-        
-        socket.on("connect", () => {
-            console.log("✅ Frontend connected to WebSocket!");
-        });
+   useEffect(() => {
+    socket.on("connect", () => {
+        console.log("✅ WebSocket connected:", socket.id);
+    });
 
-        socket.on("disconnect", () => {
-            console.log("❌ Frontend disconnected from WebSocket!");
-        });
+    socket.on("disconnect", (reason) => {
+        console.log(`❌ WebSocket disconnected: ${reason}`);
+    });
 
-        socket.on("new-notification", (notification) => {
-            console.log("🔔 Notification received:", notification);
-            setNotifications((prev) => [notification, ...prev]); // ✅ Store notifications persistently
-        });
+    socket.on("new-notification", (notification) => {
+        console.log("🔔 Notification received:", notification);
+        setNotifications((prev) => [notification, ...prev]);
+    });
 
-        return () => {
-            socket.off("new-notification"); // ✅ Prevent multiple listeners
-        };
-    }, []);
+    return () => {
+        socket.off("new-notification");
+    };
+}, []);
 
 
        
