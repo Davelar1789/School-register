@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Sidebar from "../../../components/Teacher/TeacherSidebar";
 import Header from "../../../components/Teacher/TeacherHeader";
 import "./Notifications.modules.css";
-import socket from "../../../socket"; // ✅ Import the persistent socket instance
+import socket from "../../../components/Teacher/Socket"; // ✅ Import the persistent socket instance
 
 const NotificationsPage = () => {
     const [notifications, setNotifications] = useState([]);
