@@ -46,11 +46,7 @@ export const markAttendanceBatch = async (req, res) => {
     try {
         const { termId, date, attendanceList, classId, teacherEmail, teacherId } = req.body; // ✅ Now receiving teacherId from frontend
 
-        if (!teacherEmail || !teacherId) { // ✅ Validate both teacherEmail & teacherId
-            console.log('Error: Teacher email or ID not provided.');
-            return res.status(400).json({ message: "Teacher email and ID are required." });
-        }
-
+       
         console.log(`Fetching class details for Class ID: ${classId}...`);
         const classData = await Class.findById(classId);
         if (!classData) {
@@ -59,7 +55,7 @@ export const markAttendanceBatch = async (req, res) => {
         }
 
         const className = classData.className; // ✅ Extract class name
-        console.log(`Class name found: ${className}, Teacher ID received: ${teacherId}`);
+        console.log(`Class name found: ${className}`);
 
         console.log(`Validating term session for Term ID: ${termId}...`);
         const term = await TermSession.findById(termId);
@@ -96,6 +92,11 @@ export const markAttendanceBatch = async (req, res) => {
         await Attendance.insertMany(attendanceEntries);
 
         console.log(`Attendance recorded successfully for all students in Class: ${className}`);
+        
+         if (!teacherEmail || !teacherId) { // ✅ Validate both teacherEmail & teacherId
+            console.log('Error: Teacher email or ID not provided.');
+            return res.status(400).json({ message: "Teacher email and ID are required." });
+        }
 
         // **Send confirmation email to the teacher**
         console.log(`📧 Preparing to send email to: ${teacherEmail}...`);
