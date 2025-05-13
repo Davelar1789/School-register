@@ -82,7 +82,6 @@ const NotificationsPage = () => {
             <div className="main-thing">
                 <h2>📢 Notifications</h2>
                  <div className="notifications-header">
-                    <h2>📢 Notifications</h2>
                     {notifications.length > 0 && (
                         <button className="clear-all-btn" onClick={handleClearAll}>
                             Clear All
