@@ -7,7 +7,7 @@ const NotificationTutorial = ({ isOpen, setIsOpen }) => {
     const steps = [
         {
             selector: ".notification-wrapper", // ✅ Bell icon
-            content: "You can now click the bell icon to view your notifications.",
+            content: "Click the bell icon to view your notifications.",
         }
     ];
 
@@ -15,9 +15,10 @@ const NotificationTutorial = ({ isOpen, setIsOpen }) => {
         <Tour
             steps={steps}
             isOpen={isOpen}
-            onRequestClose={() => setIsOpen(false)} // ✅ Close when clicking outside or pressing ESC
+            onRequestClose={() => setIsOpen(false)} // ✅ Properly closes tutorial when clicking outside or ESC
             getCurrentStep={(step) => setCurrentStep(step)}
-            showCloseButton={true} // ✅ Ensures visible close button
+            showCloseButton={true} // ✅ Ensures visible close (X) button
+            disableInteraction={false} // ✅ Allows clicking on elements normally
             lastStepNextButton={
                 <button onClick={() => setIsOpen(false)}>Got It</button> // ✅ Fix: Properly closes tutorial
             }

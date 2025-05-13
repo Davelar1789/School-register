@@ -111,12 +111,8 @@ const [showTutorial, setShowTutorial] = useState(false);
 
     // ✅ Continue tutorial when the bell icon is clicked
     const handleNotificationClick = () => {
-    if (showTutorial) {
-        setShowTutorial(false); // ✅ Close first tutorial
-        setTimeout(() => navigate("/notifications2?startTutorial=true"), 300); // ✅ Delay transition to avoid overlap
-    } else {
-        navigate("/notifications2");
-    }
+    setIsOpen(false); // ✅ Close tutorial before navigating
+    setTimeout(() => navigate("/notifications2"), 300); // ✅ Slight delay ensures closure before transition
 };
 
 
