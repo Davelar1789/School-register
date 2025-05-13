@@ -9,6 +9,7 @@ import api from "../../api/axios";
 import { jwtDecode } from "jwt-decode";
 import Image1 from "../../assets/images/userrr.png";
 import "./Header2.modules.css";
+import socket from "./Socket";
 
 const Header = () => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -16,6 +17,7 @@ const Header = () => {
   const [user, setUser] = useState(null);
   const [school, setSchool] = useState(null);
   const [teacherType, setTeacherType] = useState("");
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const [schoolStats, setSchoolStats] = useState({
     numberOfStudents: 0,
@@ -84,6 +86,57 @@ const Header = () => {
 
   const toggleSidebar = () => setSidebarOpen((prev) => !prev);
 
+  const getTeacherId = () => {
+        try {
+            const teacherData = JSON.parse(localStorage.getItem("teacher"));
+            return teacherData?.id || null;
+        } catch (error) {
+            console.error("❌ Error retrieving teacher ID:", error);
+            return null;
+        }
+    };
+
+    const teacherId = getTeacherId();
+
+    // ✅ Fetch unread notifications count on page load
+    useEffect(() => {
+        const fetchUnreadCount = async () => {
+            if (!teacherId) return;
+
+            try {
+                const response = await api.get(`/api/notification/unread-count/${teacherId}`);
+                setUnreadCount(response.data.count || 0);
+            } catch (error) {
+                console.error("❌ Error fetching unread count:", error);
+            }
+        };
+
+        fetchUnreadCount();
+    }, [teacherId]);
+
+    // ✅ WebSocket Listener for Real-Time Badge Updates
+    useEffect(() => {
+        socket.on("new-notification", () => {
+            setUnreadCount((prev) => prev + 1); // ✅ Increase unread count in real time
+        });
+
+        return () => {
+            socket.off("new-notification");
+        };
+    }, []);
+
+    // ✅ Reset badge count when user visits notifications page
+    const handleNotificationClick = async () => {
+        navigate("/notifications2");
+
+        try {
+            await api.put(`/api/notification/mark-all-read/${teacherId}`);
+            setUnreadCount(0); // ✅ Reset unread count after visiting the page
+        } catch (error) {
+            console.error("❌ Error marking notifications as read:", error);
+        }
+    };
+
   const handleLogout = async () => {
     try {
       localStorage.clear(); // or just remove 'token' if you prefer
@@ -116,11 +169,10 @@ const Header = () => {
         )}
 
        <div className="header-right">
-        <FaBell
-          className="icon clickable"
-          onClick={() => navigate('/notifications2')}
-          style={{ cursor: 'pointer' }}
-        />
+        <div className="notification-wrapper">
+                <FaBell className="icon clickable" onClick={handleNotificationClick} style={{ cursor: "pointer" }} />
+                {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
+            </div>
           {windowWidth > 768 && <FaEnvelope className="icon" />}
           <FaUser className="icon" />
           {windowWidth > 1024 && (

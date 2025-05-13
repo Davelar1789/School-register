@@ -101,6 +101,24 @@
   color: white; /* ✅ Ensures text is readable */
 }
 
+.notification-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -4px;
+    right: -6px;
+    background-color: red;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 3px 6px;
+    border-radius: 50%;
+}
+
+
 @media screen and (max-width: 1024px) {
   .language-switcher {
     display: none; /* Hide language selector */

@@ -56,3 +56,30 @@ export const markAsRead = async (req, res) => {
         res.status(500).json({ message: "Error updating notification" });
     }
 };
+
+// ✅ Mark all notifications as read for a teacher
+export const markAllRead = async (req, res) => {
+    const { teacherId } = req.params;
+    try {
+        await Notification.updateMany(
+            { teacherIds: teacherId, readBy: { $ne: teacherId } },
+            { $addToSet: { readBy: teacherId } }
+        );
+        res.json({ message: "All notifications marked as read" });
+    } catch (error) {
+        console.error("❌ Error marking notifications as read:", error);
+        res.status(500).json({ message: "Error updating notifications" });
+    }
+};
+
+// ✅ Get unread notification count for a teacher
+export const getUnreadCount = async (req, res) => {
+    const { teacherId } = req.params;
+    try {
+        const unreadCount = await Notification.countDocuments({ teacherIds: teacherId, readBy: { $ne: teacherId } });
+        res.json({ count: unreadCount });
+    } catch (error) {
+        console.error("❌ Error fetching unread count:", error);
+        res.status(500).json({ message: "Error fetching unread notifications count" });
+    }
+};
