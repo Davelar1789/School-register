@@ -11,6 +11,7 @@ import { useLocation } from "react-router-dom";
 const NotificationsPage = () => {
     const [notifications, setNotifications] = useState([]);
     const [showTutorial, setShowTutorial] = useState(false); // ✅ Tracks tutorial visibility
+        const location = useLocation();
 
     // ✅ Retrieve teacher ID & tutorial status from JWT token
     const getTeacherData = () => {
@@ -104,13 +105,21 @@ const NotificationsPage = () => {
         }
     };
 
+    useEffect(() => {
+        const queryParams = new URLSearchParams(location.search);
+        if (queryParams.get("startTutorial") === "true") {
+            setTimeout(() => setShowTutorial(true), 500); // ✅ Delay start to ensure the first step closed
+        }
+    }, [location]);
+
     return (
         <div>
             <Sidebar />
             <Header />
 
             {/* ✅ Show tutorial only when needed */}
-            {showTutorial && <NotificationTutorial isOpen={showTutorial} onComplete={handleTutorialComplete} />}
+            {/* {showTutorial && <NotificationTutorial isOpen={showTutorial} step="notifications" onComplete={handleTutorialComplete} />} */}
+            {showTutorial && <NotificationTutorial isOpen={showTutorial}  onComplete={() => setShowTutorial(false)} />}
 
             <div className="main-thing">
                 <div className="notifications-header">

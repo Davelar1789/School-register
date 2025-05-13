@@ -112,6 +112,7 @@ const [showTutorial, setShowTutorial] = useState(false);
     // ✅ Continue tutorial when the bell icon is clicked
     const handleNotificationClick = async () => {
         if (!teacherData2?.seenTutorial) {
+          setShowTutorial(false);
             navigate("/notifications2?startTutorial=true"); // ✅ Pass flag to continue tutorial
         } else {
             navigate("/notifications2");
