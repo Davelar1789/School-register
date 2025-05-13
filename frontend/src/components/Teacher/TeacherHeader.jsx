@@ -171,7 +171,7 @@ const Header = () => {
        <div className="header-right">
         <div className="notification-wrapper">
                 <FaBell className="icon clickable" onClick={handleNotificationClick} style={{ cursor: "pointer" }} />
-                {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
+                {unreadCount > 0 && <span className="notification-badge" onClick={handleNotificationClick}>{unreadCount}</span>}
             </div>
           {windowWidth > 768 && <FaEnvelope className="icon" />}
           <FaUser className="icon" />

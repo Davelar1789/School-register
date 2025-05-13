@@ -108,15 +108,20 @@
 
 .notification-badge {
     position: absolute;
-    top: -4px;
-    right: -6px;
+    top: -8px;
+    right: -10px;
     background-color: red;
     color: white;
     font-size: 12px;
     font-weight: bold;
-    padding: 3px 6px;
+    padding: 4px 7px;
     border-radius: 50%;
+    cursor: pointer; /* ✅ Allows clicking the badge */
+    z-index: 10; /* ✅ Ensures it's on top */
+    min-width: 18px; /* ✅ Ensures readability for single digits */
+    text-align: center; /* ✅ Keeps numbers centered */
 }
+
 
 
 @media screen and (max-width: 1024px) {
