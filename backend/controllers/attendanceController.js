@@ -104,7 +104,7 @@ export const markAttendanceBatch = async (req, res) => {
             const emailMessage = `
                 Dear Teacher,  
                 
-                You have successfully submitted attendance for **${className}** on **${date}**.  
+                You have successfully submitted attendance for your class on **${date}**.  
                 
                 Thank you for your time and dedication.  
                 
