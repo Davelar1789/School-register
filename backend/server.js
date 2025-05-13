@@ -38,8 +38,8 @@ const io = new Server(server, {
         origin: ["https://school-register-ruby.vercel.app", "https://jbrains.vercel.app"],
         credentials: true,
     },
-    pingTimeout: 60000, // ✅ Prevents auto-disconnect due to inactivity (1 min)
-    pingInterval: 25000, // ✅ WebSocket keep-alive messages every 25 sec
+    pingTimeout: 60000, // ✅ Prevents auto-disconnects (60 sec timeout)
+    pingInterval: 25000, // ✅ Sends a keep-alive message every 25 sec
 });
 
 // ✅ WebSocket Connection (Improved Stability)
