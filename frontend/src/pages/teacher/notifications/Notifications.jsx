@@ -8,6 +8,9 @@ import socket from "../../../components/Teacher/Socket"; // ✅ Persistent WebSo
 const NotificationsPage = ({ teacherId }) => { // ✅ Pass teacherId for fetching
     const [notifications, setNotifications] = useState([]);
 
+    const teacherData = JSON.parse(localStorage.getItem("teacher")); // Retrieve teacher object
+const teacherId = teacherData?.id
+
     // ✅ Fetch stored notifications from backend
     useEffect(() => {
         const fetchNotifications = async () => {
