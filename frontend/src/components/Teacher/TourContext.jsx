@@ -1,7 +1,14 @@
-// TourContext.js
-import React from "react";
-import { ShepherdTour, ShepherdTourContext } from "react-shepherd";
+import React, { createContext, useContext } from "react";
+import { ShepherdTour } from "react-shepherd";
 
+// Create a context to manage the tour state globally
+const TourContext = createContext();
+
+export const useTour = () => {
+  return useContext(TourContext);
+};
+
+// Define the tour steps
 const steps = [
   {
     id: "notification",
@@ -11,12 +18,15 @@ const steps = [
     buttons: [
       {
         text: "Got it!",
-        action: ShepherdTourContext?.tour?.complete,
+        action: (tour) => {
+          tour.complete(); // Complete the tour when the button is clicked
+        },
       },
     ],
   },
 ];
 
+// Define the tour options
 const tourOptions = {
   defaultStepOptions: {
     cancelIcon: { enabled: true },
@@ -25,8 +35,11 @@ const tourOptions = {
   useModalOverlay: true,
 };
 
-export const TourProvider = ({ children }) => (
-  <ShepherdTour steps={steps} tourOptions={tourOptions}>
-    {children}
-  </ShepherdTour>
-);
+// Create the TourProvider component to wrap around the app
+export const TourProvider = ({ children }) => {
+  return (
+    <ShepherdTour steps={steps} tourOptions={tourOptions}>
+      {children}
+    </ShepherdTour>
+  );
+};
