@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Tour from "reactour";
 
-const NotificationTutorial = ({ isOpen, setIsOpen }) => {
+const NotificationTutorial = ({ isOpen, setIsOpen, onComplete }) => {
     const [currentStep, setCurrentStep] = useState(0);
 
     const steps = [
@@ -15,12 +15,12 @@ const NotificationTutorial = ({ isOpen, setIsOpen }) => {
         <Tour
             steps={steps}
             isOpen={isOpen}
-            onRequestClose={() => setIsOpen(false)} // ✅ Properly closes tutorial when clicking outside or ESC
+            onRequestClose={() => { setIsOpen(false); onComplete(); }} // ✅ Close tutorial properly
             getCurrentStep={(step) => setCurrentStep(step)}
-            showCloseButton={true} // ✅ Ensures visible close (X) button
+            showCloseButton={true} // ✅ Makes the close (X) button visible
             disableInteraction={false} // ✅ Allows clicking on elements normally
             lastStepNextButton={
-                <button onClick={() => setIsOpen(false)}>Got It</button> // ✅ Fix: Properly closes tutorial
+                <button onClick={() => { setIsOpen(false); onComplete(); }}>Got It</button> // ✅ Fully closes tutorial
             }
         />
     );

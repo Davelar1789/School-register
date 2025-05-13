@@ -110,10 +110,15 @@ const [showTutorial, setShowTutorial] = useState(false);
     }, [teacherData2]);
 
     // ✅ Continue tutorial when the bell icon is clicked
-    const handleNotificationClick = () => {
-    setIsOpen(false); // ✅ Close tutorial before navigating
-    setTimeout(() => navigate("/notifications2"), 300); // ✅ Slight delay ensures closure before transition
+   const handleNotificationClick = () => {
+    if (showTutorial) {
+        setShowTutorial(false); // ✅ Close tutorial
+        setTimeout(() => navigate("/notifications2"), 300); // ✅ Ensures navigation happens after closure
+    } else {
+        navigate("/notifications2");
+    }
 };
+
 
 
   const fetchSchool = async (userId) => {
