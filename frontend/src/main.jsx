@@ -5,7 +5,7 @@ import "./index.css";
 import { RouterProvider } from "react-router-dom";
 import router from "./router.jsx";
 import { UserProvider } from "./context/userContext";
-import { TourProvider } from "./components/TourContext"; // adjust path
+import { TourProvider } from "../src/components/Teacher/TourContext.jsx"; // adjust path
 
 
 ReactDOM.createRoot(document.getElementById("root")).render(
