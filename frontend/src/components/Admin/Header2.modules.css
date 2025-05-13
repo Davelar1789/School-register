@@ -35,6 +35,11 @@
   border-radius: 5px;
 }
 
+.clickable {
+  cursor: pointer;
+}
+
+
 .menu-icon .long {
   width: 25px;
 }
