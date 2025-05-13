@@ -119,8 +119,7 @@ const NotificationsPage = () => {
 
             {/* ✅ Show tutorial only when needed */}
             {/* {showTutorial && <NotificationTutorial isOpen={showTutorial} step="notifications" onComplete={handleTutorialComplete} />} */}
-            {showTutorial && <NotificationTutorial isOpen={showTutorial}  onComplete={() => setShowTutorial(false)} />}
-
+            {showTutorial && <NotificationTutorial isOpen={showTutorial} step="notifications" />}
             <div className="main-thing">
                 <div className="notifications-header">
                     <h2>📢 Notifications</h2>
