@@ -62,6 +62,7 @@ import MainClasses from "./pages/head/classes/MainPage";
 import TeacherSubjects from "./pages/teacher/mysubjects/MySubjects";
 import StudentsTeachers from "./pages/head/students-teachers/MainPage";
 import TrackAttendance from "./pages/head/attendance/TrackAttendance";
+import Notifications from "./pages/general/notifications/Notifications";
 
 const router = createBrowserRouter([
   {
@@ -87,6 +88,10 @@ const router = createBrowserRouter([
       {
         path: "teacher-dashboard",
         element: <Welcome2 />,
+      },
+       {
+        path: "notifications",
+        element: <Notifications />,
       },
       {
         path: "attendance",
