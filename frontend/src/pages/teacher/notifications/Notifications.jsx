@@ -12,7 +12,7 @@ const NotificationsPage = ({ teacherId }) => { // ✅ Pass teacherId for fetchin
     useEffect(() => {
         const fetchNotifications = async () => {
             try {
-                const response = await axios.get(`/api/notifications/teacher/${teacherId}`);
+                const response = await axios.get(`/api/notification/teacher/${teacherId}`);
                 console.log("🔎 Fetched notifications:", response.data);
                 setNotifications(response.data);
             } catch (error) {
