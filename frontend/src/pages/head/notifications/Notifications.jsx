@@ -22,6 +22,10 @@ const NotificationsPage = () => {
 
     return (
         <div>
+            <Sidebar />
+            <Header />
+
+        <div>
             <h2>Notifications</h2>
             {notifications.map((notif, index) => (
                 <div key={index} style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
@@ -30,6 +34,8 @@ const NotificationsPage = () => {
                 </div>
             ))}
         </div>
+                </div>
+
     );
 };
 

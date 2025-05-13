@@ -96,7 +96,8 @@ const router = createBrowserRouter([
           <ProtectedRoute allowedRoles={["admin"]}>
             <Notifications />
           </ProtectedRoute>
-        ),      },
+        ),      
+      },
        {
         path: "notifications2",
         element: <Notifications2 />,
