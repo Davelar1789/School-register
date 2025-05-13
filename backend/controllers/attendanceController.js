@@ -138,7 +138,7 @@ export const fetchAttendance = async (req, res) => {
         const { termId, studentId, classId, date } = req.query;
 
         // ✅ Log received parameters
-        console.log("Received Query Params:", { termId, studentId, classId, date });
+        // console.log("Received Query Params:", { termId, studentId, classId, date });
 
         let query = {};
         if (termId) query.termId = termId;
@@ -165,7 +165,7 @@ export const fetchAttendance = async (req, res) => {
             query.date = formattedDate;
         }
 
-        console.log("Final Query Object:", query);
+        // console.log("Final Query Object:", query);
 
         const attendanceRecords = await Attendance.find(query)
             .populate({
@@ -175,7 +175,7 @@ export const fetchAttendance = async (req, res) => {
             })
             .populate("termId", "termName");
 
-        console.log("Fetched Attendance Records:", attendanceRecords.length);
+        // console.log("Fetched Attendance Records:", attendanceRecords.length);
 
         res.status(200).json(attendanceRecords);
     } catch (error) {
