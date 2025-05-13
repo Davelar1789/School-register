@@ -5,50 +5,53 @@ import Header from "../../../components/Teacher/TeacherHeader";
 import "./Notifications.modules.css";
 import socket from "../../../components/Teacher/Socket"; // ✅ Persistent WebSocket connection
 
-const NotificationsPage = ({ teacherId }) => { // ✅ Pass teacherId for fetching
+const NotificationsPage = () => {
     const [notifications, setNotifications] = useState([]);
 
-    const getSchoolIdFromToken = () => {
-  const token = localStorage.getItem("token");
-  if (!token) return null;
+    // ✅ Retrieve teacher ID from local storage
+    const getTeacherId = () => {
+        try {
+            const teacherData = JSON.parse(localStorage.getItem("teacher"));
+            return teacherData?.id || null; // ✅ Ensure it's valid
+        } catch (error) {
+            console.error("❌ Error retrieving teacher ID:", error);
+            return null;
+        }
+    };
 
-  try {
-    const decodedToken = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
-    return decodedToken?.schoolId || null; // ✅ Added optional chaining for safety
-  } catch (error) {
-    // console.error("Error decoding token:", error);
-    return null;
-  }
-}; 
-
-    const teacherData = JSON.parse(localStorage.getItem("teacher")); // Retrieve teacher object
-const teacherId = teacherData?.id
+    const teacherId = getTeacherId();
 
     // ✅ Fetch stored notifications from backend
     useEffect(() => {
         const fetchNotifications = async () => {
+            if (!teacherId) {
+                console.warn("⚠️ Teacher ID not found. Skipping notification fetch.");
+                return;
+            }
+
             try {
-                const response = await axios.get(`/api/notification/teacher/${teacherId}`);
-                console.log("Teacher ID:", teacherId)
+                const response = await axios.get(`https://school-register-a2bx.onrender.com/api/notification/teacher/${teacherId}`);
                 console.log("🔎 Fetched notifications:", response.data);
-                setNotifications(response.data);
+
+                if (Array.isArray(response.data)) {
+                    setNotifications(response.data);
+                } else {
+                    console.warn("⚠️ Unexpected API response format:", response.data);
+                    setNotifications([]); // ✅ Default to empty array to prevent errors
+                }
             } catch (error) {
                 console.error("❌ Error fetching notifications:", error);
+                setNotifications([]); // ✅ Prevents crashes on fetch failure
             }
         };
 
-        fetchNotifications(); // ✅ Load notifications when page mounts
+        fetchNotifications();
     }, [teacherId]);
 
     // ✅ WebSocket Listener for Real-Time Notifications
     useEffect(() => {
-        socket.on("connect", () => {
-            console.log("✅ WebSocket connected:", socket.id);
-        });
-
-        socket.on("disconnect", (reason) => {
-            console.log(`❌ WebSocket disconnected: ${reason}`);
-        });
+        socket.on("connect", () => console.log("✅ WebSocket connected:", socket.id));
+        socket.on("disconnect", (reason) => console.warn(`❌ WebSocket disconnected: ${reason}`));
 
         socket.on("new-notification", (notification) => {
             console.log("🔔 Real-Time Notification:", notification);
