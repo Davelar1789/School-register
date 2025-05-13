@@ -8,18 +8,25 @@ const socket = io("https://school-register-a2bx.onrender.com"); // ✅ Replace w
 
 const NotificationsPage = () => {
     const [notifications, setNotifications] = useState([]);
+useEffect(() => {
+    socket.on("connect", () => {
+        console.log("✅ Frontend successfully connected to WebSocket!");
+    });
 
-    useEffect(() => {
-        socket.on("new-notification", (notification) => {
-            console.log("🔔 Notification received in frontend:", notification); // ✅ Debugging log
-            setNotifications((prev) => [notification, ...prev]);
-        });
+    socket.on("disconnect", () => {
+        console.log("❌ Frontend disconnected from WebSocket!");
+    });
 
-        return () => {
-            socket.off("new-notification"); // ✅ Cleanup WebSocket listener
-        };
-    }, []);
+    socket.on("new-notification", (notification) => {
+        console.log("🔔 Notification received in frontend:", notification); // ✅ Debugging log
+        setNotifications((prev) => [notification, ...prev]); // ✅ Update notifications state
+    });
 
+    return () => {
+        socket.off("new-notification"); // ✅ Cleanup WebSocket listener
+    };
+}, []);
+       
     return (
         <div>
             <Sidebar />
