@@ -83,3 +83,15 @@ export const getUnreadCount = async (req, res) => {
         res.status(500).json({ message: "Error fetching unread notifications count" });
     }
 };
+
+// ✅ Clear all notifications for a teacher
+export const clearAllNotifications = async (req, res) => {
+    const { teacherId } = req.params;
+    try {
+        await Notification.deleteMany({ teacherIds: teacherId }); // ✅ Deletes all notifications for this teacher
+        res.json({ message: "All notifications cleared successfully." });
+    } catch (error) {
+        console.error("❌ Error clearing notifications:", error);
+        res.status(500).json({ message: "Error clearing notifications." });
+    }
+};
