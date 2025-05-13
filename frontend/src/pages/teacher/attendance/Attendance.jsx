@@ -21,6 +21,7 @@ const getSchoolIdFromToken = () => {
 
 const teacherData = JSON.parse(localStorage.getItem("teacher")); // Retrieve teacher object
 const teacherEmail = teacherData?.email; // Extract email
+const teacherId = teacherData?.;
 
 if (!teacherEmail) {
     console.error("Teacher email not found in local storage.");
@@ -174,6 +175,7 @@ const Attendance = () => {
     date: selectedDate,
     attendanceList,
     teacherEmail, // ✅ Send teacher email from frontend
+    teacherId,
 }, { headers: { Authorization: `Bearer ${token}` } });
 
       setSubmittedDates((prev) => new Set(prev).add(`${selectedClass}_${selectedDate}`)); // ✅ Store class-specific attendance

@@ -1,3 +1,6 @@
+import mongoose from 'mongoose';
+
+
 const notificationSchema = new mongoose.Schema({
     userIds: [{ // ✅ Keep user notifications for admins
         type: mongoose.Schema.Types.ObjectId,
@@ -31,3 +34,6 @@ const notificationSchema = new mongoose.Schema({
         default: Date.now,
     },
 }, { timestamps: true });
+
+const Notification = mongoose.model('Notification', notificationSchema);
+export default Notification;
