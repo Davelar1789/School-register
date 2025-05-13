@@ -21,7 +21,7 @@ const getSchoolIdFromToken = () => {
 
 const teacherData = JSON.parse(localStorage.getItem("teacher")); // Retrieve teacher object
 const teacherEmail = teacherData?.email; // Extract email
-const teacherId = teacherData?.;
+const teacherId = teacherData?.id;
 
 if (!teacherEmail) {
     console.error("Teacher email not found in local storage.");
