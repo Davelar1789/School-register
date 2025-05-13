@@ -11,7 +11,8 @@ import {
   assignClassesToTeacher,
   getTeacherClasses,
   getTeacherSubjects,
-  firstTimeSetup} from "../controllers/teacherController.js";
+  firstTimeSetup,
+  patchTeachers} from "../controllers/teacherController.js";
 import { protect } from "../middleware/authMiddleware.js"; // if you're using JWT middleware
 
 const router = express.Router();
@@ -28,7 +29,7 @@ router.put("/:id", updateTeacher);
 router.delete("/:id", deleteTeacher);
 router.put("/:id/assign-classes", assignClassesToTeacher);
 router.get("/:teacherId/subjects", getTeacherSubjects);
-
+router.patch("/patch-teachers", patchTeachers);
 
 
 export default router;

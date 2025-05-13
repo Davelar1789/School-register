@@ -329,3 +329,13 @@ export const getTeacherSubjects = async (req, res) => {
     return res.status(500).json({ message: "Server error fetching subjects" });
   }
 };
+
+export const patchTeachers = async (req, res) => {
+    try {
+        const result = await Teacher.updateMany({}, { $set: { seenTutorial: false } });
+        res.json({ message: `✅ Updated ${result.modifiedCount} teachers with seenTutorial field.` });
+    } catch (error) {
+        console.error("❌ Error patching teachers:", error);
+        res.status(500).json({ message: "Error updating teachers." });
+    }
+};
