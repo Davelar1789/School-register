@@ -5,11 +5,15 @@ import "./index.css";
 import { RouterProvider } from "react-router-dom";
 import router from "./router.jsx";
 import { UserProvider } from "./context/userContext";
+import { TourProvider } from "./components/TourContext"; // adjust path
+
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
+        <TourProvider>
     <UserProvider>
       <RouterProvider router={router} />
     </UserProvider>
+        </TourProvider>
   </React.StrictMode>
 );
