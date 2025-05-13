@@ -62,7 +62,8 @@ import MainClasses from "./pages/head/classes/MainPage";
 import TeacherSubjects from "./pages/teacher/mysubjects/MySubjects";
 import StudentsTeachers from "./pages/head/students-teachers/MainPage";
 import TrackAttendance from "./pages/head/attendance/TrackAttendance";
-import Notifications from "./pages/general/notifications/Notifications";
+import Notifications from "./pages/head/notifications/Notifications";
+import Notifications2 from "./pages/teacher/notifications/Notifications";
 
 const router = createBrowserRouter([
   {
@@ -91,7 +92,14 @@ const router = createBrowserRouter([
       },
        {
         path: "notifications",
-        element: <Notifications />,
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <Notifications />
+          </ProtectedRoute>
+        ),      },
+       {
+        path: "notifications2",
+        element: <Notifications2 />,
       },
       {
         path: "attendance",
