@@ -4,7 +4,7 @@ import Sidebar from "../../../components/Teacher/TeacherSidebar";
 import Header from "../../../components/Teacher/TeacherHeader";
 import "./Notifications.modules.css";
 
-const socket = io("https://school-register-a2bx.onrender.com"); // ✅ Replace with your actual backend URL
+const socket = io("https://school-register-a2bx.onrender.com", { transports: ['websocket'] }); // ✅ Enforce WebSocket transport
 
 const NotificationsPage = () => {
     const [notifications, setNotifications] = useState([]);
