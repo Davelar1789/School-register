@@ -26,12 +26,17 @@ const NotificationsPage = () => {
             <Header />
         <div className="main-thing">
             <h2>Notifications</h2>
-            {notifications.map((notif, index) => (
-                <div key={index} style={{ padding: "10px", borderBottom: "1px solid #ddd" }}>
-                    <strong>{notif.title}</strong>
-                    <p>{notif.message}</p>
-                </div>
-            ))}
+            {notifications.length === 0 ? (
+                <p className="empty-message">No new notifications</p>
+            ) : (
+                notifications.map((notif, index) => (
+                    <div key={index} className="notification-card">
+                        <strong className="notification-title">{notif.title}</strong>
+                        <p className="notification-message">{notif.message}</p>
+                    </div>
+                ))
+            )}
+
         </div>
                 </div>
 
