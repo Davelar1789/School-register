@@ -38,6 +38,27 @@ const io = new Server(server, {
         origin: ["https://school-register-ruby.vercel.app", "https://jbrains.vercel.app"],
         credentials: true,
     },
+    pingTimeout: 60000, // ✅ Prevents auto-disconnect due to inactivity (1 min)
+    pingInterval: 25000, // ✅ WebSocket keep-alive messages every 25 sec
+});
+
+// ✅ WebSocket Connection (Improved Stability)
+io.on("connection", (socket) => {
+    console.log("✅ A user connected to real-time notifications:", socket.id);
+
+    // ✅ Send confirmation when connected
+    socket.emit("connection-confirmed", { message: "WebSocket connection established!" });
+
+    // ✅ Listen for incoming notifications
+    socket.on("send-notification", (data) => {
+        console.log("🔔 Real-time notification received:", data);
+        io.emit("new-notification", data); // ✅ Broadcast notification to all clients
+    });
+
+    // ✅ Handle unexpected disconnects
+    socket.on("disconnect", (reason) => {
+        console.log(`❌ A user disconnected from notifications (${reason})`);
+    });
 });
 
 // Configure CORS
@@ -51,21 +72,6 @@ app.use(cors(corsConfig));
 
 app.use(express.json());
 app.use(cookieParser());
-
-// ✅ WebSocket Connection
-io.on("connection", (socket) => {
-    console.log("✅ A user connected to real-time notifications");
-
-    // Listen for custom events (e.g., new notifications)
-    socket.on("send-notification", (data) => {
-        console.log("🔔 Real-time notification received:", data);
-        io.emit("new-notification", data); // Broadcast notification to all clients
-    });
-
-    socket.on("disconnect", () => {
-        console.log("❌ A user disconnected from notifications");
-    });
-});
 
 // API Routes
 app.post("/api/", (req, res) => {
@@ -86,9 +92,8 @@ app.use("/api/subjects", subjectRoutes);
 app.use("/api/attendance", attendanceRoutes);
 app.use("/api/notification", notificationRoutes);
 
-
-app.get('/ping', (req, res) => {
-    res.status(200).send('Pong!');
+app.get("/ping", (req, res) => {
+    res.status(200).send("Pong!");
 });
 
 // ✅ User Data Endpoint
