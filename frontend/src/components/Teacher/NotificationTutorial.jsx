@@ -4,19 +4,12 @@ import Tour from "reactour";
 const NotificationTutorial = ({ isOpen, setIsOpen, step }) => {
     const [currentStep, setCurrentStep] = useState(0); // ✅ Tracks the current tutorial step
 
-    const steps = step === "dashboard"
-        ? [
-            {
-                selector: ".notification-wrapper", // ✅ Bell icon
-                content: "Click the bell icon to view your notifications.",
-            }
-        ]
-        : [
-            {
-                selector: ".main-thing", // ✅ Notification page
-                content: "This is where all your notifications appear. You can mark them as read.",
-            }
-        ];
+     const steps = [
+        {
+            selector: ".notification-wrapper", // ✅ Bell icon
+            content: "Click the bell icon to view your notifications.",
+        }
+    ];
 
     return (
         <Tour 
