@@ -106,18 +106,14 @@ const [showTutorial, setShowTutorial] = useState(false);
     useEffect(() => {
         if (!teacherData2?.seenTutorial) {
             setShowTutorial(true); // ✅ Start tutorial automatically
+            setTimeout(() => setShowTutorial(false), 5000);
         }
     }, [teacherData2]);
 
-    // ✅ Continue tutorial when the bell icon is clicked
-   const handleNotificationClick = () => {
-    if (showTutorial) {
-        setShowTutorial(false); // ✅ Close tutorial
-        setTimeout(() => navigate("/notifications2"), 300); // ✅ Ensures navigation happens after closure
-    } else {
+  const handleNotificationClick = () => {
+        setShowTutorial(false); // ✅ Manually close before navigating
         navigate("/notifications2");
-    }
-};
+    };
 
 
 

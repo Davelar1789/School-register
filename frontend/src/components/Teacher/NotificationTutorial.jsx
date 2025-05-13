@@ -7,7 +7,7 @@ const NotificationTutorial = ({ isOpen, setIsOpen, onComplete }) => {
     const steps = [
         {
             selector: ".notification-wrapper", // ✅ Bell icon
-            content: "Click the bell icon to view your notifications.",
+            content: "You can now click the bell icon to view your notifications.",
         }
     ];
 
