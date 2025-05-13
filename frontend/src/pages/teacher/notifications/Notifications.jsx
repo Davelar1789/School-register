@@ -62,6 +62,18 @@ const NotificationsPage = () => {
             socket.off("new-notification"); // ✅ Cleanup on unmount
         };
     }, []);
+// ✅ Function to clear all notifications for the teacher
+    const handleClearAll = async () => {
+        if (!teacherId) return;
+        
+        try {
+            await axios.delete(`https://school-register-a2bx.onrender.com/api/notification/clear-all/${teacherId}`);
+            setNotifications([]); // ✅ Clear notifications in the UI immediately
+            console.log("✅ All notifications cleared!");
+        } catch (error) {
+            console.error("❌ Error clearing notifications:", error);
+        }
+    };
 
     return (
         <div>
@@ -69,6 +81,14 @@ const NotificationsPage = () => {
             <Header />
             <div className="main-thing">
                 <h2>📢 Notifications</h2>
+                 <div className="notifications-header">
+                    <h2>📢 Notifications</h2>
+                    {notifications.length > 0 && (
+                        <button className="clear-all-btn" onClick={handleClearAll}>
+                            Clear All
+                        </button>
+                    )}
+                </div>
                 {notifications.length === 0 ? (
                     <p>No new notifications</p>
                 ) : (
