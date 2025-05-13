@@ -8,15 +8,26 @@ const NotificationsPage = () => {
     const [notifications, setNotifications] = useState([]);
 
     useEffect(() => {
+        console.log("✅ Listening for notifications...");
+        
+        socket.on("connect", () => {
+            console.log("✅ Frontend connected to WebSocket!");
+        });
+
+        socket.on("disconnect", () => {
+            console.log("❌ Frontend disconnected from WebSocket!");
+        });
+
         socket.on("new-notification", (notification) => {
-            console.log("🔔 Notification received in frontend:", notification);
+            console.log("🔔 Notification received:", notification);
             setNotifications((prev) => [notification, ...prev]); // ✅ Store notifications persistently
         });
 
         return () => {
-            socket.off("new-notification"); // ✅ Prevent multiple listeners on re-renders
+            socket.off("new-notification"); // ✅ Prevent multiple listeners
         };
     }, []);
+
 
        
     return (
@@ -26,12 +37,12 @@ const NotificationsPage = () => {
         <div className="main-thing">
             <h2>Notifications</h2>
             {notifications.length === 0 ? (
-                <p className="empty-message">No new notifications</p>
+                <p>No new notifications</p>
             ) : (
                 notifications.map((notif, index) => (
-                    <div key={index} className="notification-card">
-                        <strong className="notification-title">{notif.title}</strong>
-                        <p className="notification-message">{notif.message}</p>
+                    <div key={index}>
+                        <strong>{notif.title}</strong>
+                        <p>{notif.message}</p>
                     </div>
                 ))
             )}

@@ -1,5 +1,10 @@
 import { io } from "socket.io-client";
 
-const socket = io("https://school-register-a2bx.onrender.com", { transports: ["websocket"], reconnection: true });
+const socket = io("https://school-register-a2bx.onrender.com", {
+    transports: ["websocket"], // ✅ Force WebSocket transport
+    reconnection: true, // ✅ Automatically reconnect
+    reconnectionAttempts: 10, // ✅ Retry if disconnected
+    reconnectionDelay: 5000, // ✅ Wait 5 seconds before retrying
+});
 
-export default socket; // ✅ Export socket instance for reuse
+export default socket;
