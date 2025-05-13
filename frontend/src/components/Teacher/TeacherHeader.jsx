@@ -115,8 +115,12 @@ const Header = () => {
           </div>
         )}
 
-        <div className="header-right">
-          <FaBell className="icon" />
+       <div className="header-right">
+        <FaBell
+          className="icon clickable"
+          onClick={() => navigate('/notifications')}
+          style={{ cursor: 'pointer' }}
+        />
           {windowWidth > 768 && <FaEnvelope className="icon" />}
           <FaUser className="icon" />
           {windowWidth > 1024 && (

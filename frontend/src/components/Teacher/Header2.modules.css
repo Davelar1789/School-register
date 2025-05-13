@@ -75,6 +75,11 @@
   color: gray;
 }
 
+.clickable {
+  cursor: pointer;
+}
+
+
 .header-right {
   display: flex;
   align-items: center;
