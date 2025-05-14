@@ -211,10 +211,7 @@ export const updateAttendance = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-import mongoose from "mongoose";
-import TermSession from "../models/TermSession.js";
-import Students from "../models/Students.js";
-import Attendance from "../models/Attendance.js";
+
 
 export const fetchStudentAttendance = async (req, res) => {
   try {
