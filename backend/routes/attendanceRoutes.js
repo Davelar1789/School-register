@@ -1,5 +1,5 @@
 import express from "express";
-import { markAttendance, fetchAttendance, updateAttendance, markAttendanceBatch, fetchStudentAttendance } from "../controllers/attendanceController.js";
+import { markAttendance, fetchAttendance, updateAttendance, markAttendanceBatch, fetchStudentAttendance, getFeedingDaily, getFeedingWeekly, getFeedingMonthly } from "../controllers/attendanceController.js";
 
 const router = express.Router();
 
