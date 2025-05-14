@@ -5,8 +5,9 @@ import Header from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-  PieChart, Pie
+  PieChart, Pie, ResponsiveContainer
 } from "recharts";
+
 
 import "./FeedingFee.modules.css";
 
