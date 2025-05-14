@@ -234,6 +234,11 @@ export const fetchStudentAttendance = async (req, res) => {
     let startDate = new Date(term.startDate);
     let endDate = new Date(today);
 
+    const validViews = ["today", "week", "month", "term"];
+      if (!validViews.includes(viewBy)) {
+        return res.status(400).json({ message: "Invalid viewBy option." });
+      }
+
     // Calculate range based on `viewBy`
     switch (viewBy) {
       case "today":
