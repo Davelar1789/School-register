@@ -15,7 +15,7 @@ const tooltipRef = useRef(null);
 useEffect(() => {
   tooltipRef.current?.open({
     anchorSelect: '#notification-bell',
-    content: 'Click here to view your notifications.',
+    content: 'You can now click here to view your notifications.',
     place: 'bottom',
   });
 }, []);
