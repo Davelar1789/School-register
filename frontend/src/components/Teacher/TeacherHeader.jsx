@@ -175,7 +175,7 @@ const Header = () => {
                 <FaBell 
                  id="notification-bell"
                   data-tooltip-id="notification-tooltip"
-                  data-tooltip-content="Click here to view your notifications."
+                  data-tooltip-content="You can now click here to view your notifications."
                   data-tooltip-place="bottom"
                 className="icon clickable" 
                 onClick={handleNotificationClick} 

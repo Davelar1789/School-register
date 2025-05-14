@@ -89,11 +89,11 @@ const router = createBrowserRouter([
       },
       {
         path: "teacher-dashboard2",
-        element: <Welcome2 />,
+        element: <Maintenance />,
       },
        {
         path: "teacher-dashboard",
-        element: <Maintenance />,
+        element: <Welcome2 />,
       },
        {
         path: "notifications",
