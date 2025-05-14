@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import Header from "../../../components/Teacher/TeacherHeader";
 import Sidebar from "../../../components/Teacher/TeacherSidebar";
 import api from "../../../api/axios";
@@ -9,6 +9,16 @@ import { Tooltip } from 'react-tooltip';
 
 const TeacherDashboard = () => {
   const [classCount, setClassCount] = useState(0);
+const tooltipRef = useRef(null);
+
+
+useEffect(() => {
+  tooltipRef.current?.open({
+    anchorSelect: '#notification-bell',
+    content: 'Click here to view your notifications.',
+    place: 'bottom',
+  });
+}, []);
 
   useEffect(() => {
     const fetchClasses = async () => {
@@ -37,7 +47,7 @@ return (
       <Header />
       <div className="dashboard-body">
         <Sidebar />
-        <Tooltip id="notification-tooltip" />
+        <Tooltip id="notification-tooltip" ref={tooltipRef} />
         <main className="dashboard-main2">
           <h1 className="dashboard-title">Welcome, Teacher!</h1>
           <p className="dashboard-subtitle">Here’s your activity overview</p>
