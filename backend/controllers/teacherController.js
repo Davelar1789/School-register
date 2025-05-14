@@ -6,8 +6,8 @@ import User from "../models/User.model.js";
 import jwt from "jsonwebtoken";
 
 
-const generateToken = ({ id, fullName, role, schoolName, schoolId, teacherType, seenTutorial }) => {
-  return jwt.sign({ id, fullName, role, schoolName, schoolId, teacherType, seenTutorial }, process.env.JWT_SECRET, {
+const generateToken = ({ id, fullName, email, role, schoolName, schoolId, teacherType, seenTutorial }) => {
+  return jwt.sign({ id, fullName, email, role, schoolName, schoolId, teacherType, seenTutorial }, process.env.JWT_SECRET, {
     expiresIn: "6h",
   });
 };
@@ -121,6 +121,7 @@ export const firstTimeSetup = async (req, res) => {
     const token = generateToken({
       id: teacher._id,
       fullName: teacher.name,
+      email: teacher.email,
       role: "Teacher",
       schoolName: teacher.school?.name || "",
       schoolId: teacher.school?._id || "",
@@ -167,6 +168,7 @@ export const loginTeacher = async (req, res) => {
     const token = generateToken({
       id: teacher._id,
       fullName: teacher.name,
+      email: teacher.email,
       role: "Teacher",
       schoolName: teacher.school?.name || "",
       schoolId: teacher.school?._id || "",
