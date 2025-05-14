@@ -38,7 +38,8 @@ export const getUserNotifications = async (req, res) => {
 // ✅ Get notifications for a specific teacher
 export const getTeacherNotifications = async (req, res) => {
     try {
-        const notifications = await Notification.find({ teacherIds: req.params.teacherId }).sort({ createdAt: -1 });
+        const notifications = await Notification.find({ teacherIds: req.params.teacherId })
+            .sort({ createdAt: -1 });
         res.status(200).json(notifications);
     } catch (error) {
         console.error("❌ Error fetching notifications for teacher:", error);
@@ -62,7 +63,7 @@ export const markAllRead = async (req, res) => {
     const { teacherId } = req.params;
     try {
         await Notification.updateMany(
-            { teacherIds: teacherId, readBy: { $ne: teacherId } },
+            { teacherIds: teacherId, readBy: { $not: { $elemMatch: { $eq: teacherId } } } },
             { $addToSet: { readBy: teacherId } }
         );
         res.json({ message: "All notifications marked as read" });
@@ -76,7 +77,10 @@ export const markAllRead = async (req, res) => {
 export const getUnreadCount = async (req, res) => {
     const { teacherId } = req.params;
     try {
-        const unreadCount = await Notification.countDocuments({ teacherIds: teacherId, readBy: { $ne: teacherId } });
+        const unreadCount = await Notification.countDocuments({
+            teacherIds: teacherId,
+            readBy: { $not: { $elemMatch: { $eq: teacherId } } }
+        });
         res.json({ count: unreadCount });
     } catch (error) {
         console.error("❌ Error fetching unread count:", error);
@@ -88,7 +92,7 @@ export const getUnreadCount = async (req, res) => {
 export const clearAllNotifications = async (req, res) => {
     const { teacherId } = req.params;
     try {
-        await Notification.deleteMany({ teacherIds: teacherId }); // ✅ Deletes all notifications for this teacher
+        await Notification.deleteMany({ teacherIds: teacherId });
         res.json({ message: "All notifications cleared successfully." });
     } catch (error) {
         console.error("❌ Error clearing notifications:", error);
