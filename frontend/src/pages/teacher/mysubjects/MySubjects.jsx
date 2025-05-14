@@ -50,7 +50,7 @@ const MySubjects = () => {
       <div className="my-subjects-page">
         <div className="main-content">
           <div className="subjects-container">
-            <h2>My Subjects</h2>
+            <h2 className="whiten">My Subjects</h2>
             {loading ? (
               <p>Loading...</p>
             ) : Object.keys(subjectsGrouped).length === 0 ? (
