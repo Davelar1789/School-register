@@ -10,6 +10,8 @@ import { jwtDecode } from "jwt-decode";
 import Image1 from "../../assets/images/userrr.png";
 import "./Header2.modules.css";
 import socket from "./Socket";
+import { Tooltip } from 'react-tooltip';
+
 
 const Header = () => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
@@ -170,7 +172,14 @@ const Header = () => {
 
        <div className="header-right">
         <div className="notification-wrapper">
-                <FaBell className="icon clickable" onClick={handleNotificationClick} style={{ cursor: "pointer" }} />
+                <FaBell 
+                 id="notification-bell"
+                  data-tooltip-id="notification-tooltip"
+                  data-tooltip-content="Click here to view your notifications."
+                  data-tooltip-place="bottom"
+                className="icon clickable" 
+                onClick={handleNotificationClick} 
+                style={{ cursor: "pointer" }} />
                 {unreadCount > 0 && <span className="notification-badge" onClick={handleNotificationClick}>{unreadCount}</span>}
             </div>
           {windowWidth > 768 && <FaEnvelope className="icon" />}
