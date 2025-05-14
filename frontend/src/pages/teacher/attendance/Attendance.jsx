@@ -40,7 +40,7 @@ const Attendance = () => {
   const [submittedDates, setSubmittedDates] = useState(new Set());
 
   const token = localStorage.getItem("token");
-  const schoolId = getSchoolIdFromToken(); // ✅ Ensuring correct extraction
+  const schoolId = getSchoolDataFromToken(); // ✅ Ensuring correct extraction
 
 
    // ✅ Open confirmation modal
