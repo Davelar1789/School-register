@@ -6,7 +6,7 @@ import Header from "../../../components/Teacher/TeacherHeader";
 import "./Attendance.modules.css";
 
 // Function to extract schoolId from token
-const getTeacherDataFromToken = () => {
+const getDataFromToken = () => {
   const token = localStorage.getItem("token");
   if (!token) return null;
 
@@ -15,6 +15,7 @@ const getTeacherDataFromToken = () => {
     return {
       teacherId: decodedToken?.id || null,
       teacherEmail: decodedToken?.email || null,
+      schoolId: decodedToken?.schoolId || null, // ✅ Added schoolId extraction back
     };
   } catch (error) {
     console.error("Error decoding token:", error);
@@ -40,7 +41,7 @@ const Attendance = () => {
   const [submittedDates, setSubmittedDates] = useState(new Set());
 
   const token = localStorage.getItem("token");
-  const schoolId = getSchoolDataFromToken(); // ✅ Ensuring correct extraction
+  const schoolId = getDataFromToken(); // ✅ Ensuring correct extraction
 
 
    // ✅ Open confirmation modal
@@ -158,7 +159,7 @@ const submitAttendance = async () => {
     return toast.error("Attendance for this class on this date is already recorded.");
   }
 
-  const teacherData = getTeacherDataFromToken();
+  const teacherData = getDataFromToken();
   if (!teacherData) return toast.error("Invalid token or teacher data missing!");
 
   // Prepare batch attendance list, defaulting unmarked students to absent
