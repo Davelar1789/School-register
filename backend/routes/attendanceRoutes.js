@@ -8,5 +8,8 @@ router.post("/mark-batch", markAttendanceBatch);
 router.get("/fetch", fetchAttendance); // Fetch attendance (by term, class, or student)
 router.get("/student-total", fetchStudentAttendance);
 router.put("/update/:attendanceId", updateAttendance); // Update attendance
+router.get("/feeding/daily", getFeedingDaily);
+router.get("/feeding/weekly", getFeedingWeekly);
+router.get("/feeding/monthly", getFeedingMonthly);
 
 export default router;

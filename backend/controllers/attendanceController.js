@@ -275,3 +275,139 @@ export const fetchStudentAttendance = async (req, res) => {
       res.status(500).json({ message: "Internal Server Error", error: error.message });
     }
   };
+
+import Student from "../models/Student.js";
+import Attendance from "../models/Attendance.js";
+
+export const getFeedingDaily = async (req, res) => {
+  try {
+    const { termId, classId, date } = req.query;
+    if (!termId || !classId || !date) {
+      return res.status(400).json({ message: "Missing termId, classId, or date" });
+    }
+
+    const targetDate = new Date(date);
+    const students = await Students.find({ classId }).select("name idno");
+
+    // Map attendance records
+    const attendanceRecords = await Attendance.find({
+      termId,
+      classId,
+      date: targetDate
+    }).lean();
+
+    const attendanceMap = {};
+    attendanceRecords.forEach(record => {
+      attendanceMap[record.studentId.toString()] = record.present;
+    });
+
+    const result = students.map(student => ({
+      _id: student._id,
+      name: student.name,
+      idno: student.idno,
+      present: attendanceMap[student._id.toString()] ?? false
+    }));
+
+    res.status(200).json({
+      date: targetDate,
+      totalPresent: result.filter(s => s.present).length,
+      students: result
+    });
+  } catch (error) {
+    console.error("Error fetching daily feeding attendance:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+
+export const getFeedingWeekly = async (req, res) => {
+  try {
+    const { termId, classId, from, to } = req.query;
+    if (!termId || !classId || !from || !to) {
+      return res.status(400).json({ message: "Missing termId, classId, from or to" });
+    }
+
+    const fromDate = new Date(from);
+    const toDate = new Date(to);
+
+    const students = await Students.find({ classId }).select("name idno");
+
+    const attendanceRecords = await Attendance.find({
+      termId,
+      classId,
+      date: { $gte: fromDate, $lte: toDate }
+    }).lean();
+
+    const grouped = {};
+
+    attendanceRecords.forEach(({ studentId, date, present }) => {
+      if (isWeekend(date)) return;
+      const id = studentId.toString();
+      if (!grouped[id]) grouped[id] = 0;
+      if (present) grouped[id]++;
+    });
+
+    const result = students.map(student => ({
+      _id: student._id,
+      name: student.name,
+      idno: student.idno,
+      presentDays: grouped[student._id.toString()] ?? 0
+    }));
+
+    res.status(200).json({
+      weekStart: fromDate,
+      weekEnd: toDate,
+      students: result
+    });
+  } catch (error) {
+    console.error("Error fetching weekly feeding attendance:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+
+export const getFeedingMonthly = async (req, res) => {
+  try {
+    const { termId, classId, month } = req.query;
+    if (!termId || !classId || !month) {
+      return res.status(400).json({ message: "Missing termId, classId, or month" });
+    }
+
+    const [year, monthNumber] = month.split("-").map(Number);
+    const startDate = new Date(year, monthNumber - 1, 1);
+    const endDate = new Date(year, monthNumber, 0);
+
+    const students = await Students.find({ classId }).select("name idno");
+
+    const attendanceRecords = await Attendance.find({
+      termId,
+      classId,
+      date: { $gte: startDate, $lte: endDate }
+    }).lean();
+
+    const grouped = {};
+
+    attendanceRecords.forEach(({ studentId, date, present }) => {
+      if (isWeekend(date)) return;
+      const id = studentId.toString();
+      if (!grouped[id]) grouped[id] = 0;
+      if (present) grouped[id]++;
+    });
+
+    const result = students.map(student => ({
+      _id: student._id,
+      name: student.name,
+      idno: student.idno,
+      presentDays: grouped[student._id.toString()] ?? 0
+    }));
+
+    res.status(200).json({
+      month,
+      students: result
+    });
+  } catch (error) {
+    console.error("Error fetching monthly feeding attendance:", error);
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
