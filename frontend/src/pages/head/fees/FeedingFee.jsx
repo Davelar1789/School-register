@@ -3,6 +3,11 @@ import axios from "../../../api/axios";
 import toast from "react-hot-toast";
 import Header from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
+  PieChart, Pie
+} from "recharts";
+
 import "./FeedingFee.modules.css";
 
 const FeedingFeePage = () => {
@@ -122,20 +127,70 @@ const FeedingFeePage = () => {
       <div className="feeding-fee-container">
         <h2 className="feeding-fee-title">Feeding Fee Management</h2>
 
-        {/* 🟧 View Filter Selector */}
-        <div className="view-filter-container">
-          <label>View By: </label>
-          <select
-            className="view-filter-dropdown"
-            value={viewBy}
-            onChange={(e) => setViewBy(e.target.value)}
-          >
-            <option value="today">Today</option>
-            <option value="week">This Week</option>
-            <option value="month">This Month</option>
-            <option value="term">This Term</option>
-          </select>
-        </div>
+       <div className="attendance-controls">
+  {/* View By */}
+  <div className="control-group">
+    <label>View By:</label>
+    <select
+      className="control-dropdown"
+      value={viewBy}
+      onChange={(e) => setViewBy(e.target.value)}
+    >
+      <option value="today">Today</option>
+      <option value="week">This Week</option>
+      <option value="month">This Month</option>
+      <option value="term">This Term</option>
+    </select>
+  </div>
+
+  {/* Display As */}
+  <div className="control-group">
+    <label>Display As:</label>
+    <select
+      className="control-dropdown"
+      value={displayAs}
+      onChange={(e) => setDisplayAs(e.target.value)}
+    >
+      <option value="table">Table</option>
+      <option value="bar">Bar Chart</option>
+      <option value="pie">Pie Chart</option>
+    </select>
+  </div>
+</div>
+
+{displayAs === "table" && (
+  <table className="fee-table2">
+    {/* Same table as before */}
+  </table>
+)}
+
+{displayAs === "bar" && (
+  <BarChart width={600} height={400} data={students}>
+    <CartesianGrid strokeDasharray="3 3" />
+    <XAxis dataKey="name" />
+    <YAxis />
+    <Tooltip />
+    <Legend />
+    <Bar dataKey="totalAmountPaid" fill="#8884d8" />
+  </BarChart>
+)}
+
+{displayAs === "pie" && (
+  <PieChart width={400} height={400}>
+    <Pie
+      data={students}
+      dataKey="totalAmountPaid"
+      nameKey="name"
+      cx="50%"
+      cy="50%"
+      outerRadius={150}
+      fill="#82ca9d"
+      label
+    />
+    <Tooltip />
+  </PieChart>
+)}
+
 
         {/* 🟩 Class Selector Dropdown */}
         <select
