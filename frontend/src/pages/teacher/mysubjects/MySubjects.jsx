@@ -5,57 +5,85 @@ import Header from "../../../components/Teacher/TeacherHeader";
 import "./MySubjects.modules.css";
 
 const MySubjects = () => {
-    const [subjects, setSubjects] = useState([]);
-    const [loading, setLoading] = useState(true);
-    
-    const teacher = JSON.parse(localStorage.getItem("teacher"));
-    const teacherId = teacher?.id;
-  
-    useEffect(() => {
-      if (!teacherId) return;
-  
-      const fetchSubjects = async () => {
-        try {
-          const { data } = await axios.get(`/api/teachers/${teacherId}/subjects`);
-          setSubjects(data.subjects || []);
-        } catch (error) {
-          // console.error("Failed to fetch subjects:", error);
-        } finally {
-          setLoading(false);
-        }
-      };
-  
-      fetchSubjects();
-    }, [teacherId]); // Depend on teacherId
-  
-  
+  const [subjectsGrouped, setSubjectsGrouped] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [openSubjects, setOpenSubjects] = useState([]);
+
+  const teacher = JSON.parse(localStorage.getItem("teacher"));
+  const teacherId = teacher?.id;
+
+  useEffect(() => {
+    if (!teacherId) return;
+
+    const fetchSubjects = async () => {
+      try {
+        const { data } = await axios.get(`/api/teachers/${teacherId}/subjects`);
+        const grouped = data.subjects.reduce((acc, item) => {
+          const key = item.subjectName;
+          if (!acc[key]) acc[key] = [];
+          acc[key].push(item);
+          return acc;
+        }, {});
+        setSubjectsGrouped(grouped);
+      } catch (error) {
+        // console.error("Failed to fetch subjects:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSubjects();
+  }, [teacherId]);
+
+  const toggleDropdown = (subject) => {
+    setOpenSubjects((prev) =>
+      prev.includes(subject)
+        ? prev.filter((s) => s !== subject)
+        : [...prev, subject]
+    );
+  };
 
   return (
     <div className="my-subjects-page2">
       <Sidebar />
-        <Header />
-        <div className="my-subjects-page">
+      <Header />
+      <div className="my-subjects-page">
         <div className="main-content">
-        <div className="subjects-container">
-          <h2>My Subjects</h2>
-          {loading ? (
-            <p>Loading...</p>
-          ) : subjects.length === 0 ? (
-            <p className="yet">No subjects assigned yet.</p>
-          ) : (
-            <div className="subject-cards">
-              {subjects.map((item, index) => (
-                <div className="subject-card" key={index}>
-                  <h3>{item.subjectName}</h3>
-                  <p><strong>Class:</strong> {item.className}</p>
-                  <p><strong>Level:</strong> {item.level}</p>
-                </div>
-              ))}
-            </div>
-          )}
+          <div className="subjects-container">
+            <h2>My Subjects</h2>
+            {loading ? (
+              <p>Loading...</p>
+            ) : Object.keys(subjectsGrouped).length === 0 ? (
+              <p className="yet">No subjects assigned yet.</p>
+            ) : (
+              <div className="subject-groups">
+                {Object.entries(subjectsGrouped).map(([subject, classes], index) => (
+                  <div className="subject-group" key={index}>
+                    <div
+                      className="subject-header"
+                      onClick={() => toggleDropdown(subject)}
+                    >
+                      <h3>{subject}</h3>
+                      <span className={`dropdown-icon ${openSubjects.includes(subject) ? "open" : ""}`}>
+                        ▼
+                      </span>
+                    </div>
+                    {openSubjects.includes(subject) && (
+                      <ul className="class-list">
+                        {classes.map((item, idx) => (
+                          <li key={idx}>
+                            {item.subjectName} - {item.className}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
-</div>
     </div>
   );
 };
