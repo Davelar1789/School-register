@@ -3,8 +3,6 @@ import Header from "../../../components/Teacher/TeacherHeader";
 import Sidebar from "../../../components/Teacher/TeacherSidebar";
 import api from "../../../api/axios";
 import "./TeacherDashboard.modules.css";
-import StartHeaderTour from "../../../components/Teacher/StartHeaderTour"; // import the new component
-
 
 const TeacherDashboard = () => {
   const [classCount, setClassCount] = useState(0);
@@ -36,7 +34,6 @@ return (
       <Header />
       <div className="dashboard-body">
         <Sidebar />
-              <StartHeaderTour /> {/* Start the tutorial automatically here */}
         <main className="dashboard-main2">
           <h1 className="dashboard-title">Welcome, Teacher!</h1>
           <p className="dashboard-subtitle">Here’s your activity overview</p>
