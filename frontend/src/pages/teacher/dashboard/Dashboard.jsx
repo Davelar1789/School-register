@@ -3,6 +3,9 @@ import Header from "../../../components/Teacher/TeacherHeader";
 import Sidebar from "../../../components/Teacher/TeacherSidebar";
 import api from "../../../api/axios";
 import "./TeacherDashboard.modules.css";
+import { Tooltip } from 'react-tooltip';
+
+
 
 const TeacherDashboard = () => {
   const [classCount, setClassCount] = useState(0);
