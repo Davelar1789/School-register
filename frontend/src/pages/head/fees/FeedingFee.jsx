@@ -157,16 +157,27 @@ const FeedingFeePage = () => {
 </div>
 
 
-{displayAs === "bar" && (
-  <BarChart width={700} height={400} data={students}>
-    <CartesianGrid strokeDasharray="3 3" />
-    <XAxis dataKey="name" />
-    <YAxis />
-    <Tooltip />
-    <Legend />
-    <Bar dataKey="totalAmountPaid" fill="#8884d8" />
-  </BarChart>
+{displayAs === "bar" && students.length > 0 && (
+  <div style={{ width: "100%", height: 400 }}>
+    <ResponsiveContainer>
+      <BarChart data={students} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis 
+          dataKey="name" 
+          angle={-45} 
+          textAnchor="end" 
+          interval={0} 
+          height={80}
+        />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        <Bar dataKey="totalAmountPaid" fill="#8884d8" />
+      </BarChart>
+    </ResponsiveContainer>
+  </div>
 )}
+
 
 {displayAs === "pie" && (
   <PieChart width={400} height={400}>
