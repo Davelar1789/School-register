@@ -16,6 +16,8 @@ const FeedingFeePage = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(false);
   const [totalClassPaid, setTotalClassPaid] = useState(0);
+  const [displayAs, setDisplayAs] = useState("table"); // 👈 This is missing
+
   const [viewBy, setViewBy] = useState("term"); // 'today' | 'week' | 'month' | 'term'
 
   const schoolDataRaw = localStorage.getItem("schoolData");
