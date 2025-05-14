@@ -148,26 +148,41 @@ const FeedingFeePage = () => {
   {/* Display As */}
   <div className="control-group">
     <label>Display As:</label>
-    <select
-      className="control-dropdown"
-      value={displayAs}
-      onChange={(e) => setDisplayAs(e.target.value)}
-    >
-      <option value="table">Table</option>
-      <option value="bar">Bar Chart</option>
-      <option value="pie">Pie Chart</option>
-    </select>
+    <select value={displayAs} onChange={(e) => setDisplayAs(e.target.value)}>
+    <option value="table">Table</option>
+    <option value="bar">Bar Chart</option>
+    <option value="pie">Pie Chart</option>
+  </select>
   </div>
 </div>
 
 {displayAs === "table" && (
   <table className="fee-table2">
-    {/* Same table as before */}
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>ID</th>
+        <th>Present Days</th>
+        <th>Total Days</th>
+        <th>Amount Paid</th>
+      </tr>
+    </thead>
+    <tbody>
+      {students.map((stu) => (
+        <tr key={stu._id}>
+          <td>{stu.name}</td>
+          <td>{stu.idno}</td>
+          <td>{stu.totalAttendanceDays}</td>
+          <td>{stu.totalSchoolDays || "?"}</td>
+          <td>₵{stu.totalAmountPaid}</td>
+        </tr>
+      ))}
+    </tbody>
   </table>
 )}
 
 {displayAs === "bar" && (
-  <BarChart width={600} height={400} data={students}>
+  <BarChart width={700} height={400} data={students}>
     <CartesianGrid strokeDasharray="3 3" />
     <XAxis dataKey="name" />
     <YAxis />
