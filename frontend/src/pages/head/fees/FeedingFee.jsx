@@ -156,30 +156,6 @@ const FeedingFeePage = () => {
   </div>
 </div>
 
-{displayAs === "table" && (
-  <table className="fee-table2">
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>ID</th>
-        <th>Present Days</th>
-        <th>Total Days</th>
-        <th>Amount Paid</th>
-      </tr>
-    </thead>
-    <tbody>
-      {students.map((stu) => (
-        <tr key={stu._id}>
-          <td>{stu.name}</td>
-          <td>{stu.idno}</td>
-          <td>{stu.totalAttendanceDays}</td>
-          <td>{stu.totalSchoolDays || "?"}</td>
-          <td>₵{stu.totalAmountPaid}</td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-)}
 
 {displayAs === "bar" && (
   <BarChart width={700} height={400} data={students}>
@@ -236,28 +212,29 @@ const FeedingFeePage = () => {
         )}
 
         {/* 🟨 Student Table */}
-        {students.length > 0 && (
-          <table className="fee-table2">
-            <thead>
-              <tr>
-                <th>Student Name</th>
-                <th>Feeding Fee</th>
-                <th>Attendance Days</th>
-                <th>Total Amount Paid</th>
-              </tr>
-            </thead>
-            <tbody>
-              {students.map((student) => (
-                <tr key={student._id} className="fee-row2">
-                  <td>{student.name}</td>
-                  <td>{student.feedingFee}</td>
-                  <td>{student.totalAttendanceDays}</td>
-                  <td>{student.totalAmountPaid}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+       {displayAs === "table" && students.length > 0 && (
+  <table className="fee-table2">
+    <thead>
+      <tr>
+        <th>Student Name</th>
+        <th>Feeding Fee</th>
+        <th>Attendance Days</th>
+        <th>Total Amount Paid</th>
+      </tr>
+    </thead>
+    <tbody>
+      {students.map((student) => (
+        <tr key={student._id} className="fee-row2">
+          <td>{student.name}</td>
+          <td>{student.feedingFee}</td>
+          <td>{student.totalAttendanceDays}</td>
+          <td>{student.totalAmountPaid}</td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+)}
+
       </div>
     </div>
   );
