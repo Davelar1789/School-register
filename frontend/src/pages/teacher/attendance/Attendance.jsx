@@ -6,26 +6,21 @@ import Header from "../../../components/Teacher/TeacherHeader";
 import "./Attendance.modules.css";
 
 // Function to extract schoolId from token
-const getSchoolIdFromToken = () => {
+const getTeacherDataFromToken = () => {
   const token = localStorage.getItem("token");
   if (!token) return null;
 
   try {
     const decodedToken = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
-    return decodedToken?.schoolId || null; // ✅ Added optional chaining for safety
+    return {
+      teacherId: decodedToken?.id || null,
+      teacherEmail: decodedToken?.email || null,
+    };
   } catch (error) {
-    // console.error("Error decoding token:", error);
+    console.error("Error decoding token:", error);
     return null;
   }
 };
-
-const teacherData = JSON.parse(localStorage.getItem("teacher")); // Retrieve teacher object
-const teacherEmail = teacherData?.email; // Extract email
-const teacherId = teacherData?.id;
-
-if (!teacherEmail) {
-    console.error("Teacher email not found in local storage.");
-}
 
 // Function to check if a date is a weekend
 const isWeekend = (date) => {
@@ -149,44 +144,52 @@ const Attendance = () => {
 
 const submitAttendance = async () => {
   setShowModal(false);
+
   if (!currentTerm) return toast.error("Term not found!");
   if (!selectedDate) return toast.error("Please select a date.");
   if (isWeekend(selectedDate)) return toast.error("Cannot mark attendance on weekends.");
+
   const attendanceDate = new Date(selectedDate);
   if (attendanceDate < new Date(currentTerm.startDate) || attendanceDate > new Date(currentTerm.endDate)) {
     return toast.error("Selected date is outside the term period.");
   }
+
   if (submittedDates.has(`${selectedClass}_${selectedDate}`)) {
-    // Class-specific check
     return toast.error("Attendance for this class on this date is already recorded.");
   }
+
+  const teacherData = getTeacherDataFromToken();
+  if (!teacherData) return toast.error("Invalid token or teacher data missing!");
+
   // Prepare batch attendance list, defaulting unmarked students to absent
   const attendanceList = students.map((student) => ({
     studentId: student._id,
-    present: attendance[student._id] || false, // Default to false if not marked
+    present: attendance[student._id] || false,
   }));
+
   try {
     const payload = {
       termId: currentTerm._id,
       classId: selectedClass,
       date: selectedDate,
       attendanceList,
+      teacherId: teacherData.teacherId,
+      teacherEmail: teacherData.teacherEmail,
     };
-    if (teacherEmail) payload.teacherEmail = teacherEmail;
-    if (teacherId) payload.teacherId = teacherId;
+
     await axios.post("/api/attendance/mark-batch", payload, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
       },
     });
-    setSubmittedDates((prev) => new Set(prev).add(`${selectedClass}_${selectedDate}`)); // Store class-specific attendance
+
+    setSubmittedDates((prev) => new Set(prev).add(`${selectedClass}_${selectedDate}`));
     toast.success("Attendance marked successfully!");
   } catch (err) {
-    // console.error("Error marking attendance:", err);
+    console.error("Error marking attendance:", err);
     toast.error("Error marking attendance.");
   }
 };
-
 
   // Fetch everything on component mount
   useEffect(() => {
