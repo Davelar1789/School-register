@@ -90,37 +90,30 @@ const Gradebook = () => {
     }
   };
 
-  const fetchStudents = async (classId, subjectId) => {
-    if (!token || !currentTerm?._id) return;
+const fetchStudents = async (classId, subjectId) => {
+  if (!token || !currentTerm?._id) return;
 
-    try {
-      const res = await axios.get(
-        `/api/grades/grades?classId=${classId}&subjectId=${subjectId}&termId=${currentTerm._id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      const fetchedStudents = Array.isArray(res.data.students)
-        ? res.data.students
-        : [];
+  try {
+    const res = await axios.get(
+      `/api/grades/grades?classId=${classId}&subjectId=${subjectId}&termId=${currentTerm._id}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+    const fetchedStudents = Array.isArray(res.data) ? res.data : [];
 
-      setStudents(fetchedStudents);
+    setStudents(fetchedStudents);
 
-      const initialGrades = {};
-      fetchedStudents.forEach((student) => {
-        initialGrades[student._id] = {
-          test1: 0,
-          test2: 0,
-          test3: 0,
-          test4: 0,
-          exam: 0,
-        };
-      });
-      setGrades(initialGrades);
-    } catch (err) {
-      console.error("Error fetching students:", err);
-    }
-  };
+    const initialGrades = {};
+    fetchedStudents.forEach((student) => {
+      initialGrades[student.studentId] = student.scores;
+    });
+    setGrades(initialGrades);
+  } catch (err) {
+    console.error("Error fetching students:", err);
+  }
+};
+
 
   const handleGradeChange = (studentId, field, value) => {
     const numericValue = Number(value);
@@ -209,7 +202,7 @@ const Gradebook = () => {
               </thead>
               <tbody>
                 {students.map((student) => {
-                  const studentGrades = grades[student._id] || {};
+                  const studentGrades = grades[student.studentId] || {};
                   const total =
                     (studentGrades.test1 || 0) +
                     (studentGrades.test2 || 0) +
@@ -217,7 +210,7 @@ const Gradebook = () => {
                     (studentGrades.test4 || 0) +
                     (studentGrades.exam || 0);
                   return (
-                    <tr key={student._id}>
+                    <tr key={student.studentId}>
                       <td>{student.name}</td>
                       <td>
                         <input
@@ -225,7 +218,7 @@ const Gradebook = () => {
                           max="10"
                           value={studentGrades.test1 || 0}
                           onChange={(e) =>
-                            handleGradeChange(student._id, "test1", e.target.value)
+                            handleGradeChange(student.studentId, "test1", e.target.value)
                           }
                         />
                       </td>
@@ -235,7 +228,7 @@ const Gradebook = () => {
                           max="10"
                           value={studentGrades.test2 || 0}
                           onChange={(e) =>
-                            handleGradeChange(student._id, "test2", e.target.value)
+                            handleGradeChange(student.studentId, "test2", e.target.value)
                           }
                         />
                       </td>
@@ -245,7 +238,7 @@ const Gradebook = () => {
                           max="10"
                           value={studentGrades.test3 || 0}
                           onChange={(e) =>
-                            handleGradeChange(student._id, "test3", e.target.value)
+                            handleGradeChange(student.studentId, "test3", e.target.value)
                           }
                         />
                       </td>
@@ -255,7 +248,7 @@ const Gradebook = () => {
                           max="20"
                           value={studentGrades.test4 || 0}
                           onChange={(e) =>
-                            handleGradeChange(student._id, "test4", e.target.value)
+                            handleGradeChange(student.studentId, "test4", e.target.value)
                           }
                         />
                       </td>
@@ -265,7 +258,7 @@ const Gradebook = () => {
                           max="100"
                           value={studentGrades.exam || 0}
                           onChange={(e) =>
-                            handleGradeChange(student._id, "exam", e.target.value)
+                            handleGradeChange(student.studentId, "exam", e.target.value)
                           }
                         />
                       </td>
