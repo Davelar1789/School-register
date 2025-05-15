@@ -22,6 +22,7 @@ const Gradebook = () => {
   const [classes, setClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [students, setStudents] = useState([]);
+  const [positionMap, setPositionMap] = useState({});
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
   const [grades, setGrades] = useState({});
@@ -126,6 +127,52 @@ const fetchStudents = async (classId, subjectId) => {
   }));
 };
 
+const calculateTotalsWithPositions = (grades, students) => {
+  const studentTotals = students.map((student) => {
+    const g = grades[student.studentId] || {};
+    const testSum =
+      Number(g.test1 || 0) +
+      Number(g.test2 || 0) +
+      Number(g.test3 || 0) +
+      Number(g.test4 || 0);
+    const examHalf = Number(g.exam || 0) / 2;
+
+    return {
+      studentId: student.studentId,
+      total: testSum + examHalf,
+    };
+  });
+
+  studentTotals.sort((a, b) => b.total - a.total);
+
+  const positions = {};
+  let currentPos = 1;
+  for (let i = 0; i < studentTotals.length; i++) {
+    const current = studentTotals[i];
+    const previous = studentTotals[i - 1];
+
+    if (i === 0) {
+      positions[current.studentId] = currentPos;
+    } else if (current.total === previous.total) {
+      positions[current.studentId] = positions[previous.studentId];
+    } else {
+      currentPos = i + 1;
+      positions[current.studentId] = currentPos;
+    }
+  }
+
+  return positions;
+};
+
+
+useEffect(() => {
+  if (students.length > 0) {
+    const newPositionMap = calculateTotalsWithPositions(grades, students);
+    setPositionMap(newPositionMap);
+  }
+}, [grades, students]);
+
+
 
   useEffect(() => {
     if (token && teacherId) {
@@ -201,74 +248,80 @@ const fetchStudents = async (classId, subjectId) => {
                   <th>Position</th>
                 </tr>
               </thead>
-              <tbody>
-                {students.map((student) => {
-                  const studentGrades = grades[student.studentId] || {};
-                  const total =
-                    (studentGrades.test1 || 0) +
-                    (studentGrades.test2 || 0) +
-                    (studentGrades.test3 || 0) +
-                    (studentGrades.test4 || 0) +
-                    (studentGrades.exam || 0);
-                  return (
-                    <tr key={student.studentId}>
-                      <td>{student.name}</td>
-                      <td>
-                        <input
-                          type="number"
-                          max="10"
-                          value={studentGrades.test1 === 0 ? "" : studentGrades.test1 || ""}
-                          onChange={(e) =>
-                            handleGradeChange(student.studentId, "test1", e.target.value)
-                          }
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="number"
-                          max="10"
-                          value={studentGrades.test2 === 0 ? "" : studentGrades.test2 || ""}
-                          onChange={(e) =>
-                            handleGradeChange(student.studentId, "test2", e.target.value)
-                          }
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="number"
-                          max="10"
-                          value={studentGrades.test3 === 0 ? "" : studentGrades.test3 || ""}
-                          onChange={(e) =>
-                            handleGradeChange(student.studentId, "test3", e.target.value)
-                          }
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="number"
-                          max="20"
-                          value={studentGrades.test4 === 0 ? "" : studentGrades.test4 || ""}
-                          onChange={(e) =>
-                            handleGradeChange(student.studentId, "test4", e.target.value)
-                          }
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="number"
-                          max="100"
-                          value={studentGrades.exam === 0 ? "" : studentGrades.exam || ""}
-                          onChange={(e) =>
-                            handleGradeChange(student.studentId, "exam", e.target.value)
-                          }
-                        />
-                      </td>
-                      <td>{total}</td>
-                      <td>-</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
+             <tbody>
+  {students.map((student) => {
+    const studentGrades = grades[student.studentId] || {};
+
+    const testTotal =
+      (Number(studentGrades.test1) || 0) +
+      (Number(studentGrades.test2) || 0) +
+      (Number(studentGrades.test3) || 0) +
+      (Number(studentGrades.test4) || 0);
+
+    const examScore = Number(studentGrades.exam) || 0;
+    const total = testTotal + examScore / 2;
+
+    const position = positionMap[student.studentId] || "-";
+
+    return (
+      <tr key={student.studentId}>
+        <td>{student.name}</td>
+        <td>
+          <input
+            type="number"
+            max="10"
+            value={studentGrades.test1 === 0 ? "" : studentGrades.test1 || ""}
+            onChange={(e) =>
+              handleGradeChange(student.studentId, "test1", e.target.value)
+            }
+          />
+        </td>
+        <td>
+          <input
+            type="number"
+            max="10"
+            value={studentGrades.test2 === 0 ? "" : studentGrades.test2 || ""}
+            onChange={(e) =>
+              handleGradeChange(student.studentId, "test2", e.target.value)
+            }
+          />
+        </td>
+        <td>
+          <input
+            type="number"
+            max="10"
+            value={studentGrades.test3 === 0 ? "" : studentGrades.test3 || ""}
+            onChange={(e) =>
+              handleGradeChange(student.studentId, "test3", e.target.value)
+            }
+          />
+        </td>
+        <td>
+          <input
+            type="number"
+            max="20"
+            value={studentGrades.test4 === 0 ? "" : studentGrades.test4 || ""}
+            onChange={(e) =>
+              handleGradeChange(student.studentId, "test4", e.target.value)
+            }
+          />
+        </td>
+        <td>
+          <input
+            type="number"
+            max="100"
+            value={studentGrades.exam === 0 ? "" : studentGrades.exam || ""}
+            onChange={(e) =>
+              handleGradeChange(student.studentId, "exam", e.target.value)
+            }
+          />
+        </td>
+        <td>{total}</td>
+        <td>{position}</td>
+      </tr>
+    );
+  })}
+</tbody>
             </table>
           </div>
         )
