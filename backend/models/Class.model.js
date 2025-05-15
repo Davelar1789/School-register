@@ -44,7 +44,7 @@ const classSchema = new mongoose.Schema({
       ],
     },
   ],
-  feedingFee: { type: Number, required: true },
+  feedingFee: { type: Number, required: true, default: 0 },
   totalFeedingPaid: { type: Number, default: 0 },
   
 }, { timestamps: true });
