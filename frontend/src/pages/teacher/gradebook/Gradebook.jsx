@@ -10,6 +10,7 @@ const getDataFromToken = () => {
     const decodedToken = JSON.parse(atob(token.split(".")[1]));
     return {
       teacherId: decodedToken?.id || null,
+      schoolId: decodedToken?.schoolId || null,
     };
   } catch (error) {
     console.error("Error decoding token:", error);
@@ -24,11 +25,13 @@ const Gradebook = () => {
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("");
   const [grades, setGrades] = useState({});
+  const [currentTerm, setCurrentTerm] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const token = localStorage.getItem("token");
   const teacherData = getDataFromToken();
   const teacherId = teacherData?.teacherId;
+  const schoolId = teacherData?.schoolId;
 
   const fetchClasses = async () => {
     if (!token) return;
@@ -45,43 +48,54 @@ const Gradebook = () => {
     }
   };
 
- const fetchSubjects = async (classId) => {
-  if (!token || !teacherId) return;
-
-  try {
-    const res = await axios.get(
-      `/api/teachers/${teacherId}/subjects?classId=${classId}`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-
-    const rawSubjects = Array.isArray(res.data.subjects) ? res.data.subjects : [];
-
-    // Filter to keep only unique subject names
-    const uniqueSubjects = [];
-    const seenNames = new Set();
-
-    for (const subj of rawSubjects) {
-      if (!seenNames.has(subj.subjectName)) {
-        seenNames.add(subj.subjectName);
-        uniqueSubjects.push(subj);
-      }
-    }
-
-    setSubjects(uniqueSubjects);
-  } catch (err) {
-    console.error("Error fetching subjects:", err);
-  }
-};
-
-
-  const fetchStudents = async (classId, subjectId) => {
-    if (!token) return;
+  const fetchSubjects = async (classId) => {
+    if (!token || !teacherId) return;
 
     try {
       const res = await axios.get(
-        `/api/grades/grades?classId=${classId}&subjectId=${subjectId}`,
+        `/api/teachers/${teacherId}/subjects?classId=${classId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      const rawSubjects = Array.isArray(res.data.subjects) ? res.data.subjects : [];
+
+      const uniqueSubjects = [];
+      const seenNames = new Set();
+
+      for (const subj of rawSubjects) {
+        if (!seenNames.has(subj.subjectName)) {
+          seenNames.add(subj.subjectName);
+          uniqueSubjects.push(subj);
+        }
+      }
+
+      setSubjects(uniqueSubjects);
+    } catch (err) {
+      console.error("Error fetching subjects:", err);
+    }
+  };
+
+  const fetchCurrentTerm = async () => {
+    if (!schoolId || !token) return;
+
+    try {
+      const { data } = await axios.get("/api/terms/latest", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCurrentTerm(data);
+    } catch (error) {
+      console.error("Error fetching current term:", error);
+    }
+  };
+
+  const fetchStudents = async (classId, subjectId) => {
+    if (!token || !currentTerm?._id) return;
+
+    try {
+      const res = await axios.get(
+        `/api/grades/grades?classId=${classId}&subjectId=${subjectId}&termId=${currentTerm._id}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -122,6 +136,7 @@ const Gradebook = () => {
   useEffect(() => {
     if (token && teacherId) {
       fetchClasses();
+      fetchCurrentTerm();
     } else {
       setLoading(false);
     }
@@ -134,10 +149,10 @@ const Gradebook = () => {
   }, [selectedClass]);
 
   useEffect(() => {
-    if (selectedClass && selectedSubject) {
+    if (selectedClass && selectedSubject && currentTerm?._id) {
       fetchStudents(selectedClass, selectedSubject);
     }
-  }, [selectedClass, selectedSubject]);
+  }, [selectedClass, selectedSubject, currentTerm]);
 
   return (
     <div className="gradebook-container">
