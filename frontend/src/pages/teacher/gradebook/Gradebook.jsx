@@ -216,7 +216,7 @@ const fetchStudents = async (classId, subjectId) => {
                         <input
                           type="number"
                           max="10"
-                          value={studentGrades.test1 || 0}
+                          value={studentGrades.test1 === 0 ? "" : studentGrades.test1 || ""}
                           onChange={(e) =>
                             handleGradeChange(student.studentId, "test1", e.target.value)
                           }
@@ -226,7 +226,7 @@ const fetchStudents = async (classId, subjectId) => {
                         <input
                           type="number"
                           max="10"
-                          value={studentGrades.test2 || 0}
+                          value={studentGrades.test2 === 0 ? "" : studentGrades.test2 || ""}
                           onChange={(e) =>
                             handleGradeChange(student.studentId, "test2", e.target.value)
                           }
@@ -236,7 +236,7 @@ const fetchStudents = async (classId, subjectId) => {
                         <input
                           type="number"
                           max="10"
-                          value={studentGrades.test3 || 0}
+                          value={studentGrades.test3 === 0 ? "" : studentGrades.test3 || ""}
                           onChange={(e) =>
                             handleGradeChange(student.studentId, "test3", e.target.value)
                           }
@@ -246,7 +246,7 @@ const fetchStudents = async (classId, subjectId) => {
                         <input
                           type="number"
                           max="20"
-                          value={studentGrades.test4 || 0}
+                          value={studentGrades.test4 === 0 ? "" : studentGrades.test4 || ""}
                           onChange={(e) =>
                             handleGradeChange(student.studentId, "test4", e.target.value)
                           }
@@ -256,7 +256,7 @@ const fetchStudents = async (classId, subjectId) => {
                         <input
                           type="number"
                           max="100"
-                          value={studentGrades.exam || 0}
+                          value={studentGrades.exam === 0 ? "" : studentGrades.exam || ""}
                           onChange={(e) =>
                             handleGradeChange(student.studentId, "exam", e.target.value)
                           }
