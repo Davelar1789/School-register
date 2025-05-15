@@ -61,21 +61,22 @@ export const saveStudentGrades = async (req, res) => {
     }
 
     for (const grade of grades) {
-      const { studentId, scores } = grade;
+      const { studentId, scores, position } = grade;
 
-      const total =
+      const total = Math.round(
         (scores.test1 || 0) +
         (scores.test2 || 0) +
         (scores.test3 || 0) +
         (scores.test4 || 0) +
-        (scores.exam || 0);
+        (scores.exam || 0) / 2
+      );
 
       await GradeEntry.findOneAndUpdate(
         {
           studentId,
           classId,
           subjectId,
-          termId
+          termId,
         },
         {
           studentId,
@@ -86,7 +87,8 @@ export const saveStudentGrades = async (req, res) => {
             ...scores,
             total,
           },
-          createdBy: teacherId
+          position: position || null,
+          createdBy: teacherId,
         },
         { upsert: true, new: true }
       );
