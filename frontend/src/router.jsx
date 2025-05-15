@@ -65,6 +65,7 @@ import TrackAttendance from "./pages/head/attendance/TrackAttendance";
 import Notifications from "./pages/head/notifications/Notifications";
 import Notifications2 from "./pages/teacher/notifications/Notifications";
 import Maintenance from "./pages/teacher/trial/Trial";
+import TGradebook from "./pages/teacher/gradebook/Gradebook";
 
 const router = createBrowserRouter([
   {
@@ -110,6 +111,10 @@ const router = createBrowserRouter([
       {
         path: "attendance",
         element: <Attendance />,
+      },
+       {
+        path: "gradebook",
+        element: <TGradebook />,
       },
       {
         path: "students",
