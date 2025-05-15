@@ -121,7 +121,6 @@ const Attendance = () => {
     if (!classId || !date || !currentTerm) return;
     
     try {
-      console.log(`Checking attendance records for class ${classId} on ${date}...`);
   
       const res = await axios.get(`/api/attendance/fetch`, {
         params: { termId: currentTerm._id, classId, date }, // ✅ Now class-specific
