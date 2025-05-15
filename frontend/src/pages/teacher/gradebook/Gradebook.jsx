@@ -182,8 +182,8 @@ const Gradebook = () => {
         >
           <option value="">Select Subject</option>
           {subjects.map((subj) => (
-            <option key={subj._id} value={subj._id}>
-              {subj.subjectName}
+           <option key={subj.subjectId} value={subj.subjectId}>
+            {subj.subjectName}
             </option>
           ))}
         </select>
