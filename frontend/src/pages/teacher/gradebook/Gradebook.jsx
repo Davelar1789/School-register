@@ -1,5 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../../api/axios";
+import toast from "react-hot-toast";
+import Sidebar from "../../../components/Teacher/TeacherSidebar";
+import Header from "../../../components/Teacher/TeacherHeader";
 import "./Gradebook.modules.css"; // responsive styling handled here
 
 const getDataFromToken = () => {
@@ -258,6 +261,9 @@ const handleSaveGrades = async () => {
   }, [selectedClass, selectedSubject, currentTerm]);
 
   return (
+    <div>
+        <Sidebar />
+        <Header />
     <div className="gradebook-container">
       <h2>Gradebook</h2>
 
@@ -394,6 +400,7 @@ const handleSaveGrades = async () => {
   Save Grades
 </button>
     </div>
+        </div>
   );
 };
 
