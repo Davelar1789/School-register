@@ -307,16 +307,16 @@ export const getTeacherSubjects = async (req, res) => {
 
   try {
     const classes = await Class.find({ "subjects.teachers": teacherId })
-      .populate("subjects.subject", "name") // subject name
+      .populate("subjects.subject", "name") // populates subject with its name and _id
       .select("className level subjects");
 
-    // Filter out only the subjects this teacher handles
     const result = [];
 
     for (const cls of classes) {
       const teacherSubjects = cls.subjects
         .filter(sub => sub.teachers.includes(teacherId))
         .map(sub => ({
+          subjectId: sub.subject?._id,  // ✅ Include subject ID here
           subjectName: sub.subject?.name || "Unknown",
           className: cls.className,
           level: cls.level,
@@ -331,6 +331,7 @@ export const getTeacherSubjects = async (req, res) => {
     return res.status(500).json({ message: "Server error fetching subjects" });
   }
 };
+
 
 export const patchTeachers = async (req, res) => {
     try {
