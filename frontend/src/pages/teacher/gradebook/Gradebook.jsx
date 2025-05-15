@@ -352,14 +352,14 @@ const handleSaveGrades = async () => {
   })}
 </tbody>
             </table>
-
-            <button className="save-button" onClick={handleSaveGrades}>
+          </div>
+          
+        )
+        
+      )}
+        <button className="save-button" onClick={handleSaveGrades}>
   Save Grades
 </button>
-
-          </div>
-        )
-      )}
     </div>
   );
 };
