@@ -263,7 +263,7 @@ const Dashboard = () => {
               <div className="quick-links">
                 <h3>Quick Links</h3>
                 <div className="links-grid">
-                  <button className="quick-link">Manage Students</button>
+                  <button className="quick-link" onClick={navigate("/students")}>Manage Students</button>
                   <button className="quick-link">Manage Teachers</button>
                   <button className="quick-link">View Reports</button>
                   <button className="quick-link">School Settings</button>
