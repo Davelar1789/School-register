@@ -41,63 +41,69 @@ const FeedingFeePage = () => {
     }
   };
 
-  const fetchStudentsByClass = async (classId) => {
-    if (!classId) return;
-    setSelectedClass(classId);
+ const fetchStudentsByClass = async (classId) => {
+  setSelectedClass(classId);
+  setLoading(true);
 
-    try {
-      setLoading(true);
+  try {
+    const studentRes =
+      classId === "all"
+        ? await axios.get(`/api/student/school/${schoolId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+        : await axios.get(`/api/student/class/${classId}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
 
-      const studentRes = await axios.get(`/api/student/class/${classId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+    const studentsList = studentRes.data || [];
 
-      const studentsList = studentRes.data || [];
+    const termRes = await axios.get(`/api/terms/latest`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const latestTerm = termRes.data?._id;
 
-      // Get latest term
-      const termRes = await axios.get(`/api/terms/latest`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const latestTerm = termRes.data?._id;
-
-      if (!latestTerm) {
-        toast.error("Failed to fetch latest term");
-        return;
-      }
-
-      const attendanceRes = await axios.get(
-        `/api/attendance/student-total?termId=${latestTerm}&classId=${classId}&viewBy=${viewBy}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      const studentAttendanceData = attendanceRes.data;
-
-      const updatedStudents = studentsList.map((student) => {
-        const attendanceRecord = studentAttendanceData.find((s) => s._id === student._id);
-        const totalAttendanceDays = attendanceRecord?.totalPresentDays || 0;
-
-        return {
-          ...student,
-          feedingFee: student.feedingFee,
-          totalAttendanceDays,
-          totalAmountPaid: student.feedingFee * totalAttendanceDays,
-        };
-      });
-
-      setStudents(updatedStudents);
-
-      const totalPaid = updatedStudents.reduce((sum, student) => sum + student.totalAmountPaid, 0);
-      setTotalClassPaid(totalPaid);
-
-      await updateClassTotalPaid(classId, totalPaid);
-    } catch (error) {
-      toast.error("Failed to fetch student attendance.");
-    } finally {
-      setLoading(false);
+    if (!latestTerm) {
+      toast.error("Failed to fetch latest term");
+      return;
     }
-  };
+
+    const attendanceRes = await axios.get(
+      `/api/attendance/student-total?termId=${latestTerm}&classId=${classId}&viewBy=${viewBy}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    const studentAttendanceData = attendanceRes.data;
+
+    const updatedStudents = studentsList.map((student) => {
+      const attendanceRecord = studentAttendanceData.find((s) => s._id === student._id);
+      const totalAttendanceDays = attendanceRecord?.totalPresentDays || 0;
+
+      return {
+        ...student,
+        feedingFee: student.feedingFee,
+        totalAttendanceDays,
+        totalAmountPaid: student.feedingFee * totalAttendanceDays,
+      };
+    });
+
+    setStudents(updatedStudents);
+
+    const totalPaid = updatedStudents.reduce((sum, student) => sum + student.totalAmountPaid, 0);
+    setTotalClassPaid(totalPaid);
+
+    // Only update backend if a specific class was selected
+    if (classId !== "all") {
+      await updateClassTotalPaid(classId, totalPaid);
+    }
+  } catch (error) {
+    toast.error("Failed to fetch student attendance.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const updateClassTotalPaid = async (classId, totalPaid) => {
     try {
@@ -198,18 +204,19 @@ const FeedingFeePage = () => {
 
 
         {/* 🟩 Class Selector Dropdown */}
-        <select
+              <select
           className="class-dropdown"
           onChange={(e) => fetchStudentsByClass(e.target.value)}
           value={selectedClass}
         >
-          <option value="">Select a class</option>
+          <option value="all">All Classes</option>
           {classes.map((cls) => (
             <option key={cls._id} value={cls._id}>
               {cls.className}
             </option>
           ))}
         </select>
+
 
         {loading && <p className="loading-message">Loading data...</p>}
 
