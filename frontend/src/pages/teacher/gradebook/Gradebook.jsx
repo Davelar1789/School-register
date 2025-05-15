@@ -129,10 +129,11 @@ const handleGradeChange = (studentId, field, value) => {
     exam: 100,
   };
 
-  if (numericValue !== "" && numericValue > maxValues[field]) {
-    alert(`The maximum allowed value for ${field.toUpperCase()} is ${maxValues[field]}`);
-    return;
-  }
+ if (numericValue !== "" && numericValue > maxValues[field]) {
+  toast.error(`The maximum allowed value for ${field.toUpperCase()} is ${maxValues[field]}`);
+  return;
+}
+
 
   setGrades((prev) => ({
     ...prev,
@@ -207,10 +208,11 @@ const formatPosition = (pos) => {
 
 
 const handleSaveGrades = async () => {
-  if (!selectedClass || !selectedSubject || !currentTerm?._id || !grades) {
-    alert("Please select class, subject and make sure grades are available.");
-    return;
-  }
+ if (!selectedClass || !selectedSubject || !currentTerm?._id || !grades) {
+  toast.error("Please select class, subject and make sure grades are available.");
+  return;
+}
+
 
   try {
     const payload = {
@@ -230,11 +232,11 @@ const handleSaveGrades = async () => {
       },
     });
 
-    alert("Grades saved successfully!");
+    toast.success("Grades saved successfully!");
   } catch (error) {
     console.error("Error saving grades:", error);
-    alert("Failed to save grades.");
-  }
+    toast.error("Failed to save grades.");
+}
 };
 
 
