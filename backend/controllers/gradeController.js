@@ -3,6 +3,13 @@ import GradeEntry from "../models/Grade.model.js";
 import Students from "../models/Student.model.js";
 import TermSession from "../models/TermSession.model.js";
 
+// Helper to get 1st, 2nd, 3rd...
+const getOrdinal = (n) => {
+  const s = ["th", "st", "nd", "rd"],
+    v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+};
+
 export const getStudentGrades = async (req, res) => {
   try {
     console.log("Fetching student grades...");
@@ -35,7 +42,7 @@ export const getStudentGrades = async (req, res) => {
           test4: 0,
           exam: 0,
           total: 0,
-          position: 0,
+          position: "",
         },
       };
     });
@@ -60,16 +67,33 @@ export const saveStudentGrades = async (req, res) => {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
-    for (const grade of grades) {
-      const { studentId, scores, position } = grade;
+    // First, calculate totals
+    const enrichedGrades = grades.map((grade) => {
+      const total =
+        (grade.scores.test1 || 0) +
+        (grade.scores.test2 || 0) +
+        (grade.scores.test3 || 0) +
+        (grade.scores.test4 || 0) +
+        (grade.scores.exam || 0);
 
-      const total = Math.round(
-        (scores.test1 || 0) +
-        (scores.test2 || 0) +
-        (scores.test3 || 0) +
-        (scores.test4 || 0) +
-        (scores.exam || 0) / 2
-      );
+      return {
+        ...grade,
+        total: Math.round(total),
+      };
+    });
+
+    // Sort by total descending
+    enrichedGrades.sort((a, b) => b.total - a.total);
+
+    // Assign positions
+    enrichedGrades.forEach((grade, index) => {
+      grade.scores.position = getOrdinal(index + 1); // e.g., "1st", "2nd"
+      grade.scores.total = grade.total;
+    });
+
+    // Save all grades
+    for (const grade of enrichedGrades) {
+      const { studentId, scores } = grade;
 
       await GradeEntry.findOneAndUpdate(
         {
@@ -83,18 +107,14 @@ export const saveStudentGrades = async (req, res) => {
           classId,
           subjectId,
           termId,
-          scores: {
-            ...scores,
-            total,
-          },
-          position: position || null,
+          scores,
           createdBy: teacherId,
         },
         { upsert: true, new: true }
       );
     }
 
-    res.json({ message: "Grades saved successfully" });
+    res.json({ message: "Grades and positions saved successfully" });
   } catch (error) {
     console.error("Failed to save grades:", error.message);
     res.status(500).json({ message: "Server error" });

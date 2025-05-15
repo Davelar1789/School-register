@@ -14,8 +14,7 @@ const gradeEntrySchema = new mongoose.Schema({
     test4: { type: Number, default: 0 },  // 20 marks
     exam: { type: Number, default: 0 },   // 100 marks
     total: { type: Number, default: 0 },
-    position: { type: Number, default: 0 }, // calculated later
-  },
+    position: { type: String, default: "" },  },
 
   createdBy: { type: mongoose.Schema.Types.ObjectId, ref: "Teacher" },
 }, {
