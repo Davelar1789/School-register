@@ -172,6 +172,35 @@ useEffect(() => {
   }
 }, [grades, students]);
 
+const handleSaveGrades = async () => {
+  if (!selectedClass || !selectedSubject || !currentTerm?._id || !grades) {
+    alert("Please select class, subject and make sure grades are available.");
+    return;
+  }
+
+  try {
+    const payload = {
+      classId: selectedClass,
+      subjectId: selectedSubject,
+      termId: currentTerm._id,
+      grades: Object.keys(grades).map((studentId) => ({
+        studentId,
+        scores: grades[studentId],
+      })),
+    };
+
+    await axios.post("/api/grades", payload, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    alert("Grades saved successfully!");
+  } catch (error) {
+    console.error("Error saving grades:", error);
+    alert("Failed to save grades.");
+  }
+};
 
 
   useEffect(() => {
@@ -323,6 +352,11 @@ useEffect(() => {
   })}
 </tbody>
             </table>
+
+            <button className="save-button" onClick={handleSaveGrades}>
+  Save Grades
+</button>
+
           </div>
         )
       )}
