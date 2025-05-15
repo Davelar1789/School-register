@@ -1,6 +1,21 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../../api/axios";
-import "./Gradebook.modules.css"; // we'll handle responsive styling here
+import "./Gradebook.modules.css"; // responsive styling handled here
+
+const getDataFromToken = () => {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+
+  try {
+    const decodedToken = JSON.parse(atob(token.split(".")[1]));
+    return {
+      teacherId: decodedToken?.id || null,
+    };
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    return null;
+  }
+};
 
 const Gradebook = () => {
   const [classes, setClasses] = useState([]);
@@ -12,40 +27,56 @@ const Gradebook = () => {
   const [loading, setLoading] = useState(true);
 
   const token = localStorage.getItem("token");
+  const teacherData = getDataFromToken();
+  const teacherId = teacherData?.teacherId;
 
   const fetchClasses = async () => {
+    if (!token) return;
+
     try {
-      const res = await axios.get(
-        "/api/teachers/teacher/teacher-classes",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setClasses(res.data.classes || []);
+      const res = await axios.get("/api/teachers/teacher/teacher-classes", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setClasses(Array.isArray(res.data.classes) ? res.data.classes : []);
     } catch (err) {
-      console.error("Error fetching classes", err);
+      console.error("Error fetching classes:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   const fetchSubjects = async (classId) => {
+    if (!token || !teacherId) return;
+
     try {
       const res = await axios.get(
-        `/api/teachers/subjects?classId=${classId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        `/api/teachers/${teacherId}/subjects?classId=${classId}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
-      setSubjects(res.data.subjects || []);
+      setSubjects(Array.isArray(res.data.subjects) ? res.data.subjects : []);
     } catch (err) {
-      console.error("Error fetching subjects", err);
+      console.error("Error fetching subjects:", err);
     }
   };
 
   const fetchStudents = async (classId, subjectId) => {
+    if (!token) return;
+
     try {
       const res = await axios.get(
         `/api/grades/students?classId=${classId}&subjectId=${subjectId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        }
       );
-      const fetchedStudents = res.data.students;
+      const fetchedStudents = Array.isArray(res.data.students)
+        ? res.data.students
+        : [];
 
       setStudents(fetchedStudents);
+
       const initialGrades = {};
       fetchedStudents.forEach((student) => {
         initialGrades[student._id] = {
@@ -58,27 +89,33 @@ const Gradebook = () => {
       });
       setGrades(initialGrades);
     } catch (err) {
-      console.error("Error fetching students", err);
+      console.error("Error fetching students:", err);
     }
   };
 
   const handleGradeChange = (studentId, field, value) => {
+    const numericValue = Number(value);
     setGrades((prev) => ({
       ...prev,
       [studentId]: {
         ...prev[studentId],
-        [field]: Number(value),
+        [field]: numericValue,
       },
     }));
   };
 
   useEffect(() => {
-    fetchClasses();
-    setLoading(false);
-  }, []);
+    if (token && teacherId) {
+      fetchClasses();
+    } else {
+      setLoading(false);
+    }
+  }, [token, teacherId]);
 
   useEffect(() => {
-    if (selectedClass) fetchSubjects(selectedClass);
+    if (selectedClass) {
+      fetchSubjects(selectedClass);
+    }
   }, [selectedClass]);
 
   useEffect(() => {
