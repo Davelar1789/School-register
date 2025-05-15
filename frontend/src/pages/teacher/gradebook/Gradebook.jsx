@@ -145,17 +145,17 @@ const handleGradeChange = (studentId, field, value) => {
 };
 
 
+
 const calculateTotalsWithPositions = (grades, students) => {
   const studentTotals = students.map((student) => {
     const g = grades[student.studentId] || {};
-    const testSum = 
-  (scores.test1 || 0) +
-  (scores.test2 || 0) +
-  (scores.test3 || 0) +
-  (scores.test4 || 0);
+     const testSum =
+      (g.test1 || 0) +
+      (g.test2 || 0) +
+      (g.test3 || 0) +
+      (g.test4 || 0);
 
-const examHalf = (scores.exam || 0) / 2;
-
+    const examHalf = (g.exam || 0) / 2;
 const total = Math.round(testSum + examHalf);
     return {
       studentId: student.studentId,
