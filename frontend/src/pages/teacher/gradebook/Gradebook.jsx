@@ -116,15 +116,16 @@ const fetchStudents = async (classId, subjectId) => {
 
 
   const handleGradeChange = (studentId, field, value) => {
-    const numericValue = Number(value);
-    setGrades((prev) => ({
-      ...prev,
-      [studentId]: {
-        ...prev[studentId],
-        [field]: numericValue,
-      },
-    }));
-  };
+  const numericValue = value === "" ? "" : Number(value);
+  setGrades((prev) => ({
+    ...prev,
+    [studentId]: {
+      ...prev[studentId],
+      [field]: numericValue,
+    },
+  }));
+};
+
 
   useEffect(() => {
     if (token && teacherId) {
