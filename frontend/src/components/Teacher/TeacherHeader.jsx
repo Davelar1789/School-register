@@ -238,11 +238,11 @@ const Header = () => {
                                  </NavLink>
                                </li>
                              )}
-                              <li>
+                              {/* <li>
                                        <NavLink to="/gradebook" className={({ isActive }) => isActive ? "active" : ""}>
                                          <FaComments className="icon" /> Gradebook
                                        </NavLink>
-                                     </li>
+                                     </li> */}
                               <li>
                                        <NavLink to="/attendance" className={({ isActive }) => isActive ? "active" : ""}>
                                          <FaComments className="icon" /> Attendance
