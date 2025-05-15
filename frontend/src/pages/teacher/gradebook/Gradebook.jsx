@@ -189,7 +189,7 @@ const handleSaveGrades = async () => {
       })),
     };
 
-    await axios.post("/api/grades", payload, {
+    await axios.post("/api/grades/grades", payload, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
