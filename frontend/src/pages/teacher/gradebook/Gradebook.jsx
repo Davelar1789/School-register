@@ -203,6 +203,7 @@ const handleSaveGrades = async () => {
       grades: Object.keys(grades).map((studentId) => ({
         studentId,
         scores: grades[studentId],
+        position: positionMap[studentId] || null, // ⬅️ Include position
       })),
     };
 
@@ -218,6 +219,7 @@ const handleSaveGrades = async () => {
     alert("Failed to save grades.");
   }
 };
+
 
 
   useEffect(() => {
