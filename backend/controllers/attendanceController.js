@@ -282,8 +282,18 @@ export const fetchStudentAttendance = async (req, res) => {
 
     const totalSchoolDays = getSchoolDays(startDate, endDate);
 
-    // Find students in the selected class
-    const students = await Students.find({ classes: classId }).select("_id name idno feedingFee");
+    let students;
+
+    if (classId === "all") {
+      students = await Students.find({}).select("_id name idno feedingFee");
+    } else {
+      if (!mongoose.Types.ObjectId.isValid(classId)) {
+        return res.status(400).json({ message: "Invalid class ID format." });
+      }
+
+      students = await Students.find({ classes: classId }).select("_id name idno feedingFee");
+    }
+
     if (!students.length) {
       return res.status(404).json({ message: "No students found for this class." });
     }
