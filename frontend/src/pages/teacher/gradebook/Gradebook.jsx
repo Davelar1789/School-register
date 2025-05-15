@@ -189,6 +189,20 @@ useEffect(() => {
   }
 }, [grades, students]);
 
+const formatPosition = (pos) => {
+  const suffix = (n) => {
+    if (n % 100 >= 11 && n % 100 <= 13) return "th";
+    switch (n % 10) {
+      case 1: return "st";
+      case 2: return "nd";
+      case 3: return "rd";
+      default: return "th";
+    }
+  };
+  return pos ? `${pos}${suffix(pos)}` : "";
+};
+
+
 const handleSaveGrades = async () => {
   if (!selectedClass || !selectedSubject || !currentTerm?._id || !grades) {
     alert("Please select class, subject and make sure grades are available.");
@@ -203,7 +217,7 @@ const handleSaveGrades = async () => {
       grades: Object.keys(grades).map((studentId) => ({
         studentId,
         scores: grades[studentId],
-        position: positionMap[studentId] || null, // ⬅️ Include position
+        position: formatPosition(positionMap[studentId])
       })),
     };
 
