@@ -5,41 +5,51 @@ import TermSession from "../models/TermSession.model.js";
 
 export const getStudentGrades = async (req, res) => {
   try {
-    const { classId, subjectId, termId } = req.query;
+    console.log("Fetching student grades...");
+    console.log("Request query:", req.query);
 
+    const { classId, subjectId, termId } = req.query;
     if (!classId || !subjectId || !termId) {
+      console.error("Missing class, subject, or term ID");
       return res.status(400).json({ message: "Missing class, subject or term ID" });
     }
 
-    // Get students in the class
+    console.log(`Getting students in class ${classId}...`);
     const students = await Students.find({ classes: classId }).select("_id name");
+    console.log(`Found ${students.length} students in class ${classId}`);
 
-    // Get existing grade entries
-    const gradeEntries = await GradeEntry.find({
-      classId,
-      subjectId,
-      termId,
-    });
+    console.log(`Getting grade entries for class ${classId}, subject ${subjectId}, and term ${termId}...`);
+    const gradeEntries = await GradeEntry.find({ classId, subjectId, termId });
+    console.log(`Found ${gradeEntries.length} grade entries`);
 
-    // Match grades to students (or provide default structure)
-    const result = students.map(student => {
-      const entry = gradeEntries.find(g => g.studentId.toString() === student._id.toString());
-
+    console.log("Matching grades to students...");
+    const result = students.map((student) => {
+      const entry = gradeEntries.find((g) => g.studentId.toString() === student._id.toString());
       return {
         studentId: student._id,
         name: student.name,
         scores: entry?.scores || {
-          test1: 0, test2: 0, test3: 0, test4: 0, exam: 0, total: 0, position: 0
-        }
+          test1: 0,
+          test2: 0,
+          test3: 0,
+          test4: 0,
+          exam: 0,
+          total: 0,
+          position: 0,
+        },
       };
     });
+    console.log("Student grades fetched successfully!");
 
     res.json(result);
   } catch (error) {
     console.error("Failed to fetch student grades:", error.message);
+    console.error("Error stack:", error.stack);
     res.status(500).json({ message: "Server error" });
   }
 };
+
+
 
 export const saveStudentGrades = async (req, res) => {
   try {
