@@ -115,9 +115,22 @@ const fetchStudents = async (classId, subjectId) => {
   }
 };
 
-
-  const handleGradeChange = (studentId, field, value) => {
+const handleGradeChange = (studentId, field, value) => {
   const numericValue = value === "" ? "" : Number(value);
+
+  const maxValues = {
+    test1: 10,
+    test2: 10,
+    test3: 10,
+    test4: 20,
+    exam: 100,
+  };
+
+  if (numericValue !== "" && numericValue > maxValues[field]) {
+    alert(`The maximum allowed value for ${field.toUpperCase()} is ${maxValues[field]}`);
+    return;
+  }
+
   setGrades((prev) => ({
     ...prev,
     [studentId]: {
@@ -126,6 +139,7 @@ const fetchStudents = async (classId, subjectId) => {
     },
   }));
 };
+
 
 const calculateTotalsWithPositions = (grades, students) => {
   const studentTotals = students.map((student) => {
@@ -137,9 +151,11 @@ const calculateTotalsWithPositions = (grades, students) => {
       Number(g.test4 || 0);
     const examHalf = Number(g.exam || 0) / 2;
 
+    const total = Math.round(testSum + examHalf);
+
     return {
       studentId: student.studentId,
-      total: testSum + examHalf,
+      total,
     };
   });
 
@@ -163,6 +179,7 @@ const calculateTotalsWithPositions = (grades, students) => {
 
   return positions;
 };
+
 
 
 useEffect(() => {
@@ -288,7 +305,7 @@ const handleSaveGrades = async () => {
       (Number(studentGrades.test4) || 0);
 
     const examScore = Number(studentGrades.exam) || 0;
-    const total = testTotal + examScore / 2;
+    const total = Math.round(testTotal + examScore / 2);
 
     const position = positionMap[student.studentId] || "-";
 
