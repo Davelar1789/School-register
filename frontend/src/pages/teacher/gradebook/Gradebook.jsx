@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../../api/axios";
-import "./Gradebook.css"; // we'll handle responsive styling here
+import "./Gradebook.modules.css"; // we'll handle responsive styling here
 
 const Gradebook = () => {
   const [classes, setClasses] = useState([]);
