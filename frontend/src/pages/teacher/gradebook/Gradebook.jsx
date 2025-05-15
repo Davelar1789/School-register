@@ -45,21 +45,36 @@ const Gradebook = () => {
     }
   };
 
-  const fetchSubjects = async (classId) => {
-    if (!token || !teacherId) return;
+ const fetchSubjects = async (classId) => {
+  if (!token || !teacherId) return;
 
-    try {
-      const res = await axios.get(
-        `/api/teachers/${teacherId}/subjects?classId=${classId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setSubjects(Array.isArray(res.data.subjects) ? res.data.subjects : []);
-    } catch (err) {
-      console.error("Error fetching subjects:", err);
+  try {
+    const res = await axios.get(
+      `/api/teachers/${teacherId}/subjects?classId=${classId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    const rawSubjects = Array.isArray(res.data.subjects) ? res.data.subjects : [];
+
+    // Filter to keep only unique subject names
+    const uniqueSubjects = [];
+    const seenNames = new Set();
+
+    for (const subj of rawSubjects) {
+      if (!seenNames.has(subj.subjectName)) {
+        seenNames.add(subj.subjectName);
+        uniqueSubjects.push(subj);
+      }
     }
-  };
+
+    setSubjects(uniqueSubjects);
+  } catch (err) {
+    console.error("Error fetching subjects:", err);
+  }
+};
+
 
   const fetchStudents = async (classId, subjectId) => {
     if (!token) return;
