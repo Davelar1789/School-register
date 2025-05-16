@@ -57,7 +57,7 @@ const Gradebook = () => {
 
     try {
       const res = await axios.get(
-        `/api/teachers/${teacherId}/subjects?classId=${classId}`,
+        `/api/teachers/${teacherId}/subjects2?classId=${classId}`,
         {
           headers: { Authorization: `Bearer ${token}` },
         }
