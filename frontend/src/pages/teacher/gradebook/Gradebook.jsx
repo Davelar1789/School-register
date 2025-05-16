@@ -52,34 +52,41 @@ const Gradebook = () => {
     }
   };
 
-  const fetchSubjects = async (classId) => {
-    if (!token || !teacherId) return;
-
-    try {
-      const res = await axios.get(
-        `/api/teachers/${teacherId}/subjects2?classId=${classId}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      const rawSubjects = Array.isArray(res.data.subjects) ? res.data.subjects : [];
-
-      const uniqueSubjects = [];
-      const seenNames = new Set();
-
-      for (const subj of rawSubjects) {
-        if (!seenNames.has(subj.subjectName)) {
-          seenNames.add(subj.subjectName);
-          uniqueSubjects.push(subj);
-        }
+ 
+const fetchSubjects = async (classId) => {
+  console.log("Fetching subjects for class:", classId);
+  if (!token || !teacherId) {
+    console.log("Token or teacher ID missing, aborting fetch.");
+    return;
+  }
+  try {
+    console.log("Making GET request to /api/teachers/${teacherId}/subjects2");
+    const res = await axios.get(
+      `/api/teachers/${teacherId}/subjects2?classId=${classId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
       }
+    );
+    console.log("Received response:", res.data);
 
-      setSubjects(uniqueSubjects);
-    } catch (err) {
-      console.error("Error fetching subjects:", err);
+    const rawSubjects = Array.isArray(res.data.subjects) ? res.data.subjects : [];
+    console.log("Raw subjects:", rawSubjects);
+
+    const uniqueSubjects = [];
+    const seenNames = new Set();
+    for (const subj of rawSubjects) {
+      if (!seenNames.has(subj.subjectName)) {
+        seenNames.add(subj.subjectName);
+        uniqueSubjects.push(subj);
+      }
     }
-  };
+    console.log("Unique subjects:", uniqueSubjects);
+
+    setSubjects(uniqueSubjects);
+  } catch (err) {
+    console.error("Error fetching subjects:", err);
+  }
+};
 
   const fetchCurrentTerm = async () => {
     if (!schoolId || !token) return;
