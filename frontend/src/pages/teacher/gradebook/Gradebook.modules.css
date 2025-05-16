@@ -58,3 +58,10 @@
     width: 50px;
   }
 }
+
+@media (min-width: 768px) {
+  .gradebook-container {
+    margin-left: 250px;
+    margin-top: 50px;
+  }
+}
