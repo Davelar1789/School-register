@@ -6,6 +6,20 @@ import { MdDelete, MdEdit } from "react-icons/md";
 import Sidebar from "../../../components/Admin/Sidebar";
 import { toast } from "react-hot-toast";
 
+const getDataFromToken = () => {
+  const token = localStorage.getItem("token");
+  if (!token) return null;
+  try {
+    const decodedToken = JSON.parse(atob(token.split(".")[1]));
+    return {
+      schoolId: decodedToken?.schoolId || null,
+    };
+  } catch (error) {
+    console.error("Error decoding token:", error);
+    return null;
+  }
+};
+
 const Subjects = () => {
   const [subjects, setSubjects] = useState([]);
   const [classes, setClasses] = useState([]);
@@ -13,15 +27,17 @@ const Subjects = () => {
   const [editingSubject, setEditingSubject] = useState(null);
   const [subjectName, setSubjectName] = useState("");
   const [selectedClasses, setSelectedClasses] = useState([]);
+  const { schoolId } = getDataFromToken() || {};
 
   useEffect(() => {
-    fetchSubjects();
-    fetchClasses();
-  }, []);
+    if (schoolId) {
+      fetchSubjects();
+      fetchClasses();
+    }
+  }, [schoolId]);
 
   const fetchSubjects = async () => {
     try {
-      const schoolId = localStorage.getItem("schoolId");
       const res = await axios.get(`/api/subjects/school/${schoolId}`);
       setSubjects(res.data);
     } catch (error) {
@@ -31,13 +47,13 @@ const Subjects = () => {
 
   const fetchClasses = async () => {
     try {
-      const schoolId = localStorage.getItem("schoolId");
       const res = await axios.get(`/api/classes/school/${schoolId}`);
       setClasses(res.data);
     } catch (error) {
       toast.error("Failed to fetch classes");
     }
   };
+
 
   const openModal = (subject = null) => {
     setModalOpen(true);
