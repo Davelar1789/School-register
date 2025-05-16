@@ -336,19 +336,31 @@ export const getTeacherSubjects2 = async (req, res) => {
   const { teacherId } = req.params;
   const { classId } = req.query;
 
+  console.log("🔍 Incoming request to fetch teacher subjects");
+  console.log(`📌 Teacher ID: ${teacherId}`);
+  if (classId) console.log(`📘 Class ID provided: ${classId}`);
+
   try {
     const teacher = await Teacher.findById(teacherId);
 
     if (!teacher) {
+      console.warn(`⚠️ Teacher with ID ${teacherId} not found`);
       return res.status(404).json({ message: "Teacher not found" });
     }
+
+    console.log(`👩‍🏫 Teacher found: ${teacher.fullName || teacher._id}`);
+    console.log(`📖 Teacher Type: ${teacher.teacherType}`);
 
     let result = [];
 
     if (teacher.teacherType === "Subject Teacher" || teacher.teacherType === "Both") {
+      console.log("🧠 Teacher is a Subject Teacher or Both. Fetching assigned subjects...");
+      
       const classes = await Class.find({ "subjects.teachers": teacherId })
         .populate("subjects.subject", "name")
         .select("className level subjects");
+
+      console.log(`🏫 Found ${classes.length} classes with subjects assigned to teacher`);
 
       for (const cls of classes) {
         const teacherSubjects = cls.subjects
@@ -360,17 +372,23 @@ export const getTeacherSubjects2 = async (req, res) => {
             level: cls.level,
           }));
 
+        console.log(`📘 ${cls.className} (${cls.level}): ${teacherSubjects.length} subjects assigned`);
         result.push(...teacherSubjects);
       }
 
     } else if (teacher.teacherType === "Class Teacher" && classId) {
+      console.log("🧠 Teacher is a Class Teacher. Fetching all subjects of the class...");
+
       const cls = await Class.findById(classId)
         .populate("subjects.subject", "name")
         .select("className level subjects");
 
       if (!cls) {
+        console.warn(`⚠️ Class with ID ${classId} not found`);
         return res.status(404).json({ message: "Class not found" });
       }
+
+      console.log(`🏫 Class found: ${cls.className} (${cls.level}) with ${cls.subjects.length} subjects`);
 
       const allSubjects = cls.subjects.map(sub => ({
         subjectId: sub.subject?._id,
@@ -381,13 +399,15 @@ export const getTeacherSubjects2 = async (req, res) => {
 
       result = allSubjects;
     } else {
+      console.warn("❌ Invalid request: either unsupported teacher type or classId missing for Class Teacher");
       return res.status(400).json({ message: "Invalid request or missing classId for class teachers." });
     }
 
+    console.log(`✅ Total subjects returned: ${result.length}`);
     return res.status(200).json({ subjects: result });
 
   } catch (error) {
-    console.error("Error fetching teacher subjects:", error);
+    console.error("❗ Server error fetching teacher subjects:", error);
     return res.status(500).json({ message: "Server error fetching subjects" });
   }
 };
