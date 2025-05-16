@@ -31,7 +31,6 @@ const NotificationsPage = () => {
 
             try {
                 const response = await axios.get(`/api/notification/teacher/${teacherId}`);
-                console.log("🔎 Fetched notifications:", response.data);
 
                 if (Array.isArray(response.data)) {
                     setNotifications(response.data);
@@ -54,7 +53,6 @@ const NotificationsPage = () => {
         socket.on("disconnect", (reason) => console.warn(`❌ WebSocket disconnected: ${reason}`));
 
         socket.on("new-notification", (notification) => {
-            console.log("🔔 Real-Time Notification:", notification);
             setNotifications((prev) => [notification, ...prev]); // ✅ Merge new notifications
         });
 
@@ -69,7 +67,6 @@ const NotificationsPage = () => {
         try {
             await axios.delete(`https://school-register-a2bx.onrender.com/api/notification/clear-all/${teacherId}`);
             setNotifications([]); // ✅ Clear notifications in the UI immediately
-            console.log("✅ All notifications cleared!");
         } catch (error) {
             console.error("❌ Error clearing notifications:", error);
         }
