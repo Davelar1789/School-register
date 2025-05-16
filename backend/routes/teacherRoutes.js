@@ -11,6 +11,7 @@ import {
   assignClassesToTeacher,
   getTeacherClasses,
   getTeacherSubjects,
+  getTeacherSubjects2,
   firstTimeSetup,
   patchTeachers} from "../controllers/teacherController.js";
 import { protect } from "../middleware/authMiddleware.js"; // if you're using JWT middleware
@@ -29,6 +30,7 @@ router.put("/:id", updateTeacher);
 router.delete("/:id", deleteTeacher);
 router.put("/:id/assign-classes", assignClassesToTeacher);
 router.get("/:teacherId/subjects", getTeacherSubjects);
+router.get("/:teacherId/subjects2", getTeacherSubjects2);
 router.patch("/patch-teachers", patchTeachers);
 
 

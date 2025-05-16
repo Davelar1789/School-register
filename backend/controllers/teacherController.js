@@ -332,6 +332,66 @@ export const getTeacherSubjects = async (req, res) => {
   }
 };
 
+export const getTeacherSubjects2 = async (req, res) => {
+  const { teacherId } = req.params;
+  const { classId } = req.query;
+
+  try {
+    const teacher = await Teacher.findById(teacherId);
+
+    if (!teacher) {
+      return res.status(404).json({ message: "Teacher not found" });
+    }
+
+    let result = [];
+
+    if (teacher.teacherType === "Subject Teacher" || teacher.teacherType === "Both") {
+      const classes = await Class.find({ "subjects.teachers": teacherId })
+        .populate("subjects.subject", "name")
+        .select("className level subjects");
+
+      for (const cls of classes) {
+        const teacherSubjects = cls.subjects
+          .filter(sub => sub.teachers.includes(teacherId))
+          .map(sub => ({
+            subjectId: sub.subject?._id,
+            subjectName: sub.subject?.name || "Unknown",
+            className: cls.className,
+            level: cls.level,
+          }));
+
+        result.push(...teacherSubjects);
+      }
+
+    } else if (teacher.teacherType === "Class Teacher" && classId) {
+      const cls = await Class.findById(classId)
+        .populate("subjects.subject", "name")
+        .select("className level subjects");
+
+      if (!cls) {
+        return res.status(404).json({ message: "Class not found" });
+      }
+
+      const allSubjects = cls.subjects.map(sub => ({
+        subjectId: sub.subject?._id,
+        subjectName: sub.subject?.name || "Unknown",
+        className: cls.className,
+        level: cls.level,
+      }));
+
+      result = allSubjects;
+    } else {
+      return res.status(400).json({ message: "Invalid request or missing classId for class teachers." });
+    }
+
+    return res.status(200).json({ subjects: result });
+
+  } catch (error) {
+    console.error("Error fetching teacher subjects:", error);
+    return res.status(500).json({ message: "Server error fetching subjects" });
+  }
+};
+
 
 export const patchTeachers = async (req, res) => {
     try {
