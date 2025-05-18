@@ -7,6 +7,8 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   PieChart, Pie, ResponsiveContainer
 } from "recharts";
+import { FaPlus, FaMoneyBillWave, FaEdit, FaTrash } from "react-icons/fa";
+
 
 
 import "./FeedingFee.modules.css";
@@ -223,10 +225,21 @@ const FeedingFeePage = () => {
         {/* 🟦 Total Paid Info */}
         {selectedClass && students.length > 0 && (
           <div className="total-feeding-paid">
-            <h3>
-              Total Feeding Paid for Class:{" "}
+            <div className="time-summary">
+          <div className="time-summary-box">
+            <FaMoneyBillWave className="time-summary-icon" />
+            <div>
+              <h3>Total Feeding Paid for Class:{" "}</h3>
               <span>GHC {totalClassPaid.toLocaleString()}</span>
-            </h3>
+            </div>
+          </div>
+          <div className="time-summary-box">
+            <FaMoneyBillWave className="time-summary-icon" />
+            <div>
+              <h3>Total Feeding Paid for School</h3>
+            </div>
+          </div>
+        </div>
           </div>
         )}
 
