@@ -20,7 +20,7 @@ const FeedingFeePage = () => {
   const [loading, setLoading] = useState(false);
   const [totalClassPaid, setTotalClassPaid] = useState(0);
   const [displayAs, setDisplayAs] = useState("table"); // 👈 This is missing
-
+const [totalSchoolPaid, setTotalSchoolPaid] = useState(0);
   const [viewBy, setViewBy] = useState("term"); // 'today' | 'week' | 'month' | 'term'
 
   const schoolDataRaw = localStorage.getItem("schoolData");
@@ -106,6 +106,33 @@ const FeedingFeePage = () => {
   }
 };
 
+const fetchTotalFeedingForSchool = async () => {
+  try {
+    // First: fetch the latest term
+    const termRes = await axios.get(`/api/terms/latest`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const latestTerm = termRes.data?._id;
+    if (!latestTerm) {
+      toast.error("Failed to fetch latest term");
+      return;
+    }
+
+    // Then: fetch school total based on term and viewBy
+    const res = await axios.get(
+      `/api/classes/feeding-total/school/${schoolId}?termId=${latestTerm}&viewBy=${viewBy}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    setTotalSchoolPaid(res.data?.totalPaid || 0);
+  } catch (error) {
+    toast.error("Failed to fetch school's total feeding paid.");
+  }
+};
+
 
   const updateClassTotalPaid = async (classId, totalPaid) => {
     try {
@@ -126,10 +153,12 @@ const FeedingFeePage = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedClass) {
-      fetchStudentsByClass(selectedClass);
-    }
-  }, [viewBy]); // Re-fetch when filter changes
+  if (selectedClass) {
+    fetchStudentsByClass(selectedClass);
+  }
+  fetchTotalFeedingForSchool(); // add this
+}, [viewBy]);
+
 
   return (
     <div>
@@ -237,6 +266,7 @@ const FeedingFeePage = () => {
             <FaMoneyBillWave className="time-summary-icon" />
             <div>
               <h3>Total Feeding Paid for School</h3>
+              <span>GHC {totalSchoolPaid.toLocaleString()}</span>
             </div>
           </div>
         </div>
