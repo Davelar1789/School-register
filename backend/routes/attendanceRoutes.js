@@ -7,7 +7,7 @@ router.post("/mark", markAttendance); // Mark attendance
 router.post("/mark-batch", markAttendanceBatch);
 router.get("/fetch", fetchAttendance); // Fetch attendance (by term, class, or student)
 router.get("/student-total", fetchStudentAttendance);
-router.get("/feeding/total-school", fetchTotalFeesBySchoolView);
+router.get("/feeding/total-school/:schoolId", fetchTotalFeesBySchoolView);
 router.put("/update/:attendanceId", updateAttendance); // Update attendance
 router.get("/feeding/daily", getFeedingDaily);
 router.get("/feeding/weekly", getFeedingWeekly);
