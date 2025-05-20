@@ -328,7 +328,8 @@ export const fetchStudentAttendance = async (req, res) => {
 
 export const fetchTotalFeesBySchoolView = async (req, res) => {
   try {
-    const { termId, schoolId, viewBy = "term" } = req.query;
+const { termId, viewBy = "term" } = req.query;
+const { schoolId } = req.params;
 
     console.log("Incoming request to fetchTotalFeesBySchoolView");
     console.log("Query params =>", { termId, schoolId, viewBy });
