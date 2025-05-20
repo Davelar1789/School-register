@@ -266,25 +266,10 @@ export const fetchTotalFeesBySchoolView = async (req, res) => {
 
       case "term":
       default:
-        // already set
+        endDate = new Date(term.endDate);
+        endDate.setHours(23, 59, 59, 999);
         break;
     }
-
-    // Helper: Get school days in range
-    const getSchoolDays = (start, end) => {
-      let count = 0;
-      let current = new Date(start);
-      while (current <= end) {
-        const day = current.getDay();
-        if (day >= 1 && day <= 5) {
-          count++;
-        }
-        current.setDate(current.getDate() + 1);
-      }
-      return count;
-    };
-
-    const totalSchoolDays = getSchoolDays(startDate, endDate);
 
     // Get all students in the school
     const students = await Students.find({ school: schoolId }).select("_id name feedingFee");
@@ -294,6 +279,7 @@ export const fetchTotalFeesBySchoolView = async (req, res) => {
     }
 
     let totalFee = 0;
+    const detailedStudents = [];
 
     // Calculate fee per student by multiplying per-day fee with present days
     for (const student of students) {
@@ -304,15 +290,25 @@ export const fetchTotalFeesBySchoolView = async (req, res) => {
         date: { $gte: startDate, $lte: endDate },
       });
 
-      // Assuming feedingFee is per day attended
       const studentFee = (student.feedingFee || 0) * attendanceCount;
       totalFee += studentFee;
+
+      detailedStudents.push({
+        _id: student._id,
+        name: student.name,
+        feedingFee: student.feedingFee || 0,
+        totalPresentDays: attendanceCount,
+        totalAmountPaid: studentFee,
+      });
     }
 
     res.status(200).json({
       viewBy,
-      totalSchoolDays,
+      startDate,
+      endDate,
       totalFee,
+      totalSchoolPaid: totalFee,
+      students: detailedStudents,
       currency: "GHS",
     });
   } catch (error) {
