@@ -399,7 +399,7 @@ const { schoolId } = req.params;
 
     // Get all students in the school
         const students = await Students.find({
-          schoolId: mongoose.Types.ObjectId(schoolId),
+        schoolId: new mongoose.Types.ObjectId(schoolId),
         }).select("_id name feedingFee");
 
     console.log(`Found ${students.length} students in school`);
