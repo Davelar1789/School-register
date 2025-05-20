@@ -213,6 +213,119 @@ export const updateAttendance = async (req, res) => {
 };
 
 
+export const fetchStudentAttendance = async (req, res) => {
+  try {
+    const { termId, classId, viewBy = "term" } = req.query;
+
+    if (!mongoose.Types.ObjectId.isValid(termId)) {
+      return res.status(400).json({ message: "Invalid term ID format." });
+    }
+
+    // Ensure term session exists
+    const term = await TermSession.findById(termId);
+    if (!term) {
+      return res.status(404).json({ message: "Term session not found." });
+    }
+
+    const today = new Date();
+    let startDate = new Date(term.startDate);
+    let endDate = new Date(today);
+
+    const validViews = ["today", "week", "month", "term"];
+      if (!validViews.includes(viewBy)) {
+        return res.status(400).json({ message: "Invalid viewBy option." });
+      }
+
+    // Calculate range based on `viewBy`
+    switch (viewBy) {
+      case "today":
+        startDate = new Date(today.setHours(0, 0, 0, 0));
+        endDate = new Date(today.setHours(23, 59, 59, 999));
+        break;
+
+      case "week": {
+        const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday
+        const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+        startDate = new Date(today);
+        startDate.setDate(today.getDate() + mondayOffset);
+        startDate.setHours(0, 0, 0, 0);
+        endDate = new Date(startDate);
+        endDate.setDate(startDate.getDate() + 4); // Monday to Friday
+        endDate.setHours(23, 59, 59, 999);
+        break;
+      }
+
+      case "month":
+        startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+        endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        endDate.setHours(23, 59, 59, 999);
+        break;
+
+      case "term":
+      default:
+        // already set to term start - today
+        break;
+    }
+
+    // Helper: Count valid school days (Mon-Fri) in the range
+    const getSchoolDays = (start, end) => {
+      let count = 0;
+      let current = new Date(start);
+      while (current <= end) {
+        if (current.getDay() !== 0 && current.getDay() !== 6) {
+          count++;
+        }
+        current.setDate(current.getDate() + 1);
+      }
+      return count;
+    };
+
+    const totalSchoolDays = getSchoolDays(startDate, endDate);
+
+    let students;
+
+    if (classId === "all") {
+      students = await Students.find({}).select("_id name idno feedingFee");
+    } else {
+      if (!mongoose.Types.ObjectId.isValid(classId)) {
+        return res.status(400).json({ message: "Invalid class ID format." });
+      }
+
+      students = await Students.find({ classes: classId }).select("_id name idno feedingFee");
+    }
+
+    if (!students.length) {
+      return res.status(404).json({ message: "No students found for this class." });
+    }
+
+    // Fetch attendance for each student in the selected range
+    const studentAttendance = await Promise.all(
+      students.map(async (student) => {
+        const attendanceCount = await Attendance.countDocuments({
+          studentId: student._id,
+          termId,
+          present: true,
+          date: { $gte: startDate, $lte: endDate },
+        });
+
+        return {
+          _id: student._id,
+          name: student.name,
+          idno: student.idno,
+          feedingFee: student.feedingFee,
+          totalPresentDays: attendanceCount,
+          totalSchoolDays,
+        };
+      })
+    );
+
+    res.status(200).json(studentAttendance);
+  } catch (error) {
+    console.error("Error fetching student attendance:", error.message);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};
+
 export const fetchTotalFeesBySchoolView = async (req, res) => {
   try {
     const { termId, schoolId, viewBy = "term" } = req.query;
@@ -316,8 +429,6 @@ export const fetchTotalFeesBySchoolView = async (req, res) => {
     res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
-
-
 
 
 
