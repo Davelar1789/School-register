@@ -121,7 +121,7 @@ const fetchTotalFeedingForSchool = async () => {
 
     // Then: fetch school total based on term and viewBy
     const res = await axios.get(
-      `/api/attendance/feeding/total-school/${schoolId}?termId=${latestTerm}&viewBy=${viewBy}`,
+      `/api/attendance/feeding-total/school/${schoolId}?termId=${latestTerm}&viewBy=${viewBy}`,
       {
         headers: { Authorization: `Bearer ${token}` },
       }
