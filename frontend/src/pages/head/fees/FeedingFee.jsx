@@ -127,7 +127,7 @@ const fetchTotalFeedingForSchool = async () => {
       }
     );
 
-    setTotalSchoolPaid(res.data?.totalPaid || 0);
+setTotalSchoolPaid(res.data?.totalSchoolPaid || 0);
   } catch (error) {
     toast.error("Failed to fetch school's total feeding paid.");
   }
