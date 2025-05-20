@@ -402,7 +402,6 @@ const { schoolId } = req.params;
         schoolId: new mongoose.Types.ObjectId(schoolId),
         }).select("_id name feedingFee");
 
-    console.log(`Found ${students.length} students in school`);
 
     if (!students.length) {
       console.warn("No students found for school:", schoolId);
@@ -423,7 +422,6 @@ const { schoolId } = req.params;
       const studentFee = (student.feedingFee || 0) * attendanceCount;
       totalFee += studentFee;
 
-      console.log(`Student: ${student.name} | Fee per day: ${student.feedingFee || 0} | Days present: ${attendanceCount} | Total paid: ${studentFee}`);
 
       detailedStudents.push({
         _id: student._id,
