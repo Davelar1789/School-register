@@ -330,16 +330,22 @@ export const fetchTotalFeesBySchoolView = async (req, res) => {
   try {
     const { termId, schoolId, viewBy = "term" } = req.query;
 
+    console.log("Incoming request to fetchTotalFeesBySchoolView");
+    console.log("Query params =>", { termId, schoolId, viewBy });
+
     if (!mongoose.Types.ObjectId.isValid(termId)) {
+      console.warn("Invalid term ID format:", termId);
       return res.status(400).json({ message: "Invalid term ID format." });
     }
 
     if (!mongoose.Types.ObjectId.isValid(schoolId)) {
+      console.warn("Invalid school ID format:", schoolId);
       return res.status(400).json({ message: "Invalid school ID format." });
     }
 
     const term = await TermSession.findById(termId);
     if (!term) {
+      console.warn("Term not found for ID:", termId);
       return res.status(404).json({ message: "Term session not found." });
     }
 
@@ -349,6 +355,7 @@ export const fetchTotalFeesBySchoolView = async (req, res) => {
 
     const validViews = ["today", "week", "month", "term"];
     if (!validViews.includes(viewBy)) {
+      console.warn("Invalid viewBy option received:", viewBy);
       return res.status(400).json({ message: "Invalid viewBy option." });
     }
 
@@ -384,17 +391,24 @@ export const fetchTotalFeesBySchoolView = async (req, res) => {
         break;
     }
 
+    console.log("Calculated date range =>", {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    });
+
     // Get all students in the school
     const students = await Students.find({ school: schoolId }).select("_id name feedingFee");
 
+    console.log(`Found ${students.length} students in school`);
+
     if (!students.length) {
+      console.warn("No students found for school:", schoolId);
       return res.status(404).json({ message: "No students found in this school." });
     }
 
     let totalFee = 0;
     const detailedStudents = [];
 
-    // Calculate fee per student by multiplying per-day fee with present days
     for (const student of students) {
       const attendanceCount = await Attendance.countDocuments({
         studentId: student._id,
@@ -406,6 +420,8 @@ export const fetchTotalFeesBySchoolView = async (req, res) => {
       const studentFee = (student.feedingFee || 0) * attendanceCount;
       totalFee += studentFee;
 
+      console.log(`Student: ${student.name} | Fee per day: ${student.feedingFee || 0} | Days present: ${attendanceCount} | Total paid: ${studentFee}`);
+
       detailedStudents.push({
         _id: student._id,
         name: student.name,
@@ -414,6 +430,8 @@ export const fetchTotalFeesBySchoolView = async (req, res) => {
         totalAmountPaid: studentFee,
       });
     }
+
+    console.log("Total school feeding fee calculated:", totalFee);
 
     res.status(200).json({
       viewBy,
@@ -425,10 +443,11 @@ export const fetchTotalFeesBySchoolView = async (req, res) => {
       currency: "GHS",
     });
   } catch (error) {
-    console.error("Error fetching total school fees:", error.message);
+    console.error("❌ Error fetching total school fees:", error.message);
     res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
+
 
 
 
