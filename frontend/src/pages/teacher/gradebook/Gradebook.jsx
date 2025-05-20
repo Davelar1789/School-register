@@ -46,7 +46,6 @@ const Gradebook = () => {
       });
       setClasses(Array.isArray(res.data.classes) ? res.data.classes : []);
     } catch (err) {
-      console.error("Error fetching classes:", err);
     } finally {
       setLoading(false);
     }
@@ -54,9 +53,7 @@ const Gradebook = () => {
 
  
 const fetchSubjects = async (classId) => {
-  console.log("Fetching subjects for class:", classId);
   if (!token || !teacherId) {
-    console.log("Token or teacher ID missing, aborting fetch.");
     return;
   }
   try {
@@ -67,10 +64,8 @@ const fetchSubjects = async (classId) => {
         headers: { Authorization: `Bearer ${token}` },
       }
     );
-    console.log("Received response:", res.data);
 
     const rawSubjects = Array.isArray(res.data.subjects) ? res.data.subjects : [];
-    console.log("Raw subjects:", rawSubjects);
 
     const uniqueSubjects = [];
     const seenNames = new Set();
@@ -80,7 +75,6 @@ const fetchSubjects = async (classId) => {
         uniqueSubjects.push(subj);
       }
     }
-    console.log("Unique subjects:", uniqueSubjects);
 
     setSubjects(uniqueSubjects);
   } catch (err) {
