@@ -213,15 +213,18 @@ export const updateAttendance = async (req, res) => {
 };
 
 
-export const fetchStudentAttendance = async (req, res) => {
+export const fetchTotalFeesBySchoolView = async (req, res) => {
   try {
-    const { termId, classId, viewBy = "term" } = req.query;
+    const { termId, schoolId, viewBy = "term" } = req.query;
 
     if (!mongoose.Types.ObjectId.isValid(termId)) {
       return res.status(400).json({ message: "Invalid term ID format." });
     }
 
-    // Ensure term session exists
+    if (!mongoose.Types.ObjectId.isValid(schoolId)) {
+      return res.status(400).json({ message: "Invalid school ID format." });
+    }
+
     const term = await TermSession.findById(termId);
     if (!term) {
       return res.status(404).json({ message: "Term session not found." });
@@ -232,11 +235,11 @@ export const fetchStudentAttendance = async (req, res) => {
     let endDate = new Date(today);
 
     const validViews = ["today", "week", "month", "term"];
-      if (!validViews.includes(viewBy)) {
-        return res.status(400).json({ message: "Invalid viewBy option." });
-      }
+    if (!validViews.includes(viewBy)) {
+      return res.status(400).json({ message: "Invalid viewBy option." });
+    }
 
-    // Calculate range based on `viewBy`
+    // View-based date range calculation
     switch (viewBy) {
       case "today":
         startDate = new Date(today.setHours(0, 0, 0, 0));
@@ -244,13 +247,13 @@ export const fetchStudentAttendance = async (req, res) => {
         break;
 
       case "week": {
-        const dayOfWeek = today.getDay(); // 0 = Sunday, 1 = Monday
+        const dayOfWeek = today.getDay();
         const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
         startDate = new Date(today);
         startDate.setDate(today.getDate() + mondayOffset);
         startDate.setHours(0, 0, 0, 0);
         endDate = new Date(startDate);
-        endDate.setDate(startDate.getDate() + 4); // Monday to Friday
+        endDate.setDate(startDate.getDate() + 4);
         endDate.setHours(23, 59, 59, 999);
         break;
       }
@@ -263,16 +266,17 @@ export const fetchStudentAttendance = async (req, res) => {
 
       case "term":
       default:
-        // already set to term start - today
+        // already set
         break;
     }
 
-    // Helper: Count valid school days (Mon-Fri) in the range
+    // Helper: Get school days in range
     const getSchoolDays = (start, end) => {
       let count = 0;
       let current = new Date(start);
       while (current <= end) {
-        if (current.getDay() !== 0 && current.getDay() !== 6) {
+        const day = current.getDay();
+        if (day >= 1 && day <= 5) {
           count++;
         }
         current.setDate(current.getDate() + 1);
@@ -282,49 +286,41 @@ export const fetchStudentAttendance = async (req, res) => {
 
     const totalSchoolDays = getSchoolDays(startDate, endDate);
 
-    let students;
-
-    if (classId === "all") {
-      students = await Students.find({}).select("_id name idno feedingFee");
-    } else {
-      if (!mongoose.Types.ObjectId.isValid(classId)) {
-        return res.status(400).json({ message: "Invalid class ID format." });
-      }
-
-      students = await Students.find({ classes: classId }).select("_id name idno feedingFee");
-    }
+    // Get all students in the school
+    const students = await Students.find({ school: schoolId }).select("_id name feedingFee");
 
     if (!students.length) {
-      return res.status(404).json({ message: "No students found for this class." });
+      return res.status(404).json({ message: "No students found in this school." });
     }
 
-    // Fetch attendance for each student in the selected range
-    const studentAttendance = await Promise.all(
-      students.map(async (student) => {
-        const attendanceCount = await Attendance.countDocuments({
-          studentId: student._id,
-          termId,
-          present: true,
-          date: { $gte: startDate, $lte: endDate },
-        });
+    let totalFee = 0;
 
-        return {
-          _id: student._id,
-          name: student.name,
-          idno: student.idno,
-          feedingFee: student.feedingFee,
-          totalPresentDays: attendanceCount,
-          totalSchoolDays,
-        };
-      })
-    );
+    // Calculate fee per student by multiplying per-day fee with present days
+    for (const student of students) {
+      const attendanceCount = await Attendance.countDocuments({
+        studentId: student._id,
+        termId,
+        present: true,
+        date: { $gte: startDate, $lte: endDate },
+      });
 
-    res.status(200).json(studentAttendance);
+      // Assuming feedingFee is per day attended
+      const studentFee = (student.feedingFee || 0) * attendanceCount;
+      totalFee += studentFee;
+    }
+
+    res.status(200).json({
+      viewBy,
+      totalSchoolDays,
+      totalFee,
+      currency: "GHS",
+    });
   } catch (error) {
-    console.error("Error fetching student attendance:", error.message);
+    console.error("Error fetching total school fees:", error.message);
     res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
+
 
 
 
