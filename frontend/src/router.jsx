@@ -66,6 +66,7 @@ import Notifications from "./pages/head/notifications/Notifications";
 import Notifications2 from "./pages/teacher/notifications/Notifications";
 import Maintenance from "./pages/teacher/trial/Trial";
 import TGradebook from "./pages/teacher/gradebook/Gradebook";
+import AReport from "./pages/head/report/UploadReportTemplates";
 
 const router = createBrowserRouter([
   {
@@ -101,6 +102,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["admin"]}>
             <Notifications />
+          </ProtectedRoute>
+        ),      
+      },
+      {
+        path: "upload-report",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AReport />
           </ProtectedRoute>
         ),      
       },
