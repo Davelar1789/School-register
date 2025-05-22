@@ -4,16 +4,18 @@ export const uploadTemplate = async (req, res) => {
   try {
     console.log("🔥 Upload process started...");
 
-    // Log request body
+    // Ensure req.body is correctly parsed
     console.log("Received body:", req.body);
 
-    // Ensure file exists
+    // Explicitly extract values
+    const schoolId = req.body.schoolId;
+    const classIdsString = req.body.classIds; // It's coming as a stringified array
+
     if (!req.file) {
       console.error("❌ No file uploaded.");
       return res.status(400).json({ message: "No file uploaded." });
     }
 
-    // Log uploaded file details
     console.log("✅ File received:", {
       originalName: req.file.originalname,
       mimeType: req.file.mimetype,
@@ -21,24 +23,23 @@ export const uploadTemplate = async (req, res) => {
       savedPath: req.file.path,
     });
 
-    // Validate schoolId & classIds presence
-    if (!schoolId || !classIds) {
-      console.error("❌ Missing schoolId or classIds in request.");
-      return res.status(400).json({ message: "schoolId and classIds are required." });
+    // Validate `schoolId` presence
+    if (!schoolId) {
+      console.error("❌ Missing schoolId in request.");
+      return res.status(400).json({ message: "schoolId is required." });
     }
 
-    // Parse classIds safely
+    // Safely parse classIds
     let parsedClassIds;
     try {
-      parsedClassIds = JSON.parse(classIds);
-    } catch (parseError) {
-      console.error("❌ Error parsing classIds:", parseError.message);
+      parsedClassIds = JSON.parse(classIdsString);
+      console.log("✅ Parsed classIds:", parsedClassIds);
+    } catch (error) {
+      console.error("❌ Error parsing classIds:", error.message);
       return res.status(400).json({ message: "Invalid classIds format." });
     }
 
-    console.log("✅ Parsed classIds:", parsedClassIds);
-
-    // Create and save report template
+    // Save report template
     const newTemplate = new ReportTemplate({
       schoolId,
       classIds: parsedClassIds, // Should be an array
