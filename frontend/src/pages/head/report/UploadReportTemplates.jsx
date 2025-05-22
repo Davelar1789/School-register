@@ -10,7 +10,8 @@ const UploadReportTemplates = () => {
   const [templates, setTemplates] = useState([{ file: null, selectedClasses: [] }]);
   const [loading, setLoading] = useState(false);
 
-  const schoolId = localStorage.getItem("schoolId");
+const schoolDataRaw = localStorage.getItem("schoolData");
+const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
   const token = localStorage.getItem("token");
 
   // Fetch classes for this school
