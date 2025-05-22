@@ -3,6 +3,8 @@ import axios from "../../../api/axios";
 import Header from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
 import { toast } from "react-hot-toast";
+import "./UploadReportTemplates.modules.css"; // Optional for styling
+
 
 const GenerateClassReports = () => {
   const [classes, setClasses] = useState([]);
@@ -78,6 +80,7 @@ const GenerateClassReports = () => {
     <div>
       <Header />
       <Sidebar />
+      <div className="template-upload-container">
       <div style={{ marginLeft: "250px", padding: "2rem" }}>
         <h2>Generate Report Cards</h2>
 
@@ -130,6 +133,7 @@ const GenerateClassReports = () => {
             </a>
           </div>
         )}
+      </div>
       </div>
     </div>
   );
