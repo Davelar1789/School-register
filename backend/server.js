@@ -22,6 +22,8 @@ import attendanceRoutes from "./routes/attendanceRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import tutorialRoutes from "./routes/tutorialRoutes.js";
 import gradeRoutes from "./routes/gradeRoutes.js";
+import reportTemplateRoutes from "./routes/reportTemplateRoutes.js";
+
 
 // Middleware
 import { authToken } from "./middleware/authToken.js";
@@ -95,6 +97,9 @@ app.use("/api/attendance", attendanceRoutes);
 app.use("/api/notification", notificationRoutes);
 app.use("/api/tutorial", tutorialRoutes);
 app.use("/api/grades", gradeRoutes);
+app.use("/api/report-template", reportTemplateRoutes);
+app.use("/uploads", express.static("uploads"));
+
 
 app.get("/ping", (req, res) => {
     res.status(200).send("Pong!");
