@@ -30,11 +30,17 @@ export const generateClassReports = async (req, res) => {
 
     // 🔁 Download template from Cloudinary
     const cloudResponse = await axios.get(template.templatePath, { responseType: "arraybuffer" });
-    const templateBuffer = Buffer.from(cloudResponse.data, "binary");
+   const templateBuffer = Buffer.from(cloudResponse.data, "binary");
 
-    const zipPath = path.resolve(`generatedReports/class-${classId}-reports.zip`);
-    const output = fs.createWriteStream(zipPath);
-    const archive = archiver("zip");
+// 🔧 Ensure generatedReports folder exists
+const reportsDir = path.resolve("generatedReports");
+if (!fs.existsSync(reportsDir)) {
+  fs.mkdirSync(reportsDir, { recursive: true });
+}
+
+const zipPath = path.join(reportsDir, `class-${classId}-reports.zip`);
+const output = fs.createWriteStream(zipPath);
+const archive = archiver("zip");
 
     archive.pipe(output);
 
