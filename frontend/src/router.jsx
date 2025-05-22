@@ -116,7 +116,7 @@ const router = createBrowserRouter([
         ),      
       },
        {
-        path: "view-report",
+        path: "view-reports",
         element: (
           <ProtectedRoute allowedRoles={["admin"]}>
             <AVReport />
