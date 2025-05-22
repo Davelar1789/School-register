@@ -23,6 +23,7 @@ import notificationRoutes from "./routes/notificationRoutes.js";
 import tutorialRoutes from "./routes/tutorialRoutes.js";
 import gradeRoutes from "./routes/gradeRoutes.js";
 import reportTemplateRoutes from "./routes/reportTemplateRoutes.js";
+import reportRoutes from "./routes/reportRoutes.js";
 
 
 // Middleware
@@ -98,7 +99,9 @@ app.use("/api/notification", notificationRoutes);
 app.use("/api/tutorial", tutorialRoutes);
 app.use("/api/grades", gradeRoutes);
 app.use("/api/report-template", reportTemplateRoutes);
+app.use("/api/reports", reportRoutes);
 app.use("/uploads", express.static("uploads"));
+
 
 
 app.get("/ping", (req, res) => {
