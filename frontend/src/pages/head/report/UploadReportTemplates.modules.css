@@ -1,6 +1,5 @@
 .template-upload-container {
   padding: 2rem;
-  margin-left: 250px; /* Adjust if Sidebar width differs */
 }
 
 .template-block {
@@ -36,4 +35,10 @@
 .add-template-btn:hover,
 .upload-btn:hover {
   background-color: #024f9e;
+}
+
+@media (min-width: 768px) {
+    .template-upload-container {
+  margin-left: 250px; /* Adjust if Sidebar width differs */
+}
 }
