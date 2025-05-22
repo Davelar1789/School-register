@@ -9,6 +9,7 @@ import GradeEntry from "../models/Grade.model.js";
 import ReportTemplate from "../models/ReportTemplate.model.js";
 import TermSession from "../models/TermSession.model.js";
 import Class from "../models/Class.model.js";
+import Attendance from "../models/Attendance.model.js"; // ✅ NEW
 
 export const generateClassReports = async (req, res) => {
   try {
@@ -59,21 +60,14 @@ export const generateClassReports = async (req, res) => {
       const studentTotalMarks = subjectData.reduce((sum, s) => sum + s.total, 0);
       const maxTotalMarks = subjectData.length * 100;
 
-      // Attendance from academic records
-      let presentDays = 0;
-      let totalSchoolDays = 0;
+      // ✅ Real attendance: count present days from Attendance model
+      const presentDays = await Attendance.countDocuments({
+        studentId: student._id,
+        termId,
+        present: true
+      });
 
-      const yearRecord = student.academicRecords.find(y => y.yearLabel === term.yearLabel);
-      if (yearRecord) {
-        const termRecord = yearRecord.terms.find(t => t.termName === term.termName);
-        if (termRecord?.attendance?.length) {
-          presentDays = termRecord.attendance.reduce((sum, week) => {
-            return sum + week.days.filter(day => day === "present").length;
-          }, 0);
-        }
-      }
-
-      // Total Mon–Fri school days
+      // ✅ Total Mon–Fri school days
       const getWeekdays = (start, end) => {
         let count = 0;
         const current = new Date(start);
@@ -85,7 +79,7 @@ export const generateClassReports = async (req, res) => {
         return count;
       };
 
-      totalSchoolDays = getWeekdays(new Date(term.startDate), new Date(term.endDate));
+      const totalSchoolDays = getWeekdays(new Date(term.startDate), new Date(term.endDate));
 
       const studentData = {
         name: student.name,
@@ -94,7 +88,6 @@ export const generateClassReports = async (req, res) => {
         termName: term.termName,
         subjects: subjectData,
 
-        // 🔁 Flattened attendance and marks
         present: presentDays,
         total: totalSchoolDays,
         roll: numberOnRoll,
@@ -108,7 +101,7 @@ export const generateClassReports = async (req, res) => {
       const zip = new PizZip(templateBuffer);
       const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
       console.log(`\n📄 Data for ${student.name}:`, studentData);
-      doc.setData(studentData);
+      doc.setData(studentData); // ✅ You're still using setData, so keep this
 
       try {
         doc.render();
