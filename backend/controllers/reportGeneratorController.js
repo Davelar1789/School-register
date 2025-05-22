@@ -21,7 +21,7 @@ export const generateClassReports = async (req, res) => {
     const term = await TermSession.findById(termId);
     if (!term) return res.status(404).json({ message: "Term not found." });
 
-    const classInfo = await Class.findById(classId).populate("students");
+    const classInfo = await Class.findById(classId).populate({ path: "students", model: "students" }); 
     if (!classInfo) return res.status(404).json({ message: "Class not found." });
 
     const template = await ReportTemplate.findOne({ classIds: classId });
