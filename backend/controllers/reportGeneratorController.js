@@ -108,8 +108,7 @@ export const generateClassReports = async (req, res) => {
       const zip = new PizZip(templateBuffer);
       const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
       console.log(`\n📄 Data for ${student.name}:`, studentData);
-      doc.compile();
-      doc.render(studentData);
+      doc.setData(studentData);
 
       try {
         doc.render();
