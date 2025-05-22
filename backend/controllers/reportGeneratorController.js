@@ -45,10 +45,10 @@ const archive = archiver("zip");
     archive.pipe(output);
 
     for (const student of classInfo.students) {
-      const grades = await GradeEntry.find({ studentId: student._id, termId });
+    const grades = await GradeEntry.find({ studentId: student._id, termId }).populate("subjectId");
 
       const subjectData = grades.map(g => ({
-        name: g.subjectId.toString(),
+        name: g.subjectId.name || "Unknown Subject", 
         classScore: g.scores.test1 + g.scores.test2 + g.scores.test3 + g.scores.test4,
         examScore: g.scores.exam,
         total: g.scores.total,
