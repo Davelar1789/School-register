@@ -1,3 +1,4 @@
+import axios from "axios";
 import fs from "fs";
 import path from "path";
 import PizZip from "pizzip";
@@ -21,13 +22,15 @@ export const generateClassReports = async (req, res) => {
     const term = await TermSession.findById(termId);
     if (!term) return res.status(404).json({ message: "Term not found." });
 
-    const classInfo = await Class.findById(classId).populate({ path: "students", model: "students" }); 
+    const classInfo = await Class.findById(classId).populate({ path: "students", model: "students" });
     if (!classInfo) return res.status(404).json({ message: "Class not found." });
 
     const template = await ReportTemplate.findOne({ classIds: classId });
     if (!template) return res.status(404).json({ message: "No report template found for this class." });
 
-    const templateBuffer = fs.readFileSync(path.resolve(template.templatePath));
+    // 🔁 Download template from Cloudinary
+    const cloudResponse = await axios.get(template.templatePath, { responseType: "arraybuffer" });
+    const templateBuffer = Buffer.from(cloudResponse.data, "binary");
 
     const zipPath = path.resolve(`generatedReports/class-${classId}-reports.zip`);
     const output = fs.createWriteStream(zipPath);
@@ -36,11 +39,10 @@ export const generateClassReports = async (req, res) => {
     archive.pipe(output);
 
     for (const student of classInfo.students) {
-      // 🧠 Fetch grade entries
       const grades = await GradeEntry.find({ studentId: student._id, termId });
 
       const subjectData = grades.map(g => ({
-        name: g.subjectId.toString(), // you can populate subjectId if needed
+        name: g.subjectId.toString(),
         classScore: g.scores.test1 + g.scores.test2 + g.scores.test3 + g.scores.test4,
         examScore: g.scores.exam,
         total: g.scores.total,
@@ -55,14 +57,13 @@ export const generateClassReports = async (req, res) => {
         termName: term.termName,
         subjects: subjectData,
         attendance: {
-          present: 0, // Fetch from student.academicRecords if needed
+          present: 0,
           total: 0
         },
         conduct: "Excellent",
-        promotedTo: "JHS 2" // Optional logic
+        promotedTo: "JHS 2"
       };
 
-      // 📝 Fill template
       const zip = new PizZip(templateBuffer);
       const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
       doc.setData(studentData);
@@ -70,37 +71,32 @@ export const generateClassReports = async (req, res) => {
       try {
         doc.render();
       } catch (err) {
-        console.error("Template rendering error for student:", student.name, err);
+        console.error(`⚠️ Error rendering report for ${student.name}:`, err);
         continue;
       }
 
       const buffer = doc.getZip().generate({ type: "nodebuffer" });
-      const reportFileName = `${student.name.replace(/\s+/g, "_")}_report.docx`;
+      const fileName = `${student.name.replace(/\s+/g, "_")}_report.docx`;
 
-      // Temporarily write the report to disk before zipping
-      const reportPath = `generatedReports/${reportFileName}`;
+      const reportPath = `generatedReports/${fileName}`;
       fs.writeFileSync(reportPath, buffer);
-
-      archive.append(fs.createReadStream(reportPath), { name: reportFileName });
+      archive.append(fs.createReadStream(reportPath), { name: fileName });
     }
 
     await archive.finalize();
 
-    // Stream zip back to client
     output.on("close", () => {
       res.download(zipPath, `report_cards_class_${classId}.zip`, () => {
-        // optional: clean up files after download
         fs.rmSync(zipPath);
       });
     });
 
   } catch (error) {
-    console.error("Error generating reports:", error);
+    console.error("❌ Error generating reports:", error);
     res.status(500).json({ message: "Error generating reports", error: error.message });
   }
 };
 
-// Simple grade logic (customize later)
 const computeGrade = (score) => {
   if (score >= 80) return "A";
   if (score >= 70) return "B";

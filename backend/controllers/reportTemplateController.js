@@ -4,32 +4,19 @@ export const uploadTemplate = async (req, res) => {
   try {
     console.log("🔥 Upload process started...");
 
-    // Ensure req.body is correctly parsed
-    console.log("Received body:", req.body);
-
-    // Explicitly extract values
     const schoolId = req.body.schoolId;
-    const classIdsString = req.body.classIds; // It's coming as a stringified array
+    const classIdsString = req.body.classIds;
 
     if (!req.file) {
       console.error("❌ No file uploaded.");
       return res.status(400).json({ message: "No file uploaded." });
     }
 
-    console.log("✅ File received:", {
-      originalName: req.file.originalname,
-      mimeType: req.file.mimetype,
-      size: req.file.size,
-      savedPath: req.file.path,
-    });
-
-    // Validate `schoolId` presence
     if (!schoolId) {
       console.error("❌ Missing schoolId in request.");
       return res.status(400).json({ message: "schoolId is required." });
     }
 
-    // Safely parse classIds
     let parsedClassIds;
     try {
       parsedClassIds = JSON.parse(classIdsString);
@@ -39,16 +26,15 @@ export const uploadTemplate = async (req, res) => {
       return res.status(400).json({ message: "Invalid classIds format." });
     }
 
-    // Save report template
     const newTemplate = new ReportTemplate({
       schoolId,
-      classIds: parsedClassIds, // Should be an array
-      templatePath: req.file.path,
+      classIds: parsedClassIds,
+      templatePath: req.file.path, // Cloudinary secure URL
       originalFileName: req.file.originalname,
     });
 
     await newTemplate.save();
-    console.log("✅ Template successfully saved in database:", newTemplate);
+    console.log("✅ Template successfully saved:", newTemplate);
 
     res.status(200).json({ message: "Template uploaded", template: newTemplate });
 
