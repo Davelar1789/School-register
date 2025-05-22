@@ -28,33 +28,64 @@ export const generateClassReports = async (req, res) => {
     const template = await ReportTemplate.findOne({ classIds: classId });
     if (!template) return res.status(404).json({ message: "No report template found for this class." });
 
-    // 🔁 Download template from Cloudinary
     const cloudResponse = await axios.get(template.templatePath, { responseType: "arraybuffer" });
-   const templateBuffer = Buffer.from(cloudResponse.data, "binary");
+    const templateBuffer = Buffer.from(cloudResponse.data, "binary");
 
-// 🔧 Ensure generatedReports folder exists
-const reportsDir = path.resolve("generatedReports");
-if (!fs.existsSync(reportsDir)) {
-  fs.mkdirSync(reportsDir, { recursive: true });
-}
+    const reportsDir = path.resolve("generatedReports");
+    if (!fs.existsSync(reportsDir)) {
+      fs.mkdirSync(reportsDir, { recursive: true });
+    }
 
-const zipPath = path.join(reportsDir, `class-${classId}-reports.zip`);
-const output = fs.createWriteStream(zipPath);
-const archive = archiver("zip");
+    const zipPath = path.join(reportsDir, `class-${classId}-reports.zip`);
+    const output = fs.createWriteStream(zipPath);
+    const archive = archiver("zip");
 
     archive.pipe(output);
 
+    const numberOnRoll = classInfo.students.length;
+
     for (const student of classInfo.students) {
-    const grades = await GradeEntry.find({ studentId: student._id, termId }).populate("subjectId");
+      const grades = await GradeEntry.find({ studentId: student._id, termId }).populate("subjectId");
 
       const subjectData = grades.map(g => ({
-        name: g.subjectId.name || "Unknown Subject", 
+        name: g.subjectId.name || "Unknown Subject",
         classScore: g.scores.test1 + g.scores.test2 + g.scores.test3 + g.scores.test4,
         examScore: g.scores.exam,
         total: g.scores.total,
         grade: computeGrade(g.scores.total),
         remark: getRemark(g.scores.total),
       }));
+
+      const studentTotalMarks = subjectData.reduce((sum, s) => sum + s.total, 0);
+      const maxTotalMarks = subjectData.length * 100;
+
+      // Attendance from academic records
+      let presentDays = 0;
+      let totalSchoolDays = 0;
+
+      const yearRecord = student.academicRecords.find(y => y.yearLabel === term.yearLabel);
+      if (yearRecord) {
+        const termRecord = yearRecord.terms.find(t => t.termName === term.termName);
+        if (termRecord?.attendance?.length) {
+          presentDays = termRecord.attendance.reduce((sum, week) => {
+            return sum + week.days.filter(day => day === "present").length;
+          }, 0);
+        }
+      }
+
+      // Total Mon–Fri school days
+      const getWeekdays = (start, end) => {
+        let count = 0;
+        const current = new Date(start);
+        while (current <= end) {
+          const day = current.getDay();
+          if (day >= 1 && day <= 5) count++;
+          current.setDate(current.getDate() + 1);
+        }
+        return count;
+      };
+
+      totalSchoolDays = getWeekdays(new Date(term.startDate), new Date(term.endDate));
 
       const studentData = {
         name: student.name,
@@ -63,8 +94,13 @@ const archive = archiver("zip");
         termName: term.termName,
         subjects: subjectData,
         attendance: {
-          present: 0,
-          total: 0
+          present: presentDays,
+          total: totalSchoolDays
+        },
+        roll: numberOnRoll,
+        totalMarks: {
+          obtained: studentTotalMarks,
+          max: maxTotalMarks
         },
         conduct: "Excellent",
         promotedTo: "JHS 2"
@@ -83,8 +119,8 @@ const archive = archiver("zip");
 
       const buffer = doc.getZip().generate({ type: "nodebuffer" });
       const fileName = `${student.name.replace(/\s+/g, "_")}_report.docx`;
-
       const reportPath = `generatedReports/${fileName}`;
+
       fs.writeFileSync(reportPath, buffer);
       archive.append(fs.createReadStream(reportPath), { name: fileName });
     }
