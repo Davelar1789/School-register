@@ -67,6 +67,8 @@ import Notifications2 from "./pages/teacher/notifications/Notifications";
 import Maintenance from "./pages/teacher/trial/Trial";
 import TGradebook from "./pages/teacher/gradebook/Gradebook";
 import AReport from "./pages/head/report/UploadReportTemplates";
+import AVReport from "./pages/head/report/GenerateClassReports";
+
 
 const router = createBrowserRouter([
   {
@@ -110,6 +112,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["admin"]}>
             <AReport />
+          </ProtectedRoute>
+        ),      
+      },
+       {
+        path: "view-report",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AVReport />
           </ProtectedRoute>
         ),      
       },
