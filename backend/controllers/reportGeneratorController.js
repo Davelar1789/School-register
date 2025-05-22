@@ -93,15 +93,14 @@ export const generateClassReports = async (req, res) => {
         yearLabel: term.yearLabel,
         termName: term.termName,
         subjects: subjectData,
-        attendance: {
-          present: presentDays,
-          total: totalSchoolDays
-        },
+
+        // 🔁 Flattened attendance and marks
+        present: presentDays,
+        total: totalSchoolDays,
         roll: numberOnRoll,
-        totalMarks: {
-          obtained: studentTotalMarks,
-          max: maxTotalMarks
-        },
+        obtained: studentTotalMarks,
+        max: maxTotalMarks,
+
         conduct: "Excellent",
         promotedTo: "JHS 2"
       };
@@ -109,7 +108,8 @@ export const generateClassReports = async (req, res) => {
       const zip = new PizZip(templateBuffer);
       const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
       console.log(`\n📄 Data for ${student.name}:`, studentData);
-      doc.setData(studentData);
+      doc.compile();
+      doc.render(studentData);
 
       try {
         doc.render();
