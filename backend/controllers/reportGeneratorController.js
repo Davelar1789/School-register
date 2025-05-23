@@ -101,7 +101,7 @@ let classTeacherRemark = "More room for improvement.";
 if (percentage >= 80) classTeacherRemark = "An excellent performance.";
 else if (percentage >= 70) classTeacherRemark = "Very good work done.";
 else if (percentage >= 60) classTeacherRemark = "Good effort. Keep it up.";
-else if (percentage >= 50) classTeacherRemark = "Satisfactory. Improve more.";
+else if (percentage >= 50) classTeacherRemark = "Satisfactory";
 
 // ✅ Final data object
 const studentData = {
@@ -158,11 +158,15 @@ const studentData = {
 };
 
 const computeGrade = (score) => {
-  if (score >= 80) return "A";
-  if (score >= 70) return "B";
-  if (score >= 60) return "C";
-  if (score >= 50) return "D";
-  return "F";
+  if (score >= 80) return "1";
+  if (score >= 70) return "2";
+  if (score >= 60) return "3";
+  if (score >= 55) return "4";
+  if (score >= 50) return "5";
+  if (score >= 45) return "6";
+  if (score >= 40) return "7";
+  if (score >= 35) return "8";
+  return "9";
 };
 
 const getRemark = (score) => {
@@ -170,5 +174,6 @@ const getRemark = (score) => {
   if (score >= 70) return "Very Good";
   if (score >= 60) return "Good";
   if (score >= 50) return "Pass";
+  if (score >= 40) return "Average";
   return "Fail";
 };
