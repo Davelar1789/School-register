@@ -45,6 +45,19 @@ export const generateClassReports = async (req, res) => {
 
     const numberOnRoll = classInfo.students.length;
 
+    // ✅ Utility to calculate Mon–Fri school days
+const getWeekdays = (start, end) => {
+  let count = 0;
+  const current = new Date(start);
+  while (current <= end) {
+    const day = current.getDay();
+    if (day >= 1 && day <= 5) count++;
+    current.setDate(current.getDate() + 1);
+  }
+  return count;
+};
+
+
     for (const student of classInfo.students) {
      const grades = await GradeEntry.find({ studentId: student._id, termId }).populate("subjectId");
 
