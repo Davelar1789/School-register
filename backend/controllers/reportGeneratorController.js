@@ -46,57 +46,69 @@ export const generateClassReports = async (req, res) => {
     const numberOnRoll = classInfo.students.length;
 
     for (const student of classInfo.students) {
-      const grades = await GradeEntry.find({ studentId: student._id, termId }).populate("subjectId");
+     const grades = await GradeEntry.find({ studentId: student._id, termId }).populate("subjectId");
 
-      const subjectData = grades.map(g => ({
-        name: g.subjectId.name || "Unknown Subject",
-        classScore: g.scores.test1 + g.scores.test2 + g.scores.test3 + g.scores.test4,
-        examScore: g.scores.exam,
-        total: g.scores.total,
-        grade: computeGrade(g.scores.total),
-        remark: getRemark(g.scores.total),
-      }));
+const subjectData = grades.map(g => ({
+  name: g.subjectId.name || "Unknown Subject",
+  classScore: g.scores.test1 + g.scores.test2 + g.scores.test3 + g.scores.test4,
+  examScore: g.scores.exam,
+  total: g.scores.total,
+  grade: computeGrade(g.scores.total),
+  remark: getRemark(g.scores.total),
+}));
 
-      const studentTotalMarks = subjectData.reduce((sum, s) => sum + s.total, 0);
-      const maxTotalMarks = subjectData.length * 100;
+const studentTotalMarks = subjectData.reduce((sum, s) => sum + s.total, 0);
+const maxTotalMarks = subjectData.length * 100;
 
-      // ✅ Real attendance: count present days from Attendance model
-      const presentDays = await Attendance.countDocuments({
-        studentId: student._id,
-        termId,
-        present: true
-      });
+// ✅ Real attendance
+const presentDays = await Attendance.countDocuments({
+  studentId: student._id,
+  termId,
+  present: true
+});
 
-      // ✅ Total Mon–Fri school days
-      const getWeekdays = (start, end) => {
-        let count = 0;
-        const current = new Date(start);
-        while (current <= end) {
-          const day = current.getDay();
-          if (day >= 1 && day <= 5) count++;
-          current.setDate(current.getDate() + 1);
-        }
-        return count;
-      };
+// ✅ School days (Mon–Fri)
+const totalSchoolDays = getWeekdays(new Date(term.startDate), new Date(term.endDate));
 
-      const totalSchoolDays = getWeekdays(new Date(term.startDate), new Date(term.endDate));
+// ✅ Conduct (random pick)
+const conductOptions = ["Excellent", "Satisfactory", "Very obedient", "Well-behaved", "Needs improvement"];
+const conduct = conductOptions[Math.floor(Math.random() * conductOptions.length)];
 
-      const studentData = {
-        name: student.name,
-        className: classInfo.className,
-        yearLabel: term.yearLabel,
-        termName: term.termName,
-        subjects: subjectData,
+// ✅ Interest (top subjects)
+const highestScore = Math.max(...subjectData.map(s => s.total));
+const interestSubjects = subjectData
+  .filter(s => s.total === highestScore)
+  .map(s => s.name);
 
-        present: presentDays,
-        total: totalSchoolDays,
-        roll: numberOnRoll,
-        obtained: studentTotalMarks,
-        max: maxTotalMarks,
+const interest = interestSubjects.join(" and ");
 
-        conduct: "Excellent",
-        promotedTo: "JHS 2"
-      };
+// ✅ Teacher Remark (based on performance)
+const percentage = (studentTotalMarks / (maxTotalMarks || 1)) * 100;
+let classTeacherRemark = "More room for improvement.";
+if (percentage >= 80) classTeacherRemark = "An excellent performance.";
+else if (percentage >= 70) classTeacherRemark = "Very good work done.";
+else if (percentage >= 60) classTeacherRemark = "Good effort. Keep it up.";
+else if (percentage >= 50) classTeacherRemark = "Satisfactory. Improve more.";
+
+// ✅ Final data object
+const studentData = {
+  name: student.name,
+  className: classInfo.className,
+  yearLabel: term.yearLabel,
+  termName: term.termName,
+  subjects: subjectData,
+
+  present: presentDays,
+  total: totalSchoolDays,
+  roll: numberOnRoll,
+  obtained: studentTotalMarks,
+  max: maxTotalMarks,
+
+  conduct,
+  interest,
+  classTeacherRemark,
+  promotedTo: "JHS 2"
+};
 
       const zip = new PizZip(templateBuffer);
       const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
