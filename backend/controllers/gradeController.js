@@ -74,31 +74,36 @@ export const saveStudentGrades = async (req, res) => {
 
     console.log("🔥 Processing grades for class:", classId);
 
-    // First, calculate totals (dividing exam score by 2)
+    // Adjust exam scores before saving
     const enrichedGrades = grades.map((grade) => {
-      const examScore = (grade.scores.exam || 0) / 2; // ⚡️ Divide by 2
+      const adjustedExamScore = (grade.scores.exam || 0) / 2; // ⚡️ Divide by 2 and save this
+      
+      // Compute total based on adjusted exam score
       const total =
         (grade.scores.test1 || 0) +
         (grade.scores.test2 || 0) +
         (grade.scores.test3 || 0) +
         (grade.scores.test4 || 0) +
-        examScore; // Include adjusted exam score
+        adjustedExamScore; // Include halved exam score
 
-      console.log(`📝 Student ${grade.studentId}: Raw total = ${total}, Exam adjusted = ${examScore}`);
+      console.log(`📝 Student ${grade.studentId}: Saving exam as ${adjustedExamScore}, Total = ${total}`);
 
       return {
         ...grade,
-        total: Math.round(total),
+        scores: {
+          ...grade.scores,
+          exam: adjustedExamScore, // ✅ Save adjusted exam score in the DB
+          total: Math.round(total), // ✅ Compute total with adjusted exam score
+        },
       };
     });
 
     // Sort by total descending
-    enrichedGrades.sort((a, b) => b.total - a.total);
+    enrichedGrades.sort((a, b) => b.scores.total - a.scores.total);
 
     // Assign positions
     enrichedGrades.forEach((grade, index) => {
       grade.scores.position = getOrdinal(index + 1); // e.g., "1st", "2nd"
-      grade.scores.total = grade.total;
     });
 
     // Save all grades
