@@ -74,17 +74,17 @@ export const saveStudentGrades = async (req, res) => {
 
     console.log("🔥 Processing grades for class:", classId);
 
-    // Adjust exam scores before saving
+    // Adjust exam scores before saving (Divide by 2 and round properly)
     const enrichedGrades = grades.map((grade) => {
-      const adjustedExamScore = (grade.scores.exam || 0) / 2; // ⚡️ Divide by 2 and save this
-      
+      const adjustedExamScore = Math.round((grade.scores.exam || 0) / 2); // ⚡️ Divide by 2 and round
+
       // Compute total based on adjusted exam score
       const total =
         (grade.scores.test1 || 0) +
         (grade.scores.test2 || 0) +
         (grade.scores.test3 || 0) +
         (grade.scores.test4 || 0) +
-        adjustedExamScore; // Include halved exam score
+        adjustedExamScore; // Include properly rounded exam score
 
       console.log(`📝 Student ${grade.studentId}: Saving exam as ${adjustedExamScore}, Total = ${total}`);
 
@@ -92,7 +92,7 @@ export const saveStudentGrades = async (req, res) => {
         ...grade,
         scores: {
           ...grade.scores,
-          exam: adjustedExamScore, // ✅ Save adjusted exam score in the DB
+          exam: adjustedExamScore, // ✅ Save correctly rounded exam score in the DB
           total: Math.round(total), // ✅ Compute total with adjusted exam score
         },
       };
