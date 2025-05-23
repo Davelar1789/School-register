@@ -3,7 +3,7 @@ import axios from "../../../api/axios";
 import Header from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
 import { toast } from "react-hot-toast";
-import "./UploadReportTemplates.modules.css"; // Optional for styling
+import "./GenerateClassReports.modules.css"; // Optional for styling
 
 
 const GenerateClassReports = () => {
@@ -80,17 +80,13 @@ const GenerateClassReports = () => {
     <div>
       <Header />
       <Sidebar />
-      <div className="template-upload-container">
-      <div style={{ marginLeft: "250px", padding: "2rem" }}>
+     <div className="generate-container">
+      <div className="report-content">
         <h2>Generate Report Cards</h2>
 
-        <div style={{ marginBottom: "1rem" }}>
+        <div className="select-class">
           <label>Select Class:</label>
-          <select
-            value={selectedClass}
-            onChange={(e) => setSelectedClass(e.target.value)}
-            style={{ marginLeft: "1rem", padding: "0.5rem", fontSize: "1rem" }}
-          >
+          <select value={selectedClass} onChange={(e) => setSelectedClass(e.target.value)}>
             <option value="">-- Select Class --</option>
             {classes.map((cls) => (
               <option key={cls._id} value={cls._id}>
@@ -100,41 +96,20 @@ const GenerateClassReports = () => {
           </select>
         </div>
 
-        <button
-          onClick={handleGenerate}
-          disabled={generating}
-          style={{
-            padding: "0.6rem 1.2rem",
-            background: "#007bff",
-            color: "white",
-            border: "none",
-            borderRadius: "4px",
-            cursor: generating ? "not-allowed" : "pointer",
-          }}
-        >
+        <button onClick={handleGenerate} disabled={generating} className={`generate-button ${generating ? "disabled" : ""}`}>
           {generating ? "Generating..." : "Generate Report Cards"}
         </button>
 
         {downloadLink && (
-          <div style={{ marginTop: "2rem" }}>
+          <div className="download-section">
             <p>✅ Reports are ready!</p>
-            <a
-              href={downloadLink}
-              download="class_reports.zip"
-              style={{
-                textDecoration: "none",
-                background: "#28a745",
-                color: "white",
-                padding: "0.5rem 1rem",
-                borderRadius: "4px",
-              }}
-            >
+            <a href={downloadLink} download="class_reports.zip" className="download-button">
               Click here to download ZIP
             </a>
           </div>
         )}
       </div>
-      </div>
+    </div>
     </div>
   );
 };

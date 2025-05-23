@@ -1,0 +1,84 @@
+/* Container Styling */
+.generate-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f4f4f4;
+}
+
+/* Main Content Styling */
+.report-content {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  width: 400px;
+  text-align: center;
+}
+
+/* Dropdown Styling */
+.select-class {
+  margin-bottom: 1rem;
+}
+
+.select-class label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.select-class select {
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+/* Button Styling */
+.generate-button {
+  padding: 0.7rem 1.5rem;
+  background: #007bff;
+  color: white;
+  font-size: 1rem;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.generate-button:hover {
+  background: #0056b3;
+}
+
+.generate-button.disabled {
+  background: gray;
+  cursor: not-allowed;
+}
+
+/* Download Section */
+.download-section {
+  margin-top: 2rem;
+}
+
+.download-button {
+  display: inline-block;
+  background: #28a745;
+  color: white;
+  padding: 0.6rem 1.2rem;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: 0.3s;
+}
+
+.download-button:hover {
+  background: #218838;
+}
+
+@media (min-width: 768px) {
+    .generate-container {
+        margin-left: 250px;
+    }
+}
