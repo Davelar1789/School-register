@@ -3,18 +3,21 @@ import axios from "../../../api/axios";
 import Header from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
 import { toast } from "react-hot-toast";
-import "./UploadReportTemplates.modules.css"; // Optional for styling
+import "./UploadReportTemplates.modules.css";
 
 const UploadReportTemplates = () => {
   const [classList, setClassList] = useState([]);
   const [templates, setTemplates] = useState([{ file: null, selectedClasses: [] }]);
   const [loading, setLoading] = useState(false);
 
-const schoolDataRaw = localStorage.getItem("schoolData");
-const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
+  const [selectedReportClass, setSelectedReportClass] = useState("");
+  const [nextTermDate, setNextTermDate] = useState("");
+  const [nextTermFees, setNextTermFees] = useState("");
+
+  const schoolDataRaw = localStorage.getItem("schoolData");
+  const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
   const token = localStorage.getItem("token");
 
-  // Fetch classes for this school
   const fetchClasses = async () => {
     try {
       const res = await axios.get(`/api/classes/school/${schoolId}`, {
@@ -57,11 +60,9 @@ const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
 
   const handleSubmit = async () => {
     setLoading(true);
-
     try {
       for (let i = 0; i < templates.length; i++) {
         const { file, selectedClasses } = templates[i];
-
         if (!file || selectedClasses.length === 0) {
           toast.error(`Template ${i + 1} needs a file and at least one class.`);
           continue;
@@ -81,13 +82,38 @@ const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
 
         toast.success(`Template ${i + 1} uploaded successfully.`);
       }
-
       setTemplates([{ file: null, selectedClasses: [] }]); // reset after upload
     } catch (error) {
       console.error(error);
       toast.error("Failed to upload one or more templates.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGenerateReports = async () => {
+    if (!selectedReportClass || !nextTermDate || !nextTermFees) {
+      return toast.error("Please select class, next term date, and next term fees.");
+    }
+
+    try {
+      // Fetch latest term first
+      const { data: term } = await axios.get(`/api/terms/latest`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const termId = term?._id;
+      if (!termId) {
+        return toast.error("Latest term not found.");
+      }
+
+      const downloadUrl = `/api/reports/class/${selectedReportClass}?termId=${termId}&nextTermDate=${nextTermDate}&nextTermFees=${nextTermFees}`;
+
+      window.open(downloadUrl, "_blank"); // Open ZIP file in new tab
+
+    } catch (err) {
+      console.error("Report generation failed:", err);
+      toast.error("Failed to generate reports.");
     }
   };
 
@@ -139,6 +165,44 @@ const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
         >
           {loading ? "Uploading..." : "Upload Templates"}
         </button>
+
+        <hr style={{ margin: "2rem 0" }} />
+
+        <h2>Generate Report Cards</h2>
+        <div className="report-controls">
+          <label>Class:</label>
+          <select
+            value={selectedReportClass}
+            onChange={(e) => setSelectedReportClass(e.target.value)}
+            className="class-dropdown"
+          >
+            <option value="">-- Select Class --</option>
+            {classList.map((cls) => (
+              <option key={cls._id} value={cls._id}>
+                {cls.className}
+              </option>
+            ))}
+          </select>
+
+          <label>Next Term Begins:</label>
+          <input
+            type="date"
+            value={nextTermDate}
+            onChange={(e) => setNextTermDate(e.target.value)}
+          />
+
+          <label>Fees for Next Term (GHS):</label>
+          <input
+            type="number"
+            value={nextTermFees}
+            onChange={(e) => setNextTermFees(e.target.value)}
+            placeholder="e.g. 450"
+          />
+
+          <button className="generate-btn" onClick={handleGenerateReports}>
+            Generate & Download Reports
+          </button>
+        </div>
       </div>
     </div>
   );
