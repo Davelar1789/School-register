@@ -17,7 +17,7 @@ export const UserProvider = ({ children }) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
-        console.log("No token found in local storage.");
+        // console.log("No token found in local storage.");
         return;
       }
       const decoded = jwtDecode(token);
@@ -39,7 +39,7 @@ export const UserProvider = ({ children }) => {
       });
       setCurrentUser(response.data);
     } catch (error) {
-      console.error("Error fetching user:", error?.response?.data || error.message);
+      // console.error("Error fetching user:", error?.response?.data || error.message);
       // logout(); // comment this to test behavior
     }
   };
