@@ -3,13 +3,16 @@ import axios from "../../../api/axios";
 import Header from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
 import { toast } from "react-hot-toast";
-import "./GenerateClassReports.modules.css"; // Optional for styling
-
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import "./GenerateClassReports.modules.css";
 
 const GenerateClassReports = () => {
   const [classes, setClasses] = useState([]);
   const [selectedClass, setSelectedClass] = useState("");
   const [termId, setTermId] = useState(null);
+  const [nextTermDate, setNextTermDate] = useState(null);
+  const [nextTermFees, setNextTermFees] = useState("");
   const [generating, setGenerating] = useState(false);
   const [downloadLink, setDownloadLink] = useState("");
 
@@ -17,7 +20,11 @@ const GenerateClassReports = () => {
   const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
   const token = localStorage.getItem("token");
 
-  // Fetch classes
+  useEffect(() => {
+    fetchClasses();
+    fetchLatestTerm();
+  }, []);
+
   const fetchClasses = async () => {
     try {
       const res = await axios.get(`/api/classes/school/${schoolId}`, {
@@ -29,7 +36,6 @@ const GenerateClassReports = () => {
     }
   };
 
-  // Fetch latest term
   const fetchLatestTerm = async () => {
     try {
       const res = await axios.get(`/api/terms/latest`, {
@@ -41,14 +47,9 @@ const GenerateClassReports = () => {
     }
   };
 
-  useEffect(() => {
-    fetchClasses();
-    fetchLatestTerm();
-  }, []);
-
   const handleGenerate = async () => {
-    if (!selectedClass || !termId) {
-      toast.error("Please select a class and ensure term is loaded.");
+    if (!selectedClass || !termId || !nextTermDate || !nextTermFees) {
+      toast.error("Please complete all fields.");
       return;
     }
 
@@ -57,10 +58,10 @@ const GenerateClassReports = () => {
 
     try {
       const res = await axios.get(
-        `/api/reports/generate/class/${selectedClass}?termId=${termId}`,
+        `/api/reports/generate/class/${selectedClass}?termId=${termId}&nextTermDate=${nextTermDate.toISOString()}&nextTermFees=${nextTermFees}`,
         {
           headers: { Authorization: `Bearer ${token}` },
-          responseType: "blob", // Needed to handle zip download
+          responseType: "blob",
         }
       );
 
@@ -80,36 +81,62 @@ const GenerateClassReports = () => {
     <div>
       <Header />
       <Sidebar />
-     <div className="generate-container">
-      <div className="report-content">
-        <h2>Generate Report Cards</h2>
+      <div className="generate-container">
+        <div className="report-content">
+          <h2>Generate Report Cards</h2>
 
-        <div className="select-class">
-          <label>Select Class:</label>
-          <select value={selectedClass} onChange={(e) => setSelectedClass(e.target.value)}>
-            <option value="">-- Select Class --</option>
-            {classes.map((cls) => (
-              <option key={cls._id} value={cls._id}>
-                {cls.className}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <button onClick={handleGenerate} disabled={generating} className={`generate-button ${generating ? "disabled" : ""}`}>
-          {generating ? "Generating..." : "Generate Report Cards"}
-        </button>
-
-        {downloadLink && (
-          <div className="download-section">
-            <p>✅ Reports are ready!</p>
-            <a href={downloadLink} download="class_reports.zip" className="download-button">
-              Click here to download ZIP
-            </a>
+          <div className="select-class">
+            <label>Select Class:</label>
+            <select value={selectedClass} onChange={(e) => setSelectedClass(e.target.value)}>
+              <option value="">-- Select Class --</option>
+              {classes.map((cls) => (
+                <option key={cls._id} value={cls._id}>
+                  {cls.className}
+                </option>
+              ))}
+            </select>
           </div>
-        )}
+
+          <div className="select-date">
+            <label>Next Term Begins:</label>
+            <DatePicker
+              selected={nextTermDate}
+              onChange={(date) => setNextTermDate(date)}
+              dateFormat="yyyy-MM-dd"
+              placeholderText="Pick a date"
+            />
+          </div>
+
+          <div className="select-fee">
+            <label>Fees for Next Term (GHS):</label>
+            <input
+              type="number"
+              value={nextTermFees}
+              onChange={(e) => setNextTermFees(e.target.value)}
+              placeholder="e.g. 450"
+            />
+          </div>
+
+          <button
+            onClick={handleGenerate}
+            disabled={
+              generating || !selectedClass || !termId || !nextTermDate || !nextTermFees
+            }
+            className={`generate-button ${generating ? "disabled" : ""}`}
+          >
+            {generating ? "Generating..." : "Generate Report Cards"}
+          </button>
+
+          {downloadLink && (
+            <div className="download-section">
+              <p>✅ Reports are ready!</p>
+              <a href={downloadLink} download="class_reports.zip" className="download-button">
+                Click here to download ZIP
+              </a>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
     </div>
   );
 };
