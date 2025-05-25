@@ -189,7 +189,7 @@ const Header = () => {
         </li>
         <li>
           <NavLink to="/expenses" onClick={() => setSidebarOpen(false)}>
-            <FaCalendar className="icon" /> Expenses
+            <FaCalendar className="icon" /> Accounts
           </NavLink>
         </li>
         <li>
