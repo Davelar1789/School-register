@@ -18,6 +18,7 @@ import {
   // deleteAllStudents,
   // migrateAttendanceBooleans,
 } from "../controllers/studentController.js";
+import { promoteAllStudents } from "../controllers/promoteAllStudentsController.js";
 import { protect } from "../middleware/authMiddleware.js"; // if you're using JWT middleware
 
 const router = express.Router();
@@ -35,6 +36,7 @@ router.post("/mark-weekly-attendance", protect, markWeeklyAttendance);
 router.get("/today/:studentId", getAttendanceForToday);
 router.get("/class/:classId", protect, getStudentsByClass);
 router.get("/:id", getStudentById);
+router.post("/students/promote/:schoolId", promoteAllStudents);
 router.get("/school/:schoolId", getStudentsBySchool);
 router.put("/:id", updateStudent);
 router.delete("/:id", protect, deleteStudent);
