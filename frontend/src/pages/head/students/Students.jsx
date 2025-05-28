@@ -42,29 +42,34 @@ const [editFormData, setEditFormData] = useState({
   const schoolId = decoded?.schoolId;
 
   const handleUpdate = async (e) => {
-    e.preventDefault();
-    try {
-      const token = localStorage.getItem("token");
-      await api.put(`/api/student/${editingStudent}`, editFormData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-  
-      // Update students list locally
-      setStudents((prev) =>
-        prev.map((student) =>
-          student._id === editingStudent ? { ...student, ...editFormData } : student
-        )
-      );
-  
-      toast.success("Student updated successfully");
-      setEditingStudent(null); // Close edit form
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to update student");
-    }
-  };
+  e.preventDefault();
+  try {
+    const token = localStorage.getItem("token");
+    const decoded = token ? jwtDecode(token) : null;
+    const schoolId = decoded?.schoolId; // Use existing schoolId
+
+    console.log("Updating Student:", { ...editFormData, schoolId }); // Debugging log
+
+    await api.put(`/api/student/${editingStudent}`, { ...editFormData, schoolId }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    // Update students list locally
+    setStudents((prev) =>
+      prev.map((student) =>
+        student._id === editingStudent ? { ...student, ...editFormData } : student
+      )
+    );
+
+    toast.success("Student updated successfully");
+    setEditingStudent(null); // Close edit form
+  } catch (err) {
+    console.error("Update Error:", err);
+    toast.error("Failed to update student");
+  }
+};
   
 
   const fetchStudents = async () => {
