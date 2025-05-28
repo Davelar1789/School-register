@@ -89,6 +89,17 @@ export const updateStudent = async (req, res) => {
     const schoolId = req.user?.schoolId || req.body.schoolId;
     console.log("Determined School ID:", schoolId);
 
+    // Find the student before updating to get the old class
+    const existingStudent = await Students.findOne({ _id: req.params.id, schoolId });
+    if (!existingStudent) {
+      console.error("Student not found or unauthorized:", req.params.id);
+      return res.status(404).json({ message: "Student not found or unauthorized" });
+    }
+
+    const oldClassId = existingStudent.classes; // Assuming `classes` is an array or a single class ID
+    const newClassId = req.body.class || existingStudent.classes; // Get the new class from request
+
+    // Update student details
     const student = await Students.findOneAndUpdate(
       { _id: req.params.id, schoolId },
       req.body,
@@ -96,11 +107,25 @@ export const updateStudent = async (req, res) => {
     );
 
     if (!student) {
-      console.error("Student not found or unauthorized:", req.params.id);
-      return res.status(404).json({ message: "Student not found or unauthorized" });
+      console.error("Failed to update student:", req.params.id);
+      return res.status(400).json({ message: "Error updating student" });
     }
 
     console.log("Updated Student:", student);
+
+    // If the class has changed, update the class records
+    if (oldClassId.toString() !== newClassId.toString()) {
+      console.log(`Moving student from class ${oldClassId} to ${newClassId}`);
+
+      // Remove student from old class
+      await Class.findByIdAndUpdate(oldClassId, { $pull: { students: req.params.id } });
+
+      // Add student to new class
+      await Class.findByIdAndUpdate(newClassId, { $push: { students: req.params.id } });
+
+      console.log("Student successfully moved to new class.");
+    }
+
     res.status(200).json(student);
   } catch (error) {
     console.error("Error updating student:", error);
