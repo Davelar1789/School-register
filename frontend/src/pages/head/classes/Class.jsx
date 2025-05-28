@@ -87,13 +87,14 @@ const CreateClassPage = () => {
 
     try {
       await axios.post("/api/classes", payload);
-      setFormData({
-        className: "",
+     setFormData({
         description: "New class adding...",
         level: "",
+        number: "", // reset number too
         teachers: [],
         students: [],
       });
+
       setShowModal(false);
       fetchAllData(); // refresh list
       toast.success('Class added successfully!');
@@ -173,7 +174,7 @@ const CreateClassPage = () => {
                   <option value="">Select Level</option>
                   <option value="Creche">Creche</option>
                   <option value="Nursery">Nursery</option>
-                  <option value="Kindergaten">Kindergaten</option>
+                  <option value="Kindergaten">Kindergarten</option>
                   <option value="Primary">Primary</option>
                   <option value="Junior High">Junior High</option>
                   <option value="Senior High">Senior High</option>
