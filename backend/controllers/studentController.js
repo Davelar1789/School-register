@@ -82,18 +82,28 @@ export const getStudentById = async (req, res) => {
 // Update student
 export const updateStudent = async (req, res) => {
   try {
+    console.log("Update request received:", req.params.id);
+    console.log("User:", req.user);
+    console.log("Request Body:", req.body);
+
     const schoolId = req.user?.schoolId || req.body.schoolId;
+    console.log("Determined School ID:", schoolId);
+
     const student = await Students.findOneAndUpdate(
       { _id: req.params.id, schoolId },
       req.body,
       { new: true }
     );
 
-    if (!student)
+    if (!student) {
+      console.error("Student not found or unauthorized:", req.params.id);
       return res.status(404).json({ message: "Student not found or unauthorized" });
+    }
 
+    console.log("Updated Student:", student);
     res.status(200).json(student);
   } catch (error) {
+    console.error("Error updating student:", error);
     res.status(400).json({ message: "Error updating student", error });
   }
 };
