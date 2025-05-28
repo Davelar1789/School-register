@@ -16,7 +16,7 @@ function App() {
     <>
       <main className="min-h-[calc(100vh-120px)]">
         <Outlet />
-        <SonnerToaster />
+       <SonnerToaster richColors position="top-right" />
         <HotToastToaster />
       </main>
     </>
