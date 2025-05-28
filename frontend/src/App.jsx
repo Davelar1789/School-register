@@ -1,11 +1,12 @@
 import "./styles/App.css";
 import { Outlet } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
-import { useUserContext } from "./context/userContext";  // ✅ Use the correct hook
+import { Toaster as SonnerToaster, toast } from "sonner";
+import { Toaster as HotToastToaster } from "react-hot-toast";
+import { useUserContext } from "./context/userContext";  
 import { useEffect } from "react";
 
 function App() {
-  const { fetchUserDetails } = useUserContext();  // ✅ Use the hook here
+  const { fetchUserDetails } = useUserContext();  
 
   useEffect(() => {
     fetchUserDetails();
@@ -15,7 +16,8 @@ function App() {
     <>
       <main className="min-h-[calc(100vh-120px)]">
         <Outlet />
-        <Toaster />
+        <SonnerToaster />
+        <HotToastToaster />
       </main>
     </>
   );

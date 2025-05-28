@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import api from "../../../api/axios";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import "./Sign-in.modules.css";
 
 function UserLogin() {
