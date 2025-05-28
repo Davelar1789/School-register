@@ -6,16 +6,44 @@ import School from "../models/School.model.js";
 import Subject from "../models/subject.model.js"; // make sure this is the right path
 import mongoose from "mongoose";
 
+function generateClassName(level, number) {
+  switch (level) {
+    case "Creche":
+      return "Creche";
+    case "Nursery":
+      return `Nursery ${number}`;
+    case "Kindergaten":
+      return `KG ${number}`;
+    case "Primary":
+      return `Basic ${number}`;
+    case "Junior High":
+      return `JHS ${number}`;
+    case "Senior High":
+      return `SHS ${number}`;
+    default:
+      throw new Error("Invalid level or number");
+  }
+}
+
+
 // Create a new class
 export const createClass = async (req, res) => {
   try {
-    const { school, className, description, level, teachers = [], students = [] } = req.body;
+    const { school, description, level, number, teachers = [], students = [] } = req.body;
 
-    if (!school || !className || !level) {
-      return res.status(400).json({ message: "school, className, and level are required" });
+    if (!school || !level) {
+      return res.status(400).json({ message: "school and level are required" });
     }
 
-    // Prevent duplicate className in same school
+    // For levels that require a number
+    const requiresNumber = ["Nursery", "Kindergaten", "Primary", "Junior High", "Senior High"];
+    if (requiresNumber.includes(level) && !number) {
+      return res.status(400).json({ message: `Number is required for ${level}` });
+    }
+
+    const className = generateClassName(level, number);
+
+    // Prevent duplicate className in the same school
     const existing = await Class.findOne({ school, className });
     if (existing) {
       return res.status(400).json({ message: "Class with this name already exists for this school" });
@@ -24,15 +52,15 @@ export const createClass = async (req, res) => {
     const newClass = new Class({
       school,
       className,
-      description,
       level,
+      number,
+      description,
       teachers,
       students,
     });
 
     await newClass.save();
 
-    // 🔥 UPDATE the number of classes for the school
     const numberOfClasses = await Class.countDocuments({ school });
     await School.findByIdAndUpdate(school, { numberOfClasses });
 
@@ -322,3 +350,4 @@ export const getTotalFeedingPaid = async (req, res) => {
     res.status(500).json({ message: "Server error fetching total feeding paid" });
   }
 };
+

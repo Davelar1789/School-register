@@ -1,4 +1,3 @@
-// models/Class.model.js
 import mongoose from "mongoose";
 
 const classSchema = new mongoose.Schema({
@@ -15,8 +14,11 @@ const classSchema = new mongoose.Schema({
   description: String,
   level: {
     type: String,
-    enum: ["Nursery", "Kindergaten", "Primary", "Junior High", "Senior High"],
+    enum: ["Creche", "Nursery", "Kindergaten", "Primary", "Junior High", "Senior High"],
     required: true,
+  },
+  number: {
+    type: Number, // Optional based on level
   },
   teachers: [
     {
@@ -46,7 +48,6 @@ const classSchema = new mongoose.Schema({
   ],
   feedingFee: { type: Number, required: true, default: 0 },
   totalFeedingPaid: { type: Number, default: 0 },
-  
 }, { timestamps: true });
 
 const Class = mongoose.model("Class", classSchema);
