@@ -50,7 +50,7 @@ const [editFormData, setEditFormData] = useState({
 
     console.log("Updating Student:", { ...editFormData, schoolId }); // Debugging log
 
-    await api.put(`/api/student/${editingStudent}`, { ...editFormData, schoolId }, {
+    await api.put(`/api/student/${editingStudent}`, { ...editFormData, schoolId, classes: editFormData.class }, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
