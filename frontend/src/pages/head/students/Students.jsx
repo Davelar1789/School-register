@@ -245,6 +245,20 @@ const [editFormData, setEditFormData] = useState({
       toast.error("Failed to add and assign student");
     }
   };
+
+  const handlePromoteAll = async () => {
+  if (!schoolId) return alert("School ID not found");
+
+  try {
+    await axios.post(`/api/student/students/promote/${schoolId}`);
+    toast.success("All students promoted!");
+    fetchStudents(); // or refetch list
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to promote students");
+  }
+};
+
   
 
   useEffect(() => {
@@ -283,6 +297,7 @@ const [editFormData, setEditFormData] = useState({
         <button className="students-addBtn" onClick={() => setShowModal(true)}>
           + Add Student
         </button>
+        <button onClick={handlePromoteAll}>Promote All Students</button>
       </div>
 
       {loading ? (
