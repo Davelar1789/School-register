@@ -24,6 +24,7 @@ import tutorialRoutes from "./routes/tutorialRoutes.js";
 import gradeRoutes from "./routes/gradeRoutes.js";
 import reportTemplateRoutes from "./routes/reportTemplateRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
+import patchRoutes from "./routes/patchRoutes.js";
 
 
 // Middleware
@@ -100,6 +101,7 @@ app.use("/api/tutorial", tutorialRoutes);
 app.use("/api/grades", gradeRoutes);
 app.use("/api/report-template", reportTemplateRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/patch", patchRoutes);
 app.use("/uploads", express.static("uploads"));
 
 
