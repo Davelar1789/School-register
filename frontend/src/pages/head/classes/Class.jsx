@@ -8,13 +8,14 @@ import { toast } from "react-hot-toast";
 
 
 const CreateClassPage = () => {
-  const [formData, setFormData] = useState({
-    className: "",
-    description: "New class adding...",
-    level: "",
-    teachers: [],
-    students: [],
-  });
+ const [formData, setFormData] = useState({
+  description: "New class adding...",
+  level: "",
+  number: "",  // Add this
+  teachers: [],
+  students: [],
+});
+
 
   const [teachers, setTeachers] = useState([]);
   const [students, setStudents] = useState([]);
@@ -76,9 +77,9 @@ const CreateClassPage = () => {
 
     const payload = {
       school: schoolId,
-      className: formData.className,
-      description: formData.description,
       level: formData.level,
+      number: formData.number || undefined,  // optional, Creche has no number
+      description: formData.description,
     };
 
     if (formData.teachers.length > 0) payload.teachers = formData.teachers;
@@ -161,23 +162,8 @@ const CreateClassPage = () => {
               <div className="modal-content">
               <h3>Create New Class</h3>
               <form className="create-class-form" onSubmit={handleSubmit}>
-                <label>Class Name</label>
-                <input
-                  type="text"
-                  name="className"
-                  value={formData.className}
-                  onChange={handleChange}
-                  required
-                />
 
-                <label>Description</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                />
-
-                <label>Level</label>
+                 <label>Level</label>
                 <select
                   name="level"
                   value={formData.level}
@@ -185,12 +171,44 @@ const CreateClassPage = () => {
                   required
                 >
                   <option value="">Select Level</option>
+                  <option value="Creche">Creche</option>
                   <option value="Nursery">Nursery</option>
                   <option value="Kindergaten">Kindergaten</option>
                   <option value="Primary">Primary</option>
                   <option value="Junior High">Junior High</option>
                   <option value="Senior High">Senior High</option>
                 </select>
+
+                {formData.level && !["Creche"].includes(formData.level) && (
+            <>
+              <label>Class Number</label>
+              <select
+                name="number"
+                value={formData.number}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Number</option>
+                {(() => {
+                  let options = [];
+                  if (formData.level === "Nursery") options = [1, 2];
+                  else if (formData.level === "Kindergaten") options = [1, 2];
+                  else if (formData.level === "Primary") options = [1, 2, 3, 4, 5, 6];
+                  else if (formData.level === "Junior High") options = [1, 2, 3];
+                  else if (formData.level === "Senior High") options = [1, 2, 3];
+                  return options.map(num => (
+                    <option key={num} value={num}>{num}</option>
+                  ));
+                })()}
+              </select>
+            </>
+          )}
+                <label>Description</label>
+                <textarea
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                />
 
                 {/* <label>Assign Teachers (Optional)</label>
                 <div>
