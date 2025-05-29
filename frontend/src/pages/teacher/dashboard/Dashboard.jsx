@@ -76,10 +76,10 @@ const TeacherDashboard = () => {
                 }}
               />
             </div>
-            {/* <div className="event-details">
+            <div className="event-details">
               <h3>{selectedDate.toLocaleDateString("en-US", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}</h3>
               <p>{selectedEvent ? selectedEvent : "No events scheduled for this day"}</p>
-            </div> */}
+            </div>
           </div>
         </main>
       </div>
