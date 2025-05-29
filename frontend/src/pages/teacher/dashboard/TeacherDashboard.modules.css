@@ -267,69 +267,71 @@
 }
 
 /* Custom arrow symbols instead of text or default */
-.react-calendar__navigation__prev-button::before {
-  content: "◀";
-}
+
+/* Remove the custom arrows */
+.react-calendar__navigation__prev-button::before,
 .react-calendar__navigation__next-button::before {
-  content: "▶";
+  content: none;
 }
+
+/* Optional: You can use default arrow text or emojis */
 .react-calendar__navigation__prev-button,
 .react-calendar__navigation__next-button {
-  font-size: 1.4rem;
-}
-.react-calendar__navigation__label {
-  font-weight: bold;
-  font-size: 1rem;
+  font-size: 1.2rem;
 }
 
-/* Day tiles */
-.react-calendar__tile {
-  background-color: transparent;
-  color: white;
-  position: relative;
-  border-radius: 6px;
-  padding: 10px 6px;
-  transition: background-color 0.3s, box-shadow 0.3s;
-}
-
+/* Make hover and active backgrounds softer */
 .react-calendar__tile:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 4px rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 2px rgba(255, 255, 255, 0.05);
 }
 
 .react-calendar__tile--active {
-  background: #005eff !important;
-  color: #fff;
+  background: rgba(0, 94, 255, 0.4) !important;
+  color: white;
   border-radius: 8px;
-  box-shadow: 0 0 6px rgba(0, 94, 255, 0.4);
+  box-shadow: none;
 }
 
-/* Remove underline & shorten weekday labels */
+/* WEEKDAY HEADER FIX */
 .react-calendar__month-view__weekdays {
   text-align: center;
   font-weight: bold;
   font-size: 0.85rem;
   color: #aaa;
-  text-transform: none;
 }
+
 .react-calendar__month-view__weekdays__weekday abbr {
   text-decoration: none !important;
   font-size: 0.75rem;
   display: inline-block;
   width: 100%;
 }
-.react-calendar__month-view__weekdays__weekday abbr[title]::before {
-  content: attr(title);
+
+/* 👇 This will fully replace weekday labels */
+.react-calendar__month-view__weekdays__weekday:nth-child(1) abbr::before { content: "Su"; }
+.react-calendar__month-view__weekdays__weekday:nth-child(2) abbr::before { content: "Mo"; }
+.react-calendar__month-view__weekdays__weekday:nth-child(3) abbr::before { content: "Tu"; }
+.react-calendar__month-view__weekdays__weekday:nth-child(4) abbr::before { content: "We"; }
+.react-calendar__month-view__weekdays__weekday:nth-child(5) abbr::before { content: "Th"; }
+.react-calendar__month-view__weekdays__weekday:nth-child(6) abbr::before { content: "Fr"; }
+.react-calendar__month-view__weekdays__weekday:nth-child(7) abbr::before { content: "Sa"; }
+
+/* Hide original full weekday text */
+.react-calendar__month-view__weekdays__weekday abbr {
+  color: transparent;
+  position: relative;
 }
 
-/* Hide full weekday names (like "Monday") and show short ones manually */
-.react-calendar__month-view__weekdays__weekday abbr[title="Monday"]::before  { content: "Mo"; }
-.react-calendar__month-view__weekdays__weekday abbr[title="Tuesday"]::before { content: "Tu"; }
-.react-calendar__month-view__weekdays__weekday abbr[title="Wednesday"]::before { content: "We"; }
-.react-calendar__month-view__weekdays__weekday abbr[title="Thursday"]::before { content: "Th"; }
-.react-calendar__month-view__weekdays__weekday abbr[title="Friday"]::before  { content: "Fr"; }
-.react-calendar__month-view__weekdays__weekday abbr[title="Saturday"]::before{ content: "Sa"; }
-.react-calendar__month-view__weekdays__weekday abbr[title="Sunday"]::before  { content: "Su"; }
+.react-calendar__month-view__weekdays__weekday abbr::before {
+  color: #aaa;
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  top: 0;
+}
+
 
 /* Dot indicator under date */
 .dot {
