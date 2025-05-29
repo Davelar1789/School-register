@@ -255,7 +255,7 @@ const [editFormData, setEditFormData] = useState({
   if (!schoolId) return alert("School ID not found");
 
   try {
-    await axios.post(`/api/student/students/promote/${schoolId}`);
+    await api.post(`/api/student/students/promote/${schoolId}`);
     toast.success("All students promoted!");
     fetchStudents(); // or refetch list
   } catch (err) {
