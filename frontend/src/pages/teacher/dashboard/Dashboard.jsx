@@ -65,7 +65,7 @@ const TeacherDashboard = () => {
           {/* 🔥 Calendar Section */}
           <div className="calendar-section">
             <div className="calendar-box">
-              <h2>📅 Calendar</h2>
+              <h2 className="calendar-header">📅 Calendar</h2>
               <p className="calendar-subtext">Your upcoming events</p>
               <Calendar
                 onChange={handleDateChange}
