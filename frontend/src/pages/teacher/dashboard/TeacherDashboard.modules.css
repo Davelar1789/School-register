@@ -125,19 +125,19 @@
   flex: 1;
   padding: 2rem;
   overflow-y: auto;
-  background-color: #f0f2f5;
+  background-color: #1b1c30;
 }
 
 .dashboard-title {
   font-size: 2rem;
   font-weight: 600;
-  color: #2c3e50;
+  color: #fff;
   margin-bottom: 0.25rem;
 }
 
 .dashboard-subtitle {
   font-size: 1rem;
-  color: #7f8c8d;
+  color: #fff;
   margin-bottom: 2rem;
 }
 
@@ -149,7 +149,7 @@
 }
 
 .widget-card {
-  background-color: #fff;
+  background-color: #23243d;
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.06);
