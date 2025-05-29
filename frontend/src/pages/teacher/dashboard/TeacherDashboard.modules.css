@@ -305,7 +305,7 @@
 
 /* Make hover and active backgrounds softer */
 .react-calendar__tile:hover {
-  background-color: #444444;
+  background-color: #444444 !important;
 }
 
 .react-calendar__tile--active {
