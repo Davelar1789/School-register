@@ -28,12 +28,13 @@
 
 .attendance-table th, .attendance-table td {
   padding: 12px;
-  border: 1px solid #23243d;
+  border: 1px solid #ddd;
 }
 
 .student-row {
-  background: #23243d;
+  background: #ffffff;
 }
+
 
 .student-name {
   font-weight: bold;
