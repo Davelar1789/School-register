@@ -27,6 +27,11 @@
 }
 
 .attendance-table th, .attendance-table td {
+  background-color: #ddd;
+}
+
+
+.attendance-table th, .attendance-table td {
   padding: 12px;
   border: 1px solid #ddd;
 }
