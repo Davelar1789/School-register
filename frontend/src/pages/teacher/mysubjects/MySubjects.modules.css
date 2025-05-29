@@ -34,8 +34,8 @@
   }
   
   .subject-card {
-    background-color: #fff;
-    border: 1px solid #ddd;
+    background-color: #23243d;
+    border: 1px solid #23243d;
     padding: 16px;
     border-radius: 8px;
     width: 250px;
@@ -66,8 +66,8 @@
 }
 
 .subject-group {
-  background-color: #fff;
-  border: 1px solid #ddd;
+  background-color: #23243d;
+  border: 1px solid #23243d;
   border-radius: 8px;
   width: 100%;
   box-shadow: 0 0 6px rgba(0, 0, 0, 0.05);
