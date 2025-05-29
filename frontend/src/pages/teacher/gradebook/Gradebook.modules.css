@@ -21,13 +21,13 @@
 .gradebook-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: #23243d;
+  background-color: white;
   min-width: 900px;
 }
 
 .gradebook-table th,
 .gradebook-table td {
-  border: 1px solid #23243d;
+  border: 1px solid #ddd;
   padding: 8px;
   text-align: center;
 }
