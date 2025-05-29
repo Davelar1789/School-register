@@ -70,14 +70,14 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: #23243d !important;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .modal {
-  background: #23243d;
+  background: #23243d !important;
   padding: 20px;
   border-radius: 8px;
   text-align: center;
