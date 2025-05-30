@@ -4,25 +4,31 @@ import axios from "../../../api/axios"; // Your Axios instance
 import "./StudentDetails.modules.css";
 import Header2 from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
+import NProgress from "nprogress";
+import "nprogress/nprogress.css";
+
 
 
 const StudentDetails = () => {
   const { id } = useParams();
   const [student, setStudent] = useState(null);
 
-  useEffect(() => {
-    const fetchStudent = async () => {
-      try {
-        const res = await axios.get(`/api/student/free/${id}`);
-        setStudent(res.data);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchStudent();
-  }, [id]);
+ useEffect(() => {
+  const fetchStudent = async () => {
+    try {
+      NProgress.start(); // Start loading
+      const res = await axios.get(`/api/student/free/${id}`);
+      setStudent(res.data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      NProgress.done(); // Stop loading
+    }
+  };
+  fetchStudent();
+}, [id]);
 
-  if (!student) return <div className="student-page">Loading student details...</div>;
+
 
   const latestAcademic = student.academicRecords?.[student.academicRecords.length - 1];
   const latestTerm = latestAcademic?.terms?.[latestAcademic.terms.length - 1];

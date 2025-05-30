@@ -102,6 +102,27 @@
   color: #bdc3c7;
   font-style: italic;
 }
+/* Make nprogress bar small and inside student-page only */
+#nprogress {
+  pointer-events: none;
+}
+
+#nprogress .bar {
+  background: limegreen; /* Change to match your theme */
+  position: absolute;
+  z-index: 9999;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  border-radius: 2px;
+}
+
+/* Optional: remove spinner */
+#nprogress .spinner {
+  display: none;
+}
+
 
 @media (min-width: 768px) {
     .student-page{
