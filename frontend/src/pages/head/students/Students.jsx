@@ -302,7 +302,7 @@ const [editFormData, setEditFormData] = useState({
         <button className="students-addBtn" onClick={() => setShowModal(true)}>
           + Add Student
         </button>
-        <button onClick={handlePromoteAll}>Promote All Students</button>
+        {/* <button onClick={handlePromoteAll}>Promote All Students</button> */}
       </div>
 
       {loading ? (
