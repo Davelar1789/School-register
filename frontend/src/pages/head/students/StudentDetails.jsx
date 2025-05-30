@@ -4,8 +4,7 @@ import axios from "../../../api/axios"; // Your Axios instance
 import "./StudentDetails.modules.css";
 import Header2 from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
-import NProgress from "nprogress";
-import "nprogress/nprogress.css";
+import { LinearProgress } from "@mui/material"; // From MUI
 
 
 
@@ -13,23 +12,53 @@ const StudentDetails = () => {
   const { id } = useParams();
   const [student, setStudent] = useState(null);
 
- useEffect(() => {
-  const fetchStudent = async () => {
-    try {
-      NProgress.start(); // Start loading
-      const res = await axios.get(`/api/student/free/${id}`);
-      setStudent(res.data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      NProgress.done(); // Stop loading
-    }
-  };
-  fetchStudent();
-}, [id]);
+ const [loadingProgress, setLoadingProgress] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
+  useEffect(() => {
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 10;
+      setLoadingProgress((prev) => (prev < 90 ? prev + 10 : prev));
+    }, 100);
 
-  if (!student) return <div className="student-page">Loading student details...</div>;
+    const fetchStudent = async () => {
+      try {
+        const res = await axios.get(`/api/student/free/${id}`);
+        setStudent(res.data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        clearInterval(interval);
+        setLoadingProgress(100);
+        setTimeout(() => setIsLoading(false), 500); // short delay for final polish
+      }
+    };
+
+    fetchStudent();
+  }, [id]);
+
+  if (isLoading) {
+    return (
+      <div className="student-page">
+        <div className="loading-box">
+          <p>Loading student details...</p>
+          <LinearProgress
+            variant="determinate"
+            value={loadingProgress}
+            sx={{
+              height: 10,
+              borderRadius: 5,
+              backgroundColor: "#e0e0e0",
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "limegreen",
+              },
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   const latestAcademic = student.academicRecords?.[student.academicRecords.length - 1];
   const latestTerm = latestAcademic?.terms?.[latestAcademic.terms.length - 1];
