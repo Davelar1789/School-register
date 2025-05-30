@@ -80,7 +80,8 @@ export const getStudentById = async (req, res) => {
 
 export const getStudentByIdFree = async (req, res) => {
   try {
-    const student = await Students.findById(req.params.id);
+    const student = await Students.findById(req.params.id)
+      .populate("classes", "className"); // Only bring className
     if (!student) {
       return res.status(404).json({ message: "Student not found" });
     }

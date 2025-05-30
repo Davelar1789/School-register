@@ -13,7 +13,7 @@ const StudentDetails = () => {
         const res = await axios.get(`/api/student/free/${id}`);
         setStudent(res.data);
       } catch (err) {
-        console.error(err);
+        // console.error(err);
       }
     };
     fetchStudent();
