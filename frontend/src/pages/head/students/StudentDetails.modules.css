@@ -104,20 +104,28 @@
   font-style: italic;
 }
 
+.loading-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
 .loading-box {
-  width: 300px;
+  width: 320px;
   padding: 20px;
   background: white;
   border-radius: 12px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   text-align: center;
 }
 
 .loading-box p {
   margin-bottom: 16px;
-  font-weight: bold;
+  font-weight: 600;
   color: #333;
 }
+
 
 @media (min-width: 768px) {
     .student-page{

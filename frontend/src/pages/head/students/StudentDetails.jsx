@@ -44,23 +44,25 @@ const StudentDetails = () => {
       <Header2 />
       <Sidebar />
       <div className="student-page">
-        {isLoading ? (
-          <div className="loading-box">
-            <p>Loading student details...</p>
-            <LinearProgress
-              variant="determinate"
-              value={loadingProgress}
-              sx={{
-                height: 10,
-                borderRadius: 5,
-                backgroundColor: "#e0e0e0",
-                "& .MuiLinearProgress-bar": {
-                  backgroundColor: "limegreen",
-                },
-              }}
-            />
-          </div>
-        ) : (
+       {isLoading ? (
+  <div className="loading-wrapper">
+    <div className="loading-box">
+      <p>Loading student details...</p>
+      <LinearProgress
+        variant="determinate"
+        value={loadingProgress}
+        sx={{
+          height: 10,
+          borderRadius: 5,
+          backgroundColor: "#e0e0e0",
+          "& .MuiLinearProgress-bar": {
+            backgroundColor: "limegreen",
+          },
+        }}
+      />
+    </div>
+  </div>
+) : (
           <>
             <h1 className="student-heading">Student Dashboard</h1>
 
