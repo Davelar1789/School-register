@@ -62,27 +62,31 @@ const StudentDetails = () => {
         </div>
       </div>
 
-      <div className="details-section">
-        <h2>Fees Details (Latest Term)</h2>
-        {fees ? (
-          <div className="details-grid">
-            <div className="detail-item">
-              <strong>Total Fees:</strong> <span>₵{fees.totalFees}</span>
-            </div>
-            <div className="detail-item">
-              <strong>Amount Paid:</strong> <span>₵{fees.amountPaid}</span>
-            </div>
-            <div className="detail-item">
-              <strong>Balance:</strong> <span>₵{fees.balance}</span>
-            </div>
-            <div className="detail-item">
-              <strong>Arrears:</strong> <span>₵{fees.arrears}</span>
-            </div>
-          </div>
-        ) : (
-          <p className="no-fees">No fee records found for this term.</p>
-        )}
-      </div>
+      <div className="fees-info">
+          <h3 className="section-title">Fees Info</h3>
+          {fees ? (
+            <>
+              <div className="info-pair">
+                <span className="label">Total Fees:</span>
+                <span className="value">₵{fees.totalFees}</span>
+              </div>
+              <div className="info-pair">
+                <span className="label">Amount Paid:</span>
+                <span className="value">₵{fees.amountPaid}</span>
+              </div>
+              <div className="info-pair">
+                <span className="label">Arrears:</span>
+                <span className="value">₵{fees.arrears}</span>
+              </div>
+              <div className="info-pair">
+                <span className="label">Balance:</span>
+                <span className="value">₵{fees.balance}</span>
+              </div>
+            </>
+          ) : (
+            <p className="no-fees">No fees info available for this term.</p>
+          )}
+        </div>
     </div>
   );
 };
