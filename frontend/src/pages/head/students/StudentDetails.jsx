@@ -10,7 +10,7 @@ const StudentDetails = () => {
   useEffect(() => {
     const fetchStudent = async () => {
       try {
-        const res = await axios.get(`/api/student/${id}`);
+        const res = await axios.get(`/api/student/free/${id}`);
         setStudent(res.data);
       } catch (err) {
         console.error(err);
