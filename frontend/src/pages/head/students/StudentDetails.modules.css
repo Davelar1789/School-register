@@ -94,6 +94,10 @@
   color: #2c3e50;
 }
 
+.value2 {
+    color: #2ecc71 !important;
+}
+
 .no-fees {
   color: #bdc3c7;
   font-style: italic;

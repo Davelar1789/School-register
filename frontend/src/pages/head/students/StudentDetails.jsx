@@ -45,7 +45,7 @@ const StudentDetails = () => {
           <span className="summary-value">{student.idno}</span>
         </div>
         <div className="summary-box">
-          <span className="summary-title">DOB</span>
+          <span className="summary-title">Date of Birth</span>
           <span className="summary-value">{student.dob}</span>
         </div>
       </div>
@@ -80,7 +80,7 @@ const StudentDetails = () => {
               </div>
               <div className="info-pair">
                 <span className="label">Balance:</span>
-                <span className="value">₵{fees.balance}</span>
+                <span className="value value2">₵{fees.balance}</span>
               </div>
             </>
           ) : (
