@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "../../../api/axios"; // Your Axios instance
 import "./StudentDetails.modules.css";
+import Header2 from "../../../components/Admin/Header2";
+import Sidebar from "../../../components/Admin/Sidebar";
+
 
 const StudentDetails = () => {
   const { id } = useParams();
@@ -26,6 +29,9 @@ const StudentDetails = () => {
   const fees = latestTerm?.fees;
 
   return (
+    <div>
+      <Header2 />
+      <Sidebar />
     <div className="student-page">
       <h1 className="student-heading">Student Dashboard</h1>
 
@@ -88,6 +94,7 @@ const StudentDetails = () => {
           )}
         </div>
     </div>
+        </div>
   );
 };
 
