@@ -3,7 +3,7 @@
   max-width: 1000px;
   margin: 0 auto;
   font-family: 'Segoe UI', sans-serif;
-  background-color: #f9fafe;
+  background-color: #1b1f3b;
   position: relative;
 }
 
@@ -22,7 +22,7 @@
 }
 
 .summary-box {
-  background-color: #ffffff;
+  background-color: #23243d;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
@@ -31,13 +31,13 @@
 
 .summary-title {
   font-size: 0.95rem;
-  color: #7f8c8d;
+  color: #3498db;
 }
 
 .summary-value {
   font-size: 1.3rem;
   font-weight: 600;
-  color: #34495e;
+  color: #fff;
   margin-top: 5px;
   display: block;
 }
@@ -59,10 +59,10 @@
 }
 
 .detail-item {
-  background-color: #fff;
+  background-color: #23243d;
   padding: 15px 20px;
   border-radius: 8px;
-  border: 1px solid #eee;
+  border: 1px solid #23243d;
   box-shadow: 0 1px 6px rgba(0, 0, 0, 0.03);
 }
 .student-info, .fees-info {

@@ -64,7 +64,7 @@ const StudentDetails = () => {
   </div>
 ) : (
           <>
-            <h1 className="student-heading">Student Dashboard</h1>
+            <h1 className="student-heading">Student Details</h1>
 
             <div className="summary-grid">
               <div className="summary-box">
