@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import axios from "../../../api/axios"; // Your Axios instance
+import axios from "../../../api/axios";
 import "./StudentDetails.modules.css";
 import Header2 from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
-import { LinearProgress } from "@mui/material"; // From MUI
-
-
+import { LinearProgress } from "@mui/material"; // For the loading bar
 
 const StudentDetails = () => {
   const { id } = useParams();
   const [student, setStudent] = useState(null);
-
- const [loadingProgress, setLoadingProgress] = useState(0);
+  const [loadingProgress, setLoadingProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -31,14 +28,14 @@ const StudentDetails = () => {
       } finally {
         clearInterval(interval);
         setLoadingProgress(100);
-        setTimeout(() => setIsLoading(false), 500); // short delay for final polish
+        setTimeout(() => setIsLoading(false), 500); // small delay
       }
     };
 
     fetchStudent();
   }, [id]);
 
-  const latestAcademic = student.academicRecords?.[student.academicRecords.length - 1];
+  const latestAcademic = student?.academicRecords?.[student.academicRecords.length - 1];
   const latestTerm = latestAcademic?.terms?.[latestAcademic.terms.length - 1];
   const fees = latestTerm?.fees;
 
