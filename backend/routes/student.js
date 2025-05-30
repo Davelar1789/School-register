@@ -15,6 +15,7 @@ import {
   getAttendanceForClassOnDate,
   fetchWeeklyAttendance,
   markWeeklyAttendance,
+  getStudentByIdFree,
   // deleteAllStudents,
   // migrateAttendanceBooleans,
 } from "../controllers/studentController.js";
@@ -36,6 +37,7 @@ router.post("/mark-weekly-attendance", protect, markWeeklyAttendance);
 router.get("/today/:studentId", getAttendanceForToday);
 router.get("/class/:classId", protect, getStudentsByClass);
 router.get("/:id", getStudentById);
+router.get("/free/:id", getStudentByIdFree);
 router.post("/students/promote/:schoolId", promoteAllStudents);
 router.get("/school/:schoolId", getStudentsBySchool);
 router.put("/:id", updateStudent);
