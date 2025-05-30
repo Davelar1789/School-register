@@ -29,6 +29,7 @@ const StudentDetails = () => {
 }, [id]);
 
 
+  if (!student) return <div className="student-page">Loading student details...</div>;
 
   const latestAcademic = student.academicRecords?.[student.academicRecords.length - 1];
   const latestTerm = latestAcademic?.terms?.[latestAcademic.terms.length - 1];
