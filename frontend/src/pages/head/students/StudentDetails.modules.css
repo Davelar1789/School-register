@@ -4,6 +4,7 @@
   margin: 0 auto;
   font-family: 'Segoe UI', sans-serif;
   background-color: #f9fafe;
+  position: relative;
 }
 
 .student-heading {
