@@ -38,7 +38,7 @@ const [editFormData, setEditFormData] = useState({
     phone: "",
     address: "",
   });
-  
+
   const navigate = useNavigate(); // inside your component
 
 
@@ -333,7 +333,7 @@ const [editFormData, setEditFormData] = useState({
             .map((student) => (
                <tr 
                 key={student._id}
-                onClick={() => navigate(`/student/${student._id}`)}
+                onClick={() => navigate(`/student/free/${student._id}`)}
                 style={{ cursor: "pointer" }}
               >
                 <td>{student.name}</td>
