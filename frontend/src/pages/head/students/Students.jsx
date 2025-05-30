@@ -7,6 +7,8 @@ import "./Students.modules.css";
 import Sidebar from "../../../components/Admin/Sidebar";
 import { jwtDecode } from "jwt-decode";
 import fetchSchoolData from "../../../utils/fetchSchoolData";
+import { useNavigate } from "react-router-dom"; // at the top
+
 
 
 const Students = () => {
@@ -36,6 +38,9 @@ const [editFormData, setEditFormData] = useState({
     phone: "",
     address: "",
   });
+  
+  const navigate = useNavigate(); // inside your component
+
 
   const token = localStorage.getItem("token");
   const decoded = token ? jwtDecode(token) : null;
@@ -326,29 +331,33 @@ const [editFormData, setEditFormData] = useState({
             {filteredStudents
             .slice((currentPage - 1) * studentsPerPage, currentPage * studentsPerPage)
             .map((student) => (
-                <tr key={student._id}>
-                  <td>{student.name}</td>
-                  <td>
-                    {student.classes && student.classes.length > 0 ? student.classes[0].className : "N/A"}
-                  </td>
-                  <td className="out">{student.idno}</td>
-                  <td className="out">{student.dob}</td>
-                  <td className="out">{student.phone || "N/A"}</td>
-                  <td className="students-actions out">
+               <tr 
+                key={student._id}
+                onClick={() => navigate(`/student/${student._id}`)}
+                style={{ cursor: "pointer" }}
+              >
+                <td>{student.name}</td>
+                <td>
+                  {student.classes && student.classes.length > 0 ? student.classes[0].className : "N/A"}
+                </td>
+                <td className="out">{student.idno}</td>
+                <td className="out">{student.dob}</td>
+                <td className="out">{student.phone || "N/A"}</td>
+                <td className="students-actions out" onClick={(e) => e.stopPropagation()}>
                   <button
-                      className="students-edit"
-                      onClick={() => handleEdit(student)}
-                    >
-                      <MdEdit />
-                    </button>
-                    <button
-                      className="students-delete"
-                      onClick={() => handleDelete(student._id)}
-                    >
-                      <MdDelete />
-                    </button>
-                  </td>
-                </tr>
+                    className="students-edit"
+                    onClick={() => handleEdit(student)}
+                  >
+                    <MdEdit />
+                  </button>
+                  <button
+                    className="students-delete"
+                    onClick={() => handleDelete(student._id)}
+                  >
+                    <MdDelete />
+                  </button>
+                </td>
+              </tr>
               ))}
             </tbody>
           </table>
