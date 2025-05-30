@@ -1,10 +1,11 @@
 .student-page {
-  padding: 30px;
-  max-width: 1000px;
-  margin: 0 auto;
-  font-family: 'Segoe UI', sans-serif;
-  background-color: #f9fafe;
   position: relative;
+  padding: 2rem;
+  background: #f9f9f9;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .student-heading {
@@ -103,28 +104,21 @@
   color: #bdc3c7;
   font-style: italic;
 }
-/* Make nprogress bar small and inside student-page only */
-#nprogress {
-  pointer-events: none;
+
+.loading-box {
+  width: 300px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 
-#nprogress .bar {
-  background: limegreen; /* Change to match your theme */
-  position: absolute;
-  z-index: 9999;
-  top: 0;
-  left: 0;
-  width: 100%;
-    transition: all 0.4s ease;
-  height: 3px;
-  border-radius: 2px;
+.loading-box p {
+  margin-bottom: 16px;
+  font-weight: bold;
+  color: #333;
 }
-
-/* Optional: remove spinner */
-#nprogress .spinner {
-  display: none;
-}
-
 
 @media (min-width: 768px) {
     .student-page{
