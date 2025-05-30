@@ -1,11 +1,10 @@
 .student-page {
+  padding: 30px;
+  max-width: 1000px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f9fafe;
   position: relative;
-  padding: 2rem;
-  background: #f9f9f9;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .student-heading {
