@@ -13,79 +13,75 @@ const StudentDetails = () => {
         const res = await axios.get(`/api/student/free/${id}`);
         setStudent(res.data);
       } catch (err) {
-        // console.error(err);
+        console.error(err);
       }
     };
     fetchStudent();
   }, [id]);
 
-  if (!student) {
-    return <div className="student-details-page">Loading student details...</div>;
-  }
+  if (!student) return <div className="student-page">Loading student details...</div>;
 
   const latestAcademic = student.academicRecords?.[student.academicRecords.length - 1];
   const latestTerm = latestAcademic?.terms?.[latestAcademic.terms.length - 1];
   const fees = latestTerm?.fees;
 
   return (
-    <div className="student-details-page">
-      <h2 className="student-title">Student Profile</h2>
+    <div className="student-page">
+      <h1 className="student-heading">Student Dashboard</h1>
 
-      <div className="student-card">
-        <div className="student-info">
-          <div className="info-pair">
-            <span className="label">Full Name:</span>
-            <span className="value">{student.name}</span>
+      <div className="summary-grid">
+        <div className="summary-box">
+          <span className="summary-title">Full Name</span>
+          <span className="summary-value">{student.name}</span>
+        </div>
+        <div className="summary-box">
+          <span className="summary-title">Class</span>
+          <span className="summary-value">
+            {student.classes?.[0]?.className || "N/A"}
+          </span>
+        </div>
+        <div className="summary-box">
+          <span className="summary-title">ID Number</span>
+          <span className="summary-value">{student.idno}</span>
+        </div>
+        <div className="summary-box">
+          <span className="summary-title">DOB</span>
+          <span className="summary-value">{student.dob}</span>
+        </div>
+      </div>
+
+      <div className="details-section">
+        <h2>Contact Information</h2>
+        <div className="details-grid">
+          <div className="detail-item">
+            <strong>Phone:</strong> <span>{student.phone || "N/A"}</span>
           </div>
-          <div className="info-pair">
-            <span className="label">Class:</span>
-            <span className="value">
-              {student.classes?.[0]?.className || "N/A"}
-            </span>
-          </div>
-          <div className="info-pair">
-            <span className="label">ID No:</span>
-            <span className="value">{student.idno}</span>
-          </div>
-          <div className="info-pair">
-            <span className="label">Date of Birth:</span>
-            <span className="value">{student.dob}</span>
-          </div>
-          <div className="info-pair">
-            <span className="label">Phone:</span>
-            <span className="value">{student.phone || "N/A"}</span>
-          </div>
-          <div className="info-pair">
-            <span className="label">Address:</span>
-            <span className="value">{student.address || "N/A"}</span>
+          <div className="detail-item">
+            <strong>Address:</strong> <span>{student.address || "N/A"}</span>
           </div>
         </div>
+      </div>
 
-        <div className="fees-info">
-          <h3 className="section-title">Fees Info</h3>
-          {fees ? (
-            <>
-              <div className="info-pair">
-                <span className="label">Total Fees:</span>
-                <span className="value">₵{fees.totalFees}</span>
-              </div>
-              <div className="info-pair">
-                <span className="label">Amount Paid:</span>
-                <span className="value">₵{fees.amountPaid}</span>
-              </div>
-              <div className="info-pair">
-                <span className="label">Arrears:</span>
-                <span className="value">₵{fees.arrears}</span>
-              </div>
-              <div className="info-pair">
-                <span className="label">Balance:</span>
-                <span className="value">₵{fees.balance}</span>
-              </div>
-            </>
-          ) : (
-            <p className="no-fees">No fees info available for this term.</p>
-          )}
-        </div>
+      <div className="details-section">
+        <h2>Fees Details (Latest Term)</h2>
+        {fees ? (
+          <div className="details-grid">
+            <div className="detail-item">
+              <strong>Total Fees:</strong> <span>₵{fees.totalFees}</span>
+            </div>
+            <div className="detail-item">
+              <strong>Amount Paid:</strong> <span>₵{fees.amountPaid}</span>
+            </div>
+            <div className="detail-item">
+              <strong>Balance:</strong> <span>₵{fees.balance}</span>
+            </div>
+            <div className="detail-item">
+              <strong>Arrears:</strong> <span>₵{fees.arrears}</span>
+            </div>
+          </div>
+        ) : (
+          <p className="no-fees">No fee records found for this term.</p>
+        )}
       </div>
     </div>
   );
