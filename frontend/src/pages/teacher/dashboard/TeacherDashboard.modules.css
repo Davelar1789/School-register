@@ -331,13 +331,13 @@
 }
 
 /* 👇 This will fully replace weekday labels */
-.react-calendar__month-view__weekdays__weekday:nth-child(1) abbr::before { content: "Su"; }
-.react-calendar__month-view__weekdays__weekday:nth-child(2) abbr::before { content: "Mo"; }
-.react-calendar__month-view__weekdays__weekday:nth-child(3) abbr::before { content: "Tu"; }
-.react-calendar__month-view__weekdays__weekday:nth-child(4) abbr::before { content: "We"; }
-.react-calendar__month-view__weekdays__weekday:nth-child(5) abbr::before { content: "Th"; }
-.react-calendar__month-view__weekdays__weekday:nth-child(6) abbr::before { content: "Fr"; }
-.react-calendar__month-view__weekdays__weekday:nth-child(7) abbr::before { content: "Sa"; }
+.react-calendar__month-view__weekdays__weekday:nth-child(1) abbr::before { content: "Mo"; }
+.react-calendar__month-view__weekdays__weekday:nth-child(2) abbr::before { content: "Tu"; }
+.react-calendar__month-view__weekdays__weekday:nth-child(3) abbr::before { content: "We"; }
+.react-calendar__month-view__weekdays__weekday:nth-child(4) abbr::before { content: "Th"; }
+.react-calendar__month-view__weekdays__weekday:nth-child(5) abbr::before { content: "Fr"; }
+.react-calendar__month-view__weekdays__weekday:nth-child(6) abbr::before { content: "Sa"; }
+.react-calendar__month-view__weekdays__weekday:nth-child(7) abbr::before { content: "Su"; }
 
 /* Hide original full weekday text */
 .react-calendar__month-view__weekdays__weekday abbr {
