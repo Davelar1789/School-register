@@ -6,6 +6,7 @@
     font-size: 28px;
     font-weight: 600;
     margin-bottom: 1.5rem;
+    color: #fff;
   }
   
   .student-grid {
@@ -42,6 +43,7 @@
   .student-details h4 {
     margin: 0;
     font-size: 18px;
+    color: #fff;
   }
   
   .student-details p {
