@@ -13,8 +13,8 @@ const TeacherDashboard = () => {
   const events = {
     "2025-05-15": "Prepare class notes for Basic 2",
     "2025-05-16": "Staff meeting at 10:00am",
-    "2025-06-07": "Eid-ul-Adha",
-    "2025-06-11": "BECE Begins",
+    "2025-06-06": "Eid-ul-Adha",
+    "2025-06-11": "BECE Begins today",
   };
 
   const handleDateChange = (date) => {
