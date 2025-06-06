@@ -77,7 +77,7 @@ export const generateClassReports = async (req, res) => {
 
       const totalSchoolDays = getWeekdays(new Date(term.startDate), new Date(term.endDate));
 
-      const conductOptions = ["Excellent", "Satisfactory", "Very obedient", "Well-behaved", "Needs improvement"];
+      const conductOptions = ["Excellent", "Satisfactory", "Very obedient", "Well-behaved"];
       const conduct = conductOptions[Math.floor(Math.random() * conductOptions.length)];
 
       const highestScore = Math.max(...subjectData.map(s => s.total));
