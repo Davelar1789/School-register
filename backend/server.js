@@ -25,6 +25,7 @@ import gradeRoutes from "./routes/gradeRoutes.js";
 import reportTemplateRoutes from "./routes/reportTemplateRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import patchRoutes from "./routes/patchRoutes.js";
+import excelRoutes from "./routes/BulkExcelRoutes.js";
 
 
 // Middleware
@@ -102,6 +103,7 @@ app.use("/api/grades", gradeRoutes);
 app.use("/api/report-template", reportTemplateRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/patch", patchRoutes);
+app.use("/api/excel-bulk", excelRoutes);
 app.use("/uploads", express.static("uploads"));
 
 
