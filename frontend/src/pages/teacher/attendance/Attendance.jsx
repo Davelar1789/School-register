@@ -39,6 +39,10 @@ const Attendance = () => {
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const [submittedDates, setSubmittedDates] = useState(new Set());
+  const [existingAttendance, setExistingAttendance] = useState({}); // ✅ Store previously submitted attendance
+const [attendanceIds, setAttendanceIds] = useState({}); // ✅ Map of studentId to attendance record _id
+const [isEditing, setIsEditing] = useState(false); // ✅ Track editing mode
+
 
   const token = localStorage.getItem("token");
   const schoolId = getDataFromToken(); // ✅ Ensuring correct extraction
@@ -116,26 +120,79 @@ const Attendance = () => {
     }
   };
 
-  // Check if attendance has already been submitted for this date
-  const fetchAttendanceForDate = async (classId, date) => {
-    if (!classId || !date || !currentTerm) return;
-    
-    try {
-  
-      const res = await axios.get(`/api/attendance/fetch`, {
-        params: { termId: currentTerm._id, classId, date }, // ✅ Now class-specific
-        headers: { Authorization: `Bearer ${token}` },
+  // ✅ Updated fetchAttendanceForDate to capture existing attendance records
+const fetchAttendanceForDate = async (classId, date) => {
+  if (!classId || !date || !currentTerm) return;
+
+  try {
+    const res = await axios.get(`/api/attendance/fetch`, {
+      params: { termId: currentTerm._id, classId, date },
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (res.data.length > 0) {
+      setSubmittedDates((prev) => new Set(prev).add(`${classId}_${date}`));
+
+      const attendanceMap = {};
+      const idMap = {};
+      res.data.forEach((record) => {
+        attendanceMap[record.studentId._id] = record.present;
+        idMap[record.studentId._id] = record._id;
       });
-  
-      // console.log("Fetched Attendance Records:", res.data);
-  
-      if (res.data.length > 0) {
-        setSubmittedDates((prev) => new Set(prev).add(`${classId}_${date}`)); // ✅ Store as "classId_date"
-      }
-    } catch (err) {
-      // console.error("Error checking attendance records:", err);
+
+      setAttendance(attendanceMap); // prefill form
+      setExistingAttendance(attendanceMap); // also keep a copy to compare later
+      setAttendanceIds(idMap);
     }
-  };
+  } catch (err) {
+    console.error("Error checking attendance records:", err);
+  }
+};
+
+// ✅ Editing trigger
+const handleEditClick = () => {
+  setIsEditing(true);
+  setShowModal(false);
+};
+
+// ✅ Submit updated attendance
+const updateAttendance = async () => {
+  setShowModal(false);
+
+  const teacherData = getDataFromToken();
+  if (!teacherData) return toast.error("Invalid token or teacher data missing!");
+
+  try {
+    const updates = [];
+
+    students.forEach((student) => {
+      const id = student._id;
+      const present = attendance[id];
+      const original = existingAttendance[id];
+
+      if (present !== original) {
+        const attendanceId = attendanceIds[id];
+        if (attendanceId) {
+          updates.push(
+            axios.put(
+              `/api/attendance/update/${attendanceId}`,
+              { present },
+              { headers: { Authorization: `Bearer ${token}` } }
+            )
+          );
+        }
+      }
+    });
+
+    await Promise.all(updates);
+
+    toast.success("Attendance updated successfully!");
+    setIsEditing(false);
+  } catch (err) {
+    console.error("Error updating attendance:", err);
+    toast.error("Failed to update attendance.");
+  }
+};
 
   // Handle attendance selection
   const handleAttendanceChange = (studentId, present) => {
@@ -204,95 +261,147 @@ const submitAttendance = async () => {
     }
   }, [selectedClass, selectedDate]);
 
+  
+
   return (
-    <div>
-      <Sidebar />
-      <Header />
+  <div>
+    <Sidebar />
+    <Header />
     <div className="attendance-container">
-  <h2 className="attendance-title">Mark Attendance</h2>
+      <h2 className="attendance-title">Mark Attendance</h2>
 
-  {/* Class Selector */}
-  <select className="class-selector" onChange={(e) => {
-    setSelectedClass(e.target.value);
-    fetchStudents(e.target.value);
-  }}>
-    <option value="">Select Class</option>
-    {classes.map((cls) => (
-      <option key={cls._id} value={cls._id}>{cls.className}</option>
-    ))}
-  </select>
-
-  {/* Date Selector */}
-  <input 
-  type="date" 
-  className="date-selector"
-  value={selectedDate} // ✅ Always starts with today's date
-  onChange={(e) => setSelectedDate(e.target.value)} // ✅ Allows manual update
-  min={currentTerm?.startDate?.slice(0, 10)}
-  max={currentTerm?.endDate?.slice(0, 10)}
-/>
-
-
-  {/* Check if attendance already exists for the selected date */}
-  {selectedClass && selectedDate && submittedDates.has(selectedDate) && (
-    <p className="attendance-warning">⚠️ Attendance for this date is already submitted.</p>
-  )}
-
-  {/* Students List */}
-  {loading ? (
-    <p className="loading-message">Loading students...</p>
-  ) : students.length > 0 ? (
-    <table className="attendance-table">
-      <thead>
-        <tr>
-          <th>Student Name</th>
-          {/* <th>ID No</th> */}
-          <th>Present?</th>
-        </tr>
-      </thead>
-      <tbody>
-        {students.map(student => (
-          <tr key={student._id} className="student-row">
-            <td className="student-name">{student.name}</td>
-            {/* <td className="student-id">{student.idno}</td> */}
-            <td className="attendance-checkbox">
-              <input
-                type="checkbox"
-                checked={attendance[student._id] || false}
-                onChange={(e) => handleAttendanceChange(student._id, e.target.checked)}
-              />
-            </td>
-          </tr>
+      {/* Class Selector */}
+      <select
+        className="class-selector"
+        onChange={(e) => {
+          setSelectedClass(e.target.value);
+          fetchStudents(e.target.value);
+        }}
+      >
+        <option value="">Select Class</option>
+        {classes.map((cls) => (
+          <option key={cls._id} value={cls._id}>
+            {cls.className}
+          </option>
         ))}
-      </tbody>
-    </table>
-  ) : (
-    <p className="no-students-message">No students found for this class.</p>
-  )}
+      </select>
 
-  {/* Dynamic Submit Button */}
-  <button 
-  className="submit-button" 
-  onClick={handleSubmitClick} 
-  disabled={!selectedClass || !students.length || submittedDates.has(`${selectedClass}_${selectedDate}`)}
->
-  {submittedDates.has(`${selectedClass}_${selectedDate}`) ? "Attendance already submitted for this class on this date" : "Submit Attendance"}
-</button>
+      {/* Date Selector */}
+      <input
+        type="date"
+        className="date-selector"
+        value={selectedDate}
+        onChange={(e) => setSelectedDate(e.target.value)}
+        min={currentTerm?.startDate?.slice(0, 10)}
+        max={currentTerm?.endDate?.slice(0, 10)}
+      />
 
-{showModal && (
+      {/* Attendance warning or status */}
+      {selectedClass &&
+        selectedDate &&
+        submittedDates.has(`${selectedClass}_${selectedDate}`) &&
+        !isEditing && (
+          <p className="attendance-warning">
+            ⚠️ Attendance for this class on this date has already been submitted.
+          </p>
+        )}
+
+      {/* Students List */}
+      {loading ? (
+        <p className="loading-message">Loading students...</p>
+      ) : students.length > 0 ? (
+        <table className="attendance-table">
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>Present?</th>
+            </tr>
+          </thead>
+          <tbody>
+            {students.map((student) => (
+              <tr key={student._id} className="student-row">
+                <td className="student-name">{student.name}</td>
+                <td className="attendance-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={attendance[student._id] || false}
+                    onChange={(e) =>
+                      handleAttendanceChange(student._id, e.target.checked)
+                    }
+                    disabled={
+                      submittedDates.has(`${selectedClass}_${selectedDate}`) &&
+                      !isEditing
+                    }
+                  />
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className="no-students-message">
+          No students found for this class.
+        </p>
+      )}
+
+      {/* Submit or Edit Button */}
+      {submittedDates.has(`${selectedClass}_${selectedDate}`) ? (
+        isEditing ? (
+          <button
+            className="submit-button"
+            onClick={handleSubmitClick}
+            disabled={!selectedClass || !students.length}
+          >
+            Save Edited Attendance
+          </button>
+        ) : (
+          <button
+            className="edit-button"
+            onClick={handleEditClick}
+            disabled={!selectedClass || !students.length}
+          >
+            Edit Attendance
+          </button>
+        )
+      ) : (
+        <button
+          className="submit-button"
+          onClick={handleSubmitClick}
+          disabled={!selectedClass || !students.length}
+        >
+          Submit Attendance
+        </button>
+      )}
+
+      {/* Modal */}
+      {showModal && (
         <div className="modal-overlay">
           <div className="modal">
-            <h3>Confirm Attendance Submission</h3>
-            <p>Are you sure you want to submit attendance for this class on {selectedDate}?</p>
-            <button className="modal-confirm" onClick={submitAttendance}>Confirm</button>
-            <button className="modal-cancel" onClick={handleCancel}>Cancel</button>
+            <h3>
+              {isEditing
+                ? "Confirm Attendance Update"
+                : "Confirm Attendance Submission"}
+            </h3>
+            <p>
+              Are you sure you want to{" "}
+              {isEditing ? "update" : "submit"} attendance for this class on{" "}
+              {selectedDate}?
+            </p>
+            <button
+              className="modal-confirm"
+              onClick={isEditing ? updateAttendance : submitAttendance}
+            >
+              Confirm
+            </button>
+            <button className="modal-cancel" onClick={handleCancel}>
+              Cancel
+            </button>
           </div>
         </div>
       )}
-
-</div>
-</div>
-  );
+    </div>
+  </div>
+);
 };
 
 export default Attendance;

@@ -584,3 +584,34 @@ export const getFeedingMonthly = async (req, res) => {
   }
 };
 
+// Update attendance for a specific class and date
+export const updateAttendance2 = async (req, res) => {
+  const { termId, classId, date, attendanceList } = req.body;
+
+  if (!termId || !classId || !date || !attendanceList) {
+    return res.status(400).json({ error: "Missing required fields." });
+  }
+
+  try {
+    const attendanceDate = new Date(date);
+    if ([0, 6].includes(attendanceDate.getDay())) {
+      return res.status(400).json({ error: "Cannot mark attendance on weekends." });
+    }
+
+    // Loop through the list and update each student's attendance
+    const bulkOperations = attendanceList.map(({ studentId, present }) => ({
+      updateOne: {
+        filter: { studentId, termId, date: attendanceDate },
+        update: { present },
+        upsert: true, // create if not found
+      },
+    }));
+
+    await Attendance.bulkWrite(bulkOperations);
+
+    res.status(200).json({ message: "Attendance updated successfully." });
+  } catch (error) {
+    console.error("Error updating attendance:", error);
+    res.status(500).json({ error: "Server error updating attendance." });
+  }
+};
