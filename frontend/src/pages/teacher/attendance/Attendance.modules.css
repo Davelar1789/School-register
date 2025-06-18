@@ -118,6 +118,54 @@
   margin-left: 10px;
 }
 
+/* Warning Message */
+.attendance-warning {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  padding: 12px 16px;
+  margin: 16px 0;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+/* Edit Button */
+.edit-button {
+  background-color: #ff9f43; /* Sunset Orange variant */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin-top: 10px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.edit-button:hover {
+  background-color: #ff7f1f;
+}
+
+/* Responsive: stack warning and button on small screens */
+@media (max-width: 600px) {
+  .attendance-warning {
+    font-size: 0.9rem;
+    padding: 10px 12px;
+  }
+
+  .edit-button {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+  }
+}
+
+
 @media (min-width: 768px) {
   .attendance-container {
     margin-left: 250px;
