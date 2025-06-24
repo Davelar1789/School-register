@@ -5,6 +5,7 @@ import Header from "../../../components/Admin/Header2";
 import { MdDelete, MdEdit } from "react-icons/md";
 import Sidebar from "../../../components/Admin/Sidebar";
 import { toast } from "react-hot-toast";
+import { Link } from "react-router-dom";
 
 
 const CreateClassPage = () => {
@@ -142,7 +143,11 @@ const CreateClassPage = () => {
       <tbody>
         {classes.map(cls => (
           <tr key={cls._id}>
-            <td>{cls.className}</td>
+            <td>
+              <Link to={`/classes/${cls._id}/subjects`} className="clickable-class-name">
+                {cls.className}
+              </Link>
+            </td>
             <td>{cls.level}</td>
             <td>{cls.teachers?.length || 0}</td>
             <td>{cls.students?.length || 0}</td>

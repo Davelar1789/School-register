@@ -53,6 +53,16 @@
   cursor: pointer;
 }
 
+.clickable-class-name {
+  color: #007bff;
+  text-decoration: underline;
+  cursor: pointer;
+}
+.clickable-class-name:hover {
+  color: #0056b3;
+}
+
+
 @media screen and (min-width: 768px) {
   .create-class-container {
     margin-left: 250px;

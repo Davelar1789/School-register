@@ -69,6 +69,7 @@ import TGradebook from "./pages/teacher/gradebook/Gradebook";
 import AReport from "./pages/head/report/UploadReportTemplates";
 import StudentDetails from "./pages/head/students/StudentDetails";
 import AVReport from "./pages/head/report/GenerateClassReports";
+import ClassSubjectsPage from "./pages/head/classes/ClassSubjectsPage";
 
 
 const router = createBrowserRouter([
@@ -89,6 +90,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["admin"]}>
             <Welcome />
+          </ProtectedRoute>
+        ),
+      },
+          {
+        path: "/classes/:classId/subjects",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <ClassSubjectsPage />
           </ProtectedRoute>
         ),
       },
