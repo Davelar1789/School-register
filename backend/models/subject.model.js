@@ -1,9 +1,11 @@
 import mongoose from "mongoose";
 
-const topicSchema = new mongoose.Schema({
+const topicSchema = new Schema({
+  classId: { type: Schema.Types.ObjectId, ref: "Class", required: true },
+  term: { type: String, enum: ["Term 1", "Term 2", "Term 3"], required: true },
   title: { type: String, required: true },
-  description: String,
-});
+  description: { type: String, required: true },
+}, { timestamps: true });
 
 const courseMaterialSchema = new mongoose.Schema({
   term: { type: String, enum: ["Term 1", "Term 2", "Term 3"], required: true },
