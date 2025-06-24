@@ -105,6 +105,8 @@ app.use("/api/report-template", reportTemplateRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/patch", patchRoutes);
 app.use("/api/topics", topicRoutes);
+app.use('/generated-exams', express.static(path.join(__dirname, 'generated-exams')));
+
 // app.use("/api/excel-bulk", excelRoutes);
 app.use("/uploads", express.static("uploads"));
 
