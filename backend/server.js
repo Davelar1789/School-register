@@ -22,6 +22,8 @@ import attendanceRoutes from "./routes/attendanceRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import tutorialRoutes from "./routes/tutorialRoutes.js";
 import gradeRoutes from "./routes/gradeRoutes.js";
+import path from 'path';
+
 import reportTemplateRoutes from "./routes/reportTemplateRoutes.js";
 import reportRoutes from "./routes/reportRoutes.js";
 import patchRoutes from "./routes/patchRoutes.js";
@@ -34,6 +36,9 @@ import { authToken } from "./middleware/authToken.js";
 import { verifyAdmin } from "./middleware/verifyAdmin.js";
 import { verifyTeacher } from "./middleware/verifyTeacher.js";
 import User from "./models/User.model.js"; // Import User model
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 const app = express();
@@ -106,7 +111,6 @@ app.use("/api/reports", reportRoutes);
 app.use("/api/patch", patchRoutes);
 app.use("/api/topics", topicRoutes);
 app.use('/generated-exams', express.static(path.join(__dirname, 'generated-exams')));
-
 // app.use("/api/excel-bulk", excelRoutes);
 app.use("/uploads", express.static("uploads"));
 
