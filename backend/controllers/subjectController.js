@@ -142,3 +142,45 @@ export const deleteSubject = async (req, res) => {
   }
 };
 
+// GET all subjects taught in a class
+export const getSubjectsByClass = async (req, res) => {
+  try {
+    const classId = req.params.classId;
+    const subjects = await Subject.find({ classes: classId });
+    res.status(200).json(subjects);
+  } catch (err) {
+    console.error("❌ Error fetching subjects:", err);
+    res.status(500).json({ error: "Failed to fetch subjects" });
+  }
+};
+
+// PUT to update course materials for subject+class+term
+export const updateCourseMaterials = async (req, res) => {
+  const { subjectId } = req.params;
+  const { classId, term, topics } = req.body;
+
+  try {
+    const subject = await Subject.findById(subjectId);
+    if (!subject) return res.status(404).json({ error: "Subject not found" });
+
+    const existing = subject.courseMaterials.find(
+      m => m.class.toString() === classId && m.term === term
+    );
+
+    if (existing) {
+      existing.topics = topics; // update
+    } else {
+      subject.courseMaterials.push({
+        class: classId,
+        term,
+        topics,
+      });
+    }
+
+    await subject.save();
+    res.status(200).json({ message: "Course materials saved", data: subject.courseMaterials });
+  } catch (err) {
+    console.error("❌ Error saving course materials:", err);
+    res.status(500).json({ error: "Failed to save course materials" });
+  }
+};

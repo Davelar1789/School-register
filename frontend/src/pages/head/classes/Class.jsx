@@ -211,44 +211,6 @@ const CreateClassPage = () => {
                   onChange={handleChange}
                 />
 
-                {/* <label>Assign Teachers (Optional)</label>
-                <div>
-                  {teachers.map(t => (
-                    <span
-                      key={t._id}
-                      onClick={() => handleMultiSelect(t._id, "teachers")}
-                      style={{
-                        cursor: "pointer",
-                        margin: 4,
-                        background: formData.teachers.includes(t._id)
-                          ? "#ddd"
-                          : "transparent",
-                      }}
-                    >
-                      {t.name}
-                    </span>
-                  ))}
-                </div>
-
-                <label>Assign Students (Optional)</label>
-                <div>
-                  {students.map(s => (
-                    <span
-                      key={s._id}
-                      onClick={() => handleMultiSelect(s._id, "students")}
-                      style={{
-                        cursor: "pointer",
-                        margin: 4,
-                        background: formData.students.includes(s._id)
-                          ? "#ddd"
-                          : "transparent",
-                      }}
-                    >
-                      {s.name}
-                    </span>
-                  ))}
-                </div> */}
-
                 <button type="submit">Create</button>
                 <button type="button" onClick={() => setShowModal(false)}>
                   Cancel
