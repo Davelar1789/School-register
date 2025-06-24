@@ -1,26 +1,24 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import axios from "../../../api/axios";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/hooks/use-toast";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import "./EditTopics.modules.css";
+import toast from "react-hot-toast";
 
-const TopicsEditorPage = () => {
+const EditTopics = () => {
   const { subjectId } = useParams();
-  const { search } = useLocation();
-  const params = new URLSearchParams(search);
-  const classId = params.get("classId");
-  const { toast } = useToast();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const classId = new URLSearchParams(location.search).get("classId");
 
   const [term, setTerm] = useState("Term 1");
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
   const [topics, setTopics] = useState([]);
-  const [newTitle, setNewTitle] = useState("");
-  const [newDesc, setNewDesc] = useState("");
   const [loading, setLoading] = useState(false);
 
   const fetchTopics = async () => {
-    if (!classId || !term) return;
     try {
       const res = await axios.get(`/api/subjects/${subjectId}/topics`, {
         params: { classId, term }
@@ -28,70 +26,89 @@ const TopicsEditorPage = () => {
       setTopics(res.data);
     } catch (err) {
       console.error(err);
+      toast.error("Failed to fetch topics.");
     }
   };
 
-  useEffect(() => { fetchTopics(); }, [classId, subjectId, term]);
-
-  const handleAddTopic = async () => {
-    if (!newTitle || !newDesc) {
-      toast({ title: "Error", description: "Fill in both fields", variant: "destructive" });
+  const handleSubmit = async () => {
+    if (!title || !description) {
+      toast.error("Fill both title and description.");
       return;
     }
+
     setLoading(true);
     try {
-      await axios.post(`/api/subjects/${subjectId}/topics`, { classId, term, title: newTitle, description: newDesc });
-      toast({ title: "Success", description: "Topic added" });
-      setNewTitle("");
-      setNewDesc("");
+      await axios.post(`/api/subjects/${subjectId}/topics`, {
+        classId,
+        term,
+        title,
+        description,
+      });
+
+      toast.success("Topic added");
+      setTitle("");
+      setDescription("");
       fetchTopics();
-    } catch {
-      toast({ title: "Error", description: "Could not add topic", variant: "destructive" });
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to save topic");
     } finally {
       setLoading(false);
     }
   };
 
-  return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h2 className="text-2xl mb-4">Edit Topics</h2>
+  useEffect(() => {
+    fetchTopics();
+  }, [term]);
 
-      <div className="flex items-center mb-4 space-x-4">
-        <select
-          className="border rounded p-2"
-          value={term}
-          onChange={e => setTerm(e.target.value)}
-        >
-          {["Term 1","Term 2","Term 3"].map(t => (
-            <option key={t} value={t}>{t}</option>
-          ))}
+  return (
+    <div className="edit-topics-page">
+      <button className="back-button" onClick={() => navigate(-1)}>← Back</button>
+      <h2 className="edit-topics-title">Edit Course Topics</h2>
+
+      <div className="form-group">
+        <label>Select Term</label>
+        <select value={term} onChange={e => setTerm(e.target.value)}>
+          <option value="Term 1">Term 1</option>
+          <option value="Term 2">Term 2</option>
+          <option value="Term 3">Term 3</option>
         </select>
       </div>
 
-      <ul className="mb-6 space-y-2">
-        {topics.map(t => (
-          <li key={t._id} className="bg-gray-100 p-3 rounded">{t.title}</li>
-        ))}
-        {topics.length === 0 && <p>No topics yet.</p>}
-      </ul>
+      <div className="form-group">
+        <label>Topic Title</label>
+        <input
+          type="text"
+          value={title}
+          onChange={e => setTitle(e.target.value)}
+          placeholder="Enter topic title"
+        />
+      </div>
 
-      <Input
-        placeholder="New topic title"
-        value={newTitle}
-        onChange={e => setNewTitle(e.target.value)}
-        className="mb-2"
-      />
-      <Textarea
-        placeholder="Topic description (notes)"
-        value={newDesc}
-        onChange={e => setNewDesc(e.target.value)}
-        className="mb-4"
-      />
-      <Button onClick={handleAddTopic} disabled={loading}>
+      <div className="form-group">
+        <label>Description</label>
+        <ReactQuill
+          value={description}
+          onChange={setDescription}
+          theme="snow"
+        />
+      </div>
+
+      <button className="submit-button" onClick={handleSubmit} disabled={loading}>
         {loading ? "Saving..." : "Add Topic"}
-      </Button>
+      </button>
+
+      <div className="existing-topics">
+        <h3>Topics for {term}</h3>
+        <ul>
+          {topics.map(topic => (
+            <li key={topic._id} className="topic-item">{topic.title}</li>
+          ))}
+          {topics.length === 0 && <p>No topics yet.</p>}
+        </ul>
+      </div>
     </div>
   );
 };
 
-export default TopicsEditorPage;
+export default EditTopics;
