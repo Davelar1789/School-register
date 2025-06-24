@@ -1,5 +1,5 @@
 import express from 'express';
-import { generateExam } from '../controllers/examController.js';
+import { generateExam } from '../controllers/generateExam.js';
 import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
