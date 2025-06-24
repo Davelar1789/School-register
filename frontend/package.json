@@ -37,6 +37,7 @@
     "react-icons": "^5.2.1",
     "react-paystack": "^6.0.0",
     "react-pro-sidebar": "^1.1.0",
+    "react-quill": "^2.0.0",
     "react-router-dom": "^6.25.1",
     "react-shepherd": "^6.1.8",
     "react-to-print": "^3.0.4",

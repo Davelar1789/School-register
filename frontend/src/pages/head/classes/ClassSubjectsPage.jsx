@@ -4,6 +4,8 @@ import axios from "../../../api/axios";
 import Header from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
 import "./ClassSubjects.modules.css";
+import { Link } from "react-router-dom";
+
 
 const ClassSubjectsPage = () => {
   const { classId } = useParams();
@@ -46,7 +48,9 @@ const ClassSubjectsPage = () => {
                     <h4>{subject.name}</h4>
                     <p>Subject ID: {subject._id}</p>
                   </div>
-                  <button className="edit-btn">Edit Topics</button>
+                    <Link to={`/classes/${classId}/subjects/${subject._id}/topics?classId=${classId}`}>
+                    <button className="edit-btn">Edit Topics</button>
+                    </Link>
                   {/* Later: Link this to topic editing per term */}
                 </li>
               ))}
