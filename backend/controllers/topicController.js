@@ -41,6 +41,8 @@ export const addTopic = async (req, res) => {
 
     courseMaterial.topics.push({ classId, title, description });
     console.log("📝 Topic added to course material:", { title, description });
+    
+    subject.markModified("courseMaterials");
 
     await subject.save();
     console.log("💾 Subject saved successfully");
