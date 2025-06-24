@@ -19,16 +19,26 @@ const EditTopics = () => {
   const [loading, setLoading] = useState(false);
 
   const fetchTopics = async () => {
-    try {
-      const res = await axios.get(`/api/topics/subjects/${subjectId}/topics`, {
-        params: { classId, term }
-      });
-      setTopics(res.data);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch topics.");
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      toast.error("No token found. Please log in.");
+      return;
     }
-  };
+
+    const res = await axios.get(`/api/topics/subjects/${subjectId}/topics`, {
+      params: { classId, term },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    setTopics(res.data);
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to fetch topics.");
+  }
+};
 
   const handleSubmit = async () => {
     if (!title || !description) {
