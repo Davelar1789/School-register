@@ -70,7 +70,7 @@ import AReport from "./pages/head/report/UploadReportTemplates";
 import StudentDetails from "./pages/head/students/StudentDetails";
 import AVReport from "./pages/head/report/GenerateClassReports";
 import ClassSubjectsPage from "./pages/head/classes/ClassSubjectsPage";
-
+import TopicEditor from "./pages/head/classes/TopicsEditorPage";
 
 const router = createBrowserRouter([
   {
@@ -98,6 +98,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["admin"]}>
             <ClassSubjectsPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "classes/:classId/subjects/:subjectId/topics",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <TopicEditor />
           </ProtectedRoute>
         ),
       },

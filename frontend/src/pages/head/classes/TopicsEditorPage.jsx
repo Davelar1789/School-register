@@ -20,7 +20,7 @@ const EditTopics = () => {
 
   const fetchTopics = async () => {
     try {
-      const res = await axios.get(`/api/subjects/${subjectId}/topics`, {
+      const res = await axios.get(`/api/topics/subjects/${subjectId}/topics`, {
         params: { classId, term }
       });
       setTopics(res.data);
@@ -38,7 +38,7 @@ const EditTopics = () => {
 
     setLoading(true);
     try {
-      await axios.post(`/api/subjects/${subjectId}/topics`, {
+      await axios.post(`/api/topics/subjects/${subjectId}/topics`, {
         classId,
         term,
         title,
