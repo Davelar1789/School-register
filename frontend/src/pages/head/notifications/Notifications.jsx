@@ -4,7 +4,7 @@ import Header from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
 import "./Notifications.modules.css";
 
-const socket = io("https://school-register-a2bx.onrender.com"); // ✅ Replace with your actual backend URL
+const socket = io("https://school-register6.onrender.com"); // ✅ Replace with your actual backend URL
 
 const NotificationsPage = () => {
     const [notifications, setNotifications] = useState([]);
