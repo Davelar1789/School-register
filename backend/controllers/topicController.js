@@ -1,5 +1,5 @@
 // controllers/topicController.js
-import Subject from "../models/Subject.js";
+import Subject from "../models/subject.model.js";
 
 export const addTopic = async (req, res) => {
   const { subjectId } = req.params;
