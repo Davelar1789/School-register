@@ -1,0 +1,12 @@
+.exam-gen .spinner {
+  border: 4px solid rgba(0,0,0,0.1);
+  border-top: 4px solid green;
+  border-radius: 50%;
+  width: 18px; height: 18px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.exam-output img { max-width: 100%; margin: 10px 0; }
