@@ -41,31 +41,46 @@ const EditTopics = () => {
 };
 
   const handleSubmit = async () => {
-    if (!title || !description) {
-      toast.error("Fill both title and description.");
-      return;
-    }
+  if (!title || !description) {
+    toast.error("Fill both title and description.");
+    return;
+  }
 
-    setLoading(true);
-    try {
-      await axios.post(`/api/topics/subjects/${subjectId}/topics`, {
+  const token = localStorage.getItem("token");
+  if (!token) {
+    toast.error("No token found. Please log in.");
+    return;
+  }
+
+  setLoading(true);
+  try {
+    await axios.post(
+      `/api/topics/subjects/${subjectId}/topics`,
+      {
         classId,
         term,
         title,
         description,
-      });
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
 
-      toast.success("Topic added");
-      setTitle("");
-      setDescription("");
-      fetchTopics();
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to save topic");
-    } finally {
-      setLoading(false);
-    }
-  };
+    toast.success("Topic added");
+    setTitle("");
+    setDescription("");
+    fetchTopics(); // refresh list
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to save topic");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchTopics();
