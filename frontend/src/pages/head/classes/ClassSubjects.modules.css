@@ -29,3 +29,9 @@
 .edit-btn:hover {
   background: #0056b3;
 }
+
+@media (min-width: 768px) {
+    .class-subjects-main {
+  margin-left: 250px;
+}
+}
