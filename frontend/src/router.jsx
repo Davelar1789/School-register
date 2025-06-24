@@ -71,6 +71,7 @@ import StudentDetails from "./pages/head/students/StudentDetails";
 import AVReport from "./pages/head/report/GenerateClassReports";
 import ClassSubjectsPage from "./pages/head/classes/ClassSubjectsPage";
 import TopicEditor from "./pages/head/classes/TopicsEditorPage";
+import ExamGenerator from "./pages/head/exams/ExamGenerator";
 
 const router = createBrowserRouter([
   {
@@ -90,6 +91,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["admin"]}>
             <Welcome />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "exam",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <ExamGenerator />
           </ProtectedRoute>
         ),
       },
