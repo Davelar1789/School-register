@@ -13,11 +13,13 @@ export const addTopic = async (req, res) => {
     const subject = await Subject.findById(subjectId);
     if (!subject) return res.status(404).json({ error: "Subject not found" });
 
-    let courseMaterial = subject.courseMaterials.find(mat => mat.term === term);
-    if (!courseMaterial) {
-      courseMaterial = { term, topics: [] };
-      subject.courseMaterials.push(courseMaterial);
-    }
+let courseMaterial = subject.courseMaterials.find(
+  mat => mat.term === term && mat.classId.toString() === classId
+);
+   if (!courseMaterial) {
+  courseMaterial = { term, classId, topics: [] };
+  subject.courseMaterials.push(courseMaterial);
+}
 
     courseMaterial.topics.push({ classId, title, description });
     await subject.save();

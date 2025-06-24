@@ -8,6 +8,7 @@ const topicSchema = new Schema({
 }, { timestamps: true });
 
 const courseMaterialSchema = new Schema({
+  classId: { type: Schema.Types.ObjectId, ref: "Class", required: true }, // 🔥 Add this line
   term: { type: String, enum: ["Term 1", "Term 2", "Term 3"], required: true },
   topics: [topicSchema],
 });
