@@ -87,7 +87,7 @@ const Subjects = () => {
   if (!subjectName) return toast.error("Subject name is required");
 
   const payload = { name: subjectName, school: schoolId, classes: selectedClasses };
-  console.log("Payload:", payload); // Moved up so it's visible before any request
+  // console.log("Payload:", payload); // Moved up so it's visible before any request
 
   try {
     if (editingSubject) {
