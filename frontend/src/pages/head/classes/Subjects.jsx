@@ -92,8 +92,8 @@ const Subjects = () => {
         await axios.put(`/api/subjects/${editingSubject._id}`, payload);
         toast.success("Subject updated");
       } else {
+                console.log("Payload:", payload);        
         await axios.post("/api/subjects", payload);
-        console.log("Payload:", payload);        
         toast.success("Subject created");
       }
       fetchSubjects();
