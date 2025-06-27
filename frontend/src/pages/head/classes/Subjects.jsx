@@ -93,6 +93,7 @@ const Subjects = () => {
         toast.success("Subject updated");
       } else {
         await axios.post("/api/subjects", payload);
+        console.log("Payload:", payload);        
         toast.success("Subject created");
       }
       fetchSubjects();
