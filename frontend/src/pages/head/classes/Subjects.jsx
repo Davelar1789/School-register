@@ -82,26 +82,28 @@ const Subjects = () => {
   };
 
   const handleSubmit = async () => {
-    const schoolId = localStorage.getItem("schoolId");
-    if (!subjectName) return toast.error("Subject name is required");
+  const { schoolId } = getDataFromToken(); // Use your decoding function
 
-    const payload = { name: subjectName, school: schoolId, classes: selectedClasses };
+  if (!subjectName) return toast.error("Subject name is required");
 
-    try {
-      if (editingSubject) {
-        await axios.put(`/api/subjects/${editingSubject._id}`, payload);
-        toast.success("Subject updated");
-      } else {
-                console.log("Payload:", payload);        
-        await axios.post("/api/subjects", payload);
-        toast.success("Subject created");
-      }
-      fetchSubjects();
-      closeModal();
-    } catch (error) {
-      toast.error("Error saving subject");
+  const payload = { name: subjectName, school: schoolId, classes: selectedClasses };
+  console.log("Payload:", payload); // Moved up so it's visible before any request
+
+  try {
+    if (editingSubject) {
+      await axios.put(`/api/subjects/${editingSubject._id}`, payload);
+      toast.success("Subject updated");
+    } else {
+      await axios.post("/api/subjects", payload);
+      toast.success("Subject created");
     }
-  };
+    fetchSubjects();
+    closeModal();
+  } catch (error) {
+    console.error("Error details:", error.response?.data || error.message);
+    toast.error("Error saving subject");
+  }
+};
 
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this subject?")) return;
