@@ -111,6 +111,16 @@
   min-height: 300px;
 }
 
+.modal-box {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 400px;
+  margin: auto;
+  margin-top: 10%;
+  outline: none;
+}
+
 .loading-box {
   width: 320px;
   padding: 20px;
