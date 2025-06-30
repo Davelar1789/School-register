@@ -16,6 +16,7 @@ import {
   fetchWeeklyAttendance,
   markWeeklyAttendance,
   getStudentByIdFree,
+  updateStudentInfo,
   // deleteAllStudents,
   // migrateAttendanceBooleans,
 } from "../controllers/studentController.js";
@@ -42,6 +43,6 @@ router.post("/students/promote/:schoolId", promoteAllStudents);
 router.get("/school/:schoolId", getStudentsBySchool);
 router.put("/:id", updateStudent);
 router.delete("/:id", protect, deleteStudent);
-
+router.patch("/:id", updateStudentInfo);
 
 export default router;

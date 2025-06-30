@@ -703,3 +703,23 @@ export const markWeeklyAttendance = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+// PATCH /api/student/:id
+export const updateStudentInfo = async (req, res) => {
+  const { id } = req.params;
+  const { dob, phone, address } = req.body;
+
+  try {
+    const updateFields = {};
+    if (dob) updateFields.dob = dob;
+    if (phone) updateFields.phone = phone;
+    if (address) updateFields.address = address;
+
+    const updatedStudent = await Students.findByIdAndUpdate(id, updateFields, { new: true });
+    if (!updatedStudent) return res.status(404).json({ message: "Student not found" });
+
+    res.status(200).json(updatedStudent);
+  } catch (error) {
+    res.status(500).json({ message: "Update failed", error: error.message });
+  }
+};
