@@ -122,6 +122,11 @@ const [editFormData, setEditFormData] = useState({
       }
     }
   };
+
+  useEffect(() => {
+  fetchClasses();
+}, []);
+
   
   useEffect(() => {
     if (showModal || editingStudent) {
