@@ -82,10 +82,11 @@ export const generateClassReports = async (req, res) => {
 
       const highestScore = Math.max(...subjectData.map(s => s.total));
       const interestSubjects = subjectData
-        .filter(s => s.total === highestScore)
-        .map(s => s.name);
+  .filter(s => s.total === highestScore)
+  .map(s => s.name)
+  .slice(0, 2); // Limits to at most 2 subjects
 
-      const interest = interestSubjects.join(" and ");
+const interest = interestSubjects.join(" and ");
 
       const percentage = (studentTotalMarks / (maxTotalMarks || 1)) * 100;
       let classTeacherRemark = "More room for improvement.";
