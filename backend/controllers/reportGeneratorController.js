@@ -132,7 +132,7 @@ const interest = interestSubjects.join(", ");
         totalFeesDue
       };
 
-      console.log(`📄 Data for ${student.name}:`, studentData);
+      // console.log(`📄 Data for ${student.name}:`, studentData);
 
       const zip = new PizZip(templateBuffer);
       const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
