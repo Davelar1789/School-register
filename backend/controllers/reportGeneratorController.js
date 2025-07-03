@@ -58,13 +58,14 @@ export const generateClassReports = async (req, res) => {
       const grades = await GradeEntry.find({ studentId: student._id, termId }).populate("subjectId");
 
       const subjectData = grades.map(g => ({
-        name: g.subjectId.name || "Unknown Subject",
-        classScore: g.scores.test1 + g.scores.test2 + g.scores.test3 + g.scores.test4,
-        examScore: g.scores.exam,
-        total: g.scores.total,
-        grade: computeGrade(g.scores.total),
-        remark: getRemark(g.scores.total),
-      }));
+      name: g.subjectId.name || "Unknown Subject",
+      classScore: g.scores.test1 + g.scores.test2 + g.scores.test3 + g.scores.test4,
+      examScore: g.scores.exam,
+      total: g.scores.total,
+      grade: computeGrade(g.scores.total),
+      position: g.scores.position || "",
+      remark: getRemark(g.scores.total),
+    }));
 
       const studentTotalMarks = subjectData.reduce((sum, s) => sum + s.total, 0);
       const maxTotalMarks = subjectData.length * 100;
