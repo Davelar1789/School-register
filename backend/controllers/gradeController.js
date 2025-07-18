@@ -73,6 +73,20 @@ export const saveStudentGrades = async (req, res) => {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
+    // Check if class offers this subject
+const classDoc = await Class.findById(classId).populate("subjects.subject");
+
+if (!classDoc) {
+  return res.status(404).json({ message: "Class not found" });
+}
+
+const allowedSubjectIds = classDoc.subjects.map((s) => s.subject._id.toString());
+
+if (!allowedSubjectIds.includes(subjectId.toString())) {
+  return res.status(400).json({ message: "❌ This class does not offer the selected subject." });
+}
+
+
     console.log("🔥 Processing grades for class:", classId);
 
     // Adjust exam scores before saving (Divide by 2 and round properly)
