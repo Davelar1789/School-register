@@ -2,6 +2,7 @@
 import GradeEntry from "../models/Grade.model.js";
 import Students from "../models/Student.model.js";
 import TermSession from "../models/TermSession.model.js";
+import Class from "../models/Class.model.js";
 
 // Helper to get 1st, 2nd, 3rd...
 const getOrdinal = (n) => {
@@ -72,6 +73,20 @@ export const saveStudentGrades = async (req, res) => {
       return res.status(400).json({ message: "Missing required fields" });
     }
 
+    // Check if class offers this subject
+const classDoc = await Class.findById(classId).populate("subjects.subject");
+
+if (!classDoc) {
+  return res.status(404).json({ message: "Class not found" });
+}
+
+const allowedSubjectIds = classDoc.subjects.map((s) => s.subject._id.toString());
+
+if (!allowedSubjectIds.includes(subjectId.toString())) {
+  return res.status(400).json({ message: "❌ This class does not offer the selected subject." });
+}
+
+
     console.log("🔥 Processing grades for class:", classId);
 
     // Adjust exam scores before saving (Divide by 2 and round properly)
@@ -137,5 +152,36 @@ export const saveStudentGrades = async (req, res) => {
   } catch (error) {
     console.error("🚨 Failed to save grades:", error.message);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const cleanupInvalidGrades = async (req, res) => {
+  try {
+    const { classId } = req.body;
+
+    if (!classId) return res.status(400).json({ message: "Class ID is required" });
+
+    const classDoc = await Class.findById(classId).populate("subjects.subject");
+
+    if (!classDoc) return res.status(404).json({ message: "Class not found" });
+
+    const allowedSubjectIds = classDoc.subjects.map((subj) => subj.subject._id.toString());
+
+    const invalidGrades = await GradeEntry.find({ classId });
+
+    let removedCount = 0;
+
+    for (let grade of invalidGrades) {
+      if (!allowedSubjectIds.includes(grade.subjectId.toString())) {
+        await GradeEntry.deleteOne({ _id: grade._id });
+        removedCount++;
+        console.log(`🗑 Removed grade for invalid subject: ${grade.subjectId}`);
+      }
+    }
+
+    res.status(200).json({ message: `✅ Cleanup complete. Removed ${removedCount} invalid grades.` });
+  } catch (error) {
+    console.error("🚨 Error cleaning up invalid grades:", error);
+    res.status(500).json({ message: "Failed to clean grades", error });
   }
 };
