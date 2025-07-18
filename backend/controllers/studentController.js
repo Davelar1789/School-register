@@ -26,26 +26,121 @@ export const createStudent = async (req, res) => {
     if (!schoolId) return res.status(400).json({ message: "School ID is required" });
 
     const idno = await generateUniqueId();
+    const { classes, ...rest } = req.body;
 
-    const studentData = {
-      ...req.body,
+    const newStudent = new Students({
+      ...rest,
+      classes,
       idno,
-      schoolId, // ✅ attach the schoolId to the student
-    };
+      schoolId,
+    });
 
-    const newStudent = new Students(studentData);
+    // Fetch the latest term for this school
+    const latestTerm = await TermSession.findOne({ schoolId }).sort({ startDate: -1 });
+
+    if (latestTerm) {
+      const { yearLabel, termName, startDate, endDate, classFees } = latestTerm;
+
+      // Match class fee
+      const matchedClassFee = classFees.find(fee =>
+        classes.includes(fee.classId.toString())
+      );
+
+      const academicYear = {
+        yearLabel,
+        terms: [
+          {
+            termName,
+            startDate,
+            endDate,
+            attendance: [],
+            totalAttendance: 0,
+            subjects: [],
+            fees: {
+              totalFees: matchedClassFee?.totalFees || 0,
+              amountPaid: 0,
+              arrears: 0,
+              balance: matchedClassFee?.totalFees || 0,
+              paymentHistory: [],
+            }
+          }
+        ]
+      };
+
+      newStudent.academicRecords.push(academicYear);
+    }
+
     const savedStudent = await newStudent.save();
 
-    await School.findByIdAndUpdate(
-      schoolId,
-      { $inc: { numberOfStudents: 1 } }
-    );
+    await School.findByIdAndUpdate(schoolId, { $inc: { numberOfStudents: 1 } });
 
     res.status(201).json(savedStudent);
   } catch (error) {
+    console.error("Error creating student:", error);
     res.status(400).json({ message: "Error creating student", error });
   }
 };
+
+
+export const patchMissingAcademicRecords = async (req, res) => {
+  try {
+    const schoolId = req.user?.schoolId || req.body.schoolId;
+    if (!schoolId) return res.status(400).json({ message: "School ID is required" });
+
+    const latestTerm = await TermSession.findOne({ schoolId }).sort({ startDate: -1 });
+    if (!latestTerm) return res.status(404).json({ message: "No term session found" });
+
+    const { yearLabel, termName, startDate, endDate, classFees } = latestTerm;
+
+    const students = await Students.find({
+      schoolId,
+      $or: [
+        { academicRecords: { $exists: false } },
+        { academicRecords: { $size: 0 } },
+        { "academicRecords.terms": { $exists: false } },
+      ],
+    }).populate("classes");
+
+    for (const student of students) {
+      const matchedClass = student.classes.find(cls =>
+        classFees.some(fee => fee.classId.toString() === cls._id.toString())
+      );
+      if (!matchedClass) continue;
+
+      const feeData = classFees.find(fee => fee.classId.toString() === matchedClass._id.toString());
+
+      const newRecord = {
+        yearLabel,
+        terms: [
+          {
+            termName,
+            startDate,
+            endDate,
+            attendance: [],
+            totalAttendance: 0,
+            subjects: [],
+            fees: {
+              totalFees: feeData?.totalFees || 0,
+              amountPaid: 0,
+              arrears: 0,
+              balance: feeData?.totalFees || 0,
+              paymentHistory: [],
+            },
+          },
+        ],
+      };
+
+      student.academicRecords.push(newRecord);
+      await student.save();
+    }
+
+    res.status(200).json({ message: `Updated ${students.length} students successfully.` });
+  } catch (error) {
+    console.error("Error patching academic records:", error);
+    res.status(500).json({ message: "Failed to patch students", error });
+  }
+};
+
 
 
 

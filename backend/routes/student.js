@@ -17,6 +17,7 @@ import {
   markWeeklyAttendance,
   getStudentByIdFree,
   updateStudentInfo,
+  patchMissingAcademicRecords,
   // deleteAllStudents,
   // migrateAttendanceBooleans,
 } from "../controllers/studentController.js";
@@ -33,6 +34,7 @@ router.get("/search", searchStudents); // ?query=John
 router.post("/fetch-attendance", getAttendanceForClassOnDate);
 router.post("/fetch-weekly-attendance", protect, fetchWeeklyAttendance);
 router.post("/mark-weekly-attendance", protect, markWeeklyAttendance);
+router.patch("/fix-missing-records", patchMissingAcademicRecords);
 // router.post("/migrate-attendance", migrateAttendanceBooleans);
 // router.delete("/all-time", deleteAllStudents); // DELETE /api/students/all
 router.get("/today/:studentId", getAttendanceForToday);
