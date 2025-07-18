@@ -1,3 +1,4 @@
+// All your imports here...
 import axios from "axios";
 import fs from "fs";
 import path from "path";
@@ -43,6 +44,47 @@ export const generateClassReports = async (req, res) => {
 
     const numberOnRoll = classInfo.students.length;
 
+    // 🌟 Step 1: Compute class total scores for ranking
+    const classScores = [];
+
+    for (const student of classInfo.students) {
+      const grades = await GradeEntry.find({ studentId: student._id, termId });
+      const total = grades.reduce((sum, g) => sum + (g.scores?.total || 0), 0);
+
+      classScores.push({
+        studentId: student._id.toString(),
+        total
+      });
+    }
+
+    // 🌟 Step 2: Sort and assign ranks (with ties handled)
+    classScores.sort((a, b) => b.total - a.total);
+
+    const rankedScores = [];
+    let currentRank = 1;
+    let lastScore = null;
+    let skip = 0;
+
+    for (let i = 0; i < classScores.length; i++) {
+      const s = classScores[i];
+
+      if (s.total === lastScore) {
+        skip++;
+      } else {
+        currentRank = i + 1;
+        currentRank += skip;
+        skip = 0;
+      }
+
+      rankedScores.push({
+        ...s,
+        position: i === classScores.length - 1 ? "" : getOrdinal(currentRank)
+      });
+
+      lastScore = s.total;
+    }
+
+    // 🌟 Step 3: Loop through students and generate reports
     const getWeekdays = (start, end) => {
       let count = 0;
       const current = new Date(start);
@@ -58,17 +100,21 @@ export const generateClassReports = async (req, res) => {
       const grades = await GradeEntry.find({ studentId: student._id, termId }).populate("subjectId");
 
       const subjectData = grades.map(g => ({
-      name: g.subjectId.name || "Unknown Subject",
-      classScore: g.scores.test1 + g.scores.test2 + g.scores.test3 + g.scores.test4,
-      examScore: g.scores.exam,
-      total: g.scores.total,
-      grade: computeGrade(g.scores.total),
-      position: g.scores.position || "",
-      remark: getRemark(g.scores.total),
-    }));
+        name: g.subjectId.name || "Unknown Subject",
+        classScore: g.scores.test1 + g.scores.test2 + g.scores.test3 + g.scores.test4,
+        examScore: g.scores.exam,
+        total: g.scores.total,
+        grade: computeGrade(g.scores.total),
+        position: g.scores.position || "",
+        remark: getRemark(g.scores.total),
+      }));
 
       const studentTotalMarks = subjectData.reduce((sum, s) => sum + s.total, 0);
       const maxTotalMarks = subjectData.length * 100;
+
+      // 🎯 Get overall class position
+      const rankData = rankedScores.find(r => r.studentId === student._id.toString());
+      const cc = rankData?.position || "";
 
       const presentDays = await Attendance.countDocuments({
         studentId: student._id,
@@ -83,11 +129,10 @@ export const generateClassReports = async (req, res) => {
 
       const highestScore = Math.max(...subjectData.map(s => s.total));
       const interestSubjects = subjectData
-  .filter(s => s.total === highestScore)
-  .map(s => s.name)
-  .slice(0, 2); // Limits to at most 2 subjects
-
-const interest = interestSubjects.join(", ");
+        .filter(s => s.total === highestScore)
+        .map(s => s.name)
+        .slice(0, 2);
+      const interest = interestSubjects.join(", ");
 
       const percentage = (studentTotalMarks / (maxTotalMarks || 1)) * 100;
       let classTeacherRemark = "More room for improvement.";
@@ -119,6 +164,7 @@ const interest = interestSubjects.join(", ");
         roll: numberOnRoll,
         obtained: studentTotalMarks,
         max: maxTotalMarks,
+        cc,  // ✨ Include in template data
 
         conduct,
         interest,
@@ -131,8 +177,6 @@ const interest = interestSubjects.join(", ");
         feesNextTerm,
         totalFeesDue
       };
-
-      // console.log(`📄 Data for ${student.name}:`, studentData);
 
       const zip = new PizZip(templateBuffer);
       const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
@@ -167,6 +211,14 @@ const interest = interestSubjects.join(", ");
   }
 };
 
+// Helper: Rank suffix
+const getOrdinal = (n) => {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+};
+
+// Helper: Grade
 const computeGrade = (score) => {
   if (score >= 80) return "1";
   if (score >= 70) return "2";
@@ -179,6 +231,7 @@ const computeGrade = (score) => {
   return "9";
 };
 
+// Helper: Remark
 const getRemark = (score) => {
   if (score >= 80) return "Excellent";
   if (score >= 70) return "Very Good";
@@ -188,6 +241,7 @@ const getRemark = (score) => {
   return "Fail";
 };
 
+// Helper: Date formatting
 const formatDate = (date) => {
   const d = new Date(date);
   return d.toLocaleDateString("en-GB", {
