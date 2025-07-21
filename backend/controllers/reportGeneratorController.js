@@ -11,7 +11,6 @@ import ReportTemplate from "../models/ReportTemplate.model.js";
 import TermSession from "../models/TermSession.model.js";
 import Class from "../models/Class.model.js";
 import Attendance from "../models/Attendance.model.js";
-import Student from "../models/Student.model.js";
 
 export const generateClassReports = async (req, res) => {
   try {
@@ -25,10 +24,8 @@ export const generateClassReports = async (req, res) => {
     const term = await TermSession.findById(termId);
     if (!term) return res.status(404).json({ message: "Term not found." });
 
-const classInfo = await Class.findById(classId);
-if (!classInfo) return res.status(404).json({ message: "Class not found." });
-
-const studentsInClass = await Students.find({ classId: classId });
+    const classInfo = await Class.findById(classId).populate({ path: "students", model: "students" });
+    if (!classInfo) return res.status(404).json({ message: "Class not found." });
 
     const template = await ReportTemplate.findOne({ classIds: classId });
     if (!template) return res.status(404).json({ message: "No report template found for this class." });
@@ -45,12 +42,12 @@ const studentsInClass = await Students.find({ classId: classId });
 
     archive.pipe(output);
 
-    const numberOnRoll = studentsInClass.length;
+    const numberOnRoll = classInfo.students.length;
 
     // 🌟 Step 1: Compute class total scores for ranking
     const classScores = [];
 
-    for (const student of studentsInClass) {
+    for (const student of classInfo.students) {
       const grades = await GradeEntry.find({ studentId: student._id, termId });
       const total = grades.reduce((sum, g) => sum + (g.scores?.total || 0), 0);
 
@@ -99,7 +96,7 @@ const studentsInClass = await Students.find({ classId: classId });
       return count;
     };
 
-    for (const student of studentsInClass) {
+    for (const student of classInfo.students) {
       const grades = await GradeEntry.find({ studentId: student._id, termId }).populate("subjectId");
 
       const subjectData = grades.map(g => ({
@@ -338,7 +335,7 @@ export const generateStudentReport = async (req, res) => {
 
       present: presentDays,
       total: totalSchoolDays,
-      roll: studentsInClass.length,
+      roll: classInfo.students.length,
       obtained: studentTotalMarks,
       max: maxTotalMarks,
 
