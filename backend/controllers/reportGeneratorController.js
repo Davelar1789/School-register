@@ -24,8 +24,10 @@ export const generateClassReports = async (req, res) => {
     const term = await TermSession.findById(termId);
     if (!term) return res.status(404).json({ message: "Term not found." });
 
-    const classInfo = await Class.findById(classId).populate({ path: "students", model: "students" });
-    if (!classInfo) return res.status(404).json({ message: "Class not found." });
+const classInfo = await Class.findById(classId);
+if (!classInfo) return res.status(404).json({ message: "Class not found." });
+
+const studentsInClass = await Student.find({ classId: classId });
 
     const template = await ReportTemplate.findOne({ classIds: classId });
     if (!template) return res.status(404).json({ message: "No report template found for this class." });
@@ -42,12 +44,12 @@ export const generateClassReports = async (req, res) => {
 
     archive.pipe(output);
 
-    const numberOnRoll = classInfo.students.length;
+    const numberOnRoll = studentsInClass.length;
 
     // 🌟 Step 1: Compute class total scores for ranking
     const classScores = [];
 
-    for (const student of classInfo.students) {
+    for (const student of studentsInClass) {
       const grades = await GradeEntry.find({ studentId: student._id, termId });
       const total = grades.reduce((sum, g) => sum + (g.scores?.total || 0), 0);
 
@@ -96,7 +98,7 @@ export const generateClassReports = async (req, res) => {
       return count;
     };
 
-    for (const student of classInfo.students) {
+    for (const student of studentsInClass) {
       const grades = await GradeEntry.find({ studentId: student._id, termId }).populate("subjectId");
 
       const subjectData = grades.map(g => ({
@@ -335,7 +337,7 @@ export const generateStudentReport = async (req, res) => {
 
       present: presentDays,
       total: totalSchoolDays,
-      roll: classInfo.students.length,
+      roll: studentsInClass.length,
       obtained: studentTotalMarks,
       max: maxTotalMarks,
 
