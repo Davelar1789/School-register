@@ -214,6 +214,47 @@ export const patchStudentClasses = async (req, res) => {
   }
 };
 
+export const syncAllClassStudents = async (req, res) => {
+  try {
+    const allClasses = await Class.find();
+
+    if (allClasses.length === 0) {
+      return res.status(404).json({ message: "No classes found." });
+    }
+
+    let updatedClasses = [];
+
+    for (const classDoc of allClasses) {
+      const classId = classDoc._id;
+
+      // Find students whose 'classes' array contains this class
+      const students = await Students.find({ classes: classId }).select("_id name");
+
+      const studentIds = students.map(s => s._id);
+
+      // Update the class's 'students' array
+      await Class.findByIdAndUpdate(classId, { students: studentIds });
+
+      updatedClasses.push({
+        classId,
+        className: classDoc.className,
+        totalStudents: studentIds.length,
+        studentNames: students.map(s => s.name)
+      });
+    }
+
+    res.json({
+      message: "✅ All classes synced successfully.",
+      totalClasses: updatedClasses.length,
+      details: updatedClasses,
+    });
+
+  } catch (error) {
+    console.error("❌ Error syncing all class students:", error.message);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 export const patchClassStudents = async (req, res) => {
   try {
     const { classId } = req.params;
