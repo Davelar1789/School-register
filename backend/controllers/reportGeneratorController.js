@@ -11,6 +11,7 @@ import ReportTemplate from "../models/ReportTemplate.model.js";
 import TermSession from "../models/TermSession.model.js";
 import Class from "../models/Class.model.js";
 import Attendance from "../models/Attendance.model.js";
+import Student from "../models/Student.model.js";
 
 export const generateClassReports = async (req, res) => {
   try {
@@ -27,7 +28,7 @@ export const generateClassReports = async (req, res) => {
 const classInfo = await Class.findById(classId);
 if (!classInfo) return res.status(404).json({ message: "Class not found." });
 
-const studentsInClass = await Student.find({ classId: classId });
+const studentsInClass = await Students.find({ classId: classId });
 
     const template = await ReportTemplate.findOne({ classIds: classId });
     if (!template) return res.status(404).json({ message: "No report template found for this class." });
