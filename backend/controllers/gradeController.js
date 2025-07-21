@@ -113,13 +113,30 @@ if (!allowedSubjectIds.includes(subjectId.toString())) {
       };
     });
 
-    // Sort by total descending
-    enrichedGrades.sort((a, b) => b.scores.total - a.scores.total);
+   // Sort by total descending
+enrichedGrades.sort((a, b) => b.scores.total - a.scores.total);
 
-    // Assign positions
-    enrichedGrades.forEach((grade, index) => {
-      grade.scores.position = getOrdinal(index + 1); // e.g., "1st", "2nd"
-    });
+// Assign positions with tie handling
+let currentRank = 1;
+let previousTotal = null;
+let skipCount = 0;
+
+enrichedGrades.forEach((grade, index) => {
+  const currentTotal = grade.scores.total;
+
+  if (currentTotal === previousTotal) {
+    // Same total as before: same rank
+    grade.scores.position = getOrdinal(currentRank);
+    skipCount++; // Count how many students share this rank
+  } else {
+    // New total: update rank (add skipCount to move ahead)
+    currentRank = index + 1;
+    grade.scores.position = getOrdinal(currentRank);
+    previousTotal = currentTotal;
+    skipCount = 1; // reset skipCount for new rank group
+  }
+});
+
 
     // Save all grades
     for (const grade of enrichedGrades) {
