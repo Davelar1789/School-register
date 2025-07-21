@@ -345,6 +345,7 @@ const handleSaveGrades = async () => {
             onChange={(e) =>
               handleGradeChange(student.studentId, "test1", e.target.value)
             }
+            onWheel={(e) => e.target.blur()}
           />
         </td>
         <td>
@@ -355,6 +356,7 @@ const handleSaveGrades = async () => {
             onChange={(e) =>
               handleGradeChange(student.studentId, "test2", e.target.value)
             }
+            onWheel={(e) => e.target.blur()}
           />
         </td>
         <td>
@@ -365,6 +367,7 @@ const handleSaveGrades = async () => {
             onChange={(e) =>
               handleGradeChange(student.studentId, "test3", e.target.value)
             }
+            onWheel={(e) => e.target.blur()}
           />
         </td>
         <td>
@@ -375,6 +378,7 @@ const handleSaveGrades = async () => {
             onChange={(e) =>
               handleGradeChange(student.studentId, "test4", e.target.value)
             }
+            onWheel={(e) => e.target.blur()}
           />
         </td>
         <td>
@@ -385,6 +389,7 @@ const handleSaveGrades = async () => {
             onChange={(e) =>
               handleGradeChange(student.studentId, "exam", e.target.value)
             }
+            onWheel={(e) => e.target.blur()}
           />
         </td>
         <td>{total}</td>
