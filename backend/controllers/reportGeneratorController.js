@@ -24,6 +24,8 @@ export const generateClassReports = async (req, res) => {
     const term = await TermSession.findById(termId);
     if (!term) return res.status(404).json({ message: "Term not found." });
 
+    const isTermThree = term.termName?.trim().toLowerCase() === "term 3";
+
     const classInfo = await Class.findById(classId).populate({ path: "students", model: "students" });
     if (!classInfo) return res.status(404).json({ message: "Class not found." });
 
@@ -44,20 +46,14 @@ export const generateClassReports = async (req, res) => {
 
     const numberOnRoll = classInfo.students.length;
 
-    // 🌟 Step 1: Compute class total scores for ranking
     const classScores = [];
 
     for (const student of classInfo.students) {
       const grades = await GradeEntry.find({ studentId: student._id, termId });
       const total = grades.reduce((sum, g) => sum + (g.scores?.total || 0), 0);
-
-      classScores.push({
-        studentId: student._id.toString(),
-        total
-      });
+      classScores.push({ studentId: student._id.toString(), total });
     }
 
-    // 🌟 Step 2: Sort and assign ranks (with ties handled)
     classScores.sort((a, b) => b.total - a.total);
 
     const rankedScores = [];
@@ -84,7 +80,6 @@ export const generateClassReports = async (req, res) => {
       lastScore = s.total;
     }
 
-    // 🌟 Step 3: Loop through students and generate reports
     const getWeekdays = (start, end) => {
       let count = 0;
       const current = new Date(start);
@@ -150,6 +145,8 @@ export const generateClassReports = async (req, res) => {
       const feesNextTerm = parseFloat(nextTermFees);
       const totalFeesDue = arrears + feesNextTerm;
 
+      const promotedTo = isTermThree ? getNextClass(classInfo.className) : "N/A";
+
       const studentData = {
         name: student.name,
         className: classInfo.className,
@@ -167,7 +164,7 @@ export const generateClassReports = async (req, res) => {
         conduct,
         interest,
         classTeacherRemark,
-        promotedTo: getNextClass(classInfo.className),
+        promotedTo,
 
         vacationDate: formatDate(term.endDate),
         nextTermBegins: nextTermDate ? formatDate(nextTermDate) : "N/A",
