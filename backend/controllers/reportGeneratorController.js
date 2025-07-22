@@ -112,7 +112,6 @@ export const generateClassReports = async (req, res) => {
       const studentTotalMarks = subjectData.reduce((sum, s) => sum + s.total, 0);
       const maxTotalMarks = subjectData.length * 100;
 
-      // 🎯 Get overall class position
       const rankData = rankedScores.find(r => r.studentId === student._id.toString());
       const cc = rankData?.position || "";
 
@@ -141,7 +140,6 @@ export const generateClassReports = async (req, res) => {
       else if (percentage >= 60) classTeacherRemark = "Good effort. Keep it up.";
       else if (percentage >= 50) classTeacherRemark = "Satisfactory";
 
-      // 🧾 Fee values
       let arrears = 0;
       const yearRecord = student.academicRecords.find(y => y.yearLabel === term.yearLabel);
       const termRecord = yearRecord?.terms?.find(t => t.termName === term.termName);
@@ -164,12 +162,12 @@ export const generateClassReports = async (req, res) => {
         roll: numberOnRoll,
         obtained: studentTotalMarks,
         max: maxTotalMarks,
-        cc,  // ✨ Include in template data
+        cc,
 
         conduct,
         interest,
         classTeacherRemark,
-        promotedTo: "JHS 2",
+        promotedTo: getNextClass(classInfo.className),
 
         vacationDate: formatDate(term.endDate),
         nextTermBegins: nextTermDate ? formatDate(nextTermDate) : "N/A",
@@ -209,6 +207,30 @@ export const generateClassReports = async (req, res) => {
     console.error("❌ Error generating reports:", error);
     res.status(500).json({ message: "Error generating reports", error: error.message });
   }
+};
+
+// Helper: Class promotion logic
+const CLASS_ORDER = [
+  "Creche",
+  "Nursery 1",
+  "Nursery 2",
+  "KG 1",
+  "KG 2",
+  "Basic 1",
+  "Basic 2",
+  "Basic 3",
+  "Basic 4",
+  "Basic 5",
+  "Basic 6",
+  "JHS 1",
+  "JHS 2",
+  "JHS 3"
+];
+
+const getNextClass = (currentClassName) => {
+  const index = CLASS_ORDER.indexOf(currentClassName);
+  if (index === -1 || index === CLASS_ORDER.length - 1) return "Completed";
+  return CLASS_ORDER[index + 1];
 };
 
 // Helper: Rank suffix
