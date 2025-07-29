@@ -234,6 +234,7 @@ const handleSaveGrades = async () => {
     });
 
     toast.success("Grades saved successfully!");
+    window.location.reload();
   } catch (error) {
     console.error("Error saving grades:", error);
     toast.error("Failed to save grades.");
