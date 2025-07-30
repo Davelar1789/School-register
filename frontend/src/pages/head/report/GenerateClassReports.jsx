@@ -77,19 +77,29 @@ const GenerateClassReports = () => {
     }
   };
 
-  const handlePrint = () => {
-    if (!pdfUrl) return;
+ const handlePrint = () => {
+  if (!pdfUrl) return;
 
-    const printWindow = window.open(pdfUrl);
-    if (printWindow) {
-      printWindow.onload = () => {
-        printWindow.focus();
-        printWindow.print();
-      };
-    } else {
-      toast.error("Popup blocked. Please allow popups to print.");
-    }
-  };
+  const printWindow = window.open("", "_blank");
+  if (!printWindow) {
+    toast.error("Popup blocked. Please allow popups.");
+    return;
+  }
+
+  printWindow.document.write(`
+    <html>
+      <head><title>Print Reports</title></head>
+      <body style="margin:0">
+        <iframe src="${pdfUrl}" type="application/pdf" width="100%" height="100%" style="border:none; width:100vw; height:100vh;"></iframe>
+        <script>
+          const iframe = document.querySelector('iframe');
+          iframe.onload = () => setTimeout(() => { iframe.contentWindow.print(); }, 1000);
+        </script>
+      </body>
+    </html>
+  `);
+};
+
 
   return (
     <div>
