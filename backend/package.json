@@ -27,7 +27,7 @@
     "venom-bot": "^5.3.0"
   },
   "scripts": {
-    "start": "node server.js",
-    "postinstall": "puppeteer install"
+        "postinstall": "puppeteer install",
+    "start": "node server.js"
   }
 }

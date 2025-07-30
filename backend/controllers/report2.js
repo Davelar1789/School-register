@@ -9,6 +9,9 @@ import TermSession from "../models/TermSession.model.js";
 import Class from "../models/Class.model.js";
 import Attendance from "../models/Attendance.model.js";
 
+process.env.PUPPETEER_CACHE_DIR = "/tmp/puppeteer-cache";
+
+
 export const generateClassReports2 = async (req, res) => {
   try {
     const { classId } = req.params;
