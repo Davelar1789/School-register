@@ -9,7 +9,7 @@ import TermSession from "../models/TermSession.model.js";
 import Class from "../models/Class.model.js";
 import Attendance from "../models/Attendance.model.js";
 
-export const generateClassReports = async (req, res) => {
+export const generateClassReports2 = async (req, res) => {
   try {
     const { classId } = req.params;
     const { termId, nextTermDate, nextTermFees = 0 } = req.query;
