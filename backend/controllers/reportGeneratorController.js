@@ -1,16 +1,18 @@
-// All your imports here...
 import axios from "axios";
 import fs from "fs";
 import path from "path";
 import PizZip from "pizzip";
 import Docxtemplater from "docxtemplater";
 import archiver from "archiver";
+import libre from "libreoffice-convert";
 import Students from "../models/Student.model.js";
 import GradeEntry from "../models/Grade.model.js";
 import ReportTemplate from "../models/ReportTemplate.model.js";
 import TermSession from "../models/TermSession.model.js";
 import Class from "../models/Class.model.js";
 import Attendance from "../models/Attendance.model.js";
+
+libre.convertAsync = require("util").promisify(libre.convert);
 
 export const generateClassReports = async (req, res) => {
   try {
@@ -26,7 +28,7 @@ export const generateClassReports = async (req, res) => {
 
     const isTermThree = term.termName?.trim().toLowerCase() === "term 3";
 
-    const classInfo = await Class.findById(classId).populate({ path: "students", model: "students" });
+    const classInfo = await Class.findById(classId).populate("students");
     if (!classInfo) return res.status(404).json({ message: "Class not found." });
 
     const template = await ReportTemplate.findOne({ classIds: classId });
@@ -46,8 +48,8 @@ export const generateClassReports = async (req, res) => {
 
     const numberOnRoll = classInfo.students.length;
 
+    // Compute total scores for ranking
     const classScores = [];
-
     for (const student of classInfo.students) {
       const grades = await GradeEntry.find({ studentId: student._id, termId });
       const total = grades.reduce((sum, g) => sum + (g.scores?.total || 0), 0);
@@ -57,27 +59,17 @@ export const generateClassReports = async (req, res) => {
     classScores.sort((a, b) => b.total - a.total);
 
     const rankedScores = [];
-let currentRank = 1;
-let lastScore = null;
-let sameRankCount = 0;
-
-for (let i = 0; i < classScores.length; i++) {
-  const s = classScores[i];
-
-  if (s.total === lastScore) {
-    sameRankCount++;
-  } else {
-    currentRank = rankedScores.length + 1;
-    sameRankCount = 1;
-  }
-
-  rankedScores.push({
-    ...s,
-    position: getOrdinal(currentRank)
-  });
-
-  lastScore = s.total;
-}
+    let currentRank = 1;
+    let lastScore = null;
+    for (let i = 0; i < classScores.length; i++) {
+      const s = classScores[i];
+      if (s.total !== lastScore) currentRank = rankedScores.length + 1;
+      rankedScores.push({
+        ...s,
+        position: i === classScores.length - 1 ? "" : getOrdinal(currentRank)
+      });
+      lastScore = s.total;
+    }
 
     const getWeekdays = (start, end) => {
       let count = 0;
@@ -121,10 +113,7 @@ for (let i = 0; i < classScores.length; i++) {
       const conduct = conductOptions[Math.floor(Math.random() * conductOptions.length)];
 
       const highestScore = Math.max(...subjectData.map(s => s.total));
-      const interestSubjects = subjectData
-        .filter(s => s.total === highestScore)
-        .map(s => s.name)
-        .slice(0, 2);
+      const interestSubjects = subjectData.filter(s => s.total === highestScore).map(s => s.name).slice(0, 2);
       const interest = interestSubjects.join(", ");
 
       const percentage = (studentTotalMarks / (maxTotalMarks || 1)) * 100;
@@ -137,9 +126,7 @@ for (let i = 0; i < classScores.length; i++) {
       let arrears = 0;
       const yearRecord = student.academicRecords.find(y => y.yearLabel === term.yearLabel);
       const termRecord = yearRecord?.terms?.find(t => t.termName === term.termName);
-      if (termRecord?.fees) {
-        arrears = termRecord.fees.balance || 0;
-      }
+      if (termRecord?.fees) arrears = termRecord.fees.balance || 0;
 
       const feesNextTerm = parseFloat(nextTermFees);
       const totalFeesDue = arrears + feesNextTerm;
@@ -172,10 +159,10 @@ for (let i = 0; i < classScores.length; i++) {
         totalFeesDue
       };
 
+      // Generate DOCX
       const zip = new PizZip(templateBuffer);
       const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
       doc.setData(studentData);
-
       try {
         doc.render();
       } catch (err) {
@@ -183,11 +170,14 @@ for (let i = 0; i < classScores.length; i++) {
         continue;
       }
 
-      const buffer = doc.getZip().generate({ type: "nodebuffer" });
-      const fileName = `${student.name.replace(/\s+/g, "_")}_report.docx`;
-      const reportPath = `generatedReports/${fileName}`;
+      const docxBuffer = doc.getZip().generate({ type: "nodebuffer" });
 
-      fs.writeFileSync(reportPath, buffer);
+      // Convert to PDF (first page only)
+      const pdfBuffer = await libre.convertAsync(docxBuffer, ".pdf", undefined);
+
+      const fileName = `${student.name.replace(/\s+/g, "_")}_report.pdf`;
+      const reportPath = path.join(reportsDir, fileName);
+      fs.writeFileSync(reportPath, pdfBuffer);
       archive.append(fs.createReadStream(reportPath), { name: fileName });
     }
 
@@ -205,22 +195,11 @@ for (let i = 0; i < classScores.length; i++) {
   }
 };
 
-// Helper: Class promotion logic
+// --- Helpers ---
 const CLASS_ORDER = [
-  "Creche",
-  "Nursery 1",
-  "Nursery 2",
-  "KG 1",
-  "KG 2",
-  "Basic 1",
-  "Basic 2",
-  "Basic 3",
-  "Basic 4",
-  "Basic 5",
-  "Basic 6",
-  "JHS 1",
-  "JHS 2",
-  "JHS 3"
+  "Creche", "Nursery 1", "Nursery 2", "KG 1", "KG 2",
+  "Basic 1", "Basic 2", "Basic 3", "Basic 4", "Basic 5", "Basic 6",
+  "JHS 1", "JHS 2", "JHS 3"
 ];
 
 const getNextClass = (currentClassName) => {
@@ -229,14 +208,12 @@ const getNextClass = (currentClassName) => {
   return CLASS_ORDER[index + 1];
 };
 
-// Helper: Rank suffix
 const getOrdinal = (n) => {
   const s = ["th", "st", "nd", "rd"];
   const v = n % 100;
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 };
 
-// Helper: Grade
 const computeGrade = (score) => {
   if (score >= 80) return "1";
   if (score >= 70) return "2";
@@ -249,7 +226,6 @@ const computeGrade = (score) => {
   return "9";
 };
 
-// Helper: Remark
 const getRemark = (score) => {
   if (score >= 80) return "Excellent";
   if (score >= 70) return "Very Good";
@@ -259,7 +235,6 @@ const getRemark = (score) => {
   return "Fail";
 };
 
-// Helper: Date formatting
 const formatDate = (date) => {
   const d = new Date(date);
   return d.toLocaleDateString("en-GB", {

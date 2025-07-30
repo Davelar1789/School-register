@@ -47,6 +47,18 @@ const GenerateClassReports = () => {
     }
   };
 
+  const handlePrintAll = () => {
+  const printSection = document.getElementById("print-section");
+  const iframes = printSection.querySelectorAll("iframe");
+
+  iframes.forEach((iframe, idx) => {
+    setTimeout(() => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+    }, idx * 1000); // slight delay between prints
+  });
+};
+
   const handleGenerate = async () => {
     if (!selectedClass || !termId || !nextTermDate || !nextTermFees) {
       toast.error("Please complete all fields.");
@@ -136,6 +148,12 @@ const GenerateClassReports = () => {
             </div>
           )}
         </div>
+        <button onClick={handlePrintAll}>Print All</button>
+<div id="print-section" style={{ display: "none" }}>
+  {pdfPreviews.map((url, idx) => (
+    <iframe key={idx} src={url} width="0" height="0" />
+  ))}
+</div>
       </div>
     </div>
   );
