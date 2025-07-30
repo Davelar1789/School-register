@@ -1,4 +1,5 @@
 import Subject from "../models/subject.model.js";
+import Class from "../models/Class.model.js";
 
 // Create a new subject
 export const createSubject = async (req, res) => {
@@ -182,5 +183,48 @@ export const updateCourseMaterials = async (req, res) => {
   } catch (err) {
     console.error("❌ Error saving course materials:", err);
     res.status(500).json({ error: "Failed to save course materials" });
+  }
+};
+
+export const syncClassSubjects = async (req, res) => {
+  try {
+    const { classId } = req.params;
+
+    if (!classId) {
+      return res.status(400).json({ message: "classId is required." });
+    }
+
+    const foundClass = await Class.findById(classId);
+    if (!foundClass) {
+      return res.status(404).json({ message: "Class not found." });
+    }
+
+    // Find all subjects that include this classId
+    const subjects = await Subject.find({ classes: classId });
+
+    if (!subjects.length) {
+      return res.status(404).json({ message: "No subjects found for this class." });
+    }
+
+    // Build subject structure as expected by Class model
+    const subjectEntries = subjects.map(subject => ({
+      subject: subject._id,
+      teachers: [] // leave empty for now, or you can customize
+    }));
+
+    // Overwrite the class's subjects array (or merge if needed)
+    foundClass.subjects = subjectEntries;
+
+    await foundClass.save();
+
+    res.status(200).json({
+      message: `Synced ${subjectEntries.length} subject(s) to the class.`,
+      classId,
+      subjects: subjectEntries.map(s => s.subject),
+    });
+
+  } catch (err) {
+    console.error("❌ Error syncing subjects to class:", err);
+    res.status(500).json({ message: "Internal server error", error: err.message });
   }
 };

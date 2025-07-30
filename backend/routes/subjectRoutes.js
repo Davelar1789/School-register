@@ -7,11 +7,13 @@ import {
   deleteSubject,
   getSubjectsByClass,
   updateCourseMaterials,
+  syncClassSubjects,
 } from "../controllers/subjectController.js";
 
 const router = express.Router();
 
 router.post("/", createSubject);
+router.patch("/sync", syncClassSubjects);
 router.get("/class/:classId", getSubjectsByClass);
 router.put("/:subjectId/materials", updateCourseMaterials);
 router.get("/school/:schoolId", getSubjectsBySchool);
