@@ -57,28 +57,27 @@ export const generateClassReports = async (req, res) => {
     classScores.sort((a, b) => b.total - a.total);
 
     const rankedScores = [];
-    let currentRank = 1;
-    let lastScore = null;
-    let skip = 0;
+let currentRank = 1;
+let lastScore = null;
+let sameRankCount = 0;
 
-    for (let i = 0; i < classScores.length; i++) {
-      const s = classScores[i];
+for (let i = 0; i < classScores.length; i++) {
+  const s = classScores[i];
 
-      if (s.total === lastScore) {
-        skip++;
-      } else {
-        currentRank = i + 1;
-        currentRank += skip;
-        skip = 0;
-      }
+  if (s.total === lastScore) {
+    sameRankCount++;
+  } else {
+    currentRank = rankedScores.length + 1;
+    sameRankCount = 1;
+  }
 
-      rankedScores.push({
-        ...s,
-        position: i === classScores.length - 1 ? "" : getOrdinal(currentRank)
-      });
+  rankedScores.push({
+    ...s,
+    position: getOrdinal(currentRank)
+  });
 
-      lastScore = s.total;
-    }
+  lastScore = s.total;
+}
 
     const getWeekdays = (start, end) => {
       let count = 0;
