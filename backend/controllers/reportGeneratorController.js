@@ -3,8 +3,8 @@ import fs from "fs";
 import path from "path";
 import PizZip from "pizzip";
 import Docxtemplater from "docxtemplater";
-import archiver from "archiver";
 import libre from "libreoffice-convert";
+import { PDFDocument } from "pdf-lib";
 import Students from "../models/Student.model.js";
 import GradeEntry from "../models/Grade.model.js";
 import ReportTemplate from "../models/ReportTemplate.model.js";
@@ -40,15 +40,8 @@ export const generateClassReports = async (req, res) => {
     const reportsDir = path.resolve("generatedReports");
     if (!fs.existsSync(reportsDir)) fs.mkdirSync(reportsDir, { recursive: true });
 
-    const zipPath = path.join(reportsDir, `class-${classId}-reports.zip`);
-    const output = fs.createWriteStream(zipPath);
-    const archive = archiver("zip");
-
-    archive.pipe(output);
-
     const numberOnRoll = classInfo.students.length;
 
-    // Compute total scores for ranking
     const classScores = [];
     for (const student of classInfo.students) {
       const grades = await GradeEntry.find({ studentId: student._id, termId });
@@ -82,6 +75,8 @@ export const generateClassReports = async (req, res) => {
       return count;
     };
 
+    const pdfs = [];
+
     for (const student of classInfo.students) {
       const grades = await GradeEntry.find({ studentId: student._id, termId }).populate("subjectId");
 
@@ -97,7 +92,6 @@ export const generateClassReports = async (req, res) => {
 
       const studentTotalMarks = subjectData.reduce((sum, s) => sum + s.total, 0);
       const maxTotalMarks = subjectData.length * 100;
-
       const rankData = rankedScores.find(r => r.studentId === student._id.toString());
       const cc = rankData?.position || "";
 
@@ -111,12 +105,11 @@ export const generateClassReports = async (req, res) => {
 
       const conductOptions = ["Excellent", "Satisfactory", "Very obedient", "Well-behaved"];
       const conduct = conductOptions[Math.floor(Math.random() * conductOptions.length)];
-
       const highestScore = Math.max(...subjectData.map(s => s.total));
       const interestSubjects = subjectData.filter(s => s.total === highestScore).map(s => s.name).slice(0, 2);
       const interest = interestSubjects.join(", ");
-
       const percentage = (studentTotalMarks / (maxTotalMarks || 1)) * 100;
+
       let classTeacherRemark = "More room for improvement.";
       if (percentage >= 80) classTeacherRemark = "An excellent performance.";
       else if (percentage >= 70) classTeacherRemark = "Very good work done.";
@@ -130,7 +123,6 @@ export const generateClassReports = async (req, res) => {
 
       const feesNextTerm = parseFloat(nextTermFees);
       const totalFeesDue = arrears + feesNextTerm;
-
       const promotedTo = isTermThree ? getNextClass(classInfo.className) : "N/A";
 
       const studentData = {
@@ -139,19 +131,16 @@ export const generateClassReports = async (req, res) => {
         yearLabel: term.yearLabel,
         termName: term.termName,
         subjects: subjectData,
-
         present: presentDays,
         total: totalSchoolDays,
         roll: numberOnRoll,
         obtained: studentTotalMarks,
         max: maxTotalMarks,
         cc,
-
         conduct,
         interest,
         classTeacherRemark,
         promotedTo,
-
         vacationDate: formatDate(term.endDate),
         nextTermBegins: nextTermDate ? formatDate(nextTermDate) : "N/A",
         arrears,
@@ -159,7 +148,6 @@ export const generateClassReports = async (req, res) => {
         totalFeesDue
       };
 
-      // Generate DOCX
       const zip = new PizZip(templateBuffer);
       const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
       doc.setData(studentData);
@@ -171,23 +159,22 @@ export const generateClassReports = async (req, res) => {
       }
 
       const docxBuffer = doc.getZip().generate({ type: "nodebuffer" });
-
-      // Convert to PDF (first page only)
       const pdfBuffer = await libre.convertAsync(docxBuffer, ".pdf", undefined);
-
-      const fileName = `${student.name.replace(/\s+/g, "_")}_report.pdf`;
-      const reportPath = path.join(reportsDir, fileName);
-      fs.writeFileSync(reportPath, pdfBuffer);
-      archive.append(fs.createReadStream(reportPath), { name: fileName });
+      pdfs.push(pdfBuffer);
     }
 
-    await archive.finalize();
+    // Combine first pages
+    const finalPdf = await PDFDocument.create();
+    for (const pdf of pdfs) {
+      const srcDoc = await PDFDocument.load(pdf);
+      const [firstPage] = await finalPdf.copyPages(srcDoc, [0]);
+      finalPdf.addPage(firstPage);
+    }
 
-    output.on("close", () => {
-      res.download(zipPath, `report_cards_class_${classId}.zip`, () => {
-        fs.rmSync(zipPath);
-      });
-    });
+    const mergedBuffer = await finalPdf.save();
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "inline; filename=Class_Reports.pdf");
+    return res.send(Buffer.from(mergedBuffer));
 
   } catch (error) {
     console.error("❌ Error generating reports:", error);
