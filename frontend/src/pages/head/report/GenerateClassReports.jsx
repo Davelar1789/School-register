@@ -130,9 +130,9 @@ const GenerateClassReports = () => {
           {downloadLink && (
             <div className="download-section">
               <p>✅ Reports are ready!</p>
-              <a href={downloadLink} download="class_reports.zip" className="download-button">
+              {/* <a href={downloadLink} download="class_reports.zip" className="download-button">
                 Click here to download ZIP
-              </a>
+              </a> */}
             </div>
           )}
         </div>
