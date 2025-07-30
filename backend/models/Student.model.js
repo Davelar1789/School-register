@@ -67,4 +67,7 @@ const studentSchema = new Schema(
 );
 
 const Students = model("students", studentSchema);
+if (!mongoose.models.Student) {
+  mongoose.model("Student", studentSchema);
+}
 export default Students;
