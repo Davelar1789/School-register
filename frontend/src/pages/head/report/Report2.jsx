@@ -48,8 +48,8 @@ const GenerateClassReports2 = () => {
   };
 
   const handleGenerate = async () => {
-    if (!selectedClass || !termId || !nextTermDate || !nextTermFees) {
-      toast.error("Please complete all fields.");
+    if (!selectedClass || !termId || !nextTermDate || !nextTermFees || Number(nextTermFees) <= 0) {
+      toast.error("Please complete all fields correctly.");
       return;
     }
 
@@ -70,8 +70,8 @@ const GenerateClassReports2 = () => {
       setPdfUrl(url);
       toast.success("Report generated successfully.");
     } catch (error) {
-      console.error(error);
-      toast.error("Failed to generate reports.");
+      console.error("Error generating reports:", error);
+      toast.error("Failed to generate reports. Please try again.");
     } finally {
       setGenerating(false);
     }
@@ -82,10 +82,10 @@ const GenerateClassReports2 = () => {
 
     const printWindow = window.open(pdfUrl);
     if (printWindow) {
-      printWindow.onload = () => {
+      printWindow.addEventListener("load", () => {
         printWindow.focus();
         printWindow.print();
-      };
+      });
     } else {
       toast.error("Popup blocked. Please allow popups to print.");
     }
@@ -125,6 +125,7 @@ const GenerateClassReports2 = () => {
             <label>Fees for Next Term (GHS):</label>
             <input
               type="number"
+              min="1"
               value={nextTermFees}
               onChange={(e) => setNextTermFees(e.target.value)}
               placeholder="e.g. 450"
@@ -134,7 +135,12 @@ const GenerateClassReports2 = () => {
           <button
             onClick={handleGenerate}
             disabled={
-              generating || !selectedClass || !termId || !nextTermDate || !nextTermFees
+              generating ||
+              !selectedClass ||
+              !termId ||
+              !nextTermDate ||
+              !nextTermFees ||
+              Number(nextTermFees) <= 0
             }
             className={`generate-button ${generating ? "disabled" : ""}`}
           >
@@ -144,7 +150,13 @@ const GenerateClassReports2 = () => {
           {pdfUrl && (
             <div className="download-section">
               <p>✅ Reports are ready!</p>
-              <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="download-button">
+              <a
+                href={pdfUrl}
+                download={`class-report-${selectedClass}.pdf`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="download-button"
+              >
                 View PDF
               </a>
               <button onClick={handlePrint} className="print-button">Print All</button>

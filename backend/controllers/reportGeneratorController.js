@@ -1,10 +1,7 @@
-// All your imports here...
-import axios from "axios";
 import fs from "fs";
 import path from "path";
-import PizZip from "pizzip";
-import Docxtemplater from "docxtemplater";
-import archiver from "archiver";
+import { PDFDocument } from "pdf-lib";
+import puppeteer from "puppeteer";
 import Students from "../models/Student.model.js";
 import GradeEntry from "../models/Grade.model.js";
 import ReportTemplate from "../models/ReportTemplate.model.js";
@@ -29,25 +26,9 @@ export const generateClassReports = async (req, res) => {
     const classInfo = await Class.findById(classId).populate({ path: "students", model: "students" });
     if (!classInfo) return res.status(404).json({ message: "Class not found." });
 
-    const template = await ReportTemplate.findOne({ classIds: classId });
-    if (!template) return res.status(404).json({ message: "No report template found for this class." });
-
-    const cloudResponse = await axios.get(template.templatePath, { responseType: "arraybuffer" });
-    const templateBuffer = Buffer.from(cloudResponse.data, "binary");
-
-    const reportsDir = path.resolve("generatedReports");
-    if (!fs.existsSync(reportsDir)) fs.mkdirSync(reportsDir, { recursive: true });
-
-    const zipPath = path.join(reportsDir, `class-${classId}-reports.zip`);
-    const output = fs.createWriteStream(zipPath);
-    const archive = archiver("zip");
-
-    archive.pipe(output);
-
     const numberOnRoll = classInfo.students.length;
 
     const classScores = [];
-
     for (const student of classInfo.students) {
       const grades = await GradeEntry.find({ studentId: student._id, termId });
       const total = grades.reduce((sum, g) => sum + (g.scores?.total || 0), 0);
@@ -57,38 +38,29 @@ export const generateClassReports = async (req, res) => {
     classScores.sort((a, b) => b.total - a.total);
 
     const rankedScores = [];
-let currentRank = 1;
-let lastScore = null;
-let sameRankCount = 0;
+    let currentRank = 1;
+    let lastScore = null;
+    let sameRankCount = 0;
 
-for (let i = 0; i < classScores.length; i++) {
-  const s = classScores[i];
-
-  if (s.total === lastScore) {
-    sameRankCount++;
-  } else {
-    currentRank = rankedScores.length + 1;
-    sameRankCount = 1;
-  }
-
-  rankedScores.push({
-    ...s,
-    position: getOrdinal(currentRank)
-  });
-
-  lastScore = s.total;
-}
-
-    const getWeekdays = (start, end) => {
-      let count = 0;
-      const current = new Date(start);
-      while (current <= end) {
-        const day = current.getDay();
-        if (day >= 1 && day <= 5) count++;
-        current.setDate(current.getDate() + 1);
+    for (let i = 0; i < classScores.length; i++) {
+      const s = classScores[i];
+      if (s.total === lastScore) {
+        sameRankCount++;
+      } else {
+        currentRank = rankedScores.length + 1;
+        sameRankCount = 1;
       }
-      return count;
-    };
+
+      rankedScores.push({
+        ...s,
+        position: getOrdinal(currentRank)
+      });
+
+      lastScore = s.total;
+    }
+
+    const browser = await puppeteer.launch();
+    const pdfBuffers = [];
 
     for (const student of classInfo.students) {
       const grades = await GradeEntry.find({ studentId: student._id, termId }).populate("subjectId");
@@ -109,12 +81,7 @@ for (let i = 0; i < classScores.length; i++) {
       const rankData = rankedScores.find(r => r.studentId === student._id.toString());
       const cc = rankData?.position || "";
 
-      const presentDays = await Attendance.countDocuments({
-        studentId: student._id,
-        termId,
-        present: true
-      });
-
+      const presentDays = await Attendance.countDocuments({ studentId: student._id, termId, present: true });
       const totalSchoolDays = getWeekdays(new Date(term.startDate), new Date(term.endDate));
 
       const conductOptions = ["Excellent", "Satisfactory", "Very obedient", "Well-behaved"];
@@ -152,19 +119,16 @@ for (let i = 0; i < classScores.length; i++) {
         yearLabel: term.yearLabel,
         termName: term.termName,
         subjects: subjectData,
-
         present: presentDays,
         total: totalSchoolDays,
         roll: numberOnRoll,
         obtained: studentTotalMarks,
         max: maxTotalMarks,
         cc,
-
         conduct,
         interest,
         classTeacherRemark,
         promotedTo,
-
         vacationDate: formatDate(term.endDate),
         nextTermBegins: nextTermDate ? formatDate(nextTermDate) : "N/A",
         arrears,
@@ -172,32 +136,27 @@ for (let i = 0; i < classScores.length; i++) {
         totalFeesDue
       };
 
-      const zip = new PizZip(templateBuffer);
-      const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
-      doc.setData(studentData);
-
-      try {
-        doc.render();
-      } catch (err) {
-        console.error(`⚠️ Error rendering report for ${student.name}:`, err);
-        continue;
-      }
-
-      const buffer = doc.getZip().generate({ type: "nodebuffer" });
-      const fileName = `${student.name.replace(/\s+/g, "_")}_report.docx`;
-      const reportPath = `generatedReports/${fileName}`;
-
-      fs.writeFileSync(reportPath, buffer);
-      archive.append(fs.createReadStream(reportPath), { name: fileName });
+      const html = generateHtmlReport(studentData);
+      const page = await browser.newPage();
+      await page.setContent(html, { waitUntil: "networkidle0" });
+      const pdfBuffer = await page.pdf({ format: "A4", printBackground: true });
+      pdfBuffers.push(pdfBuffer);
+      await page.close();
     }
 
-    await archive.finalize();
+    await browser.close();
 
-    output.on("close", () => {
-      res.download(zipPath, `report_cards_class_${classId}.zip`, () => {
-        fs.rmSync(zipPath);
-      });
-    });
+    const mergedPdf = await PDFDocument.create();
+    for (const buffer of pdfBuffers) {
+      const pdf = await PDFDocument.load(buffer);
+      const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+      copiedPages.forEach(p => mergedPdf.addPage(p));
+    }
+
+    const finalBuffer = await mergedPdf.save();
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "inline; filename=class_report.pdf");
+    res.send(finalBuffer);
 
   } catch (error) {
     console.error("❌ Error generating reports:", error);
@@ -205,23 +164,9 @@ for (let i = 0; i < classScores.length; i++) {
   }
 };
 
-// Helper: Class promotion logic
-const CLASS_ORDER = [
-  "Creche",
-  "Nursery 1",
-  "Nursery 2",
-  "KG 1",
-  "KG 2",
-  "Basic 1",
-  "Basic 2",
-  "Basic 3",
-  "Basic 4",
-  "Basic 5",
-  "Basic 6",
-  "JHS 1",
-  "JHS 2",
-  "JHS 3"
-];
+// ====== HELPERS ======
+
+const CLASS_ORDER = [ "Creche", "Nursery 1", "Nursery 2", "KG 1", "KG 2", "Basic 1", "Basic 2", "Basic 3", "Basic 4", "Basic 5", "Basic 6", "JHS 1", "JHS 2", "JHS 3" ];
 
 const getNextClass = (currentClassName) => {
   const index = CLASS_ORDER.indexOf(currentClassName);
@@ -229,14 +174,12 @@ const getNextClass = (currentClassName) => {
   return CLASS_ORDER[index + 1];
 };
 
-// Helper: Rank suffix
 const getOrdinal = (n) => {
   const s = ["th", "st", "nd", "rd"];
   const v = n % 100;
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 };
 
-// Helper: Grade
 const computeGrade = (score) => {
   if (score >= 80) return "1";
   if (score >= 70) return "2";
@@ -249,7 +192,6 @@ const computeGrade = (score) => {
   return "9";
 };
 
-// Helper: Remark
 const getRemark = (score) => {
   if (score >= 80) return "Excellent";
   if (score >= 70) return "Very Good";
@@ -259,15 +201,63 @@ const getRemark = (score) => {
   return "Fail";
 };
 
-// Helper: Date formatting
 const formatDate = (date) => {
   const d = new Date(date);
-  return d.toLocaleDateString("en-GB", {
-    year: "numeric",
-    month: "long",
-    day: "numeric"
-  });
+  return d.toLocaleDateString("en-GB", { year: "numeric", month: "long", day: "numeric" });
 };
+
+const getWeekdays = (start, end) => {
+  let count = 0;
+  const current = new Date(start);
+  while (current <= end) {
+    const day = current.getDay();
+    if (day >= 1 && day <= 5) count++;
+    current.setDate(current.getDate() + 1);
+  }
+  return count;
+};
+
+// 🧾 HTML report template generator
+const generateHtmlReport = (data) => {
+  return `
+    <html>
+      <head>
+        <style>
+          body { font-family: Arial; font-size: 12px; margin: 20px; }
+          h2 { margin-bottom: 0; }
+          table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+          th, td { border: 1px solid #000; padding: 4px; text-align: center; }
+        </style>
+      </head>
+      <body>
+        <h2>${data.name.toUpperCase()}</h2>
+        <p><strong>Class:</strong> ${data.className} | <strong>Term:</strong> ${data.termName} | <strong>Year:</strong> ${data.yearLabel}</p>
+        <p><strong>Position:</strong> ${data.cc} | <strong>Roll:</strong> ${data.roll}</p>
+        <table>
+          <tr><th>Subject</th><th>Class Score</th><th>Exam</th><th>Total</th><th>Grade</th><th>Remark</th></tr>
+          ${data.subjects.map(s => `
+            <tr>
+              <td>${s.name}</td>
+              <td>${s.classScore}</td>
+              <td>${s.examScore}</td>
+              <td>${s.total}</td>
+              <td>${s.grade}</td>
+              <td>${s.remark}</td>
+            </tr>
+          `).join("")}
+        </table>
+        <p><strong>Attendance:</strong> ${data.present} / ${data.total} days</p>
+        <p><strong>Conduct:</strong> ${data.conduct}</p>
+        <p><strong>Interest:</strong> ${data.interest}</p>
+        <p><strong>Remark:</strong> ${data.classTeacherRemark}</p>
+        <p><strong>Promoted To:</strong> ${data.promotedTo}</p>
+        <p><strong>Next Term:</strong> ${data.nextTermBegins} | <strong>Vacation:</strong> ${data.vacationDate}</p>
+        <p><strong>Fees Due:</strong> GH¢${data.totalFeesDue.toFixed(2)}</p>
+      </body>
+    </html>
+  `;
+};
+
 
 
 export const generateStudentReport = async (req, res) => {
