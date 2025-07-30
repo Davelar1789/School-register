@@ -175,6 +175,8 @@ export const generateClassReports = async (req, res) => {
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", "inline; filename=Class_Reports.pdf");
     return res.send(Buffer.from(mergedBuffer));
+    fs.writeFileSync("debug_output.pdf", mergedBuffer);
+
 
   } catch (error) {
     console.error("❌ Error generating reports:", error);
