@@ -103,6 +103,31 @@ for (let i = 0; i < classScores.length; i++) {
         remark: getRemark(g.scores.total),
       }));
 
+      // 1. Core subjects
+const coreSubjects = ["English Language", "Mathematics", "Integrated Science", "Social Studies"];
+
+// 2. Extract grades
+const coreGrades = subjectData
+  .filter(s => coreSubjects.includes(s.name))
+  .map(s => parseInt(s.grade, 10))
+  .filter(grade => !isNaN(grade)); // Remove any invalid grades
+
+// 3. Elective subjects
+const electiveGrades = subjectData
+  .filter(s => !coreSubjects.includes(s.name))
+  .map(s => ({ grade: parseInt(s.grade, 10), name: s.name }))
+  .filter(s => !isNaN(s.grade));
+
+// 4. Sort electives by best grade (1 is best)
+electiveGrades.sort((a, b) => a.grade - b.grade);
+
+// 5. Pick best 2 elective grades
+const bestElectives = electiveGrades.slice(0, 2).map(e => e.grade);
+
+// 6. Calculate aggregate
+const aggregate = [...coreGrades, ...bestElectives].reduce((sum, g) => sum + g, 0);
+
+
       const studentTotalMarks = subjectData.reduce((sum, s) => sum + s.total, 0);
       const maxTotalMarks = subjectData.length * 100;
 
@@ -159,6 +184,7 @@ for (let i = 0; i < classScores.length; i++) {
         obtained: studentTotalMarks,
         max: maxTotalMarks,
         cc,
+        aggregate,
 
         conduct,
         interest,
@@ -174,6 +200,7 @@ for (let i = 0; i < classScores.length; i++) {
 
       const zip = new PizZip(templateBuffer);
       const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
+      console.log(`📄 ${student.name} - Aggregate:`, aggregate);
       doc.setData(studentData);
 
       try {
