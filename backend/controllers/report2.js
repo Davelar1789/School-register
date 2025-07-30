@@ -59,7 +59,13 @@ export const generateClassReports2 = async (req, res) => {
       lastScore = s.total;
     }
 
-    const browser = await puppeteer.launch();
+const browser = await puppeteer.launch({
+  headless: true,
+  args: [
+    "--no-sandbox",
+    "--disable-setuid-sandbox",
+  ],
+});
     const pdfBuffers = [];
 
     for (const student of classInfo.students) {
