@@ -58,7 +58,7 @@ const GenerateClassReports2 = () => {
 
     try {
       const res = await axios.get(
-        `/api/reports/generate/class/${selectedClass}?termId=${termId}&nextTermDate=${nextTermDate.toISOString()}&nextTermFees=${nextTermFees}`,
+        `/api/reports/generate2/class/${selectedClass}?termId=${termId}&nextTermDate=${nextTermDate.toISOString()}&nextTermFees=${nextTermFees}`,
         {
           headers: { Authorization: `Bearer ${token}` },
           responseType: "blob",
