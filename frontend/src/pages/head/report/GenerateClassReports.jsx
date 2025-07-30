@@ -14,7 +14,7 @@ const GenerateClassReports = () => {
   const [nextTermDate, setNextTermDate] = useState(null);
   const [nextTermFees, setNextTermFees] = useState("");
   const [generating, setGenerating] = useState(false);
-  const [pdfUrl, setPdfUrl] = useState(null);
+  const [downloadLink, setDownloadLink] = useState("");
 
   const schoolDataRaw = localStorage.getItem("schoolData");
   const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
@@ -54,7 +54,7 @@ const GenerateClassReports = () => {
     }
 
     setGenerating(true);
-    setPdfUrl(null);
+    setDownloadLink("");
 
     try {
       const res = await axios.get(
@@ -65,29 +65,15 @@ const GenerateClassReports = () => {
         }
       );
 
-      const blob = new Blob([res.data], { type: "application/pdf" });
+      const blob = new Blob([res.data], { type: "application/zip" });
       const url = window.URL.createObjectURL(blob);
-      setPdfUrl(url);
-      toast.success("Report generated successfully.");
+      setDownloadLink(url);
+      toast.success("Report generation complete.");
     } catch (error) {
       console.error(error);
       toast.error("Failed to generate reports.");
     } finally {
       setGenerating(false);
-    }
-  };
-
-  const handlePrint = () => {
-    if (!pdfUrl) return;
-
-    const printWindow = window.open(pdfUrl);
-    if (printWindow) {
-      printWindow.onload = () => {
-        printWindow.focus();
-        printWindow.print();
-      };
-    } else {
-      toast.error("Popup blocked. Please allow popups to print.");
     }
   };
 
@@ -141,13 +127,12 @@ const GenerateClassReports = () => {
             {generating ? "Generating..." : "Generate Report Cards"}
           </button>
 
-          {pdfUrl && (
+          {downloadLink && (
             <div className="download-section">
               <p>✅ Reports are ready!</p>
-              <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="download-button">
-                View PDF
+              <a href={downloadLink} download="class_reports.zip" className="download-button">
+                Click here to download ZIP
               </a>
-              <button onClick={handlePrint} className="print-button">Print All</button>
             </div>
           )}
         </div>
