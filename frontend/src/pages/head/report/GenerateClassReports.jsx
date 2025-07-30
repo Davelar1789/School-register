@@ -14,7 +14,7 @@ const GenerateClassReports = () => {
   const [nextTermDate, setNextTermDate] = useState(null);
   const [nextTermFees, setNextTermFees] = useState("");
   const [generating, setGenerating] = useState(false);
-  const [downloadLink, setDownloadLink] = useState("");
+  const [pdfUrl, setPdfUrl] = useState(null);
 
   const schoolDataRaw = localStorage.getItem("schoolData");
   const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
@@ -47,18 +47,6 @@ const GenerateClassReports = () => {
     }
   };
 
-  const handlePrintAll = () => {
-  const printSection = document.getElementById("print-section");
-  const iframes = printSection.querySelectorAll("iframe");
-
-  iframes.forEach((iframe, idx) => {
-    setTimeout(() => {
-      iframe.contentWindow.focus();
-      iframe.contentWindow.print();
-    }, idx * 1000); // slight delay between prints
-  });
-};
-
   const handleGenerate = async () => {
     if (!selectedClass || !termId || !nextTermDate || !nextTermFees) {
       toast.error("Please complete all fields.");
@@ -66,7 +54,7 @@ const GenerateClassReports = () => {
     }
 
     setGenerating(true);
-    setDownloadLink("");
+    setPdfUrl(null);
 
     try {
       const res = await axios.get(
@@ -77,15 +65,29 @@ const GenerateClassReports = () => {
         }
       );
 
-      const blob = new Blob([res.data], { type: "application/zip" });
+      const blob = new Blob([res.data], { type: "application/pdf" });
       const url = window.URL.createObjectURL(blob);
-      setDownloadLink(url);
-      toast.success("Report generation complete.");
+      setPdfUrl(url);
+      toast.success("Report generated successfully.");
     } catch (error) {
       console.error(error);
       toast.error("Failed to generate reports.");
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const handlePrint = () => {
+    if (!pdfUrl) return;
+
+    const printWindow = window.open(pdfUrl);
+    if (printWindow) {
+      printWindow.onload = () => {
+        printWindow.focus();
+        printWindow.print();
+      };
+    } else {
+      toast.error("Popup blocked. Please allow popups to print.");
     }
   };
 
@@ -139,21 +141,16 @@ const GenerateClassReports = () => {
             {generating ? "Generating..." : "Generate Report Cards"}
           </button>
 
-          {downloadLink && (
+          {pdfUrl && (
             <div className="download-section">
               <p>✅ Reports are ready!</p>
-              <a href={downloadLink} download="class_reports.zip" className="download-button">
-                Click here to download ZIP
+              <a href={pdfUrl} target="_blank" rel="noopener noreferrer" className="download-button">
+                View PDF
               </a>
+              <button onClick={handlePrint} className="print-button">Print All</button>
             </div>
           )}
         </div>
-        <button onClick={handlePrintAll}>Print All</button>
-<div id="print-section" style={{ display: "none" }}>
-  {pdfPreviews.map((url, idx) => (
-    <iframe key={idx} src={url} width="0" height="0" />
-  ))}
-</div>
       </div>
     </div>
   );
