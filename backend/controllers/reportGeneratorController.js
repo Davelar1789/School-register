@@ -4,6 +4,7 @@ import path from "path";
 import PizZip from "pizzip";
 import Docxtemplater from "docxtemplater";
 import libre from "libreoffice-convert";
+import { promisify } from "util"; // ✅ FIX HERE
 import { PDFDocument } from "pdf-lib";
 import Students from "../models/Student.model.js";
 import GradeEntry from "../models/Grade.model.js";
@@ -12,7 +13,7 @@ import TermSession from "../models/TermSession.model.js";
 import Class from "../models/Class.model.js";
 import Attendance from "../models/Attendance.model.js";
 
-libre.convertAsync = require("util").promisify(libre.convert);
+libre.convertAsync = promisify(libre.convert); // ✅ FIX HERE
 
 export const generateClassReports = async (req, res) => {
   try {
