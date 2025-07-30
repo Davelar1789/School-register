@@ -1,19 +1,16 @@
+// All your imports here...
 import axios from "axios";
 import fs from "fs";
 import path from "path";
 import PizZip from "pizzip";
 import Docxtemplater from "docxtemplater";
-import libre from "libreoffice-convert";
-import { promisify } from "util"; // ✅ FIX HERE
-import { PDFDocument } from "pdf-lib";
+import archiver from "archiver";
 import Students from "../models/Student.model.js";
 import GradeEntry from "../models/Grade.model.js";
 import ReportTemplate from "../models/ReportTemplate.model.js";
 import TermSession from "../models/TermSession.model.js";
 import Class from "../models/Class.model.js";
 import Attendance from "../models/Attendance.model.js";
-
-libre.convertAsync = promisify(libre.convert); // ✅ FIX HERE
 
 export const generateClassReports = async (req, res) => {
   try {
@@ -29,7 +26,7 @@ export const generateClassReports = async (req, res) => {
 
     const isTermThree = term.termName?.trim().toLowerCase() === "term 3";
 
-    const classInfo = await Class.findById(classId).populate("students");
+    const classInfo = await Class.findById(classId).populate({ path: "students", model: "students" });
     if (!classInfo) return res.status(404).json({ message: "Class not found." });
 
     const template = await ReportTemplate.findOne({ classIds: classId });
@@ -41,9 +38,16 @@ export const generateClassReports = async (req, res) => {
     const reportsDir = path.resolve("generatedReports");
     if (!fs.existsSync(reportsDir)) fs.mkdirSync(reportsDir, { recursive: true });
 
+    const zipPath = path.join(reportsDir, `class-${classId}-reports.zip`);
+    const output = fs.createWriteStream(zipPath);
+    const archive = archiver("zip");
+
+    archive.pipe(output);
+
     const numberOnRoll = classInfo.students.length;
 
     const classScores = [];
+
     for (const student of classInfo.students) {
       const grades = await GradeEntry.find({ studentId: student._id, termId });
       const total = grades.reduce((sum, g) => sum + (g.scores?.total || 0), 0);
@@ -53,17 +57,27 @@ export const generateClassReports = async (req, res) => {
     classScores.sort((a, b) => b.total - a.total);
 
     const rankedScores = [];
-    let currentRank = 1;
-    let lastScore = null;
-    for (let i = 0; i < classScores.length; i++) {
-      const s = classScores[i];
-      if (s.total !== lastScore) currentRank = rankedScores.length + 1;
-      rankedScores.push({
-        ...s,
-        position: i === classScores.length - 1 ? "" : getOrdinal(currentRank)
-      });
-      lastScore = s.total;
-    }
+let currentRank = 1;
+let lastScore = null;
+let sameRankCount = 0;
+
+for (let i = 0; i < classScores.length; i++) {
+  const s = classScores[i];
+
+  if (s.total === lastScore) {
+    sameRankCount++;
+  } else {
+    currentRank = rankedScores.length + 1;
+    sameRankCount = 1;
+  }
+
+  rankedScores.push({
+    ...s,
+    position: getOrdinal(currentRank)
+  });
+
+  lastScore = s.total;
+}
 
     const getWeekdays = (start, end) => {
       let count = 0;
@@ -75,8 +89,6 @@ export const generateClassReports = async (req, res) => {
       }
       return count;
     };
-
-    const pdfs = [];
 
     for (const student of classInfo.students) {
       const grades = await GradeEntry.find({ studentId: student._id, termId }).populate("subjectId");
@@ -93,6 +105,7 @@ export const generateClassReports = async (req, res) => {
 
       const studentTotalMarks = subjectData.reduce((sum, s) => sum + s.total, 0);
       const maxTotalMarks = subjectData.length * 100;
+
       const rankData = rankedScores.find(r => r.studentId === student._id.toString());
       const cc = rankData?.position || "";
 
@@ -106,11 +119,15 @@ export const generateClassReports = async (req, res) => {
 
       const conductOptions = ["Excellent", "Satisfactory", "Very obedient", "Well-behaved"];
       const conduct = conductOptions[Math.floor(Math.random() * conductOptions.length)];
-      const highestScore = Math.max(...subjectData.map(s => s.total));
-      const interestSubjects = subjectData.filter(s => s.total === highestScore).map(s => s.name).slice(0, 2);
-      const interest = interestSubjects.join(", ");
-      const percentage = (studentTotalMarks / (maxTotalMarks || 1)) * 100;
 
+      const highestScore = Math.max(...subjectData.map(s => s.total));
+      const interestSubjects = subjectData
+        .filter(s => s.total === highestScore)
+        .map(s => s.name)
+        .slice(0, 2);
+      const interest = interestSubjects.join(", ");
+
+      const percentage = (studentTotalMarks / (maxTotalMarks || 1)) * 100;
       let classTeacherRemark = "More room for improvement.";
       if (percentage >= 80) classTeacherRemark = "An excellent performance.";
       else if (percentage >= 70) classTeacherRemark = "Very good work done.";
@@ -120,10 +137,13 @@ export const generateClassReports = async (req, res) => {
       let arrears = 0;
       const yearRecord = student.academicRecords.find(y => y.yearLabel === term.yearLabel);
       const termRecord = yearRecord?.terms?.find(t => t.termName === term.termName);
-      if (termRecord?.fees) arrears = termRecord.fees.balance || 0;
+      if (termRecord?.fees) {
+        arrears = termRecord.fees.balance || 0;
+      }
 
       const feesNextTerm = parseFloat(nextTermFees);
       const totalFeesDue = arrears + feesNextTerm;
+
       const promotedTo = isTermThree ? getNextClass(classInfo.className) : "N/A";
 
       const studentData = {
@@ -132,16 +152,19 @@ export const generateClassReports = async (req, res) => {
         yearLabel: term.yearLabel,
         termName: term.termName,
         subjects: subjectData,
+
         present: presentDays,
         total: totalSchoolDays,
         roll: numberOnRoll,
         obtained: studentTotalMarks,
         max: maxTotalMarks,
         cc,
+
         conduct,
         interest,
         classTeacherRemark,
         promotedTo,
+
         vacationDate: formatDate(term.endDate),
         nextTermBegins: nextTermDate ? formatDate(nextTermDate) : "N/A",
         arrears,
@@ -152,6 +175,7 @@ export const generateClassReports = async (req, res) => {
       const zip = new PizZip(templateBuffer);
       const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
       doc.setData(studentData);
+
       try {
         doc.render();
       } catch (err) {
@@ -159,25 +183,21 @@ export const generateClassReports = async (req, res) => {
         continue;
       }
 
-      const docxBuffer = doc.getZip().generate({ type: "nodebuffer" });
-      const pdfBuffer = await libre.convertAsync(docxBuffer, ".pdf", undefined);
-      pdfs.push(pdfBuffer);
+      const buffer = doc.getZip().generate({ type: "nodebuffer" });
+      const fileName = `${student.name.replace(/\s+/g, "_")}_report.docx`;
+      const reportPath = `generatedReports/${fileName}`;
+
+      fs.writeFileSync(reportPath, buffer);
+      archive.append(fs.createReadStream(reportPath), { name: fileName });
     }
 
-    // Combine first pages
-    const finalPdf = await PDFDocument.create();
-    for (const pdf of pdfs) {
-      const srcDoc = await PDFDocument.load(pdf);
-      const [firstPage] = await finalPdf.copyPages(srcDoc, [0]);
-      finalPdf.addPage(firstPage);
-    }
+    await archive.finalize();
 
-    const mergedBuffer = await finalPdf.save();
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", "inline; filename=Class_Reports.pdf");
-    return res.send(Buffer.from(mergedBuffer));
-    fs.writeFileSync("debug_output.pdf", mergedBuffer);
-
+    output.on("close", () => {
+      res.download(zipPath, `report_cards_class_${classId}.zip`, () => {
+        fs.rmSync(zipPath);
+      });
+    });
 
   } catch (error) {
     console.error("❌ Error generating reports:", error);
@@ -185,11 +205,22 @@ export const generateClassReports = async (req, res) => {
   }
 };
 
-// --- Helpers ---
+// Helper: Class promotion logic
 const CLASS_ORDER = [
-  "Creche", "Nursery 1", "Nursery 2", "KG 1", "KG 2",
-  "Basic 1", "Basic 2", "Basic 3", "Basic 4", "Basic 5", "Basic 6",
-  "JHS 1", "JHS 2", "JHS 3"
+  "Creche",
+  "Nursery 1",
+  "Nursery 2",
+  "KG 1",
+  "KG 2",
+  "Basic 1",
+  "Basic 2",
+  "Basic 3",
+  "Basic 4",
+  "Basic 5",
+  "Basic 6",
+  "JHS 1",
+  "JHS 2",
+  "JHS 3"
 ];
 
 const getNextClass = (currentClassName) => {
@@ -198,12 +229,14 @@ const getNextClass = (currentClassName) => {
   return CLASS_ORDER[index + 1];
 };
 
+// Helper: Rank suffix
 const getOrdinal = (n) => {
   const s = ["th", "st", "nd", "rd"];
   const v = n % 100;
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 };
 
+// Helper: Grade
 const computeGrade = (score) => {
   if (score >= 80) return "1";
   if (score >= 70) return "2";
@@ -216,6 +249,7 @@ const computeGrade = (score) => {
   return "9";
 };
 
+// Helper: Remark
 const getRemark = (score) => {
   if (score >= 80) return "Excellent";
   if (score >= 70) return "Very Good";
@@ -225,6 +259,7 @@ const getRemark = (score) => {
   return "Fail";
 };
 
+// Helper: Date formatting
 const formatDate = (date) => {
   const d = new Date(date);
   return d.toLocaleDateString("en-GB", {
