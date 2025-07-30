@@ -69,6 +69,7 @@ import TGradebook from "./pages/teacher/gradebook/Gradebook";
 import AReport from "./pages/head/report/UploadReportTemplates";
 import StudentDetails from "./pages/head/students/StudentDetails";
 import AVReport from "./pages/head/report/GenerateClassReports";
+import AVReport2 from "./pages/head/report/Report2";
 import ClassSubjectsPage from "./pages/head/classes/ClassSubjectsPage";
 import TopicEditor from "./pages/head/classes/TopicsEditorPage";
 import ExamGenerator from "./pages/head/exams/ExamGenerator";
@@ -147,6 +148,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["admin"]}>
             <AVReport />
+          </ProtectedRoute>
+        ),      
+      },
+       {
+        path: "view-reports2",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AVReport2 />
           </ProtectedRoute>
         ),      
       },
