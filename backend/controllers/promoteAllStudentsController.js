@@ -1,6 +1,6 @@
-import Students from "../models/Student.model.js"; // adjust path if needed
+import Students from "../models/Student.js";
 
-// Class promotion mapping
+// Map current class ID to next class ID
 const classPromotionMap = {
   "680e3af74798fa9e62db7f0d": "680e3b054798fa9e62db7f15", // Creche -> Nursery 1
   "680e3b054798fa9e62db7f15": "680e3b174798fa9e62db7f1b", // Nursery 1 -> Nursery 2
@@ -16,10 +16,10 @@ const classPromotionMap = {
   "680e3c574798fa9e62db7f6c": "680e3c624798fa9e62db7f74", // JHS 1 -> JHS 2
   "680e3c624798fa9e62db7f74": "680e3c6c4798fa9e62db7f7a", // JHS 2 -> JHS 3
   "680e3c6c4798fa9e62db7f7a": "683712472ee4d5add214692b", // JHS 3 -> SHS 1
-  // Add SHS 1 -> ? if needed, or leave last as final
+  // You can add SHS 1 -> SHS 2 or leave last as final
 };
 
-export const promoteAllStudents = async (req, res) => {
+export const promoteStudentsBySchool = async (req, res) => {
   const { schoolId } = req.params;
 
   if (!schoolId) {
@@ -27,18 +27,20 @@ export const promoteAllStudents = async (req, res) => {
   }
 
   try {
-    // Find all students in the school
     const students = await Students.find({ schoolId });
 
     if (!students.length) {
       return res.status(404).json({ message: "No students found for this school" });
     }
 
-    // Loop through each student and update their classes array
     const bulkOps = students.map((student) => {
+      // Promote each class for the student if possible
       const updatedClasses = student.classes.map((clsId) => {
         const clsIdStr = clsId.toString();
-        return classPromotionMap[clsIdStr] || clsIdStr; // promote if possible, else keep same
+        const promotedClass = classPromotionMap[clsIdStr];
+        // Debug log to check what happens
+        console.log(`Promoting student ${student._id} class ${clsIdStr} -> ${promotedClass || clsIdStr}`);
+        return promotedClass || clsIdStr;
       });
 
       return {
@@ -49,13 +51,13 @@ export const promoteAllStudents = async (req, res) => {
       };
     });
 
-    if (bulkOps.length > 0) {
+    if (bulkOps.length) {
       await Students.bulkWrite(bulkOps);
     }
 
     return res.status(200).json({ message: "Students promoted successfully" });
   } catch (error) {
-    console.error("Promotion error:", error);
-    return res.status(500).json({ message: "Server error promoting students", error });
+    console.error("Error promoting students:", error);
+    return res.status(500).json({ message: "Server error during promotion", error });
   }
 };
