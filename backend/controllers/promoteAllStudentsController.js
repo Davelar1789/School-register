@@ -1,7 +1,6 @@
 import Students from "../models/Student.model.js";
-import Classes from "../models/Class.model.js";
+import Class from "../models/Class.model.js";
 
-/** Map the levels in order of promotion */
 const CLASS_ORDER = [
   { level: "Creche" },
   { level: "Nursery", number: 1 },
@@ -25,20 +24,24 @@ const CLASS_ORDER = [
 export const promoteAllStudents = async (req, res) => {
   const { schoolId } = req.params;
 
-  if (!schoolId) return res.status(400).json({ message: "School ID is required." });
+  if (!schoolId) {
+    return res.status(400).json({ message: "School ID is required." });
+  }
 
   try {
-    // Step 1: Fetch all classes
-    const allClasses = await Classes.find({ school: schoolId });
+    // 1️⃣ Get all classes for the school
+    const allClasses = await Class.find({ school: schoolId });
 
-    // Build a lookup table from level+number to class ID
+    // 2️⃣ Build a lookup of classes keyed by level-number
     const classMap = {};
-    allClasses.forEach(cls => {
+    for (const cls of allClasses) {
       const key = `${cls.level}-${cls.number || "0"}`;
-      classMap[key] = cls._id;
-    });
+      classMap[key] = cls;
+    }
 
-    // Step 2: Loop through class order (except last one, since no class to promote to)
+    let totalPromoted = 0;
+
+    // 3️⃣ Go through promotion order
     for (let i = 0; i < CLASS_ORDER.length - 1; i++) {
       const current = CLASS_ORDER[i];
       const next = CLASS_ORDER[i + 1];
@@ -46,30 +49,34 @@ export const promoteAllStudents = async (req, res) => {
       const currentKey = `${current.level}-${current.number || "0"}`;
       const nextKey = `${next.level}-${next.number || "0"}`;
 
-      const currentClassId = classMap[currentKey];
-      const nextClassId = classMap[nextKey];
+      const currentClass = classMap[currentKey];
+      const nextClass = classMap[nextKey];
 
-      if (!currentClassId || !nextClassId) continue;
+      if (!currentClass || !nextClass) continue; // skip if either is missing
 
-      // Find students currently in this class
+      // 4️⃣ Get students whose ONLY/MAIN class is exactly this one
       const studentsToPromote = await Students.find({
-        classes: currentClassId,
         schoolId,
+        classes: { $size: 1, $in: [currentClass._id] },
       });
 
+      // 5️⃣ Promote each student
       for (const student of studentsToPromote) {
-        // Replace the current class with the next one
-        student.classes = student.classes.map(clsId =>
-          clsId.toString() === currentClassId.toString() ? nextClassId : clsId
-        );
+        student.classes = [nextClass._id];
         await student.save();
+        totalPromoted++;
       }
     }
 
-    res.status(200).json({ message: "Students promoted successfully." });
-
-  } catch (err) {
-    console.error("Error during promotion:", err);
-    res.status(500).json({ message: "Failed to promote students", error: err.message });
+    res.status(200).json({
+      message: "Promotion completed successfully.",
+      totalPromoted,
+    });
+  } catch (error) {
+    console.error("Error promoting students:", error);
+    res.status(500).json({
+      message: "Failed to promote students.",
+      error: error.message,
+    });
   }
 };
