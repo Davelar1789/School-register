@@ -1,4 +1,4 @@
-import Students from "../models/Student.js"; // adjust path if needed
+import Students from "../models/Student.model.js"; // adjust path if needed
 
 // Class promotion mapping
 const classPromotionMap = {
