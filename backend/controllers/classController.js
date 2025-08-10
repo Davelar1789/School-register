@@ -442,7 +442,7 @@ export const restoreStudentClasses = async (req, res) => {
 
   try {
     // Fetch all classes for this school
-    const allClasses = await Classes.find({ school: schoolId });
+    const allClasses = await Class.find({ school: schoolId });
 
     let totalUpdated = 0;
     let notFoundStudents = [];
