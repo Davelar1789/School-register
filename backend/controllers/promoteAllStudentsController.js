@@ -1,4 +1,4 @@
-import Students from "../models/Student.js";
+import Students from "../models/Student.model.js";
 
 // Map current class ID to next class ID
 const classPromotionMap = {
