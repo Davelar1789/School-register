@@ -432,3 +432,57 @@ export const getTotalFeedingPaid = async (req, res) => {
   }
 };
 
+
+export const restoreStudentClasses = async (req, res) => {
+  const { schoolId } = req.params;
+
+  if (!schoolId) {
+    return res.status(400).json({ message: "School ID is required." });
+  }
+
+  try {
+    // Fetch all classes for this school
+    const allClasses = await Classes.find({ school: schoolId });
+
+    let totalUpdated = 0;
+    let notFoundStudents = [];
+
+    for (const cls of allClasses) {
+      if (!cls.students || cls.students.length === 0) continue;
+
+      for (const studentId of cls.students) {
+        const student = await Students.findById(studentId);
+
+        if (!student) {
+          notFoundStudents.push(studentId.toString());
+          continue;
+        }
+
+        // Make sure classes is an array
+        if (!Array.isArray(student.classes)) {
+          student.classes = [];
+        }
+
+        // Ensure this class ID is in the student's classes array
+        if (!student.classes.some(id => id.toString() === cls._id.toString())) {
+          student.classes = [cls._id]; // or push if multiple classes are allowed
+          await student.save();
+          totalUpdated++;
+        }
+      }
+    }
+
+    res.status(200).json({
+      message: "Student class assignments restored from Classes collection.",
+      totalUpdated,
+      notFoundStudents,
+    });
+
+  } catch (error) {
+    console.error("Error restoring student classes:", error);
+    res.status(500).json({
+      message: "Failed to restore student classes.",
+      error: error.message,
+    });
+  }
+};
