@@ -19,7 +19,7 @@ const classPromotionMap = {
   // You can add SHS 1 -> SHS 2 or leave last as final
 };
 
-export const promoteStudentsBySchool = async (req, res) => {
+export const promoteAllStudents = async (req, res) => {
   const { schoolId } = req.params;
 
   if (!schoolId) {
