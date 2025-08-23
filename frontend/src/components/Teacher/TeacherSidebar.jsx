@@ -6,7 +6,7 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import { useNavigate, NavLink } from "react-router-dom";
-import jwtDecode from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import { toast } from "react-hot-toast";
 import api from "../../api/axios";
 import Image1 from "../../assets/images/userrr.png";
