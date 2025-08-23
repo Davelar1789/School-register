@@ -5,22 +5,45 @@ import { Toaster as HotToastToaster } from "react-hot-toast";
 import { LocalizationProvider } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { useUserContext } from "./context/userContext";  
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 function App() {
   const { fetchUserDetails } = useUserContext();  
+  const [offlineMode, setOfflineMode] = useState(!navigator.onLine);
 
   useEffect(() => {
     fetchUserDetails();
+
+    const handleOffline = () => {
+      setOfflineMode(true);
+      toast("You are offline. Some features may be limited.");
+    };
+    const handleOnline = () => {
+      setOfflineMode(false);
+      toast.success("Back online!");
+    };
+
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
+
+    return () => {
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
+    };
   }, []);
 
   return (
     <>
+      {offlineMode && (
+        <div style={{backgroundColor:"#fcd34d", padding:"5px", textAlign:"center"}}>
+          Offline Mode Enabled
+        </div>
+      )}
       <main className="min-h-[calc(100vh-120px)]">
- <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
           <Outlet />
         </LocalizationProvider>
-       <SonnerToaster richColors position="top-right" />
+        <SonnerToaster richColors position="top-right" />
         <HotToastToaster />
       </main>
     </>
