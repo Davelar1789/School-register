@@ -37,24 +37,26 @@ const handleEmailSubmit = async (e) => {
   e.preventDefault();
   setLoading(true);
 
-  // Always read cached teacher fresh
   const cachedTeacher = JSON.parse(localStorage.getItem("teacher"));
+  
+  // Try to "ping" your API to confirm online status
+  let isOnline = true;
+  try {
+    await api.get("/ping"); // a lightweight endpoint just to check connectivity
+  } catch (err) {
+    isOnline = false;
+    console.log("API unreachable. Switching to offline mode:", err.message);
+  }
 
-  // Determine offline state immediately
-  const isOffline = !navigator.onLine;
-
-  if (isOffline) {
-    if (
-      cachedTeacher &&
-      cachedTeacher.email.toLowerCase().trim() === email.toLowerCase().trim()
-    ) {
+  if (!isOnline) {
+    if (cachedTeacher && cachedTeacher.email.toLowerCase().trim() === email.toLowerCase().trim()) {
       setTeacher({ ...cachedTeacher, usage: "cached" });
       setStep(3);
       toast.success("Offline mode: proceed with cached credentials.");
+      console.log("Offline login allowed with cached credentials.");
     } else {
-      toast.error(
-        "No offline credentials found. Log in online at least once."
-      );
+      toast.error("No offline credentials found. Log in online at least once.");
+      console.log("Offline login blocked: no cached credentials.");
     }
     setLoading(false);
     return;
@@ -66,10 +68,10 @@ const handleEmailSubmit = async (e) => {
     const { usage, teacher } = res.data;
     setTeacher({ ...teacher, usage });
     setStep(usage === "not used" ? 2 : 3);
+    console.log("Online login step:", usage === "not used" ? 2 : 3);
   } catch (err) {
-    toast.error(
-      err.response?.data?.message || "Email not found. Please try again."
-    );
+    toast.error(err.response?.data?.message || "Email not found. Please try again.");
+    console.log("Online email verification failed:", err.message);
   } finally {
     setLoading(false);
   }
