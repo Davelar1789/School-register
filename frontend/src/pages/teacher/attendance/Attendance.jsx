@@ -130,26 +130,32 @@ const fetchStudents = async (classId) => {
   if (!classId) return;
   try {
     setLoading(true);
-    const res = await axios.get(`/api/student/class/${classId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const studentData = Array.isArray(res.data) ? res.data : res.data.students || [];
-    setStudents(studentData);
-    // Cache for offline
-    localStorage.setItem(`offlineStudents_${classId}`, JSON.stringify(studentData));
-  } catch (err) {
-    console.error("Error loading students:", err);
-    if (offlineMode) {
+    if (!offlineMode) {
+      const res = await axios.get(`/api/student/class/${classId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const studentData = Array.isArray(res.data) ? res.data : res.data.students || [];
+      setStudents(studentData);
+      // Cache for offline
+      localStorage.setItem(`offlineStudents_${classId}`, JSON.stringify(studentData));
+    } else {
+      // Offline branch
       const cachedStudents = JSON.parse(localStorage.getItem(`offlineStudents_${classId}`)) || [];
       setStudents(cachedStudents);
-      toast.success("Offline: Loaded cached students.");
-    } else {
-      toast.error("Failed to load students.");
+      if (cachedStudents.length > 0) {
+        toast.success("Offline: Loaded cached students.");
+      } else {
+        console.log("Offline: No cached students found."); // safer than toast.info
+      }
     }
+  } catch (err) {
+    console.error("Error loading students:", err);
+    if (!offlineMode) toast.error("Failed to load students.");
   } finally {
     setLoading(false);
   }
 };
+
 
 // Fetch attendance for a given date (offline: load cached attendance)
 const fetchAttendanceForDate = async (classId, date) => {
