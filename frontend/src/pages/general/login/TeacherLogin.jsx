@@ -95,16 +95,21 @@ const handleLogin = async (e) => {
       console.log("API unreachable during login, offline mode:", err.message);
     }
 
-    if (!online && isOfflineCached) {
-      // Offline login branch
-      const passwordHash = sha256(password);
-      if (passwordHash === teacher.passwordHash) {
-        toast.success("Logged in offline. Some features may be limited.");
-        navigate("/teacher-dashboard");
-      } else {
-        toast.error("Offline login failed. Wrong password.");
-      }
-    } else if (online) {
+   if (!online && isOfflineCached) {
+  // Offline login branch
+  const passwordHash = sha256(password);
+  if (passwordHash === teacher.passwordHash) {
+    // Save the token from cached teacher so dashboard can use it
+    if (teacher.token) {
+      localStorage.setItem("token", teacher.token);
+    }
+
+    toast.success("Logged in offline. Some features may be limited.");
+    navigate("/teacher-dashboard");
+  } else {
+    toast.error("Offline login failed. Wrong password.");
+  }
+} else if (online) {
       // Online login
       const payload = isFirstTime
         ? { email, staffId, password }
