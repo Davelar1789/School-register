@@ -39,7 +39,7 @@ const SidebarTeacher = () => {
 
     if (!token || !teacherData) {
       toast.error("Please login first.");
-      navigate("/sign-in");
+      navigate("/teacher-login");
       return;
     }
 
@@ -58,7 +58,7 @@ const SidebarTeacher = () => {
       setTeacherType(teacherData.teacherType || "");
     } catch (error) {
       toast.error("Session expired. Please log in again.");
-      navigate("/sign-in");
+      navigate("/teacher-login");
     }
   }, [navigate]);
 
@@ -66,7 +66,7 @@ const SidebarTeacher = () => {
     try {
       localStorage.clear();
       toast.success("Logged out successfully");
-      navigate("/sign-in");
+      navigate("/teacher-login");
     } catch (error) {
       toast.error("Logout failed. Please try again.");
     }
