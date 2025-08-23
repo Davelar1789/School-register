@@ -11,6 +11,7 @@
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "express-async-handler": "^1.2.0",
+    "idb": "^8.0.3",
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^4.0.0",
     "libreoffice-convert": "^1.6.1",
@@ -27,7 +28,7 @@
     "venom-bot": "^5.3.0"
   },
   "scripts": {
-        "postinstall": "puppeteer install",
+    "postinstall": "puppeteer install",
     "start": "node server.js"
   }
 }
