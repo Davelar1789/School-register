@@ -356,35 +356,59 @@ return (
       <h2 className="attendance-title">Mark Attendance</h2>
 
       {/* Class Selector */}
-      <select
-        className="class-selector"
-        onChange={(e) => {
-          const clsId = e.target.value;
-          setSelectedClass(clsId);
+     {/* Class Selector */}
+<select
+  className="class-selector"
+  onChange={(e) => {
+    const clsId = e.target.value;
+    setSelectedClass(clsId);
 
-          if (offlineMode) {
-            // Load students from cached offline data
-            const cachedClasses = JSON.parse(localStorage.getItem("offlineClasses")) || [];
-            const cachedStudents = cachedClasses.find((c) => c._id === clsId)?.students || [];
-            setStudents(cachedStudents);
-            setSelectedDate(new Date().toISOString().slice(0, 10)); // default to today
-          } else {
-            // Online fetch
-            fetchStudents(clsId);
-          }
-        }}
-        value={selectedClass || ""}
-      >
-        <option value="">Select Class</option>
-        {(offlineMode
-          ? JSON.parse(localStorage.getItem("offlineClasses")) || []
-          : classes
-        ).map((cls) => (
-          <option key={cls._id} value={cls._id}>
-            {cls.className}
-          </option>
-        ))}
-      </select>
+    if (clsId) {
+      if (offlineMode) {
+        // Load students from cached offline data
+        const cachedStudents = JSON.parse(
+          localStorage.getItem(`offlineStudents_${clsId}`)
+        ) || [];
+
+        setStudents(cachedStudents);
+
+        // Reset attendance map for new class
+        const initialAttendance = {};
+        cachedStudents.forEach((s) => {
+          initialAttendance[s._id] = false;
+        });
+        setAttendance(initialAttendance);
+
+        // Automatically set today's date
+        setSelectedDate(new Date().toISOString().slice(0, 10));
+
+        if (cachedStudents.length > 0) {
+          toast.success("Offline: Loaded cached students.");
+        } else {
+          console.log("Offline: No cached students found for this class.");
+        }
+      } else {
+        // Online fetch
+        fetchStudents(clsId);
+      }
+    } else {
+      // No class selected, clear students
+      setStudents([]);
+      setAttendance({});
+    }
+  }}
+  value={selectedClass || ""}
+>
+  <option value="">Select Class</option>
+  {(offlineMode
+    ? JSON.parse(localStorage.getItem("offlineClasses")) || []
+    : classes
+  ).map((cls) => (
+    <option key={cls._id} value={cls._id}>
+      {cls.className}
+    </option>
+  ))}
+</select>
 
       {/* Date Selector */}
       <input
