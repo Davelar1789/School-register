@@ -16,50 +16,65 @@ function TeacherLogin() {
   const [loading, setLoading] = useState(false);
   const [offlineMode, setOfflineMode] = useState(false);
 
-  // Detect offline/online status
-  useEffect(() => {
-    const handleOffline = () => setOfflineMode(true);
-    const handleOnline = () => setOfflineMode(false);
+// Detect offline/online status
+useEffect(() => {
+  const handleOffline = () => setOfflineMode(true);
+  const handleOnline = () => setOfflineMode(false);
 
-    window.addEventListener("offline", handleOffline);
-    window.addEventListener("online", handleOnline);
+  window.addEventListener("offline", handleOffline);
+  window.addEventListener("online", handleOnline);
 
-    return () => {
-      window.removeEventListener("offline", handleOffline);
-      window.removeEventListener("online", handleOnline);
-    };
-  }, []);
+  // Set initial offlineMode based on navigator status
+  setOfflineMode(!navigator.onLine);
 
-  const handleEmailSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    const cachedTeacher = JSON.parse(localStorage.getItem("teacher"));
-
-    if (offlineMode) {
-      if (cachedTeacher && cachedTeacher.email === email) {
-        setTeacher({ ...cachedTeacher, usage: "cached" });
-        setStep(3);
-        toast.success("Offline mode: proceed with cached credentials.");
-      } else {
-        toast.error("No offline credentials found. Log in online at least once.");
-      }
-      setLoading(false);
-      return;
-    }
-
-    // Online verification
-    try {
-      const res = await api.post("/api/teachers/verify-email", { email });
-      const { usage, teacher } = res.data;
-      setTeacher({ ...teacher, usage });
-      setStep(usage === "not used" ? 2 : 3);
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Email not found. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+  return () => {
+    window.removeEventListener("offline", handleOffline);
+    window.removeEventListener("online", handleOnline);
   };
+}, []);
+
+const handleEmailSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+
+  // Always read cached teacher fresh
+  const cachedTeacher = JSON.parse(localStorage.getItem("teacher"));
+
+  // Determine offline state immediately
+  const isOffline = !navigator.onLine;
+
+  if (isOffline) {
+    if (
+      cachedTeacher &&
+      cachedTeacher.email.toLowerCase().trim() === email.toLowerCase().trim()
+    ) {
+      setTeacher({ ...cachedTeacher, usage: "cached" });
+      setStep(3);
+      toast.success("Offline mode: proceed with cached credentials.");
+    } else {
+      toast.error(
+        "No offline credentials found. Log in online at least once."
+      );
+    }
+    setLoading(false);
+    return;
+  }
+
+  // Online verification
+  try {
+    const res = await api.post("/api/teachers/verify-email", { email });
+    const { usage, teacher } = res.data;
+    setTeacher({ ...teacher, usage });
+    setStep(usage === "not used" ? 2 : 3);
+  } catch (err) {
+    toast.error(
+      err.response?.data?.message || "Email not found. Please try again."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleLogin = async (e) => {
     e.preventDefault();
