@@ -21,6 +21,7 @@ function App() {
     const handleOnline = () => {
       setOfflineMode(false);
       toast.success("Back online!");
+      window.location.reload()
     };
 
     window.addEventListener("offline", handleOffline);
