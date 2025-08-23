@@ -130,24 +130,37 @@ const fetchStudents = async (classId) => {
   if (!classId) return;
   try {
     setLoading(true);
+    let studentData = [];
+
     if (!offlineMode) {
       const res = await axios.get(`/api/student/class/${classId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      const studentData = Array.isArray(res.data) ? res.data : res.data.students || [];
-      setStudents(studentData);
+      studentData = Array.isArray(res.data) ? res.data : res.data.students || [];
       // Cache for offline
       localStorage.setItem(`offlineStudents_${classId}`, JSON.stringify(studentData));
     } else {
       // Offline branch
-      const cachedStudents = JSON.parse(localStorage.getItem(`offlineStudents_${classId}`)) || [];
-      setStudents(cachedStudents);
-      if (cachedStudents.length > 0) {
+      const cached = JSON.parse(localStorage.getItem(`offlineStudents_${classId}`)) || [];
+      studentData = cached.map((s) => ({
+        _id: s._id,
+        name: s.name,
+        classes: s.classes || [],
+      }));
+      if (studentData.length > 0) {
         toast.success("Offline: Loaded cached students.");
       } else {
-        console.log("Offline: No cached students found."); // safer than toast.info
+        console.log("Offline: No cached students found.");
       }
     }
+
+    // Reset attendance map for new class
+    const initialAttendance = {};
+    studentData.forEach((s) => {
+      initialAttendance[s._id] = false;
+    });
+    setAttendance(initialAttendance);
+    setStudents(studentData);
   } catch (err) {
     console.error("Error loading students:", err);
     if (!offlineMode) toast.error("Failed to load students.");
@@ -155,6 +168,7 @@ const fetchStudents = async (classId) => {
     setLoading(false);
   }
 };
+
 
 
 // Fetch attendance for a given date (offline: load cached attendance)
@@ -403,27 +417,23 @@ return (
               <th>Present?</th>
             </tr>
           </thead>
-          <tbody>
-            {students.map((student) => (
-              <tr key={student._id} className="student-row">
-                <td className="student-name">{student.name}</td>
-                <td className="attendance-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={attendance[student._id] || false}
-                    onChange={(e) =>
-                      handleAttendanceChange(student._id, e.target.checked)
-                    }
-                    disabled={
-                      (submittedDates.has(`${selectedClass}_${selectedDate}`) &&
-                        !isEditing) ||
-                      offlineMode // prevent submission while offline
-                    }
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
+         <tbody>
+  {students.map((student) => (
+    <tr key={student._id}>
+      <td>{student.name || "Unnamed Student"}</td>
+      <td>
+        <input
+          type="checkbox"
+          checked={attendance[student._id] || false}
+          onChange={(e) =>
+            handleAttendanceChange(student._id, e.target.checked)
+          }
+          disabled={(submittedDates.has(`${selectedClass}_${selectedDate}`) && !isEditing) || offlineMode}
+        />
+      </td>
+    </tr>
+  ))}
+</tbody>
         </table>
       ) : (
         <p className="no-students-message">
