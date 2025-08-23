@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import api from "../../../api/axios";
@@ -13,10 +13,40 @@ function TeacherLogin() {
   const [step, setStep] = useState(1); // 1 = enter email, 2 = set staffId + password, 3 = enter password
   const [teacher, setTeacher] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [offlineMode, setOfflineMode] = useState(false);
+
+  // Optional: Detect offline mode
+  useEffect(() => {
+    const handleOffline = () => setOfflineMode(true);
+    const handleOnline = () => setOfflineMode(false);
+
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
+
+    return () => {
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
+    };
+  }, []);
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    if (offlineMode) {
+      // Attempt offline login using cached credentials
+      const cachedTeacher = JSON.parse(localStorage.getItem("teacher"));
+      if (cachedTeacher && cachedTeacher.email === email) {
+        setTeacher({ ...cachedTeacher, usage: "cached" });
+        setStep(3);
+        toast.success("Offline mode: proceed with cached credentials.");
+      } else {
+        toast.error("No offline credentials found. Connect to internet first.");
+      }
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await api.post("/api/teachers/verify-email", { email });
       const { usage, teacher } = res.data;
@@ -37,24 +67,42 @@ function TeacherLogin() {
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-  
+
     try {
       const isFirstTime = teacher?.usage === "not used";
-  
-      const payload = isFirstTime
-        ? { email, staffId, password } // for first-time setup
-        : { email, password };         // for normal login
-  
-      const endpoint = isFirstTime
-        ? "/api/teachers/setup"
-        : "/api/teachers/login";
-  
-      const res = await api.post(endpoint, payload);
-  
-      toast.success("Login successful!");
-      localStorage.setItem("teacher", JSON.stringify(res.data.teacher));
-      localStorage.setItem("token", res.data.teacher.token);
-      navigate("/teacher-dashboard");
+      const isOfflineCached = teacher?.usage === "cached";
+
+      if (offlineMode && isOfflineCached) {
+        // Offline login with cached data
+        if (password === teacher.password) {
+          toast.success("Logged in offline. Some features may be limited.");
+          navigate("/teacher-dashboard");
+        } else {
+          toast.error("Offline login failed. Wrong password.");
+        }
+      } else {
+        // Online login
+        const payload = isFirstTime
+          ? { email, staffId, password } // first-time setup
+          : { email, password };
+
+        const endpoint = isFirstTime
+          ? "/api/teachers/setup"
+          : "/api/teachers/login";
+
+        const res = await api.post(endpoint, payload);
+
+        // Save teacher info and token for offline use
+        const teacherData = res.data.teacher;
+        localStorage.setItem("teacher", JSON.stringify({
+          ...teacherData,
+          password // store hashed or plain for offline only (not recommended plain for production)
+        }));
+        localStorage.setItem("token", teacherData.token);
+
+        toast.success("Login successful!");
+        navigate("/teacher-dashboard");
+      }
     } catch (err) {
       const msg = err?.response?.data?.message || "Login failed. Please try again.";
       toast.error(msg);
@@ -62,7 +110,6 @@ function TeacherLogin() {
       setLoading(false);
     }
   };
-  
 
   return (
     <div className="login-container">
