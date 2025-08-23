@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import api from "../../../api/axios";
 import { toast } from "react-hot-toast";
-import { sha256 } from "js-sha256"; // ✅ hash library
+import { sha256 } from "js-sha256"; // hash library
 import "./Sign-in.modules.css";
 
 function TeacherLogin() {
@@ -34,25 +34,25 @@ function TeacherLogin() {
     e.preventDefault();
     setLoading(true);
 
+    const cachedTeacher = JSON.parse(localStorage.getItem("teacherOfflineCache"));
+
     if (offlineMode) {
-      // Attempt offline login using cached credentials
-      const cachedTeacher = JSON.parse(localStorage.getItem("teacher"));
       if (cachedTeacher && cachedTeacher.email === email) {
         setTeacher({ ...cachedTeacher, usage: "cached" });
         setStep(3);
         toast.success("Offline mode: proceed with cached credentials.");
       } else {
-        toast.error("No offline credentials found. Connect to internet first.");
+        toast.error("No offline credentials found. Log in online at least once.");
       }
       setLoading(false);
       return;
     }
 
+    // Online verification
     try {
       const res = await api.post("/api/teachers/verify-email", { email });
       const { usage, teacher } = res.data;
       setTeacher({ ...teacher, usage });
-
       setStep(usage === "not used" ? 2 : 3);
     } catch (err) {
       toast.error(err.response?.data?.message || "Email not found. Please try again.");
@@ -91,15 +91,17 @@ function TeacherLogin() {
         const res = await api.post(endpoint, payload);
         const teacherData = res.data.teacher;
 
-        // Store hashed password for offline login
+        // Store offline credentials separately
         const passwordHash = sha256(password);
         localStorage.setItem(
-          "teacher",
+          "teacherOfflineCache",
           JSON.stringify({
             ...teacherData,
-            passwordHash, // only store hash offline
+            passwordHash, // hash only for offline
           })
         );
+
+        // Store session token for online usage
         localStorage.setItem("token", teacherData.token);
 
         toast.success("Login successful!");
