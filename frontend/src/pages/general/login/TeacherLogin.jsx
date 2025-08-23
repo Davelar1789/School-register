@@ -52,10 +52,10 @@ const handleEmailSubmit = async (e) => {
     if (cachedTeacher && cachedTeacher.email.toLowerCase().trim() === email.toLowerCase().trim()) {
       setTeacher({ ...cachedTeacher, usage: "cached" });
       setStep(3);
-      toast.success("Offline mode: proceed with cached credentials.");
+      toast.success("Offline mode. Enter your password");
       console.log("Offline login allowed with cached credentials.");
     } else {
-      toast.error("No offline credentials found. Log in online at least once.");
+      toast.error("No credentials found. Log in online at least once.");
       console.log("Offline login blocked: no cached credentials.");
     }
     setLoading(false);
@@ -137,7 +137,7 @@ const handleLogin = async (e) => {
       navigate("/teacher-dashboard");
     } else {
       // API unreachable but no cached teacher
-      toast.error("Cannot reach server and no cached credentials available.");
+      toast.error("Cannot reach server");
     }
   } catch (err) {
     const msg = err?.response?.data?.message || "Login failed. Please try again.";
