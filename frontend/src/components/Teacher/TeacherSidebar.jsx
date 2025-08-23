@@ -6,7 +6,7 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import { useNavigate, NavLink } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
+import jwtDecode from "jwt-decode";
 import { toast } from "react-hot-toast";
 import api from "../../api/axios";
 import Image1 from "../../assets/images/userrr.png";
@@ -15,8 +15,23 @@ const SidebarTeacher = () => {
   const [user, setUser] = useState(null);
   const [school, setSchool] = useState(null);
   const [teacherType, setTeacherType] = useState("");
+  const [offlineMode, setOfflineMode] = useState(!navigator.onLine);
 
   const navigate = useNavigate();
+
+  // Listen for online/offline changes
+  useEffect(() => {
+    const handleOnline = () => setOfflineMode(false);
+    const handleOffline = () => setOfflineMode(true);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -30,7 +45,6 @@ const SidebarTeacher = () => {
 
     try {
       const decoded = jwtDecode(token);
-      // console.log("Decoded token:", decoded);
 
       setUser({
         fullName: decoded.fullName,
@@ -41,7 +55,7 @@ const SidebarTeacher = () => {
         name: decoded.schoolName,
       });
 
-      setTeacherType(teacherData.teacherType || ""); // Set from localStorage
+      setTeacherType(teacherData.teacherType || "");
     } catch (error) {
       toast.error("Session expired. Please log in again.");
       navigate("/sign-in");
@@ -54,12 +68,18 @@ const SidebarTeacher = () => {
       toast.success("Logged out successfully");
       navigate("/sign-in");
     } catch (error) {
-      // console.error("Logout failed:", error);
       toast.error("Logout failed. Please try again.");
     }
   };
 
   if (!user) return null;
+
+  // Helper to conditionally disable links in offline mode
+  const isDisabled = (path) => {
+    if (!offlineMode) return false;
+    // Only allow dashboard and attendance in offline mode
+    return !["/teacher-dashboard", "/attendance"].includes(path);
+  };
 
   return (
     <div className="sidebar">
@@ -81,14 +101,21 @@ const SidebarTeacher = () => {
       {/* Navigation */}
       <ul className="sidebar-nav">
         <li>
-          <NavLink to="/teacher-dashboard" className={({ isActive }) => isActive ? "active" : ""}>
+          <NavLink
+            to="/teacher-dashboard"
+            className={({ isActive }) => isActive ? "active" : ""}
+          >
             <FaHome className="icon" /> Dashboard
           </NavLink>
         </li>
 
         {(teacherType === "Class Teacher" || teacherType === "Both") && (
           <li>
-            <NavLink to="/my-classes" className={({ isActive }) => isActive ? "active" : ""}>
+            <NavLink
+              to="/my-classes"
+              className={({ isActive }) => isActive ? "active" : ""}
+              style={isDisabled("/my-classes") ? { pointerEvents: "none", opacity: 0.5 } : {}}
+            >
               <FaUserGraduate className="icon" /> My Classes
             </NavLink>
           </li>
@@ -96,21 +123,31 @@ const SidebarTeacher = () => {
 
         {(teacherType === "Subject Teacher" || teacherType === "Both") && (
           <li>
-            <NavLink to="/my-subjects" className={({ isActive }) => isActive ? "active" : ""}>
+            <NavLink
+              to="/my-subjects"
+              className={({ isActive }) => isActive ? "active" : ""}
+              style={isDisabled("/my-subjects") ? { pointerEvents: "none", opacity: 0.5 } : {}}
+            >
               <FaUserGraduate className="icon" /> My Subjects
             </NavLink>
           </li>
         )}
 
-         <li>
-          <NavLink to="/gradebook" className={({ isActive }) => isActive ? "active" : ""}>
+        <li>
+          <NavLink
+            to="/gradebook"
+            className={({ isActive }) => isActive ? "active" : ""}
+            style={isDisabled("/gradebook") ? { pointerEvents: "none", opacity: 0.5 } : {}}
+          >
             <FaComments className="icon" /> Gradebook
           </NavLink>
         </li>
 
-
         <li>
-          <NavLink to="/attendance" className={({ isActive }) => isActive ? "active" : ""}>
+          <NavLink
+            to="/attendance"
+            className={({ isActive }) => isActive ? "active" : ""}
+          >
             <FaComments className="icon" /> Attendance
           </NavLink>
         </li>
