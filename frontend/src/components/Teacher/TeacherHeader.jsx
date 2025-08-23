@@ -167,7 +167,7 @@ const Header = () => {
     try {
       localStorage.removeItem("token");   
       toast.success("Logged out successfully");
-      navigate("/sign-in"); // or your login route
+      navigate("/teacher-login"); // or your login route
     } catch (error) {
       // console.error("Logout failed:", error);
       toast.error("Logout failed. Please try again.");
