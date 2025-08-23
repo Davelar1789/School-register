@@ -311,6 +311,21 @@ useEffect(() => {
   }
 }, [selectedClass, selectedDate, offlineMode]);
 
+// Fetch current term and teacher's classes on mount
+useEffect(() => {
+  if (!offlineMode) {
+    fetchCurrentTerm();
+    fetchClasses();
+  } else {
+    // Load cached term and classes for offline mode
+    const cachedTerm = JSON.parse(localStorage.getItem("offlineCurrentTerm"));
+    if (cachedTerm) setCurrentTerm(cachedTerm);
+
+    const cachedClasses = JSON.parse(localStorage.getItem("offlineClasses")) || [];
+    setClasses(cachedClasses);
+  }
+}, [offlineMode]);
+
 return (
   <div>
     <Sidebar />
