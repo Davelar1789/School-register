@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import api from "../../../api/axios";
 import { toast } from "react-hot-toast";
+import { sha256 } from "js-sha256"; // ✅ hash library
 import "./Sign-in.modules.css";
 
 function TeacherLogin() {
@@ -10,12 +11,12 @@ function TeacherLogin() {
   const [email, setEmail] = useState("");
   const [staffId, setStaffId] = useState("");
   const [password, setPassword] = useState("");
-  const [step, setStep] = useState(1); // 1 = enter email, 2 = set staffId + password, 3 = enter password
+  const [step, setStep] = useState(1); // 1=email, 2=staffId+password, 3=password
   const [teacher, setTeacher] = useState(null);
   const [loading, setLoading] = useState(false);
   const [offlineMode, setOfflineMode] = useState(false);
 
-  // Optional: Detect offline mode
+  // Detect offline/online status
   useEffect(() => {
     const handleOffline = () => setOfflineMode(true);
     const handleOnline = () => setOfflineMode(false);
@@ -52,11 +53,7 @@ function TeacherLogin() {
       const { usage, teacher } = res.data;
       setTeacher({ ...teacher, usage });
 
-      if (usage === "not used") {
-        setStep(2); // New teacher – ask for staffId and create password
-      } else {
-        setStep(3); // Returning teacher – just ask for password
-      }
+      setStep(usage === "not used" ? 2 : 3);
     } catch (err) {
       toast.error(err.response?.data?.message || "Email not found. Please try again.");
     } finally {
@@ -73,8 +70,9 @@ function TeacherLogin() {
       const isOfflineCached = teacher?.usage === "cached";
 
       if (offlineMode && isOfflineCached) {
-        // Offline login with cached data
-        if (password === teacher.password) {
+        // Offline login using hashed password
+        const passwordHash = sha256(password);
+        if (passwordHash === teacher.passwordHash) {
           toast.success("Logged in offline. Some features may be limited.");
           navigate("/teacher-dashboard");
         } else {
@@ -83,7 +81,7 @@ function TeacherLogin() {
       } else {
         // Online login
         const payload = isFirstTime
-          ? { email, staffId, password } // first-time setup
+          ? { email, staffId, password }
           : { email, password };
 
         const endpoint = isFirstTime
@@ -91,13 +89,17 @@ function TeacherLogin() {
           : "/api/teachers/login";
 
         const res = await api.post(endpoint, payload);
-
-        // Save teacher info and token for offline use
         const teacherData = res.data.teacher;
-        localStorage.setItem("teacher", JSON.stringify({
-          ...teacherData,
-          password // store hashed or plain for offline only (not recommended plain for production)
-        }));
+
+        // Store hashed password for offline login
+        const passwordHash = sha256(password);
+        localStorage.setItem(
+          "teacher",
+          JSON.stringify({
+            ...teacherData,
+            passwordHash, // only store hash offline
+          })
+        );
         localStorage.setItem("token", teacherData.token);
 
         toast.success("Login successful!");
