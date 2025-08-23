@@ -326,11 +326,13 @@ return (
           setSelectedClass(clsId);
 
           if (offlineMode) {
+            // Load students from cached offline data
             const cachedClasses = JSON.parse(localStorage.getItem("offlineClasses")) || [];
             const cachedStudents = cachedClasses.find((c) => c._id === clsId)?.students || [];
             setStudents(cachedStudents);
             setSelectedDate(new Date().toISOString().slice(0, 10)); // default to today
           } else {
+            // Online fetch
             fetchStudents(clsId);
           }
         }}
@@ -393,7 +395,7 @@ return (
                     disabled={
                       (submittedDates.has(`${selectedClass}_${selectedDate}`) &&
                         !isEditing) ||
-                      offlineMode // prevent editing if offline but allow dashboard usage
+                      offlineMode // prevent submission while offline
                     }
                   />
                 </td>
