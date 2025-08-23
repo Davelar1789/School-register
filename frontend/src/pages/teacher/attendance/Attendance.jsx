@@ -133,40 +133,35 @@ const fetchStudents = async (classId) => {
     let studentData = [];
 
     if (!offlineMode) {
+      // Online fetch
       const res = await axios.get(`/api/student/class/${classId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       studentData = Array.isArray(res.data) ? res.data : res.data.students || [];
-      // ✅ Automatically set today's date when a class is fetched
-    const today = new Date().toISOString().slice(0, 10); // Format YYYY-MM-DD
-    setSelectedDate(today);
-      // Cache for offline
       localStorage.setItem(`offlineStudents_${classId}`, JSON.stringify(studentData));
+      toast.success("Online: Students loaded successfully.");
     } else {
-      // Offline branch
+      // Offline fetch
       const cached = JSON.parse(localStorage.getItem(`offlineStudents_${classId}`)) || [];
-      studentData = cached.map((s) => ({
-        _id: s._id,
-        name: s.name,
-        classes: s.classes || [],
-      }));
-      // ✅ Automatically set today's date when a class is fetched
-    const today = new Date().toISOString().slice(0, 10); // Format YYYY-MM-DD
-    setSelectedDate(today);
+      studentData = cached; // Use as-is; names are already there
       if (studentData.length > 0) {
         toast.success("Offline: Loaded cached students.");
       } else {
-        console.log("Offline: No cached students found.");
+        console.log("Offline: No cached students found for this class.");
       }
     }
 
-    // Reset attendance map for new class
+    // Reset attendance map for this class
     const initialAttendance = {};
     studentData.forEach((s) => {
       initialAttendance[s._id] = false;
     });
+
     setAttendance(initialAttendance);
     setStudents(studentData);
+
+    // Automatically set today's date when a class is fetched
+    setSelectedDate(new Date().toISOString().slice(0, 10));
   } catch (err) {
     console.error("Error loading students:", err);
     if (!offlineMode) toast.error("Failed to load students.");
