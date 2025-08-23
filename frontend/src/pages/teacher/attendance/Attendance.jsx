@@ -137,6 +137,9 @@ const fetchStudents = async (classId) => {
         headers: { Authorization: `Bearer ${token}` },
       });
       studentData = Array.isArray(res.data) ? res.data : res.data.students || [];
+      // ✅ Automatically set today's date when a class is fetched
+    const today = new Date().toISOString().slice(0, 10); // Format YYYY-MM-DD
+    setSelectedDate(today);
       // Cache for offline
       localStorage.setItem(`offlineStudents_${classId}`, JSON.stringify(studentData));
     } else {
@@ -147,6 +150,9 @@ const fetchStudents = async (classId) => {
         name: s.name,
         classes: s.classes || [],
       }));
+      // ✅ Automatically set today's date when a class is fetched
+    const today = new Date().toISOString().slice(0, 10); // Format YYYY-MM-DD
+    setSelectedDate(today);
       if (studentData.length > 0) {
         toast.success("Offline: Loaded cached students.");
       } else {
