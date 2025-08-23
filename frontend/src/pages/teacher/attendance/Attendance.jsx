@@ -42,20 +42,21 @@ const Attendance = () => {
   const [existingAttendance, setExistingAttendance] = useState({}); // ✅ Store previously submitted attendance
 const [attendanceIds, setAttendanceIds] = useState({}); // ✅ Map of studentId to attendance record _id
 const [isEditing, setIsEditing] = useState(false); // ✅ Track editing mode
-const [offlineMode, setOfflineMode] = useState(!navigator.onLine);
+const [offlineMode, setOfflineMode] = useState(true);
 
+// Function to check connectivity via /ping
+const checkOnlineStatus = async () => {
+  try {
+    await axios.get("/ping"); // your backend ping endpoint
+    setOfflineMode(false); // reachable → online
+  } catch (err) {
+    setOfflineMode(true); // unreachable → offline
+  }
+};
 
+// Check only on mount
 useEffect(() => {
-  const handleOnline = () => setOfflineMode(false);
-  const handleOffline = () => setOfflineMode(true);
-
-  window.addEventListener("online", handleOnline);
-  window.addEventListener("offline", handleOffline);
-
-  return () => {
-    window.removeEventListener("online", handleOnline);
-    window.removeEventListener("offline", handleOffline);
-  };
+  checkOnlineStatus();
 }, []);
 
 
