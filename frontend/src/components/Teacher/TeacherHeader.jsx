@@ -242,6 +242,15 @@ const Header = () => {
       </div>
 
         <ul className="sidebar-nav">
+           <li>
+                    <NavLink
+                      to="/teacher-dashboard"
+                      className={({ isActive }) => isActive ? "active" : ""}
+                    >
+                      <FaHome className="icon" /> Dashboard
+                    </NavLink>
+                  </li>
+                  
                 {(teacherType === "Class Teacher" || teacherType === "Both") && (
                          <li>
                            <NavLink
