@@ -20,6 +20,8 @@ const Header = () => {
   const [school, setSchool] = useState(null);
   const [teacherType, setTeacherType] = useState("");
   const [unreadCount, setUnreadCount] = useState(0);
+  const [offlineMode, setOfflineMode] = useState(!navigator.onLine);
+
 
   const [schoolStats, setSchoolStats] = useState({
     numberOfStudents: 0,
@@ -28,6 +30,20 @@ const Header = () => {
   });
 
   const navigate = useNavigate();
+
+    // Listen for online/offline changes
+    useEffect(() => {
+      const handleOnline = () => setOfflineMode(false);
+      const handleOffline = () => setOfflineMode(true);
+  
+      window.addEventListener("online", handleOnline);
+      window.addEventListener("offline", handleOffline);
+  
+      return () => {
+        window.removeEventListener("online", handleOnline);
+        window.removeEventListener("offline", handleOffline);
+      };
+    }, []);
 
   useEffect(() => {
     const handleResize = () => {
@@ -67,6 +83,14 @@ const Header = () => {
         navigate("/sign-in");
       }
     }, [navigate]);
+
+
+    // Helper to conditionally disable links in offline mode
+  const isDisabled = (path) => {
+    if (!offlineMode) return false;
+    // Only allow dashboard and attendance in offline mode
+    return !["/teacher-dashboard", "/attendance"].includes(path);
+  };
 
   const fetchSchool = async (userId) => {
     try {
@@ -218,36 +242,49 @@ const Header = () => {
       </div>
 
         <ul className="sidebar-nav">
-               <li>
-                        <NavLink to="/teacher-dashboard" className={({ isActive }) => isActive ? "active" : ""}>
-                          <FaHome className="icon" /> Dashboard
-                        </NavLink>
-                      </li>
-                      {(teacherType === "Class Teacher" || teacherType === "Both") && (
-                               <li>
-                                 <NavLink to="/my-classes" className={({ isActive }) => isActive ? "active" : ""}>
-                                   <FaUserGraduate className="icon" /> My Classes
-                                 </NavLink>
-                               </li>
-                             )}
-                     
-                             {(teacherType === "Subject Teacher" || teacherType === "Both") && (
-                               <li>
-                                 <NavLink to="/my-subjects" className={({ isActive }) => isActive ? "active" : ""}>
-                                   <FaUserGraduate className="icon" /> My Subjects
-                                 </NavLink>
-                               </li>
-                             )}
-                              <li>
-                                       <NavLink to="/gradebook" className={({ isActive }) => isActive ? "active" : ""}>
-                                         <FaComments className="icon" /> Gradebook
-                                       </NavLink>
-                                     </li>
-                              <li>
-                                       <NavLink to="/attendance" className={({ isActive }) => isActive ? "active" : ""}>
-                                         <FaComments className="icon" /> Attendance
-                                       </NavLink>
-                                     </li>
+                {(teacherType === "Class Teacher" || teacherType === "Both") && (
+                         <li>
+                           <NavLink
+                             to="/my-classes"
+                             className={({ isActive }) => isActive ? "active" : ""}
+                             style={isDisabled("/my-classes") ? { pointerEvents: "none", opacity: 0.5 } : {}}
+                           >
+                             <FaUserGraduate className="icon" /> My Classes
+                           </NavLink>
+                         </li>
+                       )}
+               
+                       {(teacherType === "Subject Teacher" || teacherType === "Both") && (
+                         <li>
+                           <NavLink
+                             to="/my-subjects"
+                             className={({ isActive }) => isActive ? "active" : ""}
+                             style={isDisabled("/my-subjects") ? { pointerEvents: "none", opacity: 0.5 } : {}}
+                           >
+                             <FaUserGraduate className="icon" /> My Subjects
+                           </NavLink>
+                         </li>
+                       )}
+               
+                       <li>
+                         <NavLink
+                           to="/gradebook"
+                           className={({ isActive }) => isActive ? "active" : ""}
+                           style={isDisabled("/gradebook") ? { pointerEvents: "none", opacity: 0.5 } : {}}
+                         >
+                           <FaComments className="icon" /> Gradebook
+                         </NavLink>
+                       </li>
+               
+                       <li>
+                         <NavLink
+                           to="/attendance"
+                           className={({ isActive }) => isActive ? "active" : ""}
+                         >
+                           <FaComments className="icon" /> Attendance
+                         </NavLink>
+                       </li>
+               
                       {/* <li>
                         <NavLink to="/teachers" className={({ isActive }) => isActive ? "active" : ""}>
                           <FaChalkboardTeacher className="icon" />Gradebook
