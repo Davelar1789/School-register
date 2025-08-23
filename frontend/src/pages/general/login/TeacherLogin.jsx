@@ -34,7 +34,7 @@ function TeacherLogin() {
     e.preventDefault();
     setLoading(true);
 
-    const cachedTeacher = JSON.parse(localStorage.getItem("teacherOfflineCache"));
+    const cachedTeacher = JSON.parse(localStorage.getItem("teacher"));
 
     if (offlineMode) {
       if (cachedTeacher && cachedTeacher.email === email) {
@@ -94,7 +94,7 @@ function TeacherLogin() {
         // Store offline credentials separately
         const passwordHash = sha256(password);
         localStorage.setItem(
-          "teacherOfflineCache",
+          "teacher",
           JSON.stringify({
             ...teacherData,
             passwordHash, // hash only for offline
