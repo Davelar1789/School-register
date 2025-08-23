@@ -42,6 +42,21 @@ const Attendance = () => {
   const [existingAttendance, setExistingAttendance] = useState({}); // ✅ Store previously submitted attendance
 const [attendanceIds, setAttendanceIds] = useState({}); // ✅ Map of studentId to attendance record _id
 const [isEditing, setIsEditing] = useState(false); // ✅ Track editing mode
+const [offlineMode, setOfflineMode] = useState(!navigator.onLine);
+
+
+useEffect(() => {
+  const handleOnline = () => setOfflineMode(false);
+  const handleOffline = () => setOfflineMode(true);
+
+  window.addEventListener("online", handleOnline);
+  window.addEventListener("offline", handleOffline);
+
+  return () => {
+    window.removeEventListener("online", handleOnline);
+    window.removeEventListener("offline", handleOffline);
+  };
+}, []);
 
 
   const token = localStorage.getItem("token");
@@ -58,71 +73,106 @@ const [isEditing, setIsEditing] = useState(false); // ✅ Track editing mode
     setShowModal(false);
   };
 
-  // Fetch the most recent term
-  const fetchCurrentTerm = async () => {
-    if (!schoolId) {
-      // console.error("Error: schoolId is undefined!");
-      return;
-    }
+// Fetch the most recent term (offline: try cached term first)
+const fetchCurrentTerm = async () => {
+  if (!schoolId) return;
 
-    try {
-      // console.log("Fetching current term...");
-      const { data } = await axios.get(`/api/terms/latest`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      // console.log("Fetched Term:", data);
-      setCurrentTerm(data);
-    } catch (error) {
-      // console.error("Error fetching current term:", error.response?.data || error.message);
-      toast.error("Failed to fetch current term.");
+  if (offlineMode) {
+    const cachedTerm = JSON.parse(localStorage.getItem("offlineCurrentTerm"));
+    if (cachedTerm) {
+      setCurrentTerm(cachedTerm);
+      toast.success("Offline: Loaded cached term.");
+    } else {
+      toast.error("Offline: No cached term available.");
     }
-  };
+    return;
+  }
+
+  try {
+    const { data } = await axios.get(`/api/terms/latest`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setCurrentTerm(data);
+    // Cache for offline usage
+    localStorage.setItem("offlineCurrentTerm", JSON.stringify(data));
+  } catch (error) {
+    console.error("Error fetching current term:", error);
+    toast.error("Failed to fetch current term.");
+  }
+};
 
   // Fetch teacher's classes
-  const fetchClasses = async () => {
-    try {
-      setLoading(true);
-      const res = await axios.get("/api/teachers/teacher/teacher-classes", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setClasses(res.data.classes || []);
-    } catch (err) {
-      // console.error("Error fetching classes:", err);
+const fetchClasses = async () => {
+  try {
+    setLoading(true);
+    const res = await axios.get("/api/teachers/teacher/teacher-classes", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setClasses(res.data.classes || []);
+    // Cache for offline
+    localStorage.setItem("offlineClasses", JSON.stringify(res.data.classes || []));
+  } catch (err) {
+    console.error("Error fetching classes:", err);
+    if (offlineMode) {
+      const cachedClasses = JSON.parse(localStorage.getItem("offlineClasses")) || [];
+      setClasses(cachedClasses);
+      toast.success("Offline: Loaded cached classes.");
+    } else {
       toast.error("Failed to load classes.");
-    } finally {
-      setLoading(false);
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
-  // Fetch students based on selected class
-  const fetchStudents = async (classId) => {
-    if (!classId) return;
-    try {
-      // console.log("Fetching students for class ID:", classId);
-      setLoading(true);
-
-      const res = await axios.get(`/api/student/class/${classId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      // console.log("Fetched Students:", res.data);
-      const studentData = Array.isArray(res.data) ? res.data : res.data.students || [];
-      setStudents(studentData);
-       // ✅ Automatically set today's date when a class is fetched
-    const today = new Date().toISOString().slice(0, 10); // Format YYYY-MM-DD
-    setSelectedDate(today);
-
-    } catch (err) {
-      // console.error("Error loading students:", err);
+const fetchStudents = async (classId) => {
+  if (!classId) return;
+  try {
+    setLoading(true);
+    const res = await axios.get(`/api/student/class/${classId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const studentData = Array.isArray(res.data) ? res.data : res.data.students || [];
+    setStudents(studentData);
+    // Cache for offline
+    localStorage.setItem(`offlineStudents_${classId}`, JSON.stringify(studentData));
+  } catch (err) {
+    console.error("Error loading students:", err);
+    if (offlineMode) {
+      const cachedStudents = JSON.parse(localStorage.getItem(`offlineStudents_${classId}`)) || [];
+      setStudents(cachedStudents);
+      toast.success("Offline: Loaded cached students.");
+    } else {
       toast.error("Failed to load students.");
-    } finally {
-      setLoading(false);
     }
-  };
+  } finally {
+    setLoading(false);
+  }
+};
 
-  // ✅ Updated fetchAttendanceForDate to capture existing attendance records
+// Fetch attendance for a given date (offline: load cached attendance)
 const fetchAttendanceForDate = async (classId, date) => {
   if (!classId || !date || !currentTerm) return;
+
+  if (offlineMode) {
+    const key = `offlineAttendance_${classId}_${date}`;
+    const cached = JSON.parse(localStorage.getItem(key));
+    if (cached) {
+      const offlineMap = {};
+      cached.forEach((rec) => {
+        offlineMap[rec.studentId] = rec.present;
+      });
+      setAttendance(offlineMap);
+      setExistingAttendance(offlineMap);
+      setSubmittedDates((prev) => new Set(prev).add(`${classId}_${date}`));
+      toast.success("Offline: Loaded cached attendance for this date.");
+    } else {
+      toast.info("Offline: No cached attendance for this date.");
+      setAttendance({});
+      setExistingAttendance({});
+    }
+    return;
+  }
 
   try {
     const res = await axios.get(`/api/attendance/fetch`, {
@@ -140,8 +190,8 @@ const fetchAttendanceForDate = async (classId, date) => {
         idMap[record.studentId._id] = record._id;
       });
 
-      setAttendance(attendanceMap); // prefill form
-      setExistingAttendance(attendanceMap); // also keep a copy to compare later
+      setAttendance(attendanceMap);
+      setExistingAttendance(attendanceMap);
       setAttendanceIds(idMap);
     }
   } catch (err) {
@@ -149,22 +199,27 @@ const fetchAttendanceForDate = async (classId, date) => {
   }
 };
 
-// ✅ Editing trigger
-const handleEditClick = () => {
-  setIsEditing(true);
-  setShowModal(false);
-};
-
-// ✅ Submit updated attendance
+// Submit updated attendance (offline: save to localStorage)
 const updateAttendance = async () => {
   setShowModal(false);
-
   const teacherData = getDataFromToken();
   if (!teacherData) return toast.error("Invalid token or teacher data missing!");
 
+  if (offlineMode) {
+    const key = `offlineAttendance_${selectedClass}_${selectedDate}`;
+    const attendanceList = students.map((student) => ({
+      studentId: student._id,
+      present: attendance[student._id] || false,
+    }));
+    localStorage.setItem(key, JSON.stringify(attendanceList));
+    setSubmittedDates((prev) => new Set(prev).add(`${selectedClass}_${selectedDate}`));
+    toast.success("Offline: Attendance saved locally. Will sync when online.");
+    setIsEditing(false);
+    return;
+  }
+
   try {
     const updates = [];
-
     students.forEach((student) => {
       const id = student._id;
       const present = attendance[id];
@@ -185,7 +240,6 @@ const updateAttendance = async () => {
     });
 
     await Promise.all(updates);
-
     toast.success("Attendance updated successfully!");
     setIsEditing(false);
   } catch (err) {
@@ -194,23 +248,18 @@ const updateAttendance = async () => {
   }
 };
 
-  // Handle attendance selection
-  const handleAttendanceChange = (studentId, present) => {
-    setAttendance((prev) => ({ ...prev, [studentId]: present }));
-  };
+// Handle attendance selection
+const handleAttendanceChange = (studentId, present) => {
+  setAttendance((prev) => ({ ...prev, [studentId]: present }));
+};
 
+// Submit new attendance (offline: save locally)
 const submitAttendance = async () => {
   setShowModal(false);
 
   if (!currentTerm) return toast.error("Term not found!");
   if (!selectedDate) return toast.error("Please select a date.");
   if (isWeekend(selectedDate)) return toast.error("Cannot mark attendance on weekends.");
-
-  const attendanceDate = new Date(selectedDate);
-  if (attendanceDate < new Date(currentTerm.startDate) || attendanceDate > new Date(currentTerm.endDate)) {
-    return toast.error("Selected date is outside the term period.");
-  }
-
   if (submittedDates.has(`${selectedClass}_${selectedDate}`)) {
     return toast.error("Attendance for this class on this date is already recorded.");
   }
@@ -218,26 +267,29 @@ const submitAttendance = async () => {
   const teacherData = getDataFromToken();
   if (!teacherData) return toast.error("Invalid token or teacher data missing!");
 
-  // Prepare batch attendance list, defaulting unmarked students to absent
   const attendanceList = students.map((student) => ({
     studentId: student._id,
     present: attendance[student._id] || false,
   }));
 
+  if (offlineMode) {
+    const key = `offlineAttendance_${selectedClass}_${selectedDate}`;
+    localStorage.setItem(key, JSON.stringify(attendanceList));
+    setSubmittedDates((prev) => new Set(prev).add(`${selectedClass}_${selectedDate}`));
+    toast.success("Offline: Attendance saved locally. Will sync when online.");
+    return;
+  }
+
   try {
-    const payload = {
+    await axios.post("/api/attendance/mark-batch", {
       termId: currentTerm._id,
       classId: selectedClass,
       date: selectedDate,
       attendanceList,
       teacherId: teacherData.teacherId,
       teacherEmail: teacherData.teacherEmail,
-    };
-
-    await axios.post("/api/attendance/mark-batch", payload, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
+    }, {
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     setSubmittedDates((prev) => new Set(prev).add(`${selectedClass}_${selectedDate}`));
@@ -248,22 +300,18 @@ const submitAttendance = async () => {
   }
 };
 
-  // Fetch everything on component mount
-  useEffect(() => {
-    fetchCurrentTerm();
-    fetchClasses();
-  }, []);
-
-  // Automatically check if attendance exists when a class and date are selected
-  useEffect(() => {
-    if (selectedClass && selectedDate) {
+// Automatically fetch attendance when class/date changes
+useEffect(() => {
+  if (selectedClass && selectedDate) {
+    if (offlineMode) {
+      fetchAttendanceForDate(selectedClass, selectedDate);
+    } else {
       fetchAttendanceForDate(selectedClass, selectedDate);
     }
-  }, [selectedClass, selectedDate]);
+  }
+}, [selectedClass, selectedDate, offlineMode]);
 
-  
-
-  return (
+return (
   <div>
     <Sidebar />
     <Header />
@@ -274,12 +322,25 @@ const submitAttendance = async () => {
       <select
         className="class-selector"
         onChange={(e) => {
-          setSelectedClass(e.target.value);
-          fetchStudents(e.target.value);
+          const clsId = e.target.value;
+          setSelectedClass(clsId);
+
+          if (offlineMode) {
+            const cachedClasses = JSON.parse(localStorage.getItem("offlineClasses")) || [];
+            const cachedStudents = cachedClasses.find((c) => c._id === clsId)?.students || [];
+            setStudents(cachedStudents);
+            setSelectedDate(new Date().toISOString().slice(0, 10)); // default to today
+          } else {
+            fetchStudents(clsId);
+          }
         }}
+        value={selectedClass || ""}
       >
         <option value="">Select Class</option>
-        {classes.map((cls) => (
+        {(offlineMode
+          ? JSON.parse(localStorage.getItem("offlineClasses")) || []
+          : classes
+        ).map((cls) => (
           <option key={cls._id} value={cls._id}>
             {cls.className}
           </option>
@@ -294,6 +355,7 @@ const submitAttendance = async () => {
         onChange={(e) => setSelectedDate(e.target.value)}
         min={currentTerm?.startDate?.slice(0, 10)}
         max={currentTerm?.endDate?.slice(0, 10)}
+        disabled={!selectedClass}
       />
 
       {/* Attendance warning or status */}
@@ -329,8 +391,9 @@ const submitAttendance = async () => {
                       handleAttendanceChange(student._id, e.target.checked)
                     }
                     disabled={
-                      submittedDates.has(`${selectedClass}_${selectedDate}`) &&
-                      !isEditing
+                      (submittedDates.has(`${selectedClass}_${selectedDate}`) &&
+                        !isEditing) ||
+                      offlineMode // prevent editing if offline but allow dashboard usage
                     }
                   />
                 </td>
@@ -340,7 +403,9 @@ const submitAttendance = async () => {
         </table>
       ) : (
         <p className="no-students-message">
-          No students found for this class.
+          {offlineMode
+            ? "Offline: No cached students found for this class."
+            : "No students found for this class."}
         </p>
       )}
 
@@ -350,7 +415,7 @@ const submitAttendance = async () => {
           <button
             className="submit-button"
             onClick={handleSubmitClick}
-            disabled={!selectedClass || !students.length}
+            disabled={!selectedClass || !students.length || offlineMode}
           >
             Save Edited Attendance
           </button>
@@ -358,7 +423,7 @@ const submitAttendance = async () => {
           <button
             className="edit-button"
             onClick={handleEditClick}
-            disabled={!selectedClass || !students.length}
+            disabled={!selectedClass || !students.length || offlineMode}
           >
             Edit Attendance
           </button>
@@ -367,7 +432,7 @@ const submitAttendance = async () => {
         <button
           className="submit-button"
           onClick={handleSubmitClick}
-          disabled={!selectedClass || !students.length}
+          disabled={!selectedClass || !students.length || offlineMode}
         >
           Submit Attendance
         </button>
@@ -390,6 +455,7 @@ const submitAttendance = async () => {
             <button
               className="modal-confirm"
               onClick={isEditing ? updateAttendance : submitAttendance}
+              disabled={offlineMode}
             >
               Confirm
             </button>
