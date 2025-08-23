@@ -84,7 +84,7 @@ const fetchCurrentTerm = async () => {
       setCurrentTerm(cachedTerm);
       toast.success("Offline: Loaded cached term.");
     } else {
-      toast.error("Offline: No cached term available.");
+      toast.error("Offline: No cached term is available.");
     }
     return;
   }
