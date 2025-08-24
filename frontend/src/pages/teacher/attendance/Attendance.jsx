@@ -454,14 +454,12 @@ return (
     <tr key={student._id}>
       <td>{student.name || "Unnamed Student"}</td>
       <td>
-        <input
-          type="checkbox"
-          checked={attendance[student._id] || false}
-          onChange={(e) =>
-            handleAttendanceChange(student._id, e.target.checked)
-          }
-          disabled={(submittedDates.has(`${selectedClass}_${selectedDate}`) && !isEditing) || offlineMode}
-        />
+       <input
+  type="checkbox"
+  checked={attendance[student._id] || false}
+  onChange={(e) => handleAttendanceChange(student._id, e.target.checked)}
+  disabled={submittedDates.has(`${selectedClass}_${selectedDate}`) && !isEditing}
+/>
       </td>
     </tr>
   ))}
@@ -476,12 +474,12 @@ return (
       )}
 
       {/* Submit or Edit Button */}
-      {submittedDates.has(`${selectedClass}_${selectedDate}`) ? (
+          {submittedDates.has(`${selectedClass}_${selectedDate}`) ? (
         isEditing ? (
           <button
             className="submit-button"
             onClick={handleSubmitClick}
-            disabled={!selectedClass || !students.length || offlineMode}
+            disabled={!selectedClass || !students.length} // offlineMode removed
           >
             Save Edited Attendance
           </button>
@@ -489,7 +487,7 @@ return (
           <button
             className="edit-button"
             onClick={handleEditClick}
-            disabled={!selectedClass || !students.length || offlineMode}
+            disabled={!selectedClass || !students.length} // offlineMode removed
           >
             Edit Attendance
           </button>
@@ -498,7 +496,7 @@ return (
         <button
           className="submit-button"
           onClick={handleSubmitClick}
-          disabled={!selectedClass || !students.length || offlineMode}
+          disabled={!selectedClass || !students.length} // offlineMode removed
         >
           Submit Attendance
         </button>
@@ -518,10 +516,9 @@ return (
               {isEditing ? "update" : "submit"} attendance for this class on{" "}
               {selectedDate}?
             </p>
-            <button
+           <button
               className="modal-confirm"
               onClick={isEditing ? updateAttendance : submitAttendance}
-              disabled={offlineMode}
             >
               Confirm
             </button>
