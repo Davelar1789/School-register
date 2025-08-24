@@ -329,6 +329,62 @@ const submitAttendance = async () => {
   }
 };
 
+const syncOfflineAttendance = async () => {
+  const teacherData = getDataFromToken();
+  if (!teacherData) return toast.error("Cannot sync: invalid teacher data.");
+
+  try {
+    // Find all offline attendance keys
+    const keys = Object.keys(localStorage).filter(key => key.startsWith("offlineAttendance_"));
+
+    for (const key of keys) {
+      // Parse classId and date from the key: offlineAttendance_<classId>_<date>
+      const parts = key.split("_");
+      if (parts.length < 3) continue; // skip malformed keys
+      const classId = parts[1];
+      const date = parts.slice(2).join("_"); // in case date contains underscores
+
+      const attendanceList = JSON.parse(localStorage.getItem(key));
+      if (!attendanceList || !attendanceList.length) continue;
+
+      // Send to backend
+      await axios.post("/api/attendance/mark-batch", {
+        termId: currentTerm._id,
+        classId,
+        date,
+        attendanceList,
+        teacherId: teacherData.teacherId,
+        teacherEmail: teacherData.teacherEmail,
+      }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Remove from localStorage after successful sync
+      localStorage.removeItem(key);
+      toast.success(`Synced attendance for class ${classId} on ${date}`);
+    }
+  } catch (err) {
+    console.error("Error syncing offline attendance:", err);
+    toast.error("Error syncing offline attendance. Will retry later.");
+  }
+};
+
+
+useEffect(() => {
+  const handleOnline = async () => {
+    setOfflineMode(false);
+    toast.info("You are back online. Syncing offline attendance...");
+    await syncOfflineAttendance();
+  };
+
+  window.addEventListener("online", handleOnline);
+
+  return () => {
+    window.removeEventListener("online", handleOnline);
+  };
+}, []);
+
+
 // Automatically fetch attendance when class/date changes
 useEffect(() => {
   if (selectedClass && selectedDate) {
