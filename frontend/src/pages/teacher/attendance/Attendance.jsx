@@ -407,6 +407,13 @@ useEffect(() => {
   }
 }, [selectedClass, selectedDate, offlineMode]);
 
+useEffect(() => {
+  if (!offlineMode) {
+    syncOfflineAttendance();
+  }
+}, [offlineMode]);
+
+
 // Fetch current term and teacher's classes on mount
 useEffect(() => {
   if (!offlineMode) {
