@@ -105,7 +105,7 @@ const Sidebar = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
   
-      localStorage.clear(); // or just remove 'token' if you prefer
+      localStorage.removeItem("token");   
       toast.success("Logged out successfully");
       navigate("/sign-in"); // or your login route
     } catch (error) {
