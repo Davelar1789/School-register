@@ -172,54 +172,65 @@ const fetchStudents = async (classId) => {
 
 
 
-// Fetch attendance for a given date (offline: load cached attendance)
+// Fetch attendance for a given date (offline or online)
 const fetchAttendanceForDate = async (classId, date) => {
   if (!classId || !date || !currentTerm) return;
 
-  if (offlineMode) {
-    const key = `offlineAttendance_${classId}_${date}`;
-    const cached = JSON.parse(localStorage.getItem(key));
-    if (cached) {
-      const offlineMap = {};
-      cached.forEach((rec) => {
-        offlineMap[rec.studentId] = rec.present;
-      });
-      setAttendance(offlineMap);
-      setExistingAttendance(offlineMap);
-      setSubmittedDates((prev) => new Set(prev).add(`${classId}_${date}`));
-      toast.success("Offline: Loaded cached attendance for this date.");
-    } else {
-      toast.info("Offline: No cached attendance for this date.");
-      setAttendance({});
-      setExistingAttendance({});
-    }
+  // First, check for offline attendance
+  const offlineKey = `offlineAttendance_${classId}_${date}`;
+  const cachedOffline = JSON.parse(localStorage.getItem(offlineKey)) || [];
+
+  if (cachedOffline.length > 0) {
+    const offlineMap = {};
+    cachedOffline.forEach((rec) => {
+      offlineMap[rec.studentId] = rec.present;
+    });
+    setAttendance(offlineMap);
+    setExistingAttendance(offlineMap);
+    setSubmittedDates((prev) => new Set(prev).add(`${classId}_${date}`));
+    toast.success("Loaded offline attendance for this date.");
+  } else if (offlineMode) {
+    // Offline but no data
+    setAttendance({});
+    setExistingAttendance({});
+    toast.info("Offline: No cached attendance for this date.");
     return;
   }
 
-  try {
-    const res = await axios.get(`/api/attendance/fetch`, {
-      params: { termId: currentTerm._id, classId, date },
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (res.data.length > 0) {
-      setSubmittedDates((prev) => new Set(prev).add(`${classId}_${date}`));
-
-      const attendanceMap = {};
-      const idMap = {};
-      res.data.forEach((record) => {
-        attendanceMap[record.studentId._id] = record.present;
-        idMap[record.studentId._id] = record._id;
+  // If online, fetch from server and merge
+  if (!offlineMode) {
+    try {
+      const res = await axios.get(`/api/attendance/fetch`, {
+        params: { termId: currentTerm._id, classId, date },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
-      setAttendance(attendanceMap);
-      setExistingAttendance(attendanceMap);
-      setAttendanceIds(idMap);
+      if (res.data.length > 0) {
+        setSubmittedDates((prev) => new Set(prev).add(`${classId}_${date}`));
+
+        const attendanceMap = {};
+        const idMap = {};
+        res.data.forEach((record) => {
+          attendanceMap[record.studentId._id] = record.present;
+          idMap[record.studentId._id] = record._id;
+        });
+
+        // Merge offline changes if any
+        cachedOffline.forEach((rec) => {
+          attendanceMap[rec.studentId] = rec.present;
+        });
+
+        setAttendance(attendanceMap);
+        setExistingAttendance(attendanceMap);
+        setAttendanceIds(idMap);
+      }
+    } catch (err) {
+      console.error("Error fetching online attendance:", err);
+      toast.error("Failed to fetch attendance from server.");
     }
-  } catch (err) {
-    console.error("Error checking attendance records:", err);
   }
 };
+
 
 // ✅ Editing trigger
 const handleEditClick = () => {
