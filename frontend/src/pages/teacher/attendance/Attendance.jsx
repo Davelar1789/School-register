@@ -370,7 +370,6 @@ const syncOfflineAttendance = async () => {
       }, { headers: { Authorization: `Bearer ${token}` } });
 
       localStorage.removeItem(key);
-      toast.success(`Synced attendance for class ${classId} on ${date}`);
     }
   } catch (err) {
     console.error("Error syncing offline attendance:", err);
