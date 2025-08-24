@@ -65,7 +65,7 @@ const NotificationsPage = () => {
         if (!teacherId) return;
         
         try {
-            await axios.delete(`https://school-register-a2bx.onrender.com/api/notification/clear-all/${teacherId}`);
+            await axios.delete(`/api/notification/clear-all/${teacherId}`);
             setNotifications([]); // ✅ Clear notifications in the UI immediately
         } catch (error) {
             console.error("❌ Error clearing notifications:", error);
