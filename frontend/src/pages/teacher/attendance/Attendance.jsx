@@ -139,7 +139,7 @@ const fetchStudents = async (classId) => {
       });
       studentData = Array.isArray(res.data) ? res.data : res.data.students || [];
       localStorage.setItem(`offlineStudents_${classId}`, JSON.stringify(studentData));
-      toast.success("Online: Students loaded successfully.");
+      toast.success("Online");
     } else {
       // Offline fetch
       const cached = JSON.parse(localStorage.getItem(`offlineStudents_${classId}`)) || [];
