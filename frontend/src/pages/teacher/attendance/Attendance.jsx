@@ -221,6 +221,13 @@ const fetchAttendanceForDate = async (classId, date) => {
   }
 };
 
+// ✅ Editing trigger
+const handleEditClick = () => {
+  setIsEditing(true);
+  setShowModal(false);
+};
+
+
 // Submit updated attendance (offline: save to localStorage)
 const updateAttendance = async () => {
   setShowModal(false);
