@@ -19,11 +19,14 @@ function UserLogin() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    setLoading(true);
+  setLoading(true);
 
-    try {
+  try {
+    // First, check if we are online
+    if (navigator.onLine) {
+      // Online login
       const response = await api.post("/api/users/login", {
         email: formData.email,
         password: formData.password,
@@ -33,29 +36,58 @@ function UserLogin() {
         throw new Error("Invalid response from server");
       }
 
-      const user = response.data.user; // ✅ Safely extract user data
+      const user = response.data.user;
 
       toast.success("Login successful! Redirecting...");
 
-      // Save user info to localStorage
-      localStorage.setItem("user", JSON.stringify(user));
-      localStorage.setItem("token", user.token);
+      // Store user info & token for offline login
+      localStorage.setItem("offlineAdmin", JSON.stringify({
+        email: formData.email,
+        password: formData.password, // ⚠ Only if you want to store password; otherwise, store token only
+        token: user.token,
+        role: user.role,
+        name: user.name,
+        userId: user._id,
+      }));
 
-      // Check if user role exists and navigate accordingly
       setTimeout(() => {
-        if (user?.role === "superadmin") {
-          navigate("/superadmin/");
-        } else {
-          navigate("/dashboard");
-        }
-      }, 2000);
-    } catch (err) {
-      console.error("Login Error:", err);
-      toast.error("Invalid email or password.");
-    } finally {
-      setLoading(false);
+        if (user?.role === "superadmin") navigate("/superadmin/");
+        else navigate("/dashboard");
+      }, 1500);
+
+    } else {
+      // Offline login
+      const cached = JSON.parse(localStorage.getItem("offlineAdmin"));
+
+      if (!cached || cached.email !== formData.email || !cached.token) {
+        throw new Error("No offline credentials found or email mismatch");
+      }
+
+      toast.success("Offline login successful! Redirecting...");
+
+      // Set token & user info from cached data
+      localStorage.setItem("token", cached.token);
+      localStorage.setItem("user", JSON.stringify({
+        _id: cached.userId,
+        name: cached.name,
+        email: cached.email,
+        role: cached.role,
+        token: cached.token,
+      }));
+
+      setTimeout(() => {
+        if (cached?.role === "superadmin") navigate("/superadmin/");
+        else navigate("/dashboard");
+      }, 1500);
     }
-  };
+  } catch (err) {
+    console.error("Login Error:", err);
+    toast.error("Invalid email/password or cannot login offline.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="login-container">
@@ -96,9 +128,6 @@ function UserLogin() {
           </button>
         </form>
 
-        {/* <p className="signup-link">
-          Don't have an account? <Link to="/sign-up">Sign up here</Link>
-        </p> */}
         <p className="signup-link">
           Not an admin? <Link to="/teacher-login">Login as Teacher</Link>
         </p>
