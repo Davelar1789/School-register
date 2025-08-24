@@ -17,7 +17,7 @@ const Classes = () => {
     try {
       const token = localStorage.getItem("token");
       const response = await axios.get(
-        "https://school-register-a2bx.onrender.com/api/teachers/teacher/teacher-classes",
+        "/api/teachers/teacher/teacher-classes",
         {
           headers: {
             Authorization: `Bearer ${token}`,
