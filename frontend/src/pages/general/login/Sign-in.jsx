@@ -20,12 +20,20 @@ function UserLogin() {
 
   const handleSubmit = async (e) => {
   e.preventDefault();
-
   setLoading(true);
 
   try {
-    // First, check if we are online
-    if (navigator.onLine) {
+    let isOnline = false;
+
+    // Ping the server to check online status
+    try {
+      await api.get("/ping"); // Make sure your backend has a /ping endpoint returning 200 OK
+      isOnline = true;
+    } catch {
+      isOnline = false;
+    }
+
+    if (isOnline) {
       // Online login
       const response = await api.post("/api/users/login", {
         email: formData.email,
@@ -41,14 +49,17 @@ function UserLogin() {
       toast.success("Login successful! Redirecting...");
 
       // Store user info & token for offline login
-      localStorage.setItem("offlineAdmin", JSON.stringify({
-        email: formData.email,
-        password: formData.password, // ⚠ Only if you want to store password; otherwise, store token only
-        token: user.token,
-        role: user.role,
-        name: user.name,
-        userId: user._id,
-      }));
+      localStorage.setItem(
+        "offlineAdmin",
+        JSON.stringify({
+          email: formData.email,
+          password: formData.password, // Optional if you want offline password check
+          token: user.token,
+          role: user.role,
+          name: user.name,
+          userId: user._id,
+        })
+      );
 
       setTimeout(() => {
         if (user?.role === "superadmin") navigate("/superadmin/");
@@ -65,15 +76,17 @@ function UserLogin() {
 
       toast.success("Offline login successful! Redirecting...");
 
-      // Set token & user info from cached data
       localStorage.setItem("token", cached.token);
-      localStorage.setItem("user", JSON.stringify({
-        _id: cached.userId,
-        name: cached.name,
-        email: cached.email,
-        role: cached.role,
-        token: cached.token,
-      }));
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          _id: cached.userId,
+          name: cached.name,
+          email: cached.email,
+          role: cached.role,
+          token: cached.token,
+        })
+      );
 
       setTimeout(() => {
         if (cached?.role === "superadmin") navigate("/superadmin/");
