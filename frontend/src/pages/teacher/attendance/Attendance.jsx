@@ -340,25 +340,26 @@ const submitAttendance = async () => {
   }
 };
 
+// Sync offline attendance to server
 const syncOfflineAttendance = async () => {
   const teacherData = getDataFromToken();
   if (!teacherData) return toast.error("Cannot sync: invalid teacher data.");
+  if (!currentTerm) return toast.info("Cannot sync yet: current term not loaded.");
 
   try {
-    // Find all offline attendance keys
     const keys = Object.keys(localStorage).filter(key => key.startsWith("offlineAttendance_"));
+    if (!keys.length) return; // nothing to sync
 
     for (const key of keys) {
-      // Parse classId and date from the key: offlineAttendance_<classId>_<date>
       const parts = key.split("_");
-      if (parts.length < 3) continue; // skip malformed keys
+      if (parts.length < 3) continue;
+
       const classId = parts[1];
-      const date = parts.slice(2).join("_"); // in case date contains underscores
+      const date = parts.slice(2).join("_");
 
       const attendanceList = JSON.parse(localStorage.getItem(key));
-      if (!attendanceList || !attendanceList.length) continue;
+      if (!attendanceList?.length) continue;
 
-      // Send to backend
       await axios.post("/api/attendance/mark-batch", {
         termId: currentTerm._id,
         classId,
@@ -366,11 +367,8 @@ const syncOfflineAttendance = async () => {
         attendanceList,
         teacherId: teacherData.teacherId,
         teacherEmail: teacherData.teacherEmail,
-      }, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      }, { headers: { Authorization: `Bearer ${token}` } });
 
-      // Remove from localStorage after successful sync
       localStorage.removeItem(key);
       toast.success(`Synced attendance for class ${classId} on ${date}`);
     }
@@ -380,20 +378,26 @@ const syncOfflineAttendance = async () => {
   }
 };
 
-
+// Call sync when coming online
 useEffect(() => {
-  const handleOnline = async () => {
+  const handleOnline = () => {
     setOfflineMode(false);
-    toast.info("You are back online. Syncing offline attendance...");
-    await syncOfflineAttendance();
+    toast.info("Back online. Syncing offline attendance...");
+    syncOfflineAttendance();
   };
 
   window.addEventListener("online", handleOnline);
 
-  return () => {
-    window.removeEventListener("online", handleOnline);
-  };
+  return () => window.removeEventListener("online", handleOnline);
 }, []);
+
+// Optionally sync once on mount if online
+useEffect(() => {
+  if (!offlineMode) {
+    syncOfflineAttendance();
+  }
+}, [offlineMode, currentTerm]); // ensure term is loaded before syncing
+
 
 
 // Automatically fetch attendance when class/date changes
@@ -406,12 +410,6 @@ useEffect(() => {
     }
   }
 }, [selectedClass, selectedDate, offlineMode]);
-
-useEffect(() => {
-  if (!offlineMode) {
-    syncOfflineAttendance();
-  }
-}, [offlineMode]);
 
 
 // Fetch current term and teacher's classes on mount
