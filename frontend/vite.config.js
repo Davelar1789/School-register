@@ -28,51 +28,33 @@ export default defineConfig({
           }
         ]
       },
-      workbox: {
-        // Only precache static assets (images, icons, JSON)
-        globPatterns: ["**/*.{png,svg,ico,json}"],
-
-        // Runtime caching strategies
-        runtimeCaching: [
-          {
-            // HTML entry point
-            urlPattern: /\/$/,
-            handler: "NetworkFirst", // try network first, fallback to cache
-            options: {
-              cacheName: "html-cache",
-              expiration: {
-                maxEntries: 10,
-                maxAgeSeconds: 24 * 60 * 60, // 1 day
-              },
-            },
-          },
-          {
-            // JS & CSS files
-            urlPattern: /^https?.*\.(js|css)$/,
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "assets-cache",
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 24 * 60 * 60, // 1 day
-              },
-            },
-          },
-          {
-            // API requests can also have a cache strategy if needed
-            urlPattern: /^https?.*\/api\/.*$/,
-            handler: "NetworkFirst",
-            options: {
-              cacheName: "api-cache",
-              networkTimeoutSeconds: 5,
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 5 * 60, // 5 minutes
-              },
-            },
-          },
-        ],
+   workbox: {
+  globPatterns: ["**/*.{png,svg,ico,json}"],
+  runtimeCaching: [
+    {
+      urlPattern: /\/$/, // main HTML entry
+      handler: "StaleWhileRevalidate",
+      options: {
+        cacheName: "html-cache",
       },
+    },
+    {
+      urlPattern: /^https?.*\.(js|css)$/,
+      handler: "StaleWhileRevalidate",
+      options: {
+        cacheName: "assets-cache",
+      },
+    },
+    {
+      urlPattern: /^https?.*\/api\/.*$/,
+      handler: "NetworkFirst",
+      options: {
+        cacheName: "api-cache",
+        networkTimeoutSeconds: 5,
+      },
+    },
+  ],
+},
     }),
   ],
   server: {
