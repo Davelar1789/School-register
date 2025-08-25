@@ -1,6 +1,6 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { VitePWA } from "vite-plugin-pwa";
+import { VitePWA } from "vite-plugin-pwa"; // ✅ import the PWA plugin
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -28,34 +28,10 @@ export default defineConfig({
           }
         ]
       },
-   workbox: {
-  globPatterns: ["**/*.{png,svg,ico,json}"],
-  runtimeCaching: [
-    {
-      urlPattern: /\/$/, // main HTML entry
-      handler: "StaleWhileRevalidate",
-      options: {
-        cacheName: "html-cache",
-      },
-    },
-    {
-      urlPattern: /^https?.*\.(js|css)$/,
-      handler: "StaleWhileRevalidate",
-      options: {
-        cacheName: "assets-cache",
-      },
-    },
-    {
-      urlPattern: /^https?.*\/api\/.*$/,
-      handler: "NetworkFirst",
-      options: {
-        cacheName: "api-cache",
-        networkTimeoutSeconds: 5,
-      },
-    },
-  ],
-},
-    }),
+      workbox: {
+        globPatterns: ["**/*.{js,css,html,svg,png,ico,json}"] // precache all build files
+      }
+    })
   ],
   server: {
     proxy: {
