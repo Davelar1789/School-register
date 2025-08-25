@@ -1,13 +1,12 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { VitePWA } from "vite-plugin-pwa"; // ✅ import the PWA plugin
+import { VitePWA } from "vite-plugin-pwa"; // ✅ PWA plugin
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: "autoUpdate", // auto-update service worker
+      registerType: "autoUpdate", // service worker auto-update
       manifest: {
         name: "School Management System",
         short_name: "SchoolApp",
@@ -29,7 +28,24 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: ["**/*.{js,css,html,svg,png,ico,json}"] // precache all build files
+        globPatterns: ["**/*.{js,css,html,svg,png,ico,json}"], // precache all build files
+        runtimeCaching: [
+          {
+            urlPattern: /^https?.*\/api\/.*$/, // API calls
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "api-cache",
+              networkTimeoutSeconds: 5
+            }
+          },
+          {
+            urlPattern: /^https?.*\.(js|css|html|svg|png|ico|json)$/, // static assets
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "assets-cache"
+            }
+          }
+        ]
       }
     })
   ],
