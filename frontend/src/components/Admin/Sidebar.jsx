@@ -100,10 +100,10 @@ const Sidebar = () => {
 
   const handleLogout = async () => {
     try {
-      const token = localStorage.getItem("token");
-      await api.post("/api/users/logout", {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // const token = localStorage.getItem("token");
+      // await api.post("/api/users/logout", {}, {
+      //   headers: { Authorization: `Bearer ${token}` }
+      // });
   
       localStorage.removeItem("token");   
       toast.success("Logged out successfully");
