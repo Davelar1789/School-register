@@ -7,7 +7,10 @@ import TermSession from "../models/TermSession.model.js";
 export const setClassFees = async (req, res) => {
   const { classId, yearLabel, termName, totalFees, schoolId } = req.body;
 
+  console.log("📥 Incoming request body:", req.body);
+
   if (!classId || !yearLabel || !termName || !totalFees || !schoolId) {
+    console.warn("⚠️ Missing required fields");
     return res.status(400).json({ message: "All fields are required." });
   }
 
@@ -19,7 +22,10 @@ export const setClassFees = async (req, res) => {
       termName,
     }).lean();
 
+    console.log("📌 Current term found:", currentTerm);
+
     if (!currentTerm) {
+      console.warn("❌ Current term session not found.");
       return res.status(404).json({ message: "Current term session not found." });
     }
 
@@ -31,28 +37,44 @@ export const setClassFees = async (req, res) => {
       .sort({ endDate: -1 }) // latest ended
       .lean();
 
+    console.log("📌 Last term found:", lastTerm);
+
     // 3. Get students in this class
     const students = await Students.find({ classes: classId });
+    console.log(`👨‍🎓 Found ${students.length} students in class ${classId}`);
 
     if (students.length === 0) {
+      console.warn("⚠️ No students found in this class.");
       return res.status(404).json({ message: "No students found in this class." });
     }
 
     for (const student of students) {
+      console.log("➡️ Processing student:", student.fullName || student._id);
+
       let arrears = 0;
+      let prevTermRecord = null;
 
       if (lastTerm) {
-        // Look for student's record with the lastTerm.endDate
-        let prevTermRecord;
+        console.log("🔎 Checking arrears from last term...");
 
         for (const year of student.academicRecords || []) {
+          console.log("   📅 Year record:", year.yearLabel);
+
           for (const term of year.terms || []) {
+            console.log(
+              "   🔎 Term checked:",
+              term.termName,
+              "| EndDate:",
+              term.endDate
+            );
+
             if (term.endDate && new Date(term.endDate) <= new Date(lastTerm.endDate)) {
               if (
                 !prevTermRecord ||
                 new Date(term.endDate) > new Date(prevTermRecord.endDate)
               ) {
                 prevTermRecord = term; // latest term before current
+                console.log("   ✅ Potential prevTermRecord updated:", prevTermRecord);
               }
             }
           }
@@ -60,12 +82,16 @@ export const setClassFees = async (req, res) => {
 
         if (prevTermRecord?.fees?.balance > 0) {
           arrears = prevTermRecord.fees.balance;
+          console.log("💰 Arrears carried forward:", arrears);
+        } else {
+          console.log("ℹ️ No arrears found for student.");
         }
       }
 
       // --- Ensure year record exists
       let yearRecord = student.academicRecords?.find(r => r.yearLabel === yearLabel);
       if (!yearRecord) {
+        console.log("📂 Creating new year record:", yearLabel);
         yearRecord = { yearLabel, terms: [] };
         student.academicRecords.push(yearRecord);
       }
@@ -74,6 +100,7 @@ export const setClassFees = async (req, res) => {
       let termRecord = yearRecord.terms.find(t => t.termName === termName);
 
       if (!termRecord) {
+        console.log("🆕 Creating new term record:", termName);
         termRecord = {
           termName,
           startDate: currentTerm.startDate,
@@ -88,6 +115,7 @@ export const setClassFees = async (req, res) => {
         };
         yearRecord.terms.push(termRecord);
       } else {
+        console.log("✏️ Updating existing term record:", termName);
         termRecord.startDate = currentTerm.startDate;
         termRecord.endDate = currentTerm.endDate;
         termRecord.fees.totalFees = totalFees;
@@ -97,14 +125,17 @@ export const setClassFees = async (req, res) => {
       }
 
       await student.save();
+      console.log("✅ Fees set for student:", student.fullName || student._id);
     }
 
+    console.log("🎉 All students updated successfully.");
     res.status(200).json({ message: "Fees + arrears set successfully for the class." });
   } catch (error) {
-    console.error("Error in setClassFees:", error);
+    console.error("❌ Error in setClassFees:", error);
     res.status(500).json({ message: "Something went wrong." });
   }
 };
+
 
 
 // Student makes a payment
