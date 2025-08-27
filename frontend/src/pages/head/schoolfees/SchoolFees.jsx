@@ -139,8 +139,6 @@ const [viewedStudent, setViewedStudent] = useState(null);
       alert("Failed to record payment.");
     }
   };
-  
-  
 
   const fetchClasses = async () => {
     try {
@@ -187,8 +185,6 @@ const [viewedStudent, setViewedStudent] = useState(null);
       alert('Could not fetch recent payments.');
     }
   };
-  
-  
 
   const handleSearch = (e) => {
     const value = e.target.value;
@@ -508,8 +504,6 @@ const [viewedStudent, setViewedStudent] = useState(null);
     </div>
   </div>
 )}
-
-
         </div>
       </div>
     </div>

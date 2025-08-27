@@ -3,30 +3,6 @@ import Students from "../models/Student.model.js";
 import Classes from "../models/Class.model.js";
 import TermSession from "../models/TermSession.model.js";
 
-// ✅ Admin Sets Feeding Fee Per Class
-export const setFeedingFee = async (req, res) => {
-  const { feedingFees } = req.body; // ✅ Expecting an object with classId: fee
-
-  if (!feedingFees || typeof feedingFees !== "object") {
-    return res.status(400).json({ message: "Invalid data format." });
-  }
-
-  try {
-    // ✅ Update feeding fees for all classes in one request
-    const updatePromises = Object.entries(feedingFees).map(async ([classId, fee]) => {
-      await Classes.findByIdAndUpdate(classId, { feedingFee: fee });
-      await Students.updateMany({ classes: classId }, { feedingFee: fee });
-    });
-
-    await Promise.all(updatePromises);
-
-    res.status(200).json({ message: "Feeding fees updated successfully for all classes." });
-  } catch (error) {
-    console.error("Error updating feeding fees:", error);
-    res.status(500).json({ message: "Something went wrong." });
-  }
-};
-
 // Admin sets fees for all students in a class for a specific term
 export const setClassFees = async (req, res) => {
   const { classId, yearLabel, termName, totalFees, schoolId } = req.body;
@@ -36,15 +12,26 @@ export const setClassFees = async (req, res) => {
   }
 
   try {
-    // 1. Find the most recently ended term in the school (based on date, not year)
+    // 1. Find the current term session
+    const currentTerm = await TermSession.findOne({
+      schoolId,
+      yearLabel,
+      termName,
+    }).lean();
+
+    if (!currentTerm) {
+      return res.status(404).json({ message: "Current term session not found." });
+    }
+
+    // 2. Find the most recent ended term (by date) before this current term starts
     const lastTerm = await TermSession.findOne({
       schoolId,
-      endDate: { $lt: new Date() }, // must be ended already
+      endDate: { $lt: currentTerm.startDate },
     })
-      .sort({ endDate: -1 }) // latest ended term
+      .sort({ endDate: -1 }) // latest ended
       .lean();
 
-    // 2. Get students in this class
+    // 3. Get students in this class
     const students = await Students.find({ classes: classId });
 
     if (students.length === 0) {
@@ -52,33 +39,45 @@ export const setClassFees = async (req, res) => {
     }
 
     for (const student of students) {
-      // --- Find/create year record
+      let arrears = 0;
+
+      if (lastTerm) {
+        // Look for student's record with the lastTerm.endDate
+        let prevTermRecord;
+
+        for (const year of student.academicRecords || []) {
+          for (const term of year.terms || []) {
+            if (term.endDate && new Date(term.endDate) <= new Date(lastTerm.endDate)) {
+              if (
+                !prevTermRecord ||
+                new Date(term.endDate) > new Date(prevTermRecord.endDate)
+              ) {
+                prevTermRecord = term; // latest term before current
+              }
+            }
+          }
+        }
+
+        if (prevTermRecord?.fees?.balance > 0) {
+          arrears = prevTermRecord.fees.balance;
+        }
+      }
+
+      // --- Ensure year record exists
       let yearRecord = student.academicRecords?.find(r => r.yearLabel === yearLabel);
       if (!yearRecord) {
         yearRecord = { yearLabel, terms: [] };
         student.academicRecords.push(yearRecord);
       }
 
-      // --- Find/create term record
+      // --- Ensure term record exists
       let termRecord = yearRecord.terms.find(t => t.termName === termName);
 
-      // Default arrears
-      let arrears = 0;
-
-      if (lastTerm) {
-        // Look up student's last term record using the year + termName from TermSession
-        const prevYear = student.academicRecords.find(r => r.yearLabel === lastTerm.yearLabel);
-        const prevTerm = prevYear?.terms.find(t => t.termName === lastTerm.termName);
-
-        if (prevTerm?.fees?.balance > 0) {
-          arrears = prevTerm.fees.balance;
-        }
-      }
-
       if (!termRecord) {
-        // Create new term record
         termRecord = {
           termName,
+          startDate: currentTerm.startDate,
+          endDate: currentTerm.endDate,
           fees: {
             totalFees,
             amountPaid: 0,
@@ -89,7 +88,8 @@ export const setClassFees = async (req, res) => {
         };
         yearRecord.terms.push(termRecord);
       } else {
-        // Update if already exists
+        termRecord.startDate = currentTerm.startDate;
+        termRecord.endDate = currentTerm.endDate;
         termRecord.fees.totalFees = totalFees;
         termRecord.fees.arrears = arrears;
         termRecord.fees.balance =
@@ -101,10 +101,11 @@ export const setClassFees = async (req, res) => {
 
     res.status(200).json({ message: "Fees + arrears set successfully for the class." });
   } catch (error) {
-    console.error(error);
+    console.error("Error in setClassFees:", error);
     res.status(500).json({ message: "Something went wrong." });
   }
 };
+
 
 // Student makes a payment
 export const makePayment = async (req, res) => {

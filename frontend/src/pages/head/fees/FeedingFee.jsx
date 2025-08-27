@@ -8,9 +8,6 @@ import {
   PieChart, Pie, ResponsiveContainer
 } from "recharts";
 import { FaPlus, FaMoneyBillWave, FaEdit, FaTrash } from "react-icons/fa";
-
-
-
 import "./FeedingFee.modules.css";
 
 const FeedingFeePage = () => {
