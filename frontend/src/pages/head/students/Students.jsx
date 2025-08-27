@@ -347,7 +347,7 @@ const [editFormData, setEditFormData] = useState({
                 </td>
                 <td className="out">{student.idno}</td>
                 <td className="out">{student.dob}</td>
-                <td className="out">{student.phone || "N/A"}</td>
+                {/* <td className="out">{student.phone || "N/A"}</td> */}
                 <td className="students-actions out" onClick={(e) => e.stopPropagation()}>
                   <button
                     className="students-edit"
