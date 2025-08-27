@@ -3,6 +3,42 @@ import TermSession from "../models/TermSession.model.js";
 import Student from "../models/Student.model.js";
 import Class from "../models/Class.model.js";
 
+function findPreviousTerm(student, currentYear, currentTermName) {
+  const termOrder = ["Term 1", "Term 2", "Term 3"];
+
+  // Get the current year's record
+  const currentYearRecord = student.academicRecords.find(y => y.yearLabel === currentYear);
+  if (!currentYearRecord) return null;
+
+  // Find index of current term
+  const currentIndex = termOrder.indexOf(currentTermName);
+  if (currentIndex === -1) return null;
+
+  // 1. Look for previous term in the same year
+  if (currentIndex > 0) {
+    const prevTermName = termOrder[currentIndex - 1];
+    const prevTerm = currentYearRecord.terms.find(t => t.termName === prevTermName);
+    if (prevTerm) return { ...prevTerm, year: currentYear };
+  }
+
+  // 2. Otherwise, check the previous year's last term
+  const allYears = student.academicRecords.map(y => y.yearLabel).sort();
+  const currentYearIndex = allYears.indexOf(currentYear);
+  if (currentYearIndex > 0) {
+    const prevYear = allYears[currentYearIndex - 1];
+    const prevYearRecord = student.academicRecords.find(y => y.yearLabel === prevYear);
+    if (prevYearRecord) {
+      // get last available term in that year
+      for (let i = termOrder.length - 1; i >= 0; i--) {
+        const prevTerm = prevYearRecord.terms.find(t => t.termName === termOrder[i]);
+        if (prevTerm) return { ...prevTerm, year: prevYear };
+      }
+    }
+  }
+
+  return null;
+}
+
 // Get all academic years for a school
 export const getAcademicYears = async (req, res) => {
   const { schoolId } = req.params;
@@ -164,24 +200,9 @@ export const saveTermSession = async (req, res) => {
       // Step 4: Ensure the term record exists
       let termRecord = yearRecord.terms.find(t => t.termName === termName);
 
-      // Step 5: Compute arrears (carry over from previous term/year)
+    // Step 5: Compute arrears (carry over from previous term/year)
       let arrears = 0;
-
-      // Flatten all terms with year info and valid startDate
-      const allTerms = [];
-      for (let y of student.academicRecords || []) {
-        for (let t of y.terms || []) {
-          if (t.startDate) allTerms.push({ year: y.yearLabel, ...t });
-        }
-      }
-
-    // Sort all terms chronologically by startDate
-allTerms.sort((a, b) => new Date(a.startDate || a.endDate) - new Date(b.startDate || b.endDate));
-
-// Find the latest term that ends before the current term starts
-const previousTerm = allTerms
-  .filter(t => new Date(t.endDate || t.startDate) < new Date(startDate))
-  .pop();
+      const previousTerm = findPreviousTerm(student, yearLabel, termName);
 
       if (previousTerm?.fees?.balance > 0) {
         arrears = previousTerm.fees.balance;
