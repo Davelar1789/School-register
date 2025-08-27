@@ -28,7 +28,6 @@ export const setFeedingFee = async (req, res) => {
 };
 
 // Admin sets fees for all students in a class for a specific term
-// Admin sets fees for all students in a class for a specific term
 export const setClassFees = async (req, res) => {
   const { classId, yearLabel, termName, totalFees, schoolId } = req.body;
 
