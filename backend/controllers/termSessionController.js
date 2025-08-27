@@ -167,41 +167,32 @@ export const saveTermSession = async (req, res) => {
       // Step 5: Compute arrears (carry over from previous term/year)
       let arrears = 0;
 
-      // Find the most recent term BEFORE this one
-      let allYears = student.academicRecords.sort((a, b) => parseInt(a.yearLabel) - parseInt(b.yearLabel));
-
-      // Flatten all terms with year info
-      let allTerms = [];
-      for (let y of allYears) {
-        for (let t of y.terms) {
-          allTerms.push({ year: y.yearLabel, ...t });
+      // Flatten all terms with year info and valid startDate
+      const allTerms = [];
+      for (let y of student.academicRecords || []) {
+        for (let t of y.terms || []) {
+          if (t.startDate) allTerms.push({ year: y.yearLabel, ...t });
         }
       }
 
-      // Order terms by year & startDate
-      allTerms.sort((a, b) => {
-        if (a.year !== b.year) return parseInt(a.year) - parseInt(b.year);
-        return new Date(a.startDate) - new Date(b.startDate);
-      });
+      // Sort all terms chronologically by startDate
+      allTerms.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
 
-      // Find index of current term
-      const currentIndex = allTerms.findIndex(
-        t => t.year === yearLabel && t.termName === termName
-      );
+      // Find the latest term that ends before the current term starts
+      const previousTerm = allTerms
+        .filter(t => new Date(t.startDate) < new Date(startDate))
+        .pop();
 
-      if (currentIndex > 0) {
-        const previousTerm = allTerms[currentIndex - 1];
-        if (previousTerm.fees) {
-          arrears = previousTerm.fees.balance;
-          console.log(
-            `💰 Carrying arrears from previous term: ${previousTerm.termName} (${previousTerm.year}) → ${arrears}`
-          );
-        }
+      if (previousTerm?.fees?.balance > 0) {
+        arrears = previousTerm.fees.balance;
+        console.log(
+          `💰 Carrying arrears from previous term: ${previousTerm.termName} (${previousTerm.year}) → ${arrears}`
+        );
       } else {
-        console.log("ℹ️ No previous term found → No arrears carried.");
+        console.log("ℹ️ No previous term with arrears found → No arrears carried.");
       }
 
-      // Step 6: If no record, create one
+      // Step 6: If no term record, create one
       if (!termRecord) {
         console.log(`🆕 Creating new term record: ${termName} - ${yearLabel}`);
         yearRecord.terms.push({
@@ -220,6 +211,7 @@ export const saveTermSession = async (req, res) => {
           endDate,
         });
       } else {
+        // Update existing term record without wiping history
         console.log(`✏️ Updating existing term record: ${termName} - ${yearLabel}`);
         const prevPayments = termRecord.fees?.paymentHistory || [];
         const prevAmountPaid = termRecord.fees?.amountPaid || 0;
@@ -227,20 +219,21 @@ export const saveTermSession = async (req, res) => {
         termRecord.fees.totalFees = feeData.totalFees || 0;
         termRecord.fees.arrears = arrears;
         termRecord.fees.amountPaid = prevAmountPaid;
-        termRecord.fees.balance =
-          (feeData.totalFees || 0) + arrears - prevAmountPaid;
+        termRecord.fees.balance = (feeData.totalFees || 0) + arrears - prevAmountPaid;
         termRecord.fees.paymentHistory = prevPayments;
 
-        console.log(`📊 Updated Fees → Total: ${feeData.totalFees}, Paid: ${prevAmountPaid}, Arrears: ${arrears}, Balance: ${termRecord.fees.balance}`);
+        console.log(
+          `📊 Updated Fees → Total: ${feeData.totalFees}, Paid: ${prevAmountPaid}, Arrears: ${arrears}, Balance: ${termRecord.fees.balance}`
+        );
       }
 
       await student.save();
       console.log(`✅ Student ${student._id} record saved successfully.`);
     }
 
-    res
-      .status(200)
-      .json({ message: "Term session fees saved and student records updated with arrears & balances." });
+    res.status(200).json({
+      message: "Term session fees saved and student records updated with arrears & balances.",
+    });
   } catch (error) {
     console.error("❌ Error saving term session:", error);
     res.status(500).json({ message: "Failed to save term session", error });
