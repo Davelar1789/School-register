@@ -14,13 +14,17 @@ const StudentDetails = () => {
   const [student, setStudent] = useState(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-
+  const [classOpen, setClassOpen] = useState(true);
   const [dobOpen, setDobOpen] = useState(false);
+  const [nameOpen, setNameOpen] = useState(false);
   const [selectedDOB, setSelectedDOB] = useState(null);
-
+  const [classes, setClasses] = useState(null);
   const [modalField, setModalField] = useState("");
   const [modalValue, setModalValue] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+
+  const schoolDataRaw = localStorage.getItem("schoolData");
+  const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
 
   const fetchStudent = async () => {
     try {
@@ -45,6 +49,16 @@ const StudentDetails = () => {
     });
   }, [id]);
 
+  const fetchClasses = async () => {
+    if (!schoolId) return toast.error("No School Id Found");
+
+    try{
+      const res = await axios.get(`/api/classes/school/$(schoolId)`);
+    } catch (err) {
+
+    }
+  };
+
   const handleEditDOB = async (newDOB) => {
     try {
       const formattedDate = dayjs(newDOB).format("YYYY-MM-DD");
@@ -61,6 +75,8 @@ const StudentDetails = () => {
     setModalValue(student[field] || "");
     setModalOpen(true);
   };
+
+  // const handleClassEdit =
 
   const handleModalSave = async () => {
     try {
@@ -107,11 +123,17 @@ const StudentDetails = () => {
               <div className="summary-box">
                 <span className="summary-title">Full Name</span>
                 <span className="summary-value">{student.name}</span>
+                <IconButton onClick={() => setNameOpen(true)} size="small">
+                  <EditIcon sx={{color: "white", ml: 1}} />
+                </IconButton>
               </div>
               <div className="summary-box">
                 <span className="summary-title">Class</span>
                 <span className="summary-value">
                   {student.classes?.[0]?.className || "N/A"}
+                  <IconButton onClick={() => openFieldModal("name")} size="small">
+                    <EditIcon sx={{color: "white", ml: 1}} />
+                  </IconButton>
                 </span>
               </div>
               <div className="summary-box">
@@ -191,8 +213,31 @@ const StudentDetails = () => {
               </Box>
             </Modal>
 
+            {/* <Modal open={classOpen} onClose={() => setClassOpen(false)}>
+              <Box className="modal-box">
+                <DatePicker
+                label="Select New Class"
+                value={}
+                onChange={}
+                />
+                <button onClick={() => handleClassEdit()}>Save</button>
+              </Box>
+            </Modal> */}
+
             {/* ✏️ Field Edit Modal */}
             <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
+              <Box className="modal-box">
+                <TextField
+                  label={`Edit ${modalField}`}
+                  value={modalValue}
+                  onChange={(e) => setModalValue(e.target.value)}
+                  fullWidth
+                />
+                <button onClick={handleModalSave}>Save</button>
+              </Box>
+            </Modal>
+
+            <Modal open={nameOpen} onClose={() => setModalOpen(false)}>
               <Box className="modal-box">
                 <TextField
                   label={`Edit ${modalField}`}
