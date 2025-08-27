@@ -175,13 +175,13 @@ export const saveTermSession = async (req, res) => {
         }
       }
 
-      // Sort all terms chronologically by startDate
-      allTerms.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+    // Sort all terms chronologically by startDate
+allTerms.sort((a, b) => new Date(a.startDate || a.endDate) - new Date(b.startDate || b.endDate));
 
-      // Find the latest term that ends before the current term starts
-      const previousTerm = allTerms
-        .filter(t => new Date(t.startDate) < new Date(startDate))
-        .pop();
+// Find the latest term that ends before the current term starts
+const previousTerm = allTerms
+  .filter(t => new Date(t.endDate || t.startDate) < new Date(startDate))
+  .pop();
 
       if (previousTerm?.fees?.balance > 0) {
         arrears = previousTerm.fees.balance;
