@@ -328,7 +328,7 @@ const [editFormData, setEditFormData] = useState({
                 <th>Class</th>
                 <th className="out">ID No</th>
                 <th className="out">DOB</th>
-                <th className="out">Phone</th>
+                {/* <th className="out">Phone</th> */}
                 <th className="out">Actions</th>
               </tr>
             </thead>
