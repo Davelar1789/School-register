@@ -8,13 +8,11 @@ function findPreviousTerm(student, currentYear, currentTermName) {
   console.log("🔍 [findPreviousTerm] Looking for previous term...");
   console.log("📘 Current Year:", currentYear, "| Current Term:", currentTermName);
 
-  // Show all academic years
   console.log(
     "📚 Student Academic Years:",
     student.academicRecords.map(y => y.yearLabel)
   );
 
-  // Get the current year's record
   const currentYearRecord = student.academicRecords.find(y => y.yearLabel === currentYear);
   if (!currentYearRecord) {
     console.log("⚠️ No record found for current year:", currentYear);
@@ -22,7 +20,6 @@ function findPreviousTerm(student, currentYear, currentTermName) {
   }
   console.log("✅ Found current year record with terms:", currentYearRecord.terms.map(t => t.termName));
 
-  // Find index of current term
   const currentIndex = termOrder.indexOf(currentTermName);
   console.log("🔢 Current Term Index:", currentIndex);
 
@@ -38,7 +35,8 @@ function findPreviousTerm(student, currentYear, currentTermName) {
     const prevTerm = currentYearRecord.terms.find(t => t.termName === prevTermName);
     if (prevTerm) {
       console.log("✅ Found previous term in same year:", prevTermName);
-      return { ...prevTerm, year: currentYear };
+      prevTerm.year = currentYear;   // ✅ attach year
+      return prevTerm;               // ✅ return same object
     } else {
       console.log("❌ No record of", prevTermName, "in", currentYear);
     }
@@ -61,14 +59,14 @@ function findPreviousTerm(student, currentYear, currentTermName) {
     if (prevYearRecord) {
       console.log("✅ Found previous year record with terms:", prevYearRecord.terms.map(t => t.termName));
 
-      // get last available term in that year
       for (let i = termOrder.length - 1; i >= 0; i--) {
         const prevTermName = termOrder[i];
         console.log("➡️ Looking for term:", prevTermName, "in", prevYear);
         const prevTerm = prevYearRecord.terms.find(t => t.termName === prevTermName);
         if (prevTerm) {
           console.log("🎯 Found previous term:", prevTermName, "in", prevYear);
-          return { ...prevTerm, year: prevYear };
+          prevTerm.year = prevYear;   // ✅ attach year
+          return prevTerm;            // ✅ return same object
         }
       }
       console.log("❌ No terms found in previous year:", prevYear);
@@ -82,6 +80,7 @@ function findPreviousTerm(student, currentYear, currentTermName) {
   console.log("❌ No previous term found at all → returning null");
   return null;
 }
+
 
 
 // Get all academic years for a school
@@ -256,11 +255,9 @@ if (previousTerm?.fees?.balance > 0) {
 } else {
   console.log(
     "ℹ️ No previous term with arrears found → No arrears carried.",
-    previousTerm ? `(PrevTerm fees balance = ${previousTerm.fees?.balance || 0})` : ""
+    previousTerm ? `(PrevTerm fees balance = ${previousTerm.fees?.balance || "undefined"})` : "(No term)"
   );
 }
-
-
       // Step 6: If no term record, create one
       if (!termRecord) {
         console.log(`🆕 Creating new term record: ${termName} - ${yearLabel}`);
