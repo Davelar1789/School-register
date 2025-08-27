@@ -123,15 +123,15 @@ const StudentDetails = () => {
               <div className="summary-box">
                 <span className="summary-title">Full Name</span>
                 <span className="summary-value">{student.name}</span>
-                <IconButton onClick={() => setNameOpen(true)} size="small">
-                  <EditIcon sx={{color: "white", ml: 1}} />
-                </IconButton>
+                <IconButton onClick={() => openFieldModal("name")} size="small">
+                    <EditIcon sx={{color: "white", ml: 1}} />
+                  </IconButton>
               </div>
               <div className="summary-box">
                 <span className="summary-title">Class</span>
                 <span className="summary-value">
                   {student.classes?.[0]?.className || "N/A"}
-                  <IconButton onClick={() => openFieldModal("name")} size="small">
+                  <IconButton onClick={() => setClassOpen(true)} size="small">
                     <EditIcon sx={{color: "white", ml: 1}} />
                   </IconButton>
                 </span>
@@ -225,6 +225,7 @@ const StudentDetails = () => {
             </Modal> */}
 
             {/* ✏️ Field Edit Modal */}
+          {/* ✏️ Field Edit Modal */}
             <Modal open={modalOpen} onClose={() => setModalOpen(false)}>
               <Box className="modal-box">
                 <TextField
