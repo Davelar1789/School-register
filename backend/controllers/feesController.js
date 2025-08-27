@@ -3,6 +3,31 @@ import Students from "../models/Student.model.js";
 import Classes from "../models/Class.model.js";
 import TermSession from "../models/TermSession.model.js";
 
+// ✅ Admin Sets Feeding Fee Per Class
+export const setFeedingFee = async (req, res) => {
+  const { feedingFees } = req.body; // ✅ Expecting an object with classId: fee
+
+  if (!feedingFees || typeof feedingFees !== "object") {
+    return res.status(400).json({ message: "Invalid data format." });
+  }
+
+  try {
+    // ✅ Update feeding fees for all classes in one request
+    const updatePromises = Object.entries(feedingFees).map(async ([classId, fee]) => {
+      await Classes.findByIdAndUpdate(classId, { feedingFee: fee });
+      await Students.updateMany({ classes: classId }, { feedingFee: fee });
+    });
+
+    await Promise.all(updatePromises);
+
+    res.status(200).json({ message: "Feeding fees updated successfully for all classes." });
+  } catch (error) {
+    console.error("Error updating feeding fees:", error);
+    res.status(500).json({ message: "Something went wrong." });
+  }
+};
+
+// Admin sets fees for all students in a class for a specific term
 // Admin sets fees for all students in a class for a specific term
 export const setClassFees = async (req, res) => {
   const { classId, yearLabel, termName, totalFees, schoolId } = req.body;
@@ -135,7 +160,6 @@ export const setClassFees = async (req, res) => {
     res.status(500).json({ message: "Something went wrong." });
   }
 };
-
 
 
 // Student makes a payment
