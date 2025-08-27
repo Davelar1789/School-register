@@ -119,34 +119,45 @@ export const saveTermSession = async (req, res) => {
   const { classFees } = req.body;
 
   try {
+    console.log("🔹 Incoming saveTermSession request:", { termId, classFees });
+
     // Step 1: Find and update the TermSession
     const term = await TermSession.findById(termId);
-    if (!term) return res.status(404).json({ message: "Term session not found" });
+    if (!term) {
+      console.warn("⚠️ Term session not found:", termId);
+      return res.status(404).json({ message: "Term session not found" });
+    }
 
     term.classFees = classFees;
     await term.save();
 
     const { schoolId, yearLabel, termName, startDate, endDate } = term;
+    console.log(`✅ Term session found: ${termName} - ${yearLabel} | Dates: ${startDate} to ${endDate}`);
 
     // Step 2: Get all students in the school
     const students = await Student.find({ schoolId }).populate("classes");
+    console.log(`👩‍🎓 Found ${students.length} students in school ${schoolId}`);
 
     for (let student of students) {
+      console.log(`\n--- Processing student: ${student._id} (${student.name || "Unnamed"}) ---`);
+
       // Step 2a: Match student's class with the updated classFees
       const matchedClass = student.classes.find(cls =>
         classFees.some(fee => fee.classId === cls._id.toString())
       );
-      if (!matchedClass) continue;
+      if (!matchedClass) {
+        console.log(`⏭️ Skipping student (no matching class fees): ${student._id}`);
+        continue;
+      }
 
       const feeData = classFees.find(fee => fee.classId === matchedClass._id.toString());
+      console.log(`🏫 Matched class: ${matchedClass._id}, Total Fees: ${feeData.totalFees}`);
 
       // Step 3: Ensure academic record for the year exists
       let yearRecord = student.academicRecords.find(y => y.yearLabel === yearLabel);
       if (!yearRecord) {
-        yearRecord = {
-          yearLabel,
-          terms: [],
-        };
+        console.log(`📘 Creating new year record for: ${yearLabel}`);
+        yearRecord = { yearLabel, terms: [] };
         student.academicRecords.push(yearRecord);
       }
 
@@ -157,10 +168,9 @@ export const saveTermSession = async (req, res) => {
       let arrears = 0;
 
       // Find the most recent term BEFORE this one
-      let allYears = student.academicRecords
-        .sort((a, b) => parseInt(a.yearLabel) - parseInt(b.yearLabel));
+      let allYears = student.academicRecords.sort((a, b) => parseInt(a.yearLabel) - parseInt(b.yearLabel));
 
-      // flatten all terms with year info
+      // Flatten all terms with year info
       let allTerms = [];
       for (let y of allYears) {
         for (let t of y.terms) {
@@ -168,13 +178,13 @@ export const saveTermSession = async (req, res) => {
         }
       }
 
-      // order terms by year & startDate
+      // Order terms by year & startDate
       allTerms.sort((a, b) => {
         if (a.year !== b.year) return parseInt(a.year) - parseInt(b.year);
         return new Date(a.startDate) - new Date(b.startDate);
       });
 
-      // find index of current term
+      // Find index of current term
       const currentIndex = allTerms.findIndex(
         t => t.year === yearLabel && t.termName === termName
       );
@@ -182,13 +192,18 @@ export const saveTermSession = async (req, res) => {
       if (currentIndex > 0) {
         const previousTerm = allTerms[currentIndex - 1];
         if (previousTerm.fees) {
-          // arrears = whatever balance was left unpaid from previous term
           arrears = previousTerm.fees.balance;
+          console.log(
+            `💰 Carrying arrears from previous term: ${previousTerm.termName} (${previousTerm.year}) → ${arrears}`
+          );
         }
+      } else {
+        console.log("ℹ️ No previous term found → No arrears carried.");
       }
 
       // Step 6: If no record, create one
       if (!termRecord) {
+        console.log(`🆕 Creating new term record: ${termName} - ${yearLabel}`);
         yearRecord.terms.push({
           termName,
           fees: {
@@ -205,7 +220,7 @@ export const saveTermSession = async (req, res) => {
           endDate,
         });
       } else {
-        // If record exists, update smartly (don’t wipe history)
+        console.log(`✏️ Updating existing term record: ${termName} - ${yearLabel}`);
         const prevPayments = termRecord.fees?.paymentHistory || [];
         const prevAmountPaid = termRecord.fees?.amountPaid || 0;
 
@@ -215,16 +230,19 @@ export const saveTermSession = async (req, res) => {
         termRecord.fees.balance =
           (feeData.totalFees || 0) + arrears - prevAmountPaid;
         termRecord.fees.paymentHistory = prevPayments;
+
+        console.log(`📊 Updated Fees → Total: ${feeData.totalFees}, Paid: ${prevAmountPaid}, Arrears: ${arrears}, Balance: ${termRecord.fees.balance}`);
       }
 
       await student.save();
+      console.log(`✅ Student ${student._id} record saved successfully.`);
     }
 
     res
       .status(200)
       .json({ message: "Term session fees saved and student records updated with arrears & balances." });
   } catch (error) {
-    console.error("Error saving term session:", error);
+    console.error("❌ Error saving term session:", error);
     res.status(500).json({ message: "Failed to save term session", error });
   }
 };
