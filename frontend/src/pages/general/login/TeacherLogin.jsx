@@ -110,32 +110,37 @@ const handleLogin = async (e) => {
     toast.error("Offline login failed. Wrong password.");
   }
 } else if (online) {
-      // Online login
-      const payload = isFirstTime
-        ? { email, staffId, password }
-        : { email, password };
+  // Online login
+  const payload = isFirstTime
+    ? { email, staffId, password }
+    : { email, password };
 
-      const endpoint = isFirstTime
-        ? "/api/teachers/setup"
-        : "/api/teachers/login";
+  const endpoint = isFirstTime
+    ? "/api/teachers/setup"
+    : "/api/teachers/login";
 
-      const res = await api.post(endpoint, payload);
-      const teacherData = res.data.teacher;
+  const res = await api.post(endpoint, payload);
+  const teacherData = res.data.teacher;
 
-      // Store offline credentials for cached login
-      const passwordHash = sha256(password);
-      localStorage.setItem(
-        "teacher",
-        JSON.stringify({
-          ...teacherData,
-          passwordHash,
-        })
-      );
+  // Always refresh localStorage when login is online
+  localStorage.removeItem("teacher");  // Clear old teacher
+  localStorage.removeItem("token");    // Clear old token
 
-      localStorage.setItem("token", teacherData.token);
-      toast.success("Login successful!");
-      navigate("/teacher-dashboard");
-    } else {
+  const passwordHash = sha256(password);
+
+  localStorage.setItem(
+    "teacher",
+    JSON.stringify({
+      ...teacherData,
+      passwordHash,
+    })
+  );
+
+  localStorage.setItem("token", teacherData.token);
+
+  toast.success("Login successful!");
+  navigate("/teacher-dashboard");
+} else {
       // API unreachable but no cached teacher
       toast.error("Cannot reach server");
     }
