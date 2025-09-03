@@ -52,6 +52,34 @@
   background-color: #0056b3;
 }
 
+.column-selector {
+  margin: 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.gradebook-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.gradebook-table th,
+.gradebook-table td {
+  padding: 0.5rem;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .gradebook-table {
+    font-size: 0.9rem;
+  }
+
+  .gradebook-table input {
+    width: 60px;
+  }
+}
+
 
 @media (max-width: 600px) {
   .gradebook-table input {
