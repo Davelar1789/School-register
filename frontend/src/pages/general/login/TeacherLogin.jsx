@@ -228,26 +228,37 @@ const handleLogin = async (e) => {
         <p className="signup-link">Not yet registered? Contact your admin.</p>
       </div>
       {showVersionModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h2>🎉 Version 2.0 is Here!</h2>
-            <p>We’ve added exciting new features for you:</p>
-            <ul>
-              <li>✅ Offline login with cached credentials</li>
-              <li>✅ Improved teacher dashboard design</li>
-              <li>✅ Attendance tracking with weekly overview</li>
-              <li>✅ SuperAdmin approvals and school management</li>
-              <li>✅ Faster and more secure login</li>
-            </ul>
-            <button
-              className="modal-confirm"
-              onClick={handleCloseVersionModal}
-            >
-              Got it, continue →
-            </button>
-          </div>
-        </div>
-      )}
+  <div className="version-modal-overlay">
+    <div className="version-modal">
+      <div className="version-header">
+        <h2>🎉 Version 2.0 is Here!</h2>
+        <p className="version-subtitle">
+          Discover the latest improvements and features.
+        </p>
+      </div>
+
+      <div className="version-body">
+        <ul>
+          <li>🚀 Offline login with cached credentials</li>
+          <li>📊 Enhanced teacher dashboard with new stats</li>
+          <li>🗓 Attendance tracking with weekly overview</li>
+          <li>🛡 Improved security and faster login</li>
+          <li>⚡ SuperAdmin controls for schools</li>
+        </ul>
+      </div>
+
+      <div className="version-footer">
+        <button
+          className="version-button"
+          onClick={handleCloseVersionModal}
+        >
+          Continue to Dashboard →
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 }
