@@ -31,6 +31,8 @@ const Gradebook = () => {
   const [grades, setGrades] = useState({});
   const [currentTerm, setCurrentTerm] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [visibleColumn, setVisibleColumn] = useState("all");
+
 
   const token = localStorage.getItem("token");
   const teacherData = getDataFromToken();
@@ -302,6 +304,22 @@ const handleSaveGrades = async () => {
         </select>
       </div>
 
+      <div className="column-selector">
+  <label>View:</label>
+  <select
+    value={visibleColumn}
+    onChange={(e) => setVisibleColumn(e.target.value)}
+  >
+    <option value="all">All Columns</option>
+    <option value="test1">Test 1</option>
+    <option value="test2">Test 2</option>
+    <option value="test3">Test 3</option>
+    <option value="test4">Test 4</option>
+    <option value="exam">Exam</option>
+  </select>
+</div>
+
+
       {loading ? (
         <p>Loading...</p>
       ) : (
@@ -311,90 +329,53 @@ const handleSaveGrades = async () => {
               <thead>
                 <tr>
                   <th>Student Name</th>
-                  <th>Test 1 (10)</th>
-                  <th>Test 2 (10)</th>
-                  <th>Test 3 (10)</th>
-                  <th>Test 4 (20)</th>
-                  <th>Exam (100)</th>
-                  <th>Total</th>
-                  <th>Position</th>
+                  {(visibleColumn === "all" || visibleColumn === "test1") && <th>Test 1 (10)</th>}
+                  {(visibleColumn === "all" || visibleColumn === "test2") && <th>Test 2 (10)</th>}
+                  {(visibleColumn === "all" || visibleColumn === "test3") && <th>Test 3 (10)</th>}
+                  {(visibleColumn === "all" || visibleColumn === "test4") && <th>Test 4 (20)</th>}
+                  {(visibleColumn === "all" || visibleColumn === "exam") && <th>Exam (100)</th>}
+                  {(visibleColumn === "all") && <th>Total</th>}
+                  {(visibleColumn === "all") && <th>Position</th>}
                 </tr>
               </thead>
              <tbody>
   {students.map((student) => {
     const studentGrades = grades[student.studentId] || {};
-
     const testTotal =
       (Number(studentGrades.test1) || 0) +
       (Number(studentGrades.test2) || 0) +
       (Number(studentGrades.test3) || 0) +
       (Number(studentGrades.test4) || 0);
-
     const examScore = Number(studentGrades.exam) || 0;
     const total = Math.round(testTotal + examScore / 2);
-
     const position = positionMap[student.studentId] || "-";
 
     return (
       <tr key={student.studentId}>
         <td>{student.name}</td>
-        <td>
-          <input
-            type="number"
-            max="10"
-            value={studentGrades.test1 === 0 ? "" : studentGrades.test1 || ""}
-            onChange={(e) =>
-              handleGradeChange(student.studentId, "test1", e.target.value)
-            }
-            onWheel={(e) => e.target.blur()}
-          />
-        </td>
-        <td>
-          <input
-            type="number"
-            max="10"
-            value={studentGrades.test2 === 0 ? "" : studentGrades.test2 || ""}
-            onChange={(e) =>
-              handleGradeChange(student.studentId, "test2", e.target.value)
-            }
-            onWheel={(e) => e.target.blur()}
-          />
-        </td>
-        <td>
-          <input
-            type="number"
-            max="10"
-            value={studentGrades.test3 === 0 ? "" : studentGrades.test3 || ""}
-            onChange={(e) =>
-              handleGradeChange(student.studentId, "test3", e.target.value)
-            }
-            onWheel={(e) => e.target.blur()}
-          />
-        </td>
-        <td>
-          <input
-            type="number"
-            max="20"
-            value={studentGrades.test4 === 0 ? "" : studentGrades.test4 || ""}
-            onChange={(e) =>
-              handleGradeChange(student.studentId, "test4", e.target.value)
-            }
-            onWheel={(e) => e.target.blur()}
-          />
-        </td>
-        <td>
-          <input
-            type="number"
-            max="100"
-            value={studentGrades.exam === 0 ? "" : studentGrades.exam || ""}
-            onChange={(e) =>
-              handleGradeChange(student.studentId, "exam", e.target.value)
-            }
-            onWheel={(e) => e.target.blur()}
-          />
-        </td>
-        <td>{total}</td>
-        <td>{position}</td>
+
+        {(visibleColumn === "all" || visibleColumn === "test1") && (
+          <td><input type="number" max="10" value={studentGrades.test1 || ""} onChange={(e) => handleGradeChange(student.studentId, "test1", e.target.value)} /></td>
+        )}
+
+        {(visibleColumn === "all" || visibleColumn === "test2") && (
+          <td><input type="number" max="10" value={studentGrades.test2 || ""} onChange={(e) => handleGradeChange(student.studentId, "test2", e.target.value)} /></td>
+        )}
+
+        {(visibleColumn === "all" || visibleColumn === "test3") && (
+          <td><input type="number" max="10" value={studentGrades.test3 || ""} onChange={(e) => handleGradeChange(student.studentId, "test3", e.target.value)} /></td>
+        )}
+
+        {(visibleColumn === "all" || visibleColumn === "test4") && (
+          <td><input type="number" max="20" value={studentGrades.test4 || ""} onChange={(e) => handleGradeChange(student.studentId, "test4", e.target.value)} /></td>
+        )}
+
+        {(visibleColumn === "all" || visibleColumn === "exam") && (
+          <td><input type="number" max="100" value={studentGrades.exam || ""} onChange={(e) => handleGradeChange(student.studentId, "exam", e.target.value)} /></td>
+        )}
+
+        {visibleColumn === "all" && <td>{total}</td>}
+        {visibleColumn === "all" && <td>{position}</td>}
       </tr>
     );
   })}
