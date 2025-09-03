@@ -239,7 +239,7 @@ const handleLogin = async (e) => {
 
       <div className="version-body">
         <ul>
-          <li>🚀 Offline login available now (lasts for 1 week)</li>
+          <li>🚀 Offline login available now (lasts for a week. Meaning you connect with data on Monday and enjoy offline access the rest of the week)</li>
           <li>🛡 Improved security and faster login</li>
           <li>⚡ Smarter attendance marking</li>
         </ul>
