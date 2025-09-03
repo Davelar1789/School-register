@@ -239,11 +239,9 @@ const handleLogin = async (e) => {
 
       <div className="version-body">
         <ul>
-          <li>🚀 Offline login with cached credentials</li>
-          <li>📊 Enhanced teacher dashboard with new stats</li>
-          <li>🗓 Attendance tracking with weekly overview</li>
+          <li>🚀 Offline login available now (lasts for 1 week)</li>
           <li>🛡 Improved security and faster login</li>
-          <li>⚡ SuperAdmin controls for schools</li>
+          <li>⚡ Smarter attendance marking</li>
         </ul>
       </div>
 
