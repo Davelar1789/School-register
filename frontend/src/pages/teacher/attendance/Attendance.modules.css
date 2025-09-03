@@ -13,6 +13,21 @@
   color: #fff;
 }
 
+.attendance-missing-warning {
+  background: #fff3cd;
+  border: 1px solid #ffecb5;
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: 6px;
+  color: #664d03;
+}
+
+.attendance-missing-warning h3 {
+  margin: 0 0 0.5rem 0;
+  color: #856404;
+}
+
+
 .class-selector {
   width: 100%;
   padding: 8px;

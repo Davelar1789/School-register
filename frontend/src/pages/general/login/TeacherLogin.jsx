@@ -11,10 +11,11 @@ function TeacherLogin() {
   const [email, setEmail] = useState("");
   const [staffId, setStaffId] = useState("");
   const [password, setPassword] = useState("");
-  const [step, setStep] = useState(1); // 1=email, 2=staffId+password, 3=password
+  const [step, setStep] = useState(1);
   const [teacher, setTeacher] = useState(null);
   const [loading, setLoading] = useState(false);
   const [offlineMode, setOfflineMode] = useState(false);
+  const [showVersionModal, setShowVersionModal] = useState(false);
 
 // Detect offline/online status
 useEffect(() => {
@@ -79,79 +80,80 @@ const handleEmailSubmit = async (e) => {
 
 
 const handleLogin = async (e) => {
-  e.preventDefault();
-  setLoading(true);
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-    const isFirstTime = teacher?.usage === "not used";
-    const isOfflineCached = teacher?.usage === "cached";
-
-    let online = true;
-    // Check API connectivity again for login
     try {
-      await api.get("/ping"); // same lightweight endpoint
+      const isFirstTime = teacher?.usage === "not used";
+      const isOfflineCached = teacher?.usage === "cached";
+
+      let online = true;
+      try {
+        await api.get("/ping");
+      } catch (err) {
+        online = false;
+        console.log("API unreachable during login:", err.message);
+      }
+
+      if (!online && isOfflineCached) {
+        // Offline login
+        const passwordHash = sha256(password);
+        if (passwordHash === teacher.passwordHash) {
+          if (teacher.token) localStorage.setItem("token", teacher.token);
+          toast.success("Logged in offline. Some features may be limited.");
+          navigate("/teacher-dashboard");
+        } else {
+          toast.error("Offline login failed. Wrong password.");
+        }
+      } else if (online) {
+        // Online login
+        const payload = isFirstTime
+          ? { email, staffId, password }
+          : { email, password };
+        const endpoint = isFirstTime
+          ? "/api/teachers/setup"
+          : "/api/teachers/login";
+
+        const res = await api.post(endpoint, payload);
+        const teacherData = res.data.teacher;
+
+        localStorage.removeItem("teacher");
+        localStorage.removeItem("token");
+
+        const passwordHash = sha256(password);
+        localStorage.setItem(
+          "teacher",
+          JSON.stringify({ ...teacherData, passwordHash })
+        );
+        localStorage.setItem("token", teacherData.token);
+
+        toast.success("Login successful!");
+
+        // Show version modal instead of direct navigation
+        if (!localStorage.getItem("version2Seen")) {
+          setShowVersionModal(true);
+        } else {
+          navigate("/teacher-dashboard");
+        }
+      } else {
+        toast.error("Cannot reach server");
+      }
     } catch (err) {
-      online = false;
-      console.log("API unreachable during login, offline mode:", err.message);
+      const msg =
+        err?.response?.data?.message || "Login failed. Please try again.";
+      toast.error(msg);
+      console.log("Login error:", err);
+    } finally {
+      setLoading(false);
     }
+  };
 
-   if (!online && isOfflineCached) {
-  // Offline login branch
-  const passwordHash = sha256(password);
-  if (passwordHash === teacher.passwordHash) {
-    // Save the token from cached teacher so dashboard can use it
-    if (teacher.token) {
-      localStorage.setItem("token", teacher.token);
-    }
-
-    toast.success("Logged in offline. Some features may be limited.");
+  const handleCloseVersionModal = () => {
+    localStorage.setItem("version2Seen", "true"); // prevent showing again
+    setShowVersionModal(false);
     navigate("/teacher-dashboard");
-  } else {
-    toast.error("Offline login failed. Wrong password.");
-  }
-} else if (online) {
-  // Online login
-  const payload = isFirstTime
-    ? { email, staffId, password }
-    : { email, password };
+  };
 
-  const endpoint = isFirstTime
-    ? "/api/teachers/setup"
-    : "/api/teachers/login";
-
-  const res = await api.post(endpoint, payload);
-  const teacherData = res.data.teacher;
-
-  // Always refresh localStorage when login is online
-  localStorage.removeItem("teacher");  // Clear old teacher
-  localStorage.removeItem("token");    // Clear old token
-
-  const passwordHash = sha256(password);
-
-  localStorage.setItem(
-    "teacher",
-    JSON.stringify({
-      ...teacherData,
-      passwordHash,
-    })
-  );
-
-  localStorage.setItem("token", teacherData.token);
-
-  toast.success("Login successful!");
-  navigate("/teacher-dashboard");
-} else {
-      // API unreachable but no cached teacher
-      toast.error("Cannot reach server");
-    }
-  } catch (err) {
-    const msg = err?.response?.data?.message || "Login failed. Please try again.";
-    toast.error(msg);
-    console.log("Login error:", err);
-  } finally {
-    setLoading(false);
-  }
-};
 
 
   return (
@@ -225,6 +227,27 @@ const handleLogin = async (e) => {
 
         <p className="signup-link">Not yet registered? Contact your admin.</p>
       </div>
+      {showVersionModal && (
+        <div className="modal-overlay">
+          <div className="modal">
+            <h2>🎉 Version 2.0 is Here!</h2>
+            <p>We’ve added exciting new features for you:</p>
+            <ul>
+              <li>✅ Offline login with cached credentials</li>
+              <li>✅ Improved teacher dashboard design</li>
+              <li>✅ Attendance tracking with weekly overview</li>
+              <li>✅ SuperAdmin approvals and school management</li>
+              <li>✅ Faster and more secure login</li>
+            </ul>
+            <button
+              className="modal-confirm"
+              onClick={handleCloseVersionModal}
+            >
+              Got it, continue →
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
