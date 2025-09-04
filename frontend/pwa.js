@@ -1,19 +1,18 @@
 // src/pwa.js
-import { useRegisterSW } from "virtual:pwa-register/react";
+import { registerSW } from "virtual:pwa-register";
 
-export function usePWA() {
-  useRegisterSW({
-    onNeedRefresh() {
-      // ⚡ automatically update and reload
-      updateServiceWorker(true);
-    },
-    onRegisteredSW(swUrl, registration) {
-      // optional: check every hour for updates
-      if (registration) {
-        setInterval(() => {
-          registration.update();
-        }, 60 * 60 * 1000); // 1h
-      }
+// This will auto-update and reload silently
+registerSW({
+  onNeedRefresh() {
+    // force update + reload immediately
+    window.location.reload();
+  },
+  onRegisteredSW(swUrl, registration) {
+    if (registration) {
+      // optional: check for updates every 1h
+      setInterval(() => {
+        registration.update();
+      }, 60 * 60 * 1000);
     }
-  });
-}
+  },
+});
