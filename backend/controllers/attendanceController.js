@@ -102,25 +102,25 @@ export const markAttendanceBatch = async (req, res) => {
         console.log(`📧 Preparing to send email to: ${teacherEmail}...`);
 
         try {
-            // const emailMessage = `
-            //     Dear Teacher,  
+            const emailMessage = `
+                Dear Teacher,  
                 
-            //     You have successfully submitted attendance for your class on **${date}**.  
+                You have successfully submitted attendance for your class on **${date}**.  
                 
-            //     Thank you for your time and dedication.  
+                Thank you for your time and dedication.  
                 
-            //     Best regards,  
-            //     **School Management Team**
-            // `;
+                Best regards,  
+                Joyful Brains Academy
+            `;
 
-            // const emailResponse = await sendMail(
-            //     teacherEmail,
-            //     "Attendance Submission Confirmation",
-            //     emailMessage // ✅ Use formatted message
-            // );
+            const emailResponse = await sendMail(
+                teacherEmail,
+                "Attendance Submission Confirmation",
+                emailMessage // ✅ Use formatted message
+            );
 
-            // console.log(`✅ Email sent successfully! Response: ${JSON.stringify(emailResponse, null, 2)}`);
-            // res.status(201).json({ message: `Attendance recorded successfully for class "${className}", and email sent to the teacher.` });
+            console.log(`✅ Email sent successfully! Response: ${JSON.stringify(emailResponse, null, 2)}`);
+            res.status(201).json({ message: `Attendance recorded successfully for class "${className}", and email sent to the teacher.` });
 
             // ✅ Trigger notification for the teacher using received `teacherId`
             await createNotification(
