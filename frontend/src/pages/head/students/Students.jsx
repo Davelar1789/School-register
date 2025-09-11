@@ -217,6 +217,7 @@ const [editFormData, setEditFormData] = useState({
           dob: formattedDOB,
           idno: generatedId,
           schoolId,
+          classes: [studentClass],   // ✅ send array as backend expects
         },
         {
           headers: {
