@@ -15,7 +15,7 @@ const StudentDetails = () => {
   const [student, setStudent] = useState(null);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [classOpen, setClassOpen] = useState(true);
+const [classOpen, setClassOpen] = useState(false);
   const [dobOpen, setDobOpen] = useState(false);
   const [nameOpen, setNameOpen] = useState(false);
   const [selectedDOB, setSelectedDOB] = useState(null);
@@ -45,21 +45,6 @@ const token = localStorage.getItem("token");
   }
 };
 
-
-  useEffect(() => {
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += 10;
-      setLoadingProgress((prev) => (prev < 90 ? prev + 10 : prev));
-    }, 100);
-
-    fetchStudent().finally(() => {
-      clearInterval(interval);
-      setLoadingProgress(100);
-      setTimeout(() => setIsLoading(false), 500);
-    });
-  }, [id]);
-
 const fetchClasses = async () => {
   if (!schoolId) return toast.error("No School Id Found");
 
@@ -73,6 +58,20 @@ const fetchClasses = async () => {
     toast.error("Failed to load classes");
   }
 };
+
+useEffect(() => {
+  fetchStudent();
+  fetchClasses(); // fetch classes when page loads
+
+  let progress = 0;
+  const interval = setInterval(() => {
+    progress += 10;
+    setLoadingProgress((prev) => (prev < 90 ? prev + 10 : prev));
+  }, 100);
+
+  return () => clearInterval(interval);
+}, [id]);
+
 
 
   const handleEditDOB = async (newDOB) => {
