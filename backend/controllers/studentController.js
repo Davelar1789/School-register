@@ -820,29 +820,35 @@ export const updateStudentInfo = async (req, res) => {
   }
 };
 
+import mongoose from "mongoose";
+
 export const updateStudentClass = async (req, res) => {
   const { id } = req.params; // studentId
   const { classId } = req.body;
 
   try {
-    // Remove student from old classes
     const student = await Students.findById(id);
     if (!student) return res.status(404).json({ message: "Student not found" });
 
+    const studentObjectId = new mongoose.Types.ObjectId(id);
+    const newClassObjectId = new mongoose.Types.ObjectId(classId);
+
     const oldClasses = student.classes || [];
 
+    // ✅ Remove student from old classes
     await Class.updateMany(
       { _id: { $in: oldClasses } },
-      { $pull: { students: id } }
+      { $pull: { students: studentObjectId } }
     );
 
-    // Add new class
-    student.classes = [classId];
+    // ✅ Update student document
+    student.classes = [newClassObjectId];
     await student.save();
 
+    // ✅ Add student to new class
     await Class.findByIdAndUpdate(
-      classId,
-      { $addToSet: { students: id } },
+      newClassObjectId,
+      { $addToSet: { students: studentObjectId } },
       { new: true }
     );
 
