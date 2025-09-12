@@ -18,6 +18,7 @@ import {
   getStudentByIdFree,
   updateStudentInfo,
   patchMissingAcademicRecords,
+  updateStudentClass,
   // deleteAllStudents,
   // migrateAttendanceBooleans,
 } from "../controllers/studentController.js";
@@ -43,6 +44,7 @@ router.get("/:id", getStudentById);
 router.get("/free/:id", getStudentByIdFree);
 router.post("/students/promote/:schoolId", promoteAllStudents);
 router.get("/school/:schoolId", getStudentsBySchool);
+router.put("/:id/update-class", updateStudentClass);
 router.put("/:id", updateStudent);
 router.delete("/:id", protect, deleteStudent);
 router.patch("/:id", updateStudentInfo);

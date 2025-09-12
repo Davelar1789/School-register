@@ -22,6 +22,8 @@ const StudentDetails = () => {
   const [modalField, setModalField] = useState("");
   const [modalValue, setModalValue] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
+const [availableClasses, setAvailableClasses] = useState([]);
+const [selectedClassId, setSelectedClassId] = useState(student.classes?.[0]?._id || "");
 
   const schoolDataRaw = localStorage.getItem("schoolData");
   const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
@@ -49,15 +51,20 @@ const StudentDetails = () => {
     });
   }, [id]);
 
-  const fetchClasses = async () => {
-    if (!schoolId) return toast.error("No School Id Found");
+const fetchClasses = async () => {
+  if (!schoolId) return toast.error("No School Id Found");
 
-    try{
-      const res = await axios.get(`/api/classes/school/$(schoolId)`);
-    } catch (err) {
+  try {
+    const res = await axios.get(`/api/classes/school/${schoolId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setAvailableClasses(res.data); // store in state
+  } catch (err) {
+    console.error("Error fetching classes:", err);
+    toast.error("Failed to load classes");
+  }
+};
 
-    }
-  };
 
   const handleEditDOB = async (newDOB) => {
     try {
@@ -76,7 +83,27 @@ const StudentDetails = () => {
     setModalOpen(true);
   };
 
-  // const handleClassEdit =
+const handleClassEdit = async () => {
+  if (!selectedClassId) return toast.error("Please select a class.");
+
+  try {
+    await axios.put(
+      `/api/student/${student._id}/update-class`,
+      { classId: selectedClassId },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    toast.success("Class updated successfully");
+
+    // Refresh student data
+    await fetchStudent(student._id);
+
+    setClassOpen(false);
+  } catch (err) {
+    console.error("Error updating class:", err);
+    toast.error("Failed to update class");
+  }
+};
 
   const handleModalSave = async () => {
     try {
@@ -213,16 +240,24 @@ const StudentDetails = () => {
               </Box>
             </Modal>
 
-            {/* <Modal open={classOpen} onClose={() => setClassOpen(false)}>
-              <Box className="modal-box">
-                <DatePicker
-                label="Select New Class"
-                value={}
-                onChange={}
-                />
-                <button onClick={() => handleClassEdit()}>Save</button>
-              </Box>
-            </Modal> */}
+           <Modal open={classOpen} onClose={() => setClassOpen(false)}>
+  <Box className="modal-box">
+    <FormControl fullWidth>
+      <InputLabel>Select New Class</InputLabel>
+      <Select
+        value={selectedClassId}
+        onChange={(e) => setSelectedClassId(e.target.value)}
+      >
+        {availableClasses.map((cls) => (
+          <MenuItem key={cls._id} value={cls._id}>
+            {cls.className}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
+    <button onClick={handleClassEdit}>Save</button>
+  </Box>
+</Modal>
 
             {/* ✏️ Field Edit Modal */}
           {/* ✏️ Field Edit Modal */}

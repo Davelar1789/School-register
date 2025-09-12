@@ -819,3 +819,36 @@ export const updateStudentInfo = async (req, res) => {
     res.status(500).json({ message: "Update failed", error: error.message });
   }
 };
+
+export const updateStudentClass = async (req, res) => {
+  const { id } = req.params; // studentId
+  const { classId } = req.body;
+
+  try {
+    // Remove student from old classes
+    const student = await Students.findById(id);
+    if (!student) return res.status(404).json({ message: "Student not found" });
+
+    const oldClasses = student.classes || [];
+
+    await Class.updateMany(
+      { _id: { $in: oldClasses } },
+      { $pull: { students: id } }
+    );
+
+    // Add new class
+    student.classes = [classId];
+    await student.save();
+
+    await Class.findByIdAndUpdate(
+      classId,
+      { $addToSet: { students: id } },
+      { new: true }
+    );
+
+    res.json({ message: "Class updated successfully", student });
+  } catch (error) {
+    console.error("Error updating student class:", error);
+    res.status(500).json({ message: "Failed to update student class" });
+  }
+};
