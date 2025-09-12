@@ -5,6 +5,7 @@ import "./StudentDetails.modules.css";
 import Header2 from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
 import { LinearProgress, Modal, Box, TextField, IconButton } from "@mui/material";
+import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import dayjs from "dayjs";
@@ -23,19 +24,27 @@ const StudentDetails = () => {
   const [modalValue, setModalValue] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
 const [availableClasses, setAvailableClasses] = useState([]);
-const [selectedClassId, setSelectedClassId] = useState(student.classes?.[0]?._id || "");
+const [selectedClassId, setSelectedClassId] = useState("");
+
+const token = localStorage.getItem("token");
 
   const schoolDataRaw = localStorage.getItem("schoolData");
   const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
 
-  const fetchStudent = async () => {
-    try {
-      const res = await axios.get(`/api/student/free/${id}`);
-      setStudent(res.data);
-    } catch (err) {
-      console.error(err);
+ const fetchStudent = async () => {
+  try {
+    const res = await axios.get(`/api/student/free/${id}`);
+    setStudent(res.data);
+
+    // set default class if available
+    if (res.data.classes?.length > 0) {
+      setSelectedClassId(res.data.classes[0]._id);
     }
-  };
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 
   useEffect(() => {
     let progress = 0;
