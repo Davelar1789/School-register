@@ -31,45 +31,39 @@ const token = localStorage.getItem("token");
   const schoolDataRaw = localStorage.getItem("schoolData");
   const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
 
- const fetchStudent = async () => {
-  try {
-    const res = await axios.get(`/api/student/free/${id}`);
-    setStudent(res.data);
+const fetchStudent = async () => {
+  const res = await axios.get(`/api/student/free/${id}`);
+  setStudent(res.data);
 
-    // set default class if available
-    if (res.data.classes?.length > 0) {
-      setSelectedClassId(res.data.classes[0]._id);
-    }
-  } catch (err) {
-    console.error(err);
+  if (res.data.classes?.length > 0) {
+    setSelectedClassId(res.data.classes[0]._id);
   }
+  return res.data;
 };
 
 const fetchClasses = async () => {
-  if (!schoolId) return toast.error("No School Id Found");
-
-  try {
-    const res = await axios.get(`/api/classes/school/${schoolId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    setAvailableClasses(res.data); // store in state
-  } catch (err) {
-    console.error("Error fetching classes:", err);
-    toast.error("Failed to load classes");
-  }
+  if (!schoolId) return;
+  const res = await axios.get(`/api/classes/school/${schoolId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  setAvailableClasses(res.data);
+  return res.data;
 };
 
+
 useEffect(() => {
-  fetchStudent();
-  fetchClasses(); // fetch classes when page loads
+  const loadData = async () => {
+    try {
+      await Promise.all([fetchStudent(), fetchClasses()]); // wait for both
+      setLoadingProgress(100);
+      setIsLoading(false);
+    } catch (err) {
+      console.error("Error loading data:", err);
+      setIsLoading(false);
+    }
+  };
 
-  let progress = 0;
-  const interval = setInterval(() => {
-    progress += 10;
-    setLoadingProgress((prev) => (prev < 90 ? prev + 10 : prev));
-  }, 100);
-
-  return () => clearInterval(interval);
+  loadData();
 }, [id]);
 
 
