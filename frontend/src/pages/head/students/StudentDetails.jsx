@@ -8,6 +8,7 @@ import { LinearProgress, Modal, Box, TextField, IconButton } from "@mui/material
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import { toast } from "react-hot-toast"; // ✅ add this at the top
 import dayjs from "dayjs";
 
 const StudentDetails = () => {
@@ -95,17 +96,15 @@ const handleClassEdit = async () => {
       { headers: { Authorization: `Bearer ${token}` } }
     );
 
-    toast.success("Class updated successfully");
-
-    // Refresh student data
+    toast.success("Class updated successfully"); // ✅
     await fetchStudent(student._id);
-
-    setClassOpen(false);
+    setClassOpen(false); // ✅ close modal
   } catch (err) {
     console.error("Error updating class:", err);
     toast.error("Failed to update class");
   }
 };
+
 
   const handleModalSave = async () => {
     try {
