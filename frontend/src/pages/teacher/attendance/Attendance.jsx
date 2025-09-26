@@ -29,6 +29,12 @@ const isWeekend = (date) => {
   return day === 0 || day === 6; // ✅ Simplified with clearer readability
 };
 
+const makeSubmissionKey = (classId, date) => {
+  const dateKey = new Date(date).toISOString().split("T")[0];
+  return `${classId}_${dateKey}`;
+};
+
+
 const Attendance = () => {
   const [classes, setClasses] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -176,8 +182,10 @@ const fetchStudents = async (classId) => {
 const fetchAttendanceForDate = async (classId, date) => {
   if (!classId || !date || !currentTerm) return;
 
+  const submissionKey = makeSubmissionKey(classId, date);
+
   // First, check for offline attendance
-  const offlineKey = `offlineAttendance_${classId}_${date}`;
+  const offlineKey = `offlineAttendance_${submissionKey}`;
   const cachedOffline = JSON.parse(localStorage.getItem(offlineKey)) || [];
 
   if (cachedOffline.length > 0) {
@@ -187,7 +195,7 @@ const fetchAttendanceForDate = async (classId, date) => {
     });
     setAttendance(offlineMap);
     setExistingAttendance(offlineMap);
-    setSubmittedDates((prev) => new Set(prev).add(`${classId}_${date}`));
+    setSubmittedDates((prev) => new Set(prev).add(submissionKey));
     toast.success("Loaded offline attendance for this date.");
   } else if (offlineMode) {
     // Offline but no data
@@ -206,7 +214,7 @@ const fetchAttendanceForDate = async (classId, date) => {
       });
 
       if (res.data.length > 0) {
-        setSubmittedDates((prev) => new Set(prev).add(`${classId}_${date}`));
+        setSubmittedDates((prev) => new Set(prev).add(submissionKey));
 
         const attendanceMap = {};
         const idMap = {};
@@ -231,13 +239,11 @@ const fetchAttendanceForDate = async (classId, date) => {
   }
 };
 
-
 // ✅ Editing trigger
 const handleEditClick = () => {
   setIsEditing(true);
   setShowModal(false);
 };
-
 
 // Submit updated attendance (offline: save to localStorage)
 const updateAttendance = async () => {
@@ -245,14 +251,16 @@ const updateAttendance = async () => {
   const teacherData = getDataFromToken();
   if (!teacherData) return toast.error("Invalid token or teacher data missing!");
 
+  const submissionKey = makeSubmissionKey(selectedClass, selectedDate);
+
   if (offlineMode) {
-    const key = `offlineAttendance_${selectedClass}_${selectedDate}`;
+    const key = `offlineAttendance_${submissionKey}`;
     const attendanceList = students.map((student) => ({
       studentId: student._id,
       present: attendance[student._id] || false,
     }));
     localStorage.setItem(key, JSON.stringify(attendanceList));
-    setSubmittedDates((prev) => new Set(prev).add(`${selectedClass}_${selectedDate}`));
+    setSubmittedDates((prev) => new Set(prev).add(submissionKey));
     toast.success("Offline: Attendance saved locally. Will sync when online.");
     setIsEditing(false);
     return;
