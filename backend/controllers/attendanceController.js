@@ -122,14 +122,14 @@ export const markAttendanceBatch = async (req, res) => {
             console.log(`✅ Email sent successfully! Response: ${JSON.stringify(emailResponse, null, 2)}`);
             res.status(201).json({ message: `Attendance recorded successfully for class "${className}", and email sent to the teacher.` });
 
-            // ✅ Trigger notification for the teacher using received `teacherId`
-            await createNotification(
-                [], // No users (admins) in this case
-                [teacherId], // ✅ Use received teacherId from frontend
-                "Attendance Successfully Recorded",
-                `Attendance for ${className} on ${date} has been successfully recorded.`,
-                "attendance"
-            );
+            // // ✅ Trigger notification for the teacher using received `teacherId`
+            // await createNotification(
+            //     [], // No users (admins) in this case
+            //     [teacherId], // ✅ Use received teacherId from frontend
+            //     "Attendance Successfully Recorded",
+            //     `Attendance for ${className} on ${date} has been successfully recorded.`,
+            //     "attendance"
+            // );
 
         } catch (emailError) {
             console.error("❌ Error sending notification:", emailError);
