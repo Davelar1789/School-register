@@ -300,7 +300,12 @@ const submitAttendance = async () => {
   if (!currentTerm) return toast.error("Term not found!");
   if (!selectedDate) return toast.error("Please select a date.");
   if (isWeekend(selectedDate)) return toast.error("Cannot mark attendance on weekends.");
-  if (submittedDates.has(`${selectedClass}_${selectedDate}`)) {
+
+  // normalize date key (YYYY-MM-DD)
+  const dateKey = new Date(selectedDate).toISOString().split("T")[0];
+  const submissionKey = `${selectedClass}_${dateKey}`;
+
+  if (submittedDates.has(submissionKey)) {
     return toast.error("Attendance for this class on this date is already recorded.");
   }
 
@@ -313,26 +318,41 @@ const submitAttendance = async () => {
   }));
 
   if (offlineMode) {
-    const key = `offlineAttendance_${selectedClass}_${selectedDate}`;
+    const key = `offlineAttendance_${selectedClass}_${dateKey}`;
     localStorage.setItem(key, JSON.stringify(attendanceList));
-    setSubmittedDates((prev) => new Set(prev).add(`${selectedClass}_${selectedDate}`));
+
+    setSubmittedDates((prev) => {
+      const updated = new Set(prev);
+      updated.add(submissionKey);
+      return updated;
+    });
+
     toast.success("Offline: Attendance saved locally. Will sync when online.");
     return;
   }
 
   try {
-    await axios.post("/api/attendance/mark-batch", {
-      termId: currentTerm._id,
-      classId: selectedClass,
-      date: selectedDate,
-      attendanceList,
-      teacherId: teacherData.teacherId,
-      teacherEmail: teacherData.teacherEmail,
-    }, {
-      headers: { Authorization: `Bearer ${token}` },
+    await axios.post(
+      "/api/attendance/mark-batch",
+      {
+        termId: currentTerm._id,
+        classId: selectedClass,
+        date: dateKey,
+        attendanceList,
+        teacherId: teacherData.teacherId,
+        teacherEmail: teacherData.teacherEmail,
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
+
+    setSubmittedDates((prev) => {
+      const updated = new Set(prev);
+      updated.add(submissionKey);
+      return updated;
     });
 
-    setSubmittedDates((prev) => new Set(prev).add(`${selectedClass}_${selectedDate}`));
     toast.success("Attendance marked successfully!");
   } catch (err) {
     console.error("Error marking attendance:", err);
@@ -347,7 +367,9 @@ const syncOfflineAttendance = async () => {
   if (!currentTerm) return toast.info("Cannot sync yet: current term not loaded.");
 
   try {
-    const keys = Object.keys(localStorage).filter(key => key.startsWith("offlineAttendance_"));
+    const keys = Object.keys(localStorage).filter((key) =>
+      key.startsWith("offlineAttendance_")
+    );
     if (!keys.length) return; // nothing to sync
 
     for (const key of keys) {
@@ -360,14 +382,18 @@ const syncOfflineAttendance = async () => {
       const attendanceList = JSON.parse(localStorage.getItem(key));
       if (!attendanceList?.length) continue;
 
-      await axios.post("/api/attendance/mark-batch", {
-        termId: currentTerm._id,
-        classId,
-        date,
-        attendanceList,
-        teacherId: teacherData.teacherId,
-        teacherEmail: teacherData.teacherEmail,
-      }, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.post(
+        "/api/attendance/mark-batch",
+        {
+          termId: currentTerm._id,
+          classId,
+          date,
+          attendanceList,
+          teacherId: teacherData.teacherId,
+          teacherEmail: teacherData.teacherEmail,
+        },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
       localStorage.removeItem(key);
     }
@@ -397,8 +423,6 @@ useEffect(() => {
   }
 }, [offlineMode, currentTerm]); // ensure term is loaded before syncing
 
-
-
 // Automatically fetch attendance when class/date changes
 useEffect(() => {
   if (selectedClass && selectedDate) {
@@ -410,7 +434,6 @@ useEffect(() => {
   }
 }, [selectedClass, selectedDate, offlineMode]);
 
-
 // Fetch current term and teacher's classes on mount
 useEffect(() => {
   if (!offlineMode) {
@@ -421,10 +444,12 @@ useEffect(() => {
     const cachedTerm = JSON.parse(localStorage.getItem("offlineCurrentTerm"));
     if (cachedTerm) setCurrentTerm(cachedTerm);
 
-    const cachedClasses = JSON.parse(localStorage.getItem("offlineClasses")) || [];
+    const cachedClasses =
+      JSON.parse(localStorage.getItem("offlineClasses")) || [];
     setClasses(cachedClasses);
   }
 }, [offlineMode]);
+
 
 return (
   <div>
