@@ -29,10 +29,15 @@ const isWeekend = (date) => {
   return day === 0 || day === 6; // ✅ Simplified with clearer readability
 };
 
+// Safe helper function
 const makeSubmissionKey = (classId, date) => {
-  const dateKey = new Date(date).toISOString().split("T")[0];
+  if (!date) return null;
+  const parsed = new Date(date);
+  if (isNaN(parsed)) return null;
+  const dateKey = parsed.toISOString().split("T")[0];
   return `${classId}_${dateKey}`;
 };
+
 
 
 const Attendance = () => {
@@ -309,9 +314,17 @@ const submitAttendance = async () => {
   if (!selectedDate) return toast.error("Please select a date.");
   if (isWeekend(selectedDate)) return toast.error("Cannot mark attendance on weekends.");
 
-  // normalize date key (YYYY-MM-DD)
-  const dateKey = new Date(selectedDate).toISOString().split("T")[0];
-  const submissionKey = `${selectedClass}_${dateKey}`;
+// normalize date key (YYYY-MM-DD)
+let dateKey = null;
+let submissionKey = null;
+
+if (selectedDate) {
+  const parsed = new Date(selectedDate);
+  if (!isNaN(parsed)) {
+    dateKey = parsed.toISOString().split("T")[0];
+    submissionKey = `${selectedClass}_${dateKey}`;
+  }
+}
 
   if (submittedDates.has(submissionKey)) {
     return toast.error("Attendance for this class on this date is already recorded.");
