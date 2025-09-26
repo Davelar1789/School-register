@@ -93,34 +93,34 @@ export const markAttendanceBatch = async (req, res) => {
 
         console.log(`Attendance recorded successfully for all students in Class: ${className}`);
         
-         if (!teacherEmail || !teacherId) { // ✅ Validate both teacherEmail & teacherId
-            console.log('Error: Teacher email or ID not provided.');
-            return res.status(400).json({ message: "Teacher email and ID are required." });
-        }
+        //  if (!teacherEmail || !teacherId) { // ✅ Validate both teacherEmail & teacherId
+        //     console.log('Error: Teacher email or ID not provided.');
+        //     return res.status(400).json({ message: "Teacher email and ID are required." });
+        // }
 
-        // **Send confirmation email to the teacher**
-        console.log(`📧 Preparing to send email to: ${teacherEmail}...`);
+        // // **Send confirmation email to the teacher**
+        // console.log(`📧 Preparing to send email to: ${teacherEmail}...`);
 
-        try {
-            const emailMessage = `
-                Dear Teacher,  
+        // try {
+        //     const emailMessage = `
+        //         Dear Teacher,  
                 
-                You have successfully submitted attendance for your class on **${date}**.  
+        //         You have successfully submitted attendance for your class on **${date}**.  
                 
-                Thank you for your time and dedication.  
+        //         Thank you for your time and dedication.  
                 
-                Best regards,  
-                Joyful Brains Academy
-            `;
+        //         Best regards,  
+        //         Joyful Brains Academy
+        //     `;
 
-            const emailResponse = await sendMail(
-                teacherEmail,
-                "Attendance Submission Confirmation",
-                emailMessage // ✅ Use formatted message
-            );
+        //     const emailResponse = await sendMail(
+        //         teacherEmail,
+        //         "Attendance Submission Confirmation",
+        //         emailMessage // ✅ Use formatted message
+        //     );
 
-            console.log(`✅ Email sent successfully! Response: ${JSON.stringify(emailResponse, null, 2)}`);
-            res.status(201).json({ message: `Attendance recorded successfully for class "${className}", and email sent to the teacher.` });
+        //     console.log(`✅ Email sent successfully! Response: ${JSON.stringify(emailResponse, null, 2)}`);
+        //     res.status(201).json({ message: `Attendance recorded successfully for class "${className}", and email sent to the teacher.` });
 
             // // ✅ Trigger notification for the teacher using received `teacherId`
             // await createNotification(
@@ -131,10 +131,10 @@ export const markAttendanceBatch = async (req, res) => {
             //     "attendance"
             // );
 
-        } catch (emailError) {
-            console.error("❌ Error sending notification:", emailError);
-            res.status(500).json({ message: `Attendance recorded for class "${className}", but notification sending failed.` });
-        }
+        // } catch (emailError) {
+        //     console.error("❌ Error sending notification:", emailError);
+        //     res.status(500).json({ message: `Attendance recorded for class "${className}", but notification sending failed.` });
+        // }
 
     } catch (error) {
         console.error("❌ Error marking attendance batch:", error);
