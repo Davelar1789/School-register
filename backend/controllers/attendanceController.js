@@ -40,106 +40,172 @@ export const markAttendance = async (req, res) => {
 
  
 
-export const markAttendanceBatch = async (req, res) => {
-    console.log(`Marking attendance batch for Term ID: ${req.body.termId}, Date: ${req.body.date}`);
+// export const markAttendanceBatch = async (req, res) => {
+//     console.log(`Marking attendance batch for Term ID: ${req.body.termId}, Date: ${req.body.date}`);
 
-    try {
-        const { termId, date, attendanceList, classId, teacherEmail, teacherId } = req.body; // ✅ Now receiving teacherId from frontend
+//     try {
+//         const { termId, date, attendanceList, classId, teacherEmail, teacherId } = req.body; // ✅ Now receiving teacherId from frontend
 
        
-        console.log(`Fetching class details for Class ID: ${classId}...`);
-        const classData = await Class.findById(classId);
-        if (!classData) {
-            console.log(`Error: Class not found for Class ID: ${classId}`);
-            return res.status(404).json({ message: "Class not found." });
-        }
+//         console.log(`Fetching class details for Class ID: ${classId}...`);
+//         const classData = await Class.findById(classId);
+//         if (!classData) {
+//             console.log(`Error: Class not found for Class ID: ${classId}`);
+//             return res.status(404).json({ message: "Class not found." });
+//         }
 
-        const className = classData.className; // ✅ Extract class name
-        console.log(`Class name found: ${className}`);
+//         const className = classData.className; // ✅ Extract class name
+//         console.log(`Class name found: ${className}`);
 
-        console.log(`Validating term session for Term ID: ${termId}...`);
-        const term = await TermSession.findById(termId);
-        if (!term) {
-            console.log(`Error: Term session not found for Term ID: ${termId}`);
-            return res.status(404).json({ message: "Term session not found." });
-        }
+//         console.log(`Validating term session for Term ID: ${termId}...`);
+//         const term = await TermSession.findById(termId);
+//         if (!term) {
+//             console.log(`Error: Term session not found for Term ID: ${termId}`);
+//             return res.status(404).json({ message: "Term session not found." });
+//         }
 
-        const attendanceDate = new Date(date);
-        console.log(`Attendance date parsed: ${attendanceDate}`);
+//         const attendanceDate = new Date(date);
+//         console.log(`Attendance date parsed: ${attendanceDate}`);
 
-        if (attendanceDate < term.startDate || attendanceDate > term.endDate || isWeekend(attendanceDate)) {
-            console.log(`Error: Invalid attendance date (${attendanceDate}) - Out of term range or weekend.`);
-            return res.status(400).json({ message: "Invalid attendance date (must be within term and not on weekends)." });
-        }
+//         if (attendanceDate < term.startDate || attendanceDate > term.endDate || isWeekend(attendanceDate)) {
+//             console.log(`Error: Invalid attendance date (${attendanceDate}) - Out of term range or weekend.`);
+//             return res.status(400).json({ message: "Invalid attendance date (must be within term and not on weekends)." });
+//         }
 
-        console.log(`Checking for existing attendance records for Class: ${className}, Date: ${date}...`);
-        const existingRecords = await Attendance.find({ termId, classId, date });
-        if (existingRecords.length > 0) {
-            console.log(`Error: Attendance already recorded for Class: ${className} on Date: ${date}`);
-            return res.status(400).json({ message: "Attendance for this class on this date is already recorded." });
-        }
+//         console.log(`Checking for existing attendance records for Class: ${className}, Date: ${date}...`);
+//         const existingRecords = await Attendance.find({ termId, classId, date });
+//         if (existingRecords.length > 0) {
+//             console.log(`Error: Attendance already recorded for Class: ${className} on Date: ${date}`);
+//             return res.status(400).json({ message: "Attendance for this class on this date is already recorded." });
+//         }
 
-        console.log('Formatting batch attendance entries...');
-        const attendanceEntries = attendanceList.map(({ studentId, present }) => ({
-            studentId,
-            termId,
-            classId,
-            date,
-            present,
-        }));
+//         console.log('Formatting batch attendance entries...');
+//         const attendanceEntries = attendanceList.map(({ studentId, present }) => ({
+//             studentId,
+//             termId,
+//             classId,
+//             date,
+//             present,
+//         }));
 
-        console.log('Inserting attendance records...');
-        await Attendance.insertMany(attendanceEntries);
+//         console.log('Inserting attendance records...');
+//         await Attendance.insertMany(attendanceEntries);
 
-        console.log(`Attendance recorded successfully for all students in Class: ${className}`);
+//         console.log(`Attendance recorded successfully for all students in Class: ${className}`);
         
-        //  if (!teacherEmail || !teacherId) { // ✅ Validate both teacherEmail & teacherId
-        //     console.log('Error: Teacher email or ID not provided.');
-        //     return res.status(400).json({ message: "Teacher email and ID are required." });
-        // }
+//         //  if (!teacherEmail || !teacherId) { // ✅ Validate both teacherEmail & teacherId
+//         //     console.log('Error: Teacher email or ID not provided.');
+//         //     return res.status(400).json({ message: "Teacher email and ID are required." });
+//         // }
 
-        // // **Send confirmation email to the teacher**
-        // console.log(`📧 Preparing to send email to: ${teacherEmail}...`);
+//         // // **Send confirmation email to the teacher**
+//         // console.log(`📧 Preparing to send email to: ${teacherEmail}...`);
 
-        // try {
-        //     const emailMessage = `
-        //         Dear Teacher,  
+//         // try {
+//         //     const emailMessage = `
+//         //         Dear Teacher,  
                 
-        //         You have successfully submitted attendance for your class on **${date}**.  
+//         //         You have successfully submitted attendance for your class on **${date}**.  
                 
-        //         Thank you for your time and dedication.  
+//         //         Thank you for your time and dedication.  
                 
-        //         Best regards,  
-        //         Joyful Brains Academy
-        //     `;
+//         //         Best regards,  
+//         //         Joyful Brains Academy
+//         //     `;
 
-        //     const emailResponse = await sendMail(
-        //         teacherEmail,
-        //         "Attendance Submission Confirmation",
-        //         emailMessage // ✅ Use formatted message
-        //     );
+//         //     const emailResponse = await sendMail(
+//         //         teacherEmail,
+//         //         "Attendance Submission Confirmation",
+//         //         emailMessage // ✅ Use formatted message
+//         //     );
 
-        //     console.log(`✅ Email sent successfully! Response: ${JSON.stringify(emailResponse, null, 2)}`);
-        //     res.status(201).json({ message: `Attendance recorded successfully for class "${className}", and email sent to the teacher.` });
+//         //     console.log(`✅ Email sent successfully! Response: ${JSON.stringify(emailResponse, null, 2)}`);
+//         //     res.status(201).json({ message: `Attendance recorded successfully for class "${className}", and email sent to the teacher.` });
 
-            // // ✅ Trigger notification for the teacher using received `teacherId`
-            // await createNotification(
-            //     [], // No users (admins) in this case
-            //     [teacherId], // ✅ Use received teacherId from frontend
-            //     "Attendance Successfully Recorded",
-            //     `Attendance for ${className} on ${date} has been successfully recorded.`,
-            //     "attendance"
-            // );
+//             // // ✅ Trigger notification for the teacher using received `teacherId`
+//             // await createNotification(
+//             //     [], // No users (admins) in this case
+//             //     [teacherId], // ✅ Use received teacherId from frontend
+//             //     "Attendance Successfully Recorded",
+//             //     `Attendance for ${className} on ${date} has been successfully recorded.`,
+//             //     "attendance"
+//             // );
 
-        // } catch (emailError) {
-        //     console.error("❌ Error sending notification:", emailError);
-        //     res.status(500).json({ message: `Attendance recorded for class "${className}", but notification sending failed.` });
-        // }
+//         // } catch (emailError) {
+//         //     console.error("❌ Error sending notification:", emailError);
+//         //     res.status(500).json({ message: `Attendance recorded for class "${className}", but notification sending failed.` });
+//         // }
 
-    } catch (error) {
-        console.error("❌ Error marking attendance batch:", error);
-        res.status(500).json({ error: error.message });
+//     } catch (error) {
+//         console.error("❌ Error marking attendance batch:", error);
+//         res.status(500).json({ error: error.message });
+//     }
+// };
+
+
+export const markAttendanceBatch = async (req, res) => {
+  console.log(`Marking attendance batch for Term ID: ${req.body.termId}, Date: ${req.body.date}`);
+
+  try {
+    const { termId, date, attendanceList, classId } = req.body;
+
+    console.log(`Fetching class details for Class ID: ${classId}...`);
+    const classData = await Class.findById(classId);
+    if (!classData) {
+      console.log(`Error: Class not found for Class ID: ${classId}`);
+      return res.status(404).json({ message: "Class not found." });
     }
+
+    const className = classData.className;
+    console.log(`Class name found: ${className}`);
+
+    console.log(`Validating term session for Term ID: ${termId}...`);
+    const term = await TermSession.findById(termId);
+    if (!term) {
+      console.log(`Error: Term session not found for Term ID: ${termId}`);
+      return res.status(404).json({ message: "Term session not found." });
+    }
+
+    const attendanceDate = new Date(date);
+    console.log(`Attendance date parsed: ${attendanceDate}`);
+
+    if (attendanceDate < term.startDate || attendanceDate > term.endDate || isWeekend(attendanceDate)) {
+      console.log(`Error: Invalid attendance date (${attendanceDate}) - Out of term range or weekend.`);
+      return res.status(400).json({ message: "Invalid attendance date (must be within term and not on weekends)." });
+    }
+
+    console.log(`Checking for existing attendance records for Class: ${className}, Date: ${date}...`);
+    const existingRecords = await Attendance.find({ termId, classId, date });
+    if (existingRecords.length > 0) {
+      console.log(`Error: Attendance already recorded for Class: ${className} on Date: ${date}`);
+      return res.status(400).json({ message: "Attendance for this class on this date is already recorded." });
+    }
+
+    console.log('Formatting batch attendance entries...');
+    const attendanceEntries = attendanceList.map(({ studentId, present }) => ({
+      studentId,
+      termId,
+      classId,
+      date,
+      present,
+    }));
+
+    console.log('Inserting attendance records...');
+    await Attendance.insertMany(attendanceEntries);
+
+    console.log(`Attendance recorded successfully for all students in Class: ${className}`);
+
+    // ✅ FIX: Send response
+    return res.status(201).json({
+      message: `Attendance recorded successfully for class "${className}".`,
+      className,
+      date,
+    });
+
+  } catch (error) {
+    console.error("❌ Error marking attendance batch:", error);
+    res.status(500).json({ error: error.message });
+  }
 };
 
   
