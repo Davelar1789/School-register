@@ -535,87 +535,85 @@ return (
     Normalize date for consistent checks
     */}
   {(() => {
-    const dateKey =
-      selectedDate && new Date(selectedDate).toISOString().split("T")[0];
-    const submissionKey = `${selectedClass}_${dateKey}`;
+  const submissionKey = makeSubmissionKey(selectedClass, selectedDate);
 
-    return (
-      <>
-        {/* Attendance warning or status */}
-        {selectedClass && dateKey && submittedDates.has(submissionKey) && !isEditing && (
-          <p className="attendance-warning">
-            ⚠️ Attendance for this class on this date has already been submitted.
-          </p>
-        )}
+  return (
+    <>
+      {/* Attendance warning or status */}
+      {selectedClass && submissionKey && submittedDates.has(submissionKey) && !isEditing && (
+        <p className="attendance-warning">
+          ⚠️ Attendance for this class on this date has already been submitted.
+        </p>
+      )}
 
-        {/* Students List */}
-        {loading ? (
-          <p className="loading-message">Loading students...</p>
-        ) : students.length > 0 ? (
-          <table className="attendance-table">
-            <thead>
-              <tr>
-                <th>Student Name</th>
-                <th>Present?</th>
+      {/* Students List */}
+      {loading ? (
+        <p className="loading-message">Loading students...</p>
+      ) : students.length > 0 ? (
+        <table className="attendance-table">
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>Present?</th>
+            </tr>
+          </thead>
+          <tbody>
+            {students.map((student) => (
+              <tr key={student._id}>
+                <td>{student.name || "Unnamed Student"}</td>
+                <td>
+                  <input
+                    type="checkbox"
+                    checked={attendance[student._id] || false}
+                    onChange={(e) =>
+                      handleAttendanceChange(student._id, e.target.checked)
+                    }
+                    disabled={submittedDates.has(submissionKey) && !isEditing}
+                  />
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {students.map((student) => (
-                <tr key={student._id}>
-                  <td>{student.name || "Unnamed Student"}</td>
-                  <td>
-                    <input
-                      type="checkbox"
-                      checked={attendance[student._id] || false}
-                      onChange={(e) =>
-                        handleAttendanceChange(student._id, e.target.checked)
-                      }
-                      disabled={submittedDates.has(submissionKey) && !isEditing}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <p className="no-students-message">
-            {offlineMode
-              ? "Offline: No cached students found for this class."
-              : "No students found for this class."}
-          </p>
-        )}
+            ))}
+          </tbody>
+        </table>
+      ) : (
+        <p className="no-students-message">
+          {offlineMode
+            ? "Offline: No cached students found for this class."
+            : "No students found for this class."}
+        </p>
+      )}
 
-        {/* Submit or Edit Button */}
-        {submittedDates.has(submissionKey) ? (
-          isEditing ? (
-            <button
-              className="submit-button"
-              onClick={handleSubmitClick}
-              disabled={!selectedClass || !students.length}
-            >
-              Save Edited Attendance
-            </button>
-          ) : (
-            <button
-              className="edit-button"
-              onClick={handleEditClick}
-              disabled={!selectedClass || !students.length}
-            >
-              Edit Attendance
-            </button>
-          )
-        ) : (
+      {/* Submit or Edit Button */}
+      {submittedDates.has(submissionKey) ? (
+        isEditing ? (
           <button
             className="submit-button"
             onClick={handleSubmitClick}
             disabled={!selectedClass || !students.length}
           >
-            Submit Attendance
+            Save Edited Attendance
           </button>
-        )}
-      </>
-    );
-  })()}
+        ) : (
+          <button
+            className="edit-button"
+            onClick={handleEditClick}
+            disabled={!selectedClass || !students.length}
+          >
+            Edit Attendance
+          </button>
+        )
+      ) : (
+        <button
+          className="submit-button"
+          onClick={handleSubmitClick}
+          disabled={!selectedClass || !students.length}
+        >
+          Submit Attendance
+        </button>
+      )}
+    </>
+  );
+})()}
 
   {/* Modal */}
   {showModal && (
