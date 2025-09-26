@@ -360,6 +360,7 @@ const submitAttendance = async () => {
   }
 };
 
+
 // Sync offline attendance to server
 const syncOfflineAttendance = async () => {
   const teacherData = getDataFromToken();
@@ -456,175 +457,185 @@ return (
     <Sidebar />
     <Header />
     <div className="attendance-container">
-      <h2 className="attendance-title">Mark Attendance</h2>
+  <h2 className="attendance-title">Mark Attendance</h2>
 
-      {/* Class Selector */}
-     {/* Class Selector */}
-<select
-  className="class-selector"
-  onChange={(e) => {
-    const clsId = e.target.value;
-    setSelectedClass(clsId);
+  {/* Class Selector */}
+  <select
+    className="class-selector"
+    onChange={(e) => {
+      const clsId = e.target.value;
+      setSelectedClass(clsId);
 
-    if (clsId) {
-      if (offlineMode) {
-        // Load students from cached offline data
-        const cachedStudents = JSON.parse(
-          localStorage.getItem(`offlineStudents_${clsId}`)
-        ) || [];
+      if (clsId) {
+        if (offlineMode) {
+          // Load students from cached offline data
+          const cachedStudents =
+            JSON.parse(localStorage.getItem(`offlineStudents_${clsId}`)) || [];
 
-        setStudents(cachedStudents);
+          setStudents(cachedStudents);
 
-        // Reset attendance map for new class
-        const initialAttendance = {};
-        cachedStudents.forEach((s) => {
-          initialAttendance[s._id] = false;
-        });
-        setAttendance(initialAttendance);
+          // Reset attendance map for new class
+          const initialAttendance = {};
+          cachedStudents.forEach((s) => {
+            initialAttendance[s._id] = false;
+          });
+          setAttendance(initialAttendance);
 
-        // Automatically set today's date
-        setSelectedDate(new Date().toISOString().slice(0, 10));
+          // Automatically set today's date
+          setSelectedDate(new Date().toISOString().slice(0, 10));
 
-        if (cachedStudents.length > 0) {
-          toast.success("Offline: Loaded cached students.");
+          if (cachedStudents.length > 0) {
+            toast.success("Offline: Loaded cached students.");
+          } else {
+            console.log("Offline: No cached students found for this class.");
+          }
         } else {
-          console.log("Offline: No cached students found for this class.");
+          // Online fetch
+          fetchStudents(clsId);
         }
       } else {
-        // Online fetch
-        fetchStudents(clsId);
+        // No class selected, clear students
+        setStudents([]);
+        setAttendance({});
       }
-    } else {
-      // No class selected, clear students
-      setStudents([]);
-      setAttendance({});
-    }
-  }}
-  value={selectedClass || ""}
->
-  <option value="">Select Class</option>
-  {(offlineMode
-    ? JSON.parse(localStorage.getItem("offlineClasses")) || []
-    : classes
-  ).map((cls) => (
-    <option key={cls._id} value={cls._id}>
-      {cls.className}
-    </option>
-  ))}
-</select>
+    }}
+    value={selectedClass || ""}
+  >
+    <option value="">Select Class</option>
+    {(offlineMode
+      ? JSON.parse(localStorage.getItem("offlineClasses")) || []
+      : classes
+    ).map((cls) => (
+      <option key={cls._id} value={cls._id}>
+        {cls.className}
+      </option>
+    ))}
+  </select>
 
-      {/* Date Selector */}
-      <input
-        type="date"
-        className="date-selector"
-        value={selectedDate}
-        onChange={(e) => setSelectedDate(e.target.value)}
-        min={currentTerm?.startDate?.slice(0, 10)}
-        max={currentTerm?.endDate?.slice(0, 10)}
-        disabled={!selectedClass}
-      />
+  {/* Date Selector */}
+  <input
+    type="date"
+    className="date-selector"
+    value={selectedDate}
+    onChange={(e) => setSelectedDate(e.target.value)}
+    min={currentTerm?.startDate?.slice(0, 10)}
+    max={currentTerm?.endDate?.slice(0, 10)}
+    disabled={!selectedClass}
+  />
 
-      {/* Attendance warning or status */}
-      {selectedClass &&
-        selectedDate &&
-        submittedDates.has(`${selectedClass}_${selectedDate}`) &&
-        !isEditing && (
+  {/*
+    Normalize date for consistent checks
+    */}
+  {(() => {
+    const dateKey =
+      selectedDate && new Date(selectedDate).toISOString().split("T")[0];
+    const submissionKey = `${selectedClass}_${dateKey}`;
+
+    return (
+      <>
+        {/* Attendance warning or status */}
+        {selectedClass && dateKey && submittedDates.has(submissionKey) && !isEditing && (
           <p className="attendance-warning">
             ⚠️ Attendance for this class on this date has already been submitted.
           </p>
         )}
 
-      {/* Students List */}
-      {loading ? (
-        <p className="loading-message">Loading students...</p>
-      ) : students.length > 0 ? (
-        <table className="attendance-table">
-          <thead>
-            <tr>
-              <th>Student Name</th>
-              <th>Present?</th>
-            </tr>
-          </thead>
-         <tbody>
-  {students.map((student) => (
-    <tr key={student._id}>
-      <td>{student.name || "Unnamed Student"}</td>
-      <td>
-       <input
-  type="checkbox"
-  checked={attendance[student._id] || false}
-  onChange={(e) => handleAttendanceChange(student._id, e.target.checked)}
-  disabled={submittedDates.has(`${selectedClass}_${selectedDate}`) && !isEditing}
-/>
-      </td>
-    </tr>
-  ))}
-</tbody>
-        </table>
-      ) : (
-        <p className="no-students-message">
-          {offlineMode
-            ? "Offline: No cached students found for this class."
-            : "No students found for this class."}
-        </p>
-      )}
+        {/* Students List */}
+        {loading ? (
+          <p className="loading-message">Loading students...</p>
+        ) : students.length > 0 ? (
+          <table className="attendance-table">
+            <thead>
+              <tr>
+                <th>Student Name</th>
+                <th>Present?</th>
+              </tr>
+            </thead>
+            <tbody>
+              {students.map((student) => (
+                <tr key={student._id}>
+                  <td>{student.name || "Unnamed Student"}</td>
+                  <td>
+                    <input
+                      type="checkbox"
+                      checked={attendance[student._id] || false}
+                      onChange={(e) =>
+                        handleAttendanceChange(student._id, e.target.checked)
+                      }
+                      disabled={submittedDates.has(submissionKey) && !isEditing}
+                    />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <p className="no-students-message">
+            {offlineMode
+              ? "Offline: No cached students found for this class."
+              : "No students found for this class."}
+          </p>
+        )}
 
-      {/* Submit or Edit Button */}
-          {submittedDates.has(`${selectedClass}_${selectedDate}`) ? (
-        isEditing ? (
+        {/* Submit or Edit Button */}
+        {submittedDates.has(submissionKey) ? (
+          isEditing ? (
+            <button
+              className="submit-button"
+              onClick={handleSubmitClick}
+              disabled={!selectedClass || !students.length}
+            >
+              Save Edited Attendance
+            </button>
+          ) : (
+            <button
+              className="edit-button"
+              onClick={handleEditClick}
+              disabled={!selectedClass || !students.length}
+            >
+              Edit Attendance
+            </button>
+          )
+        ) : (
           <button
             className="submit-button"
             onClick={handleSubmitClick}
-            disabled={!selectedClass || !students.length} // offlineMode removed
+            disabled={!selectedClass || !students.length}
           >
-            Save Edited Attendance
+            Submit Attendance
           </button>
-        ) : (
-          <button
-            className="edit-button"
-            onClick={handleEditClick}
-            disabled={!selectedClass || !students.length} // offlineMode removed
-          >
-            Edit Attendance
-          </button>
-        )
-      ) : (
-        <button
-          className="submit-button"
-          onClick={handleSubmitClick}
-          disabled={!selectedClass || !students.length} // offlineMode removed
-        >
-          Submit Attendance
-        </button>
-      )}
+        )}
+      </>
+    );
+  })()}
 
-      {/* Modal */}
-      {showModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h3>
-              {isEditing
-                ? "Confirm Attendance Update"
-                : "Confirm Attendance Submission"}
-            </h3>
-            <p>
-              Are you sure you want to{" "}
-              {isEditing ? "update" : "submit"} attendance for this class on{" "}
-              {selectedDate}?
-            </p>
-           <button
-              className="modal-confirm"
-              onClick={isEditing ? updateAttendance : submitAttendance}
-            >
-              Confirm
-            </button>
-            <button className="modal-cancel" onClick={handleCancel}>
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
+  {/* Modal */}
+  {showModal && (
+    <div className="modal-overlay">
+      <div className="modal">
+        <h3>
+          {isEditing
+            ? "Confirm Attendance Update"
+            : "Confirm Attendance Submission"}
+        </h3>
+        <p>
+          Are you sure you want to{" "}
+          {isEditing ? "update" : "submit"} attendance for this class on{" "}
+          {selectedDate}?
+        </p>
+        <button
+          className="modal-confirm"
+          onClick={isEditing ? updateAttendance : submitAttendance}
+        >
+          Confirm
+        </button>
+        <button className="modal-cancel" onClick={handleCancel}>
+          Cancel
+        </button>
+      </div>
     </div>
+  )}
+</div>
   </div>
 );
 };
