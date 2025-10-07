@@ -129,12 +129,12 @@ const handleLogin = async (e) => {
 
         toast.success("Login successful!");
 
-        // Show version modal instead of direct navigation
-        if (!localStorage.getItem("version2Seen")) {
-          setShowVersionModal(true);
-        } else {
+        // // Show version modal instead of direct navigation
+        // if (!localStorage.getItem("version2Seen")) {
+        //   setShowVersionModal(true);
+        // } else {
           navigate("/teacher-dashboard");
-        }
+        // }
       } else {
         toast.error("Cannot reach server");
       }
