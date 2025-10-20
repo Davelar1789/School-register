@@ -325,7 +325,15 @@ const handleSaveGrades = async () => {
       ) : (
         students.length > 0 && (
           <div className="table-container">
-            <table className="gradebook-table">
+<table
+  className={`gradebook-table ${
+    visibleColumn === "all"
+      ? "all-columns"
+      : visibleColumn
+      ? "few-columns"
+      : ""
+  }`}
+>
               <thead>
                 <tr>
                   <th>Student Name</th>

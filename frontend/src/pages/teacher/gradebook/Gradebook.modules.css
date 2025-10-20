@@ -22,7 +22,7 @@
   width: 100%;
   border-collapse: collapse;
   background-color: white;
-  min-width: 900px;
+  transition: all 0.3s ease;
 }
 
 .gradebook-table th,
@@ -36,6 +36,34 @@
   width: 60px;
   padding: 4px;
   text-align: center;
+}
+
+/* Default wide table when all columns are visible */
+.gradebook-table.all-columns {
+  min-width: 900px;
+}
+
+/* Compact responsive layout when few columns are shown */
+.gradebook-table.single-column,
+.gradebook-table.few-columns {
+  min-width: auto;
+  width: 100%;
+  table-layout: auto;
+}
+
+/* Make sure it looks nice on small screens */
+@media (max-width: 768px) {
+  .gradebook-table {
+    font-size: 0.9rem;
+  }
+
+  .gradebook-table input {
+    width: 50px;
+  }
+
+  .gradebook-container {
+    padding: 10px;
+  }
 }
 
 .save-button {
@@ -70,15 +98,6 @@
   text-align: center;
 }
 
-@media (max-width: 768px) {
-  .gradebook-table {
-    font-size: 0.9rem;
-  }
-
-  .gradebook-table input {
-    width: 60px;
-  }
-}
 
 
 @media (max-width: 600px) {
