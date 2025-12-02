@@ -1,129 +1,175 @@
-.td-wrapper {
+.teacher-details-container {
   display: flex;
   min-height: 100vh;
-  background: #f4f6fa;
+  background: #f5f7fb;
 }
 
-.td-content {
+/* Main Content */
+.teacher-details-content {
   flex: 1;
   padding: 2rem;
-  margin-left: 260px;
+  margin-left: 250px;
 }
 
-/* PROFILE CARD */
-.td-profile-card {
+/* -------------------------
+   Teacher Profile Card
+------------------------- */
+.teacher-profile-card {
   display: flex;
+  gap: 2rem;
+  padding: 2rem;
   background: white;
-  padding: 20px;
-  border-radius: 14px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  border-radius: 16px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.05);
   margin-bottom: 2rem;
+  flex-wrap: wrap;
 }
 
-.td-avatar {
-  width: 120px;
-  height: 120px;
-  border-radius: 14px;
-  object-fit: cover;
-  margin-right: 20px;
-}
-
-.td-profile-info h2 {
-  margin: 0;
-}
-
-.td-role-badge {
-  display: inline-block;
-  background: #e6f0ff;
-  color: #0052cc;
-  padding: 5px 12px;
-  border-radius: 6px;
-  margin: 6px 0;
-}
-
-.td-info-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(200px, 1fr));
-  gap: 8px;
-}
-
-/* TABS */
-.td-tabs {
+.teacher-img-wrapper {
   display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.teacher-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 16px;
+  object-fit: cover;
+  border: 3px solid #e0e0e0;
+}
+
+.teacher-info {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 1rem;
-  margin-bottom: 1.5rem;
 }
 
-.td-tabs button {
-  padding: 10px 20px;
-  border: none;
-  background: #e8e8e8;
-  border-radius: 8px;
-  cursor: pointer;
+.info-item strong {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 4px;
 }
 
-.td-tabs .active {
-  background: #0052cc;
-  color: white;
+.info-item span {
+  color: #555;
 }
 
-/* CARDS */
-.td-card {
+/* -------------------------
+   Panels Section
+------------------------- */
+.panels-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+
+/* -------------------------
+   Panel Box (Reusable)
+------------------------- */
+.panel-box {
   background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+  padding: 1.5rem;
+  border-radius: 16px;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.05);
 }
 
-.td-card select {
+.panel-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+/* Assigned Classes */
+.assigned-classes-list ul {
+  margin-top: .5rem;
+  padding-left: 20px;
+}
+
+/* Select Inputs */
+.select-box {
   width: 100%;
   padding: 10px;
+  border: 1px solid #cdd3dd;
   border-radius: 8px;
   margin-bottom: 1rem;
 }
 
-/* CHIPS */
-.td-chip {
-  display: inline-block;
-  padding: 6px 12px;
-  background: #f1f4f8;
-  border-radius: 20px;
-  margin: 4px;
-  cursor: pointer;
-}
-
-.td-chip input {
-  margin-right: 6px;
-}
-
-.td-chip.filled {
-  background: #0052cc;
-  color: white;
-}
-
-.td-chip-list {
+/* Subject Checkboxes */
+.subject-checkboxes {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
-/* BUTTON */
-.td-btn {
+.subject-checkbox {
+  background: #eef1f6;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+/* Buttons */
+.assign-btn {
   margin-top: 10px;
-  padding: 10px 16px;
   background: #0052cc;
+  padding: 10px 18px;
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
 }
 
-.td-btn:hover {
-  background: #003f99;
+.assign-btn:hover {
+  background: #003d99;
 }
 
-.td-hint {
-  font-size: 14px;
-  color: #666;
-  margin-top: -8px;
+/* ----------------------------------------
+     RESPONSIVENESS (RESTORED & IMPROVED)
+---------------------------------------- */
+
+/* Tablet */
+@media (max-width: 992px) {
+  .panels-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  .teacher-details-content {
+    margin-left: 0;  /* Sidebar collapses */
+    padding: 1rem;
+  }
+
+  .teacher-profile-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .teacher-img-wrapper {
+    justify-content: center;
+  }
+
+  .teacher-info {
+    grid-template-columns: 1fr; /* Stack profile details */
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .teacher-image {
+    width: 120px;
+    height: 120px;
+  }
+
+  .panel-title {
+    font-size: 18px;
+  }
+
+  .assign-btn {
+    width: 100%;
+  }
 }
