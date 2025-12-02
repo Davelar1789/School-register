@@ -54,6 +54,9 @@ const Attendance = () => {
 const [attendanceIds, setAttendanceIds] = useState({}); // ✅ Map of studentId to attendance record _id
 const [isEditing, setIsEditing] = useState(false); // ✅ Track editing mode
 const [offlineMode, setOfflineMode] = useState(true);
+const [unmarkedDates, setUnmarkedDates] = useState([]);
+const [loadingUnmarked, setLoadingUnmarked] = useState(false);
+
 
 // Function to check connectivity via /ping
 const checkOnlineStatus = async () => {
@@ -64,6 +67,14 @@ const checkOnlineStatus = async () => {
     setOfflineMode(true); // unreachable → offline
   }
 };
+
+const handleUnmarkedDateClick = (dateObj) => {
+  if (!dateObj) return;
+  const formatted = new Date(dateObj).toISOString().split("T")[0];
+  setSelectedDate(formatted);
+  toast.success(`Loading attendance for ${formatted}`);
+};
+
 
 // Check only on mount
 useEffect(() => {
@@ -134,6 +145,28 @@ const fetchClasses = async () => {
     }
   } finally {
     setLoading(false);
+  }
+};
+
+// Fetch unmarked dates for a class
+const fetchUnmarkedDatesForClass = async (classId, termId) => {
+  if (!classId || !termId) return;
+
+  setLoadingUnmarked(true);
+
+  try {
+    const res = await axios.get("/api/attendance/unmarked-dates", {
+      params: { classId, termId },
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    const dates = res.data?.unmarkedDates || [];
+    setUnmarkedDates(dates);
+  } catch (err) {
+    console.error("Error fetching unmarked dates:", err);
+    toast.error("Could not load unmarked dates.");
+  } finally {
+    setLoadingUnmarked(false);
   }
 };
 
@@ -456,6 +489,15 @@ useEffect(() => {
   }
 }, [selectedClass, selectedDate, offlineMode]);
 
+/* ----------------------------------------------
+   INSERTED EFFECT: Fetch unmarked dates when class changes
+   ---------------------------------------------- */
+useEffect(() => {
+  if (selectedClass && currentTerm && !offlineMode) {
+    fetchUnmarkedDatesForClass(selectedClass, currentTerm._id);
+  }
+}, [selectedClass, currentTerm, offlineMode]);
+
 // Fetch current term and teacher's classes on mount
 useEffect(() => {
   if (!offlineMode) {
@@ -543,6 +585,38 @@ return (
     max={currentTerm?.endDate?.slice(0, 10)}
     disabled={!selectedClass}
   />
+
+  {/* Unmarked Dates Section */}
+{selectedClass && !offlineMode && (
+  <div className="unmarked-dates-container">
+    <h3 className="unmarked-dates-title">Unmarked Dates</h3>
+
+    {loadingUnmarked ? (
+      <p className="loading-unmarked">Loading unmarked dates...</p>
+    ) : unmarkedDates.length === 0 ? (
+      <p className="no-unmarked">🎉 All attendance submitted!</p>
+    ) : (
+      <div className="unmarked-dates-list">
+        {unmarkedDates.map((dateStr, idx) => {
+          const formatted = new Date(dateStr).toISOString().split("T")[0];
+
+          return (
+            <button
+              key={idx}
+              className={`unmarked-date-chip ${
+                formatted === selectedDate ? "chip-active" : ""
+              }`}
+              onClick={() => handleUnmarkedDateClick(dateStr)}
+            >
+              {formatted}
+            </button>
+          );
+        })}
+      </div>
+    )}
+  </div>
+)}
+
 
   {/*
     Normalize date for consistent checks

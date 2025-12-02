@@ -166,6 +166,48 @@
   background-color: #ff7f1f;
 }
 
+.unmarked-dates-container {
+  margin: 20px 0;
+  padding: 10px 0;
+}
+
+.unmarked-dates-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.unmarked-dates-list {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 5px;
+}
+
+.unmarked-date-chip {
+  padding: 8px 14px;
+  border-radius: 25px;
+  border: none;
+  background: #e8edff;
+  cursor: pointer;
+  transition: 0.2s ease;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.unmarked-date-chip:hover {
+  background: #d4dcff;
+  transform: scale(1.05);
+}
+
+.chip-active {
+  background: #4b6bff;
+  color: white;
+  font-weight: bold;
+}
+
+
 /* Responsive: stack warning and button on small screens */
 @media (max-width: 600px) {
   .attendance-warning {
