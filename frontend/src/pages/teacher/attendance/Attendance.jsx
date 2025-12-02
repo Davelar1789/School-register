@@ -430,6 +430,9 @@ if (selectedDate) {
       return updated;
     });
 
+        setUnmarkedDates(prev => prev.filter(d => d !== dateKey));
+
+
     toast.success("Attendance marked successfully!");
   } catch (err) {
     console.error("Error marking attendance:", err);
