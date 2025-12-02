@@ -685,147 +685,90 @@ export const updateAttendance2 = async (req, res) => {
 
 export const fetchUnmarkedDates = async (req, res) => {
   try {
-    const { termId, classId } = req.query;
-    console.log("🔍 Incoming Request:", { termId, classId });
+    const { classId, termId } = req.query;
 
-    if (!termId || !classId) {
-      return res.status(400).json({ message: "termId and classId are required." });
+    if (!classId || !termId) {
+      return res.status(400).json({ message: "classId and termId are required." });
     }
 
-    // Validate ObjectId shapes if possible
-    try {
-      const mongoose = (await import("mongoose")).default;
-      console.log("🧩 Valid ObjectId(termId)?", mongoose.Types.ObjectId.isValid(termId));
-      console.log("🧩 Valid ObjectId(classId)?", mongoose.Types.ObjectId.isValid(classId));
-    } catch (e) {
-      console.log("⚠️ Couldn't check ObjectId validity (mongoose import failed):", e.message);
-    }
+    console.log("📥 Request:", { classId, termId });
 
-    // Load term
+    // 1️⃣ Load the term range
     const term = await TermSession.findById(termId);
-    if (!term) {
-      console.log("❌ Term not found for id:", termId);
-      return res.status(404).json({ message: "Term session not found." });
+    if (!term) return res.status(404).json({ message: "Term not found" });
+
+    const startDate = new Date(term.startDate);
+    const endDate = new Date(term.endDate);
+
+    console.log("📅 Term:", {
+      start: startDate.toISOString().slice(0, 10),
+      end: endDate.toISOString().slice(0, 10),
+    });
+
+    // 2️⃣ Fetch all students in this class
+    const students = await Students.find({ classId }).select("_id");
+
+    if (students.length === 0) {
+      return res.status(404).json({ message: "No students found for this class." });
     }
 
-    const start = new Date(term.startDate);
-    const end = new Date(term.endDate);
-    console.log("📅 Term Range:", { start: start.toISOString(), end: end.toISOString() });
+    const studentIds = students.map((s) => s._id);
 
-    // Generate all valid school days (Mon–Fri)
-    const getValidSchoolDates = () => {
-      const dates = [];
-      let current = new Date(start);
-      // normalize time-of-day to midnight UTC to be consistent
-      current.setUTCHours(0, 0, 0, 0);
-      const last = new Date(end);
-      last.setUTCHours(0, 0, 0, 0);
+    console.log("👨‍👩‍👦 Students in class:", studentIds.length);
 
-      while (current <= last) {
-        const day = current.getUTCDay(); // 0 = Sun, 6 = Sat
-        if (day !== 0 && day !== 6) {
-          dates.push(new Date(current)); // push copy
-        }
-        current.setUTCDate(current.getUTCDate() + 1);
+    // 3️⃣ Generate all valid school days (Mon–Fri only)
+    const allDates = [];
+    let current = new Date(startDate);
+
+    while (current <= endDate) {
+      const day = current.getUTCDay();
+      if (day !== 0 && day !== 6) {
+        allDates.push(new Date(current));
       }
-      return dates;
-    };
+      current.setUTCDate(current.getUTCDate() + 1);
+    }
 
-    const validDates = getValidSchoolDates();
-    console.log("📘 Total Valid School Dates:", validDates.length);
+    console.log("📘 Total school days:", allDates.length);
 
-    // Helper to convert Date -> YYYY-MM-DD (UTC)
-    const toISODateOnly = (d) => {
-      if (!d) return null;
-      const dt = new Date(d);
-      if (isNaN(dt.getTime())) return null;
-      // Use UTC so timezone won't shift date across boundaries
-      const yyyy = dt.getUTCFullYear();
-      const mm = String(dt.getUTCMonth() + 1).padStart(2, "0");
-      const dd = String(dt.getUTCDate()).padStart(2, "0");
-      return `${yyyy}-${mm}-${dd}`;
-    };
+    const normalize = (d) => d.toISOString().slice(0, 10);
 
-    // FIRST: try the precise query (fast path)
-    console.log("🔎 Running initial direct query (classId + termId + date range) ...");
-    let attendanceRecords = await Attendance.find({
-      classId,
+    // 4️⃣ Fetch attendance for ANY student in class
+    const attendanceRecords = await Attendance.find({
       termId,
-      date: { $gte: start, $lte: end }
-    }).select("date termId classId");
+      studentId: { $in: studentIds },
+      date: { $gte: startDate, $lte: endDate },
+    }).select("date studentId present");
 
-    console.log("📝 Direct Query result count:", attendanceRecords.length);
+    console.log("📝 Attendance docs found:", attendanceRecords.length);
 
-    // If direct query returned zero, probe further (some systems store date as string or termId missing)
-    if (!attendanceRecords.length) {
-      console.log("🔍 Direct query returned 0 — probing with broader queries to find where data lives...");
+    // 5️⃣ Extract all marked dates
+    const markedDatesSet = new Set(
+      attendanceRecords.map((a) => normalize(a.date))
+    );
 
-      // 1) Find any attendance for this class (ignore term/date) - to check if classId linkage exists
-      const byClass = await Attendance.find({ classId }).limit(10).select("date termId classId");
-      console.log("🧾 Any attendance docs with this classId? count:", byClass.length);
-      byClass.forEach((d, i) =>
-        console.log(`   sample-byClass[${i}]: date=${d.date} | termId=${d.termId} | classId=${d.classId}`)
-      );
+    console.log("📌 Marked dates:", markedDatesSet);
 
-      // 2) Find any attendance docs for this term (ignore class/date) - to check term linkage
-      const byTerm = await Attendance.find({ termId }).limit(10).select("date termId classId");
-      console.log("📚 Any attendance docs with this termId? count:", byTerm.length);
-      byTerm.forEach((d, i) =>
-        console.log(`   sample-byTerm[${i}]: date=${d.date} | termId=${d.termId} | classId=${d.classId}`)
-      );
-
-      // 3) Find docs for this class where date exists (could be string dates). We'll fetch a few
-      const byClassWithDate = await Attendance.find({ classId, date: { $exists: true } }).limit(50).select("date termId classId");
-      console.log("🔎 classId with any date field (count):", byClassWithDate.length);
-      byClassWithDate.forEach((d, i) =>
-        console.log(`   sample-classWithDate[${i}]: typeof(date)=${typeof d.date} | value=${d.date} | toISO=${toISODateOnly(d.date)} | termId=${d.termId}`)
-      );
-
-      // Use that broader set (class-limited) to compute marked days (fallback)
-      attendanceRecords = byClassWithDate;
-    }
-
-    // Build a robust set of marked yyyy-mm-dd strings
-    const markedDateStrings = new Set();
-    attendanceRecords.forEach((rec, i) => {
-      // attempt to get a normalized ISO date-only string
-      const iso = toISODateOnly(rec.date);
-      if (iso) {
-        markedDateStrings.add(iso);
-      } else if (typeof rec.date === "string") {
-        // If stored exactly as 'YYYY-MM-DD' (common), use it
-        const s = rec.date.trim();
-        if (/^\d{4}-\d{2}-\d{2}$/.test(s)) markedDateStrings.add(s);
-      }
-      // Also consider the possibility termId is missing in rec (we'll optionally check)
-      console.log(`   record[${i}] rawDate=${rec.date} -> iso=${iso} | termId=${rec.termId}`);
-    });
-
-    console.log("📌 Marked Dates (normalized YYYY-MM-DD) count:", markedDateStrings.size);
-    console.log(markedDateStrings);
-
-    // Now compute unmarked dates by comparing normalized date-only strings
+    // 6️⃣ Compare against school days
     const unmarkedDates = [];
-    validDates.forEach((d) => {
-      const iso = toISODateOnly(d);
-      const isMarked = markedDateStrings.has(iso);
-      if (!isMarked) unmarkedDates.push(d.toISOString()); // return ISO so frontend behavior unchanged
 
-      console.log(`⛔ Check Date ${iso} -> marked? ${isMarked ? "YES" : "NO"}`);
+    allDates.forEach((d) => {
+      const iso = normalize(d);
+      const isMarked = markedDatesSet.has(iso);
+      if (!isMarked) unmarkedDates.push(d.toISOString());
     });
 
-    console.log("🚨 Unmarked Dates Count:", unmarkedDates.length);
+    console.log("🚨 Unmarked:", unmarkedDates.length);
 
+    // 7️⃣ Return
     return res.status(200).json({
-      totalSchoolDays: validDates.length,
-      markedDays: validDates.length - unmarkedDates.length,
+      totalSchoolDays: allDates.length,
+      markedDays: markedDatesSet.size,
       unmarkedCount: unmarkedDates.length,
       unmarkedDates,
     });
-
   } catch (error) {
-    console.error("❌ Error fetching unmarked date list:", error);
-    return res.status(500).json({ message: "Internal Server Error", error: error.message });
+    console.error("❌ Error:", error);
+    return res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
