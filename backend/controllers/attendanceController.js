@@ -719,7 +719,7 @@ export const fetchUnmarkedDates = async (req, res) => {
 
     // 2) Fetch class students
     console.log("🔍 Fetching students for class:", classId);
-    const students = await Student.find({ classId }).select("_id");
+    const students = await Students.find({ classId }).select("_id");
 
     if (students.length === 0) {
       console.log("❌ No students found for class:", classId);
