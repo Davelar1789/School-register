@@ -476,27 +476,14 @@ useEffect(() => {
   if (!offlineMode) {
     syncOfflineAttendance();
   }
-}, [offlineMode, currentTerm]); // ensure term is loaded before syncing
+}, [offlineMode, currentTerm]);
 
 // Automatically fetch attendance when class/date changes
 useEffect(() => {
   if (selectedClass && selectedDate) {
-    if (offlineMode) {
-      fetchAttendanceForDate(selectedClass, selectedDate);
-    } else {
-      fetchAttendanceForDate(selectedClass, selectedDate);
-    }
+    fetchAttendanceForDate(selectedClass, selectedDate);
   }
 }, [selectedClass, selectedDate, offlineMode]);
-
-/* ----------------------------------------------
-   INSERTED EFFECT: Fetch unmarked dates when class changes
-   ---------------------------------------------- */
-useEffect(() => {
-  if (selectedClass && currentTerm && !offlineMode) {
-    fetchUnmarkedDatesForClass(selectedClass, currentTerm._id);
-  }
-}, [selectedClass, currentTerm, offlineMode]);
 
 // Fetch current term and teacher's classes on mount
 useEffect(() => {
@@ -504,7 +491,7 @@ useEffect(() => {
     fetchCurrentTerm();
     fetchClasses();
   } else {
-    // Load cached term and classes for offline mode
+    // Load cached term/class for offline mode
     const cachedTerm = JSON.parse(localStorage.getItem("offlineCurrentTerm"));
     if (cachedTerm) setCurrentTerm(cachedTerm);
 
@@ -513,6 +500,14 @@ useEffect(() => {
     setClasses(cachedClasses);
   }
 }, [offlineMode]);
+
+// ⭐⭐⭐ NEW USEEFFECT — Fetch unmarked dates when class or term changes
+useEffect(() => {
+  if (selectedClass && currentTerm && !offlineMode) {
+    fetchUnmarkedDatesForClass(selectedClass, currentTerm._id);
+  }
+}, [selectedClass, currentTerm, offlineMode]);
+
 
 
 return (
