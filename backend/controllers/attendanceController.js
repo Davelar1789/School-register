@@ -681,3 +681,68 @@ export const updateAttendance2 = async (req, res) => {
     res.status(500).json({ error: "Server error updating attendance." });
   }
 };
+
+
+export const fetchUnmarkedDates = async (req, res) => {
+  try {
+    const { termId, classId } = req.query;
+
+    if (!termId || !classId) {
+      return res.status(400).json({ message: "termId and classId are required." });
+    }
+
+    // Check term validity
+    const term = await TermSession.findById(termId);
+    if (!term) {
+      return res.status(404).json({ message: "Term session not found." });
+    }
+
+    const start = new Date(term.startDate);
+    const end = new Date(term.endDate);
+
+    // Generate all valid school days (Mon–Fri)
+    const getValidSchoolDates = () => {
+      const dates = [];
+      let current = new Date(start);
+
+      while (current <= end) {
+        const day = current.getDay();
+        if (day !== 0 && day !== 6) {
+          dates.push(new Date(current)); // push a copy
+        }
+        current.setDate(current.getDate() + 1);
+      }
+      return dates;
+    };
+
+    const validDates = getValidSchoolDates();
+
+    // Fetch ALL attendance entries for the class within the term
+    const attendanceRecords = await Attendance.find({
+      classId,
+      termId,
+      date: { $gte: start, $lte: end }
+    }).select("date");
+
+    // Convert recorded dates into a set for fast checking
+    const markedDatesSet = new Set(
+      attendanceRecords.map((r) => new Date(r.date).toDateString())
+    );
+
+    // Identify unmarked dates
+    const unmarkedDates = validDates.filter(
+      (d) => !markedDatesSet.has(d.toDateString())
+    );
+
+    return res.status(200).json({
+      totalSchoolDays: validDates.length,
+      markedDays: validDates.length - unmarkedDates.length,
+      unmarkedCount: unmarkedDates.length,
+      unmarkedDates,
+    });
+
+  } catch (error) {
+    console.error("❌ Error fetching unmarked date list:", error.message);
+    res.status(500).json({ message: "Internal Server Error", error: error.message });
+  }
+};
