@@ -1,122 +1,129 @@
-.teacher-details-container {
-    display: flex;
-    min-height: 100vh;
-    background-color: #f7f9fc;
-  }
-  
-  .teacher-details-content {
-    flex: 1;
-    padding: 2rem;
-    overflow-y: auto;
-  }
-  
-  .teacher-heading {
-    font-size: 24px;
-    margin-bottom: 20px;
-    font-weight: 600;
-    color: #333;
-  }
-  
-  .teacher-profile {
-    display: flex;
-    flex-wrap: wrap;
-    background-color: white;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    margin-bottom: 2rem;
-  }
-  
-  .teacher-image {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin-right: 30px;
-    border: 3px solid #ddd;
-  }
-  
-  .teacher-info {
-    flex: 1;
-    min-width: 250px;
-  }
-  
-  .teacher-info p {
-    margin: 8px 0;
-    font-size: 15px;
-  }
-  
-  .class-assignment {
-    background-color: white;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-  }
-  
-  .class-dropdown {
-    padding: 10px;
-    width: 100%;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    margin-bottom: 1rem;
-  }
-  
-  .assigned-classes-list ul {
-    list-style: disc;
-    padding-left: 20px;
-    margin-top: 0.5rem;
-  }
+.td-wrapper {
+  display: flex;
+  min-height: 100vh;
+  background: #f4f6fa;
+}
 
-  .info-text {
-    margin-top: 0.5rem;
-    font-style: italic;
-    color: #555;
-  }
-  
-  .subject-checkboxes {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-top: 10px;
-  }
-  
-  .subject-checkbox {
-    background: #f1f1f1;
-    padding: 8px 12px;
-    border-radius: 5px;
-  }
-  
-  .assign-btn {
-    margin-top: 10px;
-    padding: 8px 16px;
-    background-color: #0052cc;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  .assign-btn:hover {
-    background-color: #003f99;
-  }
-  
-  
-  @media (max-width: 768px) {
-    .teacher-profile {
-      flex-direction: column;
-      align-items: center;
-    }
-  
-    .teacher-image {
-      margin: 0 auto 20px auto;
-    }
-  
-    .teacher-info {
-      text-align: center;
-    }
-  }
-  
-  @media (min-width: 768px) {
-    .teacher-details-content {
-        margin-left: 250px;
-      }
-  }
+.td-content {
+  flex: 1;
+  padding: 2rem;
+  margin-left: 260px;
+}
+
+/* PROFILE CARD */
+.td-profile-card {
+  display: flex;
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  margin-bottom: 2rem;
+}
+
+.td-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 14px;
+  object-fit: cover;
+  margin-right: 20px;
+}
+
+.td-profile-info h2 {
+  margin: 0;
+}
+
+.td-role-badge {
+  display: inline-block;
+  background: #e6f0ff;
+  color: #0052cc;
+  padding: 5px 12px;
+  border-radius: 6px;
+  margin: 6px 0;
+}
+
+.td-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(200px, 1fr));
+  gap: 8px;
+}
+
+/* TABS */
+.td-tabs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.td-tabs button {
+  padding: 10px 20px;
+  border: none;
+  background: #e8e8e8;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.td-tabs .active {
+  background: #0052cc;
+  color: white;
+}
+
+/* CARDS */
+.td-card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0,0,0,0.05);
+}
+
+.td-card select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+/* CHIPS */
+.td-chip {
+  display: inline-block;
+  padding: 6px 12px;
+  background: #f1f4f8;
+  border-radius: 20px;
+  margin: 4px;
+  cursor: pointer;
+}
+
+.td-chip input {
+  margin-right: 6px;
+}
+
+.td-chip.filled {
+  background: #0052cc;
+  color: white;
+}
+
+.td-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* BUTTON */
+.td-btn {
+  margin-top: 10px;
+  padding: 10px 16px;
+  background: #0052cc;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.td-btn:hover {
+  background: #003f99;
+}
+
+.td-hint {
+  font-size: 14px;
+  color: #666;
+  margin-top: -8px;
+}
