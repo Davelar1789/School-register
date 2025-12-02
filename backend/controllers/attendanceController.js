@@ -685,38 +685,52 @@ export const updateAttendance2 = async (req, res) => {
 
 export const fetchUnmarkedDates = async (req, res) => {
   try {
+    console.log("====== 📌 FETCH UNMARKED DATES REQUEST START ======");
+
+    console.log("🔗 Full URL:", req.originalUrl);
+    console.log("📝 HTTP Method:", req.method);
+    console.log("📥 Raw Query:", req.query);
+
     const { classId, termId } = req.query;
 
     if (!classId || !termId) {
+      console.log("❌ Missing query params:", { classId, termId });
       return res.status(400).json({ message: "classId and termId are required." });
     }
 
-    console.log("📥 Request:", { classId, termId });
+    console.log("📥 Extracted Params:", { classId, termId });
 
-    // 1️⃣ Load the term range
+    // 1) Load term
+    console.log("🔍 Fetching term session…");
     const term = await TermSession.findById(termId);
-    if (!term) return res.status(404).json({ message: "Term not found" });
+
+    if (!term) {
+      console.log("❌ Term not found for ID:", termId);
+      return res.status(404).json({ message: "Term not found" });
+    }
 
     const startDate = new Date(term.startDate);
     const endDate = new Date(term.endDate);
 
-    console.log("📅 Term:", {
-      start: startDate.toISOString().slice(0, 10),
-      end: endDate.toISOString().slice(0, 10),
+    console.log("📅 Term Loaded:", {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
     });
 
-    // 2️⃣ Fetch all students in this class
-    const students = await Students.find({ classId }).select("_id");
+    // 2) Fetch class students
+    console.log("🔍 Fetching students for class:", classId);
+    const students = await Student.find({ classId }).select("_id");
 
     if (students.length === 0) {
+      console.log("❌ No students found for class:", classId);
       return res.status(404).json({ message: "No students found for this class." });
     }
 
-    const studentIds = students.map((s) => s._id);
+    console.log(`👨‍👩‍👦 Students Found: ${students.length}`);
 
-    console.log("👨‍👩‍👦 Students in class:", studentIds.length);
+    const studentIds = students.map((s) => s._id.toString());
 
-    // 3️⃣ Generate all valid school days (Mon–Fri only)
+    // 3) Generate school days
     const allDates = [];
     let current = new Date(startDate);
 
@@ -728,47 +742,51 @@ export const fetchUnmarkedDates = async (req, res) => {
       current.setUTCDate(current.getUTCDate() + 1);
     }
 
-    console.log("📘 Total school days:", allDates.length);
+    console.log("📘 School Days Generated:", allDates.length);
 
     const normalize = (d) => d.toISOString().slice(0, 10);
 
-    // 4️⃣ Fetch attendance for ANY student in class
+    // 4) Fetch attendance
+    console.log("🔍 Fetching attendance docs...");
     const attendanceRecords = await Attendance.find({
       termId,
       studentId: { $in: studentIds },
       date: { $gte: startDate, $lte: endDate },
     }).select("date studentId present");
 
-    console.log("📝 Attendance docs found:", attendanceRecords.length);
+    console.log("📝 Attendance Records Found:", attendanceRecords.length);
 
-    // 5️⃣ Extract all marked dates
+    // 5) Prepare marked dates
     const markedDatesSet = new Set(
       attendanceRecords.map((a) => normalize(a.date))
     );
 
-    console.log("📌 Marked dates:", markedDatesSet);
+    console.log("📌 Marked Dates Set:", Array.from(markedDatesSet));
 
-    // 6️⃣ Compare against school days
-    const unmarkedDates = [];
+    // 6) Compare
+    const unmarked = allDates.filter(
+      (d) => !markedDatesSet.has(normalize(d))
+    );
 
-    allDates.forEach((d) => {
-      const iso = normalize(d);
-      const isMarked = markedDatesSet.has(iso);
-      if (!isMarked) unmarkedDates.push(d.toISOString());
-    });
+    console.log("🚨 Unmarked Days:", unmarked.length);
 
-    console.log("🚨 Unmarked:", unmarkedDates.length);
+    console.log("====== ✅ SUCCESS: SENDING RESPONSE ======");
 
-    // 7️⃣ Return
     return res.status(200).json({
       totalSchoolDays: allDates.length,
       markedDays: markedDatesSet.size,
-      unmarkedCount: unmarkedDates.length,
-      unmarkedDates,
+      unmarkedCount: unmarked.length,
+      unmarkedDates: unmarked.map((d) => d.toISOString()),
     });
+
   } catch (error) {
-    console.error("❌ Error:", error);
-    return res.status(500).json({ message: "Server error", error: error.message });
+    console.log("====== ❌ SERVER ERROR ======");
+    console.error("🔥 Detailed Error:", error); // prints stack trace
+
+    return res.status(500).json({
+      message: "Server error",
+      error: error.message,
+      stack: error.stack,
+    });
   }
 };
-
