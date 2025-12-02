@@ -612,10 +612,12 @@ return (
     disabled={!selectedClass}
   />
 
-  {/* Unmarked Dates Section */}
+{/* Unmarked Dates Section */}
 {selectedClass && !offlineMode && (
   <div className="unmarked-dates-container">
-    <h3 className="unmarked-dates-title">Unmarked Dates</h3>
+    <h3 className="unmarked-dates-title">
+      Unmarked Dates {unmarkedDates.length > 0 && `(${unmarkedDates.length})`}
+    </h3>
 
     {loadingUnmarked ? (
       <p className="loading-unmarked">Loading unmarked dates...</p>
