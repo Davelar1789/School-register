@@ -150,25 +150,45 @@ const fetchClasses = async () => {
 
 // Fetch unmarked dates for a class
 const fetchUnmarkedDatesForClass = async (classId, termId) => {
-  if (!classId || !termId) return;
+  if (!classId || !termId) {
+    console.warn("⚠️ Missing classId or termId", { classId, termId });
+    return;
+  }
 
   setLoadingUnmarked(true);
 
   try {
+    console.log("📤 Sending request to fetch unmarked dates:", { classId, termId });
+
     const res = await axios.get("/api/attendance/unmarked-dates", {
       params: { classId, termId },
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    const dates = res.data?.unmarkedDates || [];
-    setUnmarkedDates(dates);
+    console.log("📥 Backend response:", res.data);
+
+    // Check what the backend actually sent
+    if (!res.data) {
+      console.warn("⚠️ No data returned from backend");
+    }
+
+    const rawDates = res.data?.unmarkedDates || [];
+    console.log("📌 Raw unmarked dates from backend:", rawDates);
+
+    // Normalize dates for frontend usage (optional, helps with comparisons)
+    const normalizedDates = rawDates.map(d => d.slice(0, 10));
+    console.log("🗓 Normalized unmarked dates:", normalizedDates);
+
+    setUnmarkedDates(normalizedDates);
   } catch (err) {
-    console.error("Error fetching unmarked dates:", err);
+    console.error("❌ Error fetching unmarked dates:", err);
     toast.error("Could not load unmarked dates.");
   } finally {
     setLoadingUnmarked(false);
+    console.log("⏹ Finished fetching unmarked dates");
   }
 };
+
 
 const fetchStudents = async (classId) => {
   if (!classId) return;
