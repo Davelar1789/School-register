@@ -167,7 +167,6 @@ const fetchUnmarkedDatesForClass = async (classId, termId) => {
 
     console.log("📥 Backend response:", res.data);
 
-    // Check what the backend actually sent
     if (!res.data) {
       console.warn("⚠️ No data returned from backend");
     }
@@ -175,11 +174,16 @@ const fetchUnmarkedDatesForClass = async (classId, termId) => {
     const rawDates = res.data?.unmarkedDates || [];
     console.log("📌 Raw unmarked dates from backend:", rawDates);
 
-    // Normalize dates for frontend usage (optional, helps with comparisons)
+    // Normalize dates for frontend usage
     const normalizedDates = rawDates.map(d => d.slice(0, 10));
     console.log("🗓 Normalized unmarked dates:", normalizedDates);
 
-    setUnmarkedDates(normalizedDates);
+    // Filter out future dates (keep only today and previous dates)
+    const today = new Date().toISOString().slice(0, 10);
+    const filteredDates = normalizedDates.filter(date => date <= today);
+    console.log("✅ Filtered unmarked dates (up to today):", filteredDates);
+
+    setUnmarkedDates(filteredDates);
   } catch (err) {
     console.error("❌ Error fetching unmarked dates:", err);
     toast.error("Could not load unmarked dates.");
@@ -188,7 +192,6 @@ const fetchUnmarkedDatesForClass = async (classId, termId) => {
     console.log("⏹ Finished fetching unmarked dates");
   }
 };
-
 
 const fetchStudents = async (classId) => {
   if (!classId) return;
