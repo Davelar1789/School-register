@@ -687,6 +687,8 @@ export const fetchUnmarkedDates = async (req, res) => {
   try {
     const { termId, classId } = req.query;
 
+    console.log("🔍 Incoming Request:", { termId, classId });
+
     if (!termId || !classId) {
       return res.status(400).json({ message: "termId and classId are required." });
     }
@@ -700,6 +702,11 @@ export const fetchUnmarkedDates = async (req, res) => {
     const start = new Date(term.startDate);
     const end = new Date(term.endDate);
 
+    console.log("📅 Term Range:", {
+      start: start.toISOString(),
+      end: end.toISOString(),
+    });
+
     // Generate all valid school days (Mon–Fri)
     const getValidSchoolDates = () => {
       const dates = [];
@@ -708,7 +715,7 @@ export const fetchUnmarkedDates = async (req, res) => {
       while (current <= end) {
         const day = current.getDay();
         if (day !== 0 && day !== 6) {
-          dates.push(new Date(current)); // push a copy
+          dates.push(new Date(current)); // push copy
         }
         current.setDate(current.getDate() + 1);
       }
@@ -717,22 +724,48 @@ export const fetchUnmarkedDates = async (req, res) => {
 
     const validDates = getValidSchoolDates();
 
-    // Fetch ALL attendance entries for the class within the term
+    console.log("📘 Total Valid School Dates:", validDates.length);
+    console.log("📘 Valid Dates List:");
+    validDates.forEach((d, i) =>
+      console.log(`   ${i + 1}. ${d.toDateString()} | ISO: ${d.toISOString()}`)
+    );
+
+    // Fetch attendance entries for the class in that term
     const attendanceRecords = await Attendance.find({
       classId,
       termId,
       date: { $gte: start, $lte: end }
     }).select("date");
 
+    console.log("📝 Attendance Records Found:", attendanceRecords.length);
+    attendanceRecords.forEach((rec, i) =>
+      console.log(
+        `   ${i + 1}. DB: ${new Date(rec.date).toDateString()} | ISO: ${new Date(
+          rec.date
+        ).toISOString()}`
+      )
+    );
+
     // Convert recorded dates into a set for fast checking
     const markedDatesSet = new Set(
       attendanceRecords.map((r) => new Date(r.date).toDateString())
     );
 
+    console.log("📌 Marked Dates (Set):");
+    console.log(markedDatesSet);
+
     // Identify unmarked dates
-    const unmarkedDates = validDates.filter(
-      (d) => !markedDatesSet.has(d.toDateString())
-    );
+    const unmarkedDates = validDates.filter((d) => {
+      const isMarked = markedDatesSet.has(d.toDateString());
+      console.log(
+        `⛔ Check Date: ${d.toDateString()} → Marked? ${isMarked ? "YES" : "NO"}`
+      );
+      return !isMarked;
+    });
+
+    console.log("🚨 Unmarked Dates Count:", unmarkedDates.length);
+    console.log("🚨 Unmarked Dates:");
+    unmarkedDates.forEach((d) => console.log("   ", d.toDateString()));
 
     return res.status(200).json({
       totalSchoolDays: validDates.length,
@@ -742,7 +775,8 @@ export const fetchUnmarkedDates = async (req, res) => {
     });
 
   } catch (error) {
-    console.error("❌ Error fetching unmarked date list:", error.message);
+    console.error("❌ Error fetching unmarked date list:", error);
     res.status(500).json({ message: "Internal Server Error", error: error.message });
   }
 };
+
