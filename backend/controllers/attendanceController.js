@@ -685,108 +685,90 @@ export const updateAttendance2 = async (req, res) => {
 
 export const fetchUnmarkedDates = async (req, res) => {
   try {
-    console.log("====== 📌 FETCH UNMARKED DATES REQUEST START ======");
-
-    console.log("🔗 Full URL:", req.originalUrl);
-    console.log("📝 HTTP Method:", req.method);
-    console.log("📥 Raw Query:", req.query);
-
     const { classId, termId } = req.query;
 
+    console.log("📥 Incoming:", req.query);
+
     if (!classId || !termId) {
-      console.log("❌ Missing query params:", { classId, termId });
       return res.status(400).json({ message: "classId and termId are required." });
     }
 
-    console.log("📥 Extracted Params:", { classId, termId });
+    // 1️⃣ Get class + student IDs
+    const classDoc = await Class.findById(classId).select("students");
 
-    // 1) Load term
-    console.log("🔍 Fetching term session…");
+    if (!classDoc) {
+      return res.status(404).json({ message: "Class not found." });
+    }
+
+    if (!classDoc.students || classDoc.students.length === 0) {
+      return res.status(404).json({ message: "No students in this class." });
+    }
+
+    console.log("👨‍👩‍👦 Total students found:", classDoc.students.length);
+
+    // Use the FIRST student ID to check attendance
+    const sampleStudentId = classDoc.students[0];
+    console.log("🎯 Using sample student:", sampleStudentId.toString());
+
+    // 2️⃣ Load term
     const term = await TermSession.findById(termId);
-
     if (!term) {
-      console.log("❌ Term not found for ID:", termId);
-      return res.status(404).json({ message: "Term not found" });
+      return res.status(404).json({ message: "Term not found." });
     }
 
-    const startDate = new Date(term.startDate);
-    const endDate = new Date(term.endDate);
+    const start = new Date(term.startDate);
+    const end = new Date(term.endDate);
 
-    console.log("📅 Term Loaded:", {
-      startDate: startDate.toISOString(),
-      endDate: endDate.toISOString(),
-    });
+    console.log("📅 Term Range:", start.toISOString(), "→", end.toISOString());
 
-    // 2) Fetch class students
-    console.log("🔍 Fetching students for class:", classId);
-    const students = await Students.find({ classId }).select("_id");
-
-    if (students.length === 0) {
-      console.log("❌ No students found for class:", classId);
-      return res.status(404).json({ message: "No students found for this class." });
-    }
-
-    console.log(`👨‍👩‍👦 Students Found: ${students.length}`);
-
-    const studentIds = students.map((s) => s._id.toString());
-
-    // 3) Generate school days
+    // 3️⃣ Generate all school days (Mon–Fri)
     const allDates = [];
-    let current = new Date(startDate);
+    const temp = new Date(start);
 
-    while (current <= endDate) {
-      const day = current.getUTCDay();
+    while (temp <= end) {
+      const day = temp.getUTCDay();
       if (day !== 0 && day !== 6) {
-        allDates.push(new Date(current));
+        allDates.push(new Date(temp));
       }
-      current.setUTCDate(current.getUTCDate() + 1);
+      temp.setUTCDate(temp.getUTCDate() + 1);
     }
 
-    console.log("📘 School Days Generated:", allDates.length);
+    console.log("📘 Total school days:", allDates.length);
 
     const normalize = (d) => d.toISOString().slice(0, 10);
+    const unmarked = [];
 
-    // 4) Fetch attendance
-    console.log("🔍 Fetching attendance docs...");
-    const attendanceRecords = await Attendance.find({
-      termId,
-      studentId: { $in: studentIds },
-      date: { $gte: startDate, $lte: endDate },
-    }).select("date studentId present");
+    // 4️⃣ For each school day, check attendance for *one sample student*
+    for (const dateObj of allDates) {
+      const dateISO = normalize(dateObj);
 
-    console.log("📝 Attendance Records Found:", attendanceRecords.length);
+      const exists = await Attendance.findOne({
+        studentId: sampleStudentId,
+        termId,
+        date: {
+          $gte: new Date(dateISO + "T00:00:00.000Z"),
+          $lte: new Date(dateISO + "T23:59:59.999Z")
+        }
+      });
 
-    // 5) Prepare marked dates
-    const markedDatesSet = new Set(
-      attendanceRecords.map((a) => normalize(a.date))
-    );
+      if (!exists) {
+        unmarked.push(dateObj.toISOString());
+      }
+    }
 
-    console.log("📌 Marked Dates Set:", Array.from(markedDatesSet));
-
-    // 6) Compare
-    const unmarked = allDates.filter(
-      (d) => !markedDatesSet.has(normalize(d))
-    );
-
-    console.log("🚨 Unmarked Days:", unmarked.length);
-
-    console.log("====== ✅ SUCCESS: SENDING RESPONSE ======");
+    console.log("🚨 Unmarked count:", unmarked.length);
 
     return res.status(200).json({
       totalSchoolDays: allDates.length,
-      markedDays: markedDatesSet.size,
       unmarkedCount: unmarked.length,
-      unmarkedDates: unmarked.map((d) => d.toISOString()),
+      unmarkedDates: unmarked
     });
 
   } catch (error) {
-    console.log("====== ❌ SERVER ERROR ======");
-    console.error("🔥 Detailed Error:", error); // prints stack trace
-
+    console.error("❌ ERROR:", error);
     return res.status(500).json({
       message: "Server error",
       error: error.message,
-      stack: error.stack,
     });
   }
 };
