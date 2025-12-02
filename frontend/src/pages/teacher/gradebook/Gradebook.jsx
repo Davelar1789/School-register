@@ -305,7 +305,7 @@ const handleSaveGrades = async () => {
       </div>
 
       <div className="column-selector">
-  <label>View:</label>
+  <label className="view-color">View:</label>
   <select
     value={visibleColumn}
     onChange={(e) => setVisibleColumn(e.target.value)}

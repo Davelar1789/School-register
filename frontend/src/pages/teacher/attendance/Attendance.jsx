@@ -622,7 +622,7 @@ return (
     {loadingUnmarked ? (
       <p className="loading-unmarked">Loading unmarked dates...</p>
     ) : unmarkedDates.length === 0 ? (
-      <p className="no-unmarked">🎉 All attendance submitted!</p>
+      <p className="no-unmarked">All attendance submitted!</p>
     ) : (
       <div className="unmarked-dates-list">
         {unmarkedDates.map((dateStr, idx) => {

@@ -51,6 +51,10 @@
   table-layout: auto;
 }
 
+.view-color {
+  color: white;
+}
+
 /* Make sure it looks nice on small screens */
 @media (max-width: 768px) {
   .gradebook-table {

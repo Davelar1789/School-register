@@ -171,6 +171,10 @@
   padding: 10px 0;
 }
 
+.no-unmarked {
+  color: white;
+}
+
 .unmarked-dates-title {
   font-size: 18px;
   font-weight: bold;
