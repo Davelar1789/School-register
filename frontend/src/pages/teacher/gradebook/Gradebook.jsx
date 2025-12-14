@@ -363,23 +363,23 @@ const handleSaveGrades = async () => {
         <td>{student.name}</td>
 
         {(visibleColumn === "all" || visibleColumn === "test1") && (
-          <td><input type="number" max="10" value={studentGrades.test1 || ""} onChange={(e) => handleGradeChange(student.studentId, "test1", e.target.value)} /></td>
+          <td><input type="number" max="10" value={studentGrades.test1 || ""} onChange={(e) => handleGradeChange(student.studentId, "test1", e.target.value)} onWheel={(e) => e.target.blur()} /></td>
         )}
 
         {(visibleColumn === "all" || visibleColumn === "test2") && (
-          <td><input type="number" max="10" value={studentGrades.test2 || ""} onChange={(e) => handleGradeChange(student.studentId, "test2", e.target.value)} /></td>
+          <td><input type="number" max="10" value={studentGrades.test2 || ""} onChange={(e) => handleGradeChange(student.studentId, "test2", e.target.value)} onWheel={(e) => e.target.blur()}/></td>
         )}
 
         {(visibleColumn === "all" || visibleColumn === "test3") && (
-          <td><input type="number" max="10" value={studentGrades.test3 || ""} onChange={(e) => handleGradeChange(student.studentId, "test3", e.target.value)} /></td>
+          <td><input type="number" max="10" value={studentGrades.test3 || ""} onChange={(e) => handleGradeChange(student.studentId, "test3", e.target.value)} onWheel={(e) => e.target.blur()} /></td>
         )}
 
         {(visibleColumn === "all" || visibleColumn === "test4") && (
-          <td><input type="number" max="20" value={studentGrades.test4 || ""} onChange={(e) => handleGradeChange(student.studentId, "test4", e.target.value)} /></td>
+          <td><input type="number" max="20" value={studentGrades.test4 || ""} onChange={(e) => handleGradeChange(student.studentId, "test4", e.target.value)} onWheel={(e) => e.target.blur()}/></td>
         )}
 
         {(visibleColumn === "all" || visibleColumn === "exam") && (
-          <td><input type="number" max="100" value={studentGrades.exam || ""} onChange={(e) => handleGradeChange(student.studentId, "exam", e.target.value)} /></td>
+          <td><input type="number" max="100" value={studentGrades.exam || ""} onChange={(e) => handleGradeChange(student.studentId, "exam", e.target.value)} onWheel={(e) => e.target.blur()}/></td>
         )}
 
         {visibleColumn === "all" && <td>{total}</td>}
