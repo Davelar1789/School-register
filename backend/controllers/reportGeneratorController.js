@@ -140,10 +140,11 @@ const aggregate = [...coreGrades, ...bestElectives].reduce((sum, g) => sum + g, 
         present: true
       });
 
-const totalSchoolDays = Math.max(
+  const totalSchoolDays = Math.max(
   getWeekdays(new Date(term.startDate), new Date(term.endDate)) - 3,
   0
-);
+  );
+  console.log(totalSchoolDays)
 
       const conductOptions = ["Excellent", "Satisfactory", "Very obedient", "Well-behaved"];
       const conduct = conductOptions[Math.floor(Math.random() * conductOptions.length)];
