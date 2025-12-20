@@ -148,13 +148,6 @@ const TeacherDetails = () => {
           >
             Subject Assignment
           </button>
-
-          <button
-            className={selectedTab === "overview" ? "active" : ""}
-            onClick={() => setSelectedTab("overview")}
-          >
-            Overview
-          </button>
         </div>
 
         {/* TAB CONTENTS */}
