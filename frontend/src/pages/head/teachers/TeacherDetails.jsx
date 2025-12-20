@@ -158,101 +158,132 @@ const TeacherDetails = () => {
         </div>
 
         {/* TAB CONTENTS */}
-        {selectedTab === "classAssign" && (
-          <div className="td-card">
-            <h3>Assign as Class Teacher</h3>
-            <select onChange={(e) => handleAssignClass(e.target.value)}>
-              <option value="">Select Class</option>
-              {allClasses.map((cls) => (
-                <option key={cls._id} value={cls._id}>
-                  {cls.className}
-                </option>
-              ))}
-            </select>
+     {/* ================== CLASS ASSIGNMENT TAB ================== */}
+{selectedTab === "classAssign" && (
+  <div className="td-card">
+    <h3>Assign as Class Teacher</h3>
 
-            <p className="td-hint">
-              Assigning a class automatically gives the teacher full access to all its subjects.
-            </p>
+    {/* Show already assigned classes */}
+    <div className="td-assigned-list">
+      <h4>Already Assigned Classes</h4>
+      {assignedClasses.length === 0 ? (
+        <p>No classes assigned yet.</p>
+      ) : (
+        <div className="td-chip-list">
+          {assignedClasses.map((c) => (
+            <span className="td-chip filled" key={c._id}>
+              {c.className}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+
+    {/* Assignment dropdown */}
+    <select onChange={(e) => handleAssignClass(e.target.value)}>
+      <option value="">Select Class</option>
+      {allClasses
+        .filter(cls => !assignedClasses.some(ac => ac._id === cls._id)) // exclude already assigned
+        .map((cls) => (
+          <option key={cls._id} value={cls._id}>
+            {cls.className}
+          </option>
+        ))}
+    </select>
+
+    <p className="td-hint">
+      Assigning a class automatically gives the teacher full access to all its subjects.
+    </p>
+  </div>
+)}
+
+{/* ================== SUBJECT ASSIGNMENT TAB ================== */}
+{selectedTab === "subjectAssign" && (
+  <div className="td-card">
+    <h3>Assign Subject Teacher</h3>
+
+    {/* Show already assigned subjects grouped by class */}
+    <div className="td-assigned-list">
+      <h4>Already Assigned Subjects</h4>
+      {assignedSubjects.length === 0 ? (
+        <p>No subjects assigned yet.</p>
+      ) : (
+        assignedSubjects.reduce((acc, s) => {
+          if (!acc[s.className]) acc[s.className] = [];
+          acc[s.className].push(s.subjectName);
+          return acc;
+        }, {})
+      )}
+      {Object.entries(
+        assignedSubjects.reduce((acc, s) => {
+          if (!acc[s.className]) acc[s.className] = [];
+          acc[s.className].push(s.subjectName);
+          return acc;
+        }, {})
+      ).map(([className, subjects]) => (
+        <div key={className}>
+          <h5>{className}</h5>
+          <div className="td-chip-list">
+            {subjects.map((sub) => (
+              <span className="td-chip filled" key={sub}>
+                {sub}
+              </span>
+            ))}
           </div>
-        )}
+        </div>
+      ))}
+    </div>
 
-        {selectedTab === "subjectAssign" && (
-          <div className="td-card">
-            <h3>Assign Subject Teacher</h3>
+    {/* Assignment dropdown */}
+    <select
+      value={selectedClass}
+      onChange={(e) => {
+        setSelectedClass(e.target.value);
+        loadSubjects(e.target.value);
+      }}
+    >
+      <option value="">Select Class</option>
+      {allClasses
+        .filter(cls => cls.subjects && cls.subjects.length > 0) // only classes with subjects
+        .map((cls) => (
+          <option key={cls._id} value={cls._id}>
+            {cls.className}
+          </option>
+        ))}
+    </select>
 
-            <select
-              value={selectedClass}
+    {/* Subject chips */}
+    {availableSubjects.length > 0 && (
+      <div className="td_subjects">
+        {availableSubjects.map((sub) => (
+          <label key={sub._id} className="td-chip">
+            <input
+              type="checkbox"
+              value={sub._id}
+              checked={selectedSubjects.includes(sub._id)}
               onChange={(e) => {
-                setSelectedClass(e.target.value);
-                loadSubjects(e.target.value);
+                const id = e.target.value;
+                setSelectedSubjects((prev) =>
+                  prev.includes(id)
+                    ? prev.filter((s) => s !== id)
+                    : [...prev, id]
+                );
               }}
-            >
-              <option value="">Select Class</option>
-              {allClasses.map((cls) => (
-                <option key={cls._id} value={cls._id}>
-                  {cls.className}
-                </option>
-              ))}
-            </select>
+            />
+            {sub.name}
+          </label>
+        ))}
+      </div>
+    )}
 
-            {availableSubjects.length > 0 && (
-              <div className="td_subjects">
-                {availableSubjects.map((sub) => (
-                  <label key={sub._id} className="td-chip">
-                    <input
-                      type="checkbox"
-                      value={sub._id}
-                      checked={selectedSubjects.includes(sub._id)}
-                      onChange={(e) => {
-                        const id = e.target.value;
-                        setSelectedSubjects((prev) =>
-                          prev.includes(id)
-                            ? prev.filter((s) => s !== id)
-                            : [...prev, id]
-                        );
-                      }}
-                    />
-                    {sub.name}
-                  </label>
-                ))}
-              </div>
-            )}
+    {availableSubjects.length > 0 && (
+      <button className="td-btn" onClick={assignSubjects}>
+        Assign Selected Subjects
+      </button>
+    )}
+  </div>
+)}
 
-            {availableSubjects.length > 0 && (
-              <button className="td-btn" onClick={assignSubjects}>
-                Assign Selected Subjects
-              </button>
-            )}
-          </div>
-        )}
-
-        {selectedTab === "overview" && (
-          <div className="td-card">
-            <h3>Assigned Classes & Subjects</h3>
-
-            <h4>Classes</h4>
-            <div className="td-chip-list">
-              {assignedClasses.length === 0
-                ? <p>No classes assigned yet.</p>
-                : assignedClasses.map((c) => (
-                    <span className="td-chip filled" key={c._id}>
-                      {c.className}
-                    </span>
-                  ))}
-            </div>
-
-            <h4>Subjects</h4>
-            <div className="td-chip-list">
-              {assignedSubjects.length === 0
-                ? <p>No subjects assigned yet.</p>
-                : assignedSubjects.map((s) => (
-                    <span className="td-chip filled" key={s._id}>
-                      {s.subjectName} ({s.className})
-                    </span>
-                  ))}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

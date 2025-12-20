@@ -92,60 +92,85 @@ export const assignTeacherToClass = async (req, res) => {
   const { teacherId, classId } = req.body;
 
   try {
-    // ✅ Step 1: Add class to teacher's assigned classes
-    await Teacher.findByIdAndUpdate(
-      teacherId,
-      { $addToSet: { classesAssigned: classId } },
-      { new: true }
-    );
-
-    // ✅ Step 2: Add teacher to class's teacher list
-    const updatedClass = await Class.findByIdAndUpdate(
-      classId,
-      { $addToSet: { teachers: teacherId } },
-      { new: true }
-    );
-
-    // ✅ Step 3: Check teacher type
     const teacher = await Teacher.findById(teacherId);
     if (!teacher) {
-      return res.status(404).json({ message: "Teacher not found." });
+      return res.status(404).json({ message: "Teacher not found" });
     }
 
-    // ✅ Step 4: If teacher is Class Teacher or Both, assign to all subjects in the class
-    if (["Class Teacher", "Both"].includes(teacher.teacherType)) {
-      // 1. Fetch all subjects for this class
-      const allSubjects = await Subject.find({ classes: classId });
-
-      // 2. Add teacher to Class.subjects[].teachers for each subject
-      const classDoc = await Class.findById(classId);
-
-      allSubjects.forEach(subject => {
-        const existing = classDoc.subjects.find(s =>
-          s.subject.toString() === subject._id.toString()
-        );
-
-        if (existing) {
-          if (!existing.teachers.includes(teacherId)) {
-            existing.teachers.push(teacherId);
-          }
-        } else {
-          classDoc.subjects.push({
-            subject: subject._id,
-            teachers: [teacherId]
-          });
-        }
+    // ❌ Subject teachers cannot be assigned as class teachers
+    if (teacher.teacherType === "Subject Teacher") {
+      return res.status(400).json({
+        message: "Subject Teachers cannot be assigned as Class Teachers"
       });
-
-      await classDoc.save();
     }
 
-    res.status(200).json({ message: 'Teacher successfully assigned to class (and subjects if applicable)' });
-  } catch (error) {
-    console.error('Error assigning teacher to class:', error);
-    res.status(500).json({ error: 'Something went wrong while assigning teacher to class' });
+    // ✅ Add class to teacher
+    await Teacher.findByIdAndUpdate(
+      teacherId,
+      { $addToSet: { classesAssigned: classId } }
+    );
+
+    // ✅ Add teacher to class
+    await Class.findByIdAndUpdate(
+      classId,
+      { $addToSet: { teachers: teacherId } }
+    );
+
+    res.json({ message: "Class assigned successfully" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to assign class" });
   }
 };
+
+export const assignSubjectTeacher2 = async (req, res) => {
+  const { teacherId, classId, subjectIds } = req.body;
+
+  try {
+    const teacher = await Teacher.findById(teacherId);
+    const classDoc = await Class.findById(classId);
+
+    if (!teacher || !classDoc) {
+      return res.status(404).json({ message: "Teacher or Class not found" });
+    }
+
+    // ❌ Prevent random teachers
+    if (!["Subject Teacher", "Both"].includes(teacher.teacherType)) {
+      return res.status(400).json({
+        message: "Only Subject or Both teachers can be assigned subjects"
+      });
+    }
+
+    subjectIds.forEach(subjectId => {
+      let subjectEntry = classDoc.subjects.find(
+        s => s.subject.toString() === subjectId
+      );
+
+      if (!subjectEntry) {
+        subjectEntry = {
+          subject: subjectId,
+          teachers: []
+        };
+        classDoc.subjects.push(subjectEntry);
+      }
+
+      // ✅ Add teacher ONLY to subject teachers
+      if (!subjectEntry.teachers.includes(teacherId)) {
+        subjectEntry.teachers.push(teacherId);
+      }
+    });
+
+    await classDoc.save();
+
+    res.json({ message: "Subjects assigned successfully" });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to assign subjects" });
+  }
+};
+
 
 export const assignStudentToClass = async (req, res) => {
   const { studentId, classId } = req.body;

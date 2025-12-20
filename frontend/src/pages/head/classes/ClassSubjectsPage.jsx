@@ -46,7 +46,6 @@ const ClassSubjectsPage = () => {
                 <li key={subject._id} className="subject-item">
                   <div>
                     <h4>{subject.name}</h4>
-                    <p>Subject ID: {subject._id}</p>
                   </div>
                     <Link to={`/classes/${classId}/subjects/${subject._id}/topics?classId=${classId}`}>
                     <button className="edit-btn">Edit Topics</button>
