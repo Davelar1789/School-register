@@ -156,6 +156,18 @@ const TeacherDetails = () => {
   <div className="td-card">
     <h3>Assign as Class Teacher</h3>
 
+  {/* Assignment dropdown */}
+    <select onChange={(e) => handleAssignClass(e.target.value)}>
+      <option value="">Select Class</option>
+      {allClasses
+        .filter(cls => !assignedClasses.some(ac => ac._id === cls._id)) // exclude already assigned
+        .map((cls) => (
+          <option key={cls._id} value={cls._id}>
+            {cls.className}
+          </option>
+        ))}
+    </select>
+    
     {/* Show already assigned classes */}
     <div className="td-assigned-list">
       <h4>Already Assigned Classes</h4>
@@ -171,18 +183,6 @@ const TeacherDetails = () => {
         </div>
       )}
     </div>
-
-    {/* Assignment dropdown */}
-    <select onChange={(e) => handleAssignClass(e.target.value)}>
-      <option value="">Select Class</option>
-      {allClasses
-        .filter(cls => !assignedClasses.some(ac => ac._id === cls._id)) // exclude already assigned
-        .map((cls) => (
-          <option key={cls._id} value={cls._id}>
-            {cls.className}
-          </option>
-        ))}
-    </select>
 
     <p className="td-hint">
       Assigning a class automatically gives the teacher full access to all its subjects.
