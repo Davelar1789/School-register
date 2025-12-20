@@ -153,7 +153,12 @@ const CreateClassPage = () => {
             <td>{cls.students?.length || 0}</td>
             <td>
               <button className="icon-btn">Edit</button>
-              <button className="icon-btn" onClick={() => handleDelete(cls._id)}>Delete</button>
+              <button
+                className="icon-btn delete"
+                onClick={() => handleDelete(cls._id)}
+              >
+                Delete
+              </button>
             </td>
           </tr>
         ))}

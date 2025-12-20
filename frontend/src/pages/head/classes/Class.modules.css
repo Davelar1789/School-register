@@ -1,93 +1,63 @@
+/* ===============================
+   PAGE WRAPPER
+================================ */
 .create-class-container {
   margin: auto;
-  padding: 2rem;
-  background: #f5f5f5;
-  border-radius: 10px;
+  padding: 2.5rem;
+  background: #f4f6f8;
+  min-height: 100vh;
 }
 
-.create-class-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.create-class-form label {
-  font-weight: bold;
-}
-
-.create-class-form input,
-.create-class-form textarea,
-.create-class-form select {
-  padding: 0.6rem;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-}
-
-.select-multiple-box {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.select-option {
-  padding: 0.4rem 0.8rem;
-  border-radius: 20px;
-  background-color: #e0e0e0;
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.select-option.selected {
-  background-color: #1976d2;
-  color: white;
-}
-
-.submit-button {
-  padding: 0.8rem;
-  background-color: #4caf50;
-  color: white;
-  font-weight: bold;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.clickable-class-name {
-  color: #007bff;
-  text-decoration: underline;
-  cursor: pointer;
-}
-.clickable-class-name:hover {
-  color: #0056b3;
-}
-
-
+/* Preserve sidebar spacing */
 @media screen and (min-width: 768px) {
   .create-class-container {
     margin-left: 250px;
   }
 }
 
-/* ========== NEW STYLES ADDED BELOW ========== */
-.table-wrapper {
-  overflow-x: auto;
-  background-color: #fff;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-}
-
-
+/* ===============================
+   TABLE SECTION
+================================ */
 .class-table-container {
+  background: #ffffff;
   padding: 2rem;
-  margin-top: 3rem;
+  border-radius: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
 }
 
 .class-table-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.8rem;
+}
+
+.class-table-header h2 {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.class-table-header button {
+  background: #2563eb;
+  color: #ffffff;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.class-table-header button:hover {
+  background: #1d4ed8;
+}
+
+/* ===============================
+   TABLE STYLING
+================================ */
+.table-wrapper {
+  overflow-x: auto;
 }
 
 .class-table {
@@ -95,44 +65,145 @@
   border-collapse: collapse;
 }
 
-.class-table th,
-.class-table td {
-  border: 1px solid #ccc;
-  padding: 0.8rem;
-  text-align: left;
-}
-
 .class-table th {
-  background-color: #f0f0f0;
-  font-weight: bold;
+  background: #f9fafb;
+  text-align: left;
+  padding: 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
 }
 
-.class-table td .icon-btn {
-  margin-right: 0.5rem;
+.class-table td {
+  padding: 0.85rem;
+  font-size: 0.95rem;
+  color: #374151;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.class-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+/* ===============================
+   LINKS & ACTIONS
+================================ */
+.clickable-class-name {
+  color: #2563eb;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.clickable-class-name:hover {
+  text-decoration: underline;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  padding: 0.3rem 0.5rem;
   cursor: pointer;
-  color: #333;
+  font-size: 0.9rem;
+  border-radius: 6px;
+  transition: background 0.2s ease;
 }
 
-/* Modal styles */
+.icon-btn:hover {
+  background: #f3f4f6;
+}
+
+.icon-btn.delete {
+  color: #dc2626;
+}
+
+/* ===============================
+   MODAL
+================================ */
 .modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   z-index: 1000;
 }
 
 .modal-content {
-  background-color: white;
-  padding: 2rem;
-  border-radius: 10px;
-  max-width: 600px;
+  background: #ffffff;
+  border-radius: 14px;
   width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
+  max-width: 520px;
+  padding: 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-content h3 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  color: #111827;
+}
+
+/* ===============================
+   FORM
+================================ */
+.create-class-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.create-class-form label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.create-class-form input,
+.create-class-form select,
+.create-class-form textarea {
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 0.95rem;
+}
+
+.create-class-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.create-class-form input:focus,
+.create-class-form select:focus,
+.create-class-form textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* ===============================
+   FORM BUTTONS
+================================ */
+.create-class-form button[type="submit"] {
+  margin-top: 1rem;
+  background: #16a34a;
+  color: white;
+  padding: 0.7rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.create-class-form button[type="submit"]:hover {
+  background: #15803d;
+}
+
+.create-class-form button[type="button"] {
+  background: #f3f4f6;
+  border: none;
+  padding: 0.7rem;
+  border-radius: 8px;
+  cursor: pointer;
 }
