@@ -114,6 +114,20 @@ input {
   background: #999;
 }
 
+.preview-btn {
+  margin-top: 20px;
+  padding: 12px;
+  background: #4169e1;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.preview-btn:disabled {
+  background: #999;
+}
+
 .download-box {
   margin-top: 20px;
 }
