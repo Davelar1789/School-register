@@ -180,34 +180,39 @@ export const previewClassReports = async (req, res) => {
         new Date(term.endDate)
       );
 
-      const studentData = {
-        name: student.name,
-        className: classInfo.className,
-        termName: term.termName,
-        yearLabel: term.yearLabel,
-        subjects,
-        obtained: studentTotal,
-        max: maxTotal,
-        present: presentDays,
-        total: totalDays,
-        roll: classInfo.students.length,
-        cc: rankInfo?.position || "",
-        promotedTo: isTermThree
-          ? getNextClass(classInfo.className)
-          : "N/A",
-        vacationDate: formatDate(term.endDate),
-        nextTermBegins: formatDate(nextTermDate),
-        feesNextTerm: Number(nextTermFees),
-      };
+const studentData = {
+  name: student.name,
+  className: classInfo.className,
+  termName: term.termName,
+  yearLabel: term.yearLabel,
+  subjects,
+  obtained: studentTotal,
+  max: maxTotal,
+  present: presentDays,
+  total: totalDays,
+  roll: classInfo.students.length,
+  cc: rankInfo?.position || "",
+  promotedTo: isTermThree
+    ? getNextClass(classInfo.className)
+    : "N/A",
+  vacationDate: formatDate(term.endDate),
+  nextTermBegins: formatDate(nextTermDate),
+  feesNextTerm: Number(nextTermFees),
+};
 
-      /* ✅ CORRECT DOCXTEMPLATER USAGE */
-      const zip = new PizZip(templateBuffer);
-      const doc = new Docxtemplater(zip, {
-        paragraphLoop: true,
-        linebreaks: true,
-      });
+console.log(
+  `CC CHECK → ${student.name} | Position: ${studentData.cc}`
+);
 
-      doc.render(studentData);
+/* DOCXTEMPLATER */
+const zip = new PizZip(templateBuffer);
+const doc = new Docxtemplater(zip, {
+  paragraphLoop: true,
+  linebreaks: true,
+});
+
+doc.render(studentData);
+
 
       const docxBuffer = doc.getZip().generate({
         type: "nodebuffer",
