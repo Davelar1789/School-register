@@ -290,21 +290,36 @@ export const getTeacherClasses = async (req, res) => {
   try {
     const teacherId = req.params.teacherId || req.user._id;
 
-    const teacher = await Teacher.findById(teacherId);
-    if (!teacher) return res.status(404).json({ message: "Teacher not found" });
-
-    // Only include classes where teacher is Class Teacher or Both
-    const classes = await Class.find({
-      _id: { $in: teacher.classesAssigned }, // still use classesAssigned array
-      teachers: teacherId, // ensures teacher is actually in class's teachers array
+    // 1️⃣ Classes where teacher is CLASS TEACHER
+    const classTeacherClasses = await Class.find({
+      teachers: teacherId, // class teachers stored here
     }).select("className level");
 
-    res.json({ count: classes.length, classes });
+    // 2️⃣ Classes where teacher is SUBJECT TEACHER
+    const subjectTeacherClasses = await Class.find({
+      "subjects.teachers": teacherId, // 🔥 THIS is the key fix
+    }).select("className level");
+
+    // 3️⃣ Merge & deduplicate
+    const classMap = new Map();
+
+    [...classTeacherClasses, ...subjectTeacherClasses].forEach(cls => {
+      classMap.set(cls._id.toString(), cls);
+    });
+
+    const classes = Array.from(classMap.values());
+
+    res.json({
+      count: classes.length,
+      classes,
+    });
+
   } catch (err) {
-    console.error("Error fetching teacher classes:", err);
+    console.error("❌ Error fetching teacher classes:", err);
     res.status(500).json({ message: "Failed to fetch classes" });
   }
 };
+
 
 
 export const getTeacherSubjects = async (req, res) => {
