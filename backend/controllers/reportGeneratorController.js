@@ -488,9 +488,11 @@ export const previewClassReports = async (req, res) => {
       // DOCX generation
       const zip = new PizZip(templateBuffer);
       const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
-      doc.setData(studentData);
-      doc.render();
+// Compile and render with data
+      doc.compile();
+      doc.render(studentData);
       const docxBuffer = doc.getZip().generate({ type: "nodebuffer" });
+
 
       // DOCX → HTML
       const { value: html } = await mammoth.convertToHtml({ buffer: docxBuffer });
