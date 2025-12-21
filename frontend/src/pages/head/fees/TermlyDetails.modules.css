@@ -313,5 +313,6 @@
   @media screen and (min-width: 768px) {
     .term-sessions-manager {
         margin-left: 250px;
+        margin-top: 40px;
     }
   }
