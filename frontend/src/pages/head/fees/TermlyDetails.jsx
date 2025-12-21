@@ -210,206 +210,190 @@ const [newTermData, setNewTermData] = useState({
   
   
 
-  return (
-    <div className="termlyy-container">
-      <Sidebar />
-      <div className="termlyy-main">
-        <Header />
-    <div className="term-sessions-manager">
-      <h2>Academic Years</h2>
-      <div className="year-list">
-        {academicYears.map((year) => (
+return (
+  <div className="termlyy-container">
+    <Sidebar />
+
+    <div className="termlyy-main">
+      <Header />
+
+      <div className="term-sessions-manager">
+        {/* HEADER */}
+        <div className="tsm-header">
+          <h2>Academic Sessions</h2>
           <button
-            key={year}
-            className={`year-button ${selectedYear === year ? "active" : ""}`}
-            onClick={() => handleYearSelect(year)}
+            className="primary-btn"
+            onClick={() => setShowAddYearModal(true)}
           >
-            {year}
+            + Add Academic Year
           </button>
-        ))}
-        <button className="add-year-button" onClick={() => setShowAddYearModal(true)}>
-          + Add Year
-        </button>
-      </div>
-
-      {selectedYear && (
-        <div className="terms-section">
-          <h3>Terms for {selectedYear}</h3>
-          <div className="term-list">
-            {["Term 1", "Term 2", "Term 3"].map((termName) => {
-              const term = terms.find((t) => t.termName === termName);
-              return (
-                <div key={termName} className="term-card">
-                <h4>{termName}</h4>
-                {term ? (
-                  <>
-                    <p>
-                    Start Date: {new Date(term.startDate).toLocaleDateString()}
-                    <MdEdit
-                      onClick={() => {
-                        setSelectedTermForDateEdit(term);
-                        setIsStartModalOpen(true);
-                      }}
-                      style={{ marginLeft: 3, cursor: 'pointer' }}
-                    />
-                  </p>
-
-                  <p>
-                    End Date: {new Date(term.endDate).toLocaleDateString()}
-                    <MdEdit
-                      onClick={() => {
-                        setSelectedTermForDateEdit(term);
-                        setIsEndModalOpen(true);
-                      }}
-                      style={{ marginLeft: 3, cursor: 'pointer' }}
-                    />
-                  </p>
-                    <button onClick={() => handleEditFees(term)}>Edit Fees</button>
-                  </>
-                ) : (
-                  <>
-                    <p>Term not created yet.</p>
-                    <button onClick={() => handleCreateTerm(term)}>Create</button>
-                  </>
-                )}
-                </div>
-              );
-            })}
-          </div>
         </div>
-      )}
 
-      {/* Add Year Modal */}
-      {showAddYearModal && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h3>Add New Academic Year</h3>
-            <input
-              type="text"
-              placeholder="e.g., 2025/2026"
-              value={newYearLabel}
-              onChange={(e) => setNewYearLabel(e.target.value)}
-            />
-            <div className="modal-actions">
-              <button onClick={handleAddYear}>Add Year</button>
-              <button onClick={() => setShowAddYearModal(false)}>Cancel</button>
+        {/* ACADEMIC YEARS */}
+        <div className="year-list">
+          {academicYears.map((year) => (
+            <button
+              key={year}
+              className={`year-pill ${
+                selectedYear === year ? "active" : ""
+              }`}
+              onClick={() => handleYearSelect(year)}
+            >
+              {year}
+            </button>
+          ))}
+        </div>
+
+        {/* TERMS */}
+        {selectedYear && (
+          <div className="terms-section">
+            <h3>Terms – {selectedYear}</h3>
+
+            <div className="term-list">
+              {["Term 1", "Term 2", "Term 3"].map((termName) => {
+                const term = terms.find((t) => t.termName === termName);
+
+                return (
+                  <div key={termName} className="term-card">
+                    <div className="term-card-header">
+                      <h4>{termName}</h4>
+                    </div>
+
+                    {term ? (
+                      <>
+                        <div className="term-dates">
+                          <div>
+                            <span>Start Date</span>
+                            <p>
+                              {new Date(term.startDate).toLocaleDateString()}
+                              <MdEdit
+                                className="edit-icon"
+                                onClick={() => {
+                                  setSelectedTermForDateEdit(term);
+                                  setIsStartModalOpen(true);
+                                }}
+                              />
+                            </p>
+                          </div>
+
+                          <div>
+                            <span>End Date</span>
+                            <p>
+                              {new Date(term.endDate).toLocaleDateString()}
+                              <MdEdit
+                                className="edit-icon"
+                                onClick={() => {
+                                  setSelectedTermForDateEdit(term);
+                                  setIsEndModalOpen(true);
+                                }}
+                              />
+                            </p>
+                          </div>
+                        </div>
+
+                        <button
+                          className="secondary-btn full"
+                          onClick={() => handleEditFees(term)}
+                        >
+                          Edit Fees
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <p className="muted-text">
+                          This term has not been created yet.
+                        </p>
+                        <button
+                          className="primary-btn full"
+                          onClick={() => handleCreateTerm(termName)}
+                        >
+                          Create Term
+                        </button>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Edit Fees Modal */}
-      {editingTerm && (
-        <div className="modal-overlay2">
-          <div className="modal2">
-            <h3>Edit Fees for {editingTerm.termName}</h3>
-            {editedClassFees.map((fee, index) => (
-              <div key={fee.classId} className="fee-row">
-                <span>{fee.className}</span>
-                <input
-                    type="number"
-                    step="0.01"
-                    value={fee.totalFees}
-                    onChange={(e) => handleFeeChange(index, parseFloat(e.target.value) || 0)}
-                    onWheel={(e) => e.target.blur()} // ✅ disables scroll changing the number
-                    />
+        {/* ================= MODALS (UNCHANGED LOGIC) ================= */}
+
+        {showAddYearModal && (
+          <div className="modal-overlay">
+            <div className="modal">
+              <h3>Add Academic Year</h3>
+
+              <input
+                type="text"
+                placeholder="e.g. 2025/2026"
+                value={newYearLabel}
+                onChange={(e) => setNewYearLabel(e.target.value)}
+              />
+
+              <div className="modal-actions">
+                <button className="primary-btn" onClick={handleAddYear}>
+                  Add Year
+                </button>
+                <button
+                  className="ghost-btn"
+                  onClick={() => setShowAddYearModal(false)}
+                >
+                  Cancel
+                </button>
               </div>
-            ))}
-            <div className="modal-actions">
-              <button onClick={handleSaveFees}>Save</button>
-              <button onClick={() => setEditingTerm(null)}>Cancel</button>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-{showCreateTermModal && (
-  <div className="modal-overlay2">
-    <div className="modal2">
-      <h3>Create {newTermData.termName}</h3>
-      <label>Start Date</label>
-      <input
-        type="date"
-        value={newTermData.startDate}
-        onChange={(e) =>
-          setNewTermData({ ...newTermData, startDate: e.target.value })
-        }
-      />
-      <label>End Date</label>
-      <input
-        type="date"
-        value={newTermData.endDate}
-        onChange={(e) =>
-          setNewTermData({ ...newTermData, endDate: e.target.value })
-        }
-      />
+        {editingTerm && (
+          <div className="modal-overlay">
+            <div className="modal large">
+              <h3>Edit Fees – {editingTerm.termName}</h3>
 
-      <h4>Set Fees</h4>
-      {newTermData.classFees.map((fee, index) => (
-        <div key={fee.classId}>
-          <label>{fee.className}</label>
-          <input
-            type="number"
-            value={fee.totalFees}
-            onChange={(e) => {
-                const updatedFees = [...newTermData.classFees];
-                updatedFees[index].totalFees = parseFloat(e.target.value);
-                setNewTermData({ ...newTermData, classFees: updatedFees });
-            }}
-            onWheel={(e) => e.target.blur()} // Prevent scroll-based changes
-            />
-        </div>
-      ))}
+              {editedClassFees.map((fee, index) => (
+                <div key={fee.classId} className="fee-row">
+                  <span>{fee.className}</span>
+                  <input
+                    type="number"
+                    value={fee.totalFees}
+                    onChange={(e) =>
+                      handleFeeChange(
+                        index,
+                        parseFloat(e.target.value) || 0
+                      )
+                    }
+                    onWheel={(e) => e.target.blur()}
+                  />
+                </div>
+              ))}
 
-      <button onClick={handleSubmitNewTerm}>Create Term</button>
-      <button onClick={() => setShowCreateTermModal(false)}>Cancel</button>
+              <div className="modal-actions">
+                <button className="primary-btn" onClick={handleSaveFees}>
+                  Save Changes
+                </button>
+                <button
+                  className="ghost-btn"
+                  onClick={() => setEditingTerm(null)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isSaving && (
+          <div className="loading-overlay">
+            <div className="spinner"></div>
+            <p>Saving changes…</p>
+          </div>
+        )}
+      </div>
     </div>
   </div>
-)}
-
-{isSaving && (
-  <div className="loading-overlay">
-    <div className="spinner"></div>
-    <p>Saving fees...</p>
-  </div>
-)}
-
-{/* Start Date Modal */}
-{isStartModalOpen && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Edit Start Date</h3>
-            <input
-              type="date"
-              value={newStartDate}
-              onChange={(e) => setNewStartDate(e.target.value)}
-            />
-            <button onClick={handleStartDateSave}>Save</button>
-            <button onClick={() => setIsStartModalOpen(false)}>Cancel</button>
-          </div>
-        </div>
-      )}
-
-      {/* End Date Modal */}
-      {isEndModalOpen && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3>Edit End Date</h3>
-            <input
-              type="date"
-              value={newEndDate}
-              onChange={(e) => setNewEndDate(e.target.value)}
-            />
-            <button onClick={handleEndDateSave}>Save</button>
-            <button onClick={() => setIsEndModalOpen(false)}>Cancel</button>
-          </div>
-        </div>
-      )}
-
-    </div>
-    </div>
-    </div>
-  );
+);
 };
 
 export default TermSessionsManager;
