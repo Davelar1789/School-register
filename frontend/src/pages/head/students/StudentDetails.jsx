@@ -27,7 +27,7 @@ const [classOpen, setClassOpen] = useState(false);
 const [availableClasses, setAvailableClasses] = useState([]);
 const [selectedClassId, setSelectedClassId] = useState("");
 const [genderOpen, setGenderOpen] = useState(false);
-const [selectedGender, setSelectedGender] = useState(student.gender || "male");
+const [selectedGender, setSelectedGender] = useState("male");
 
 
 const token = localStorage.getItem("token");
