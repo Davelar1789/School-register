@@ -65,7 +65,7 @@ const GenerateClassReports = () => {
 
   try {
     const res = await api.get(
-      `/api/reports/preview/class/${selectedClass}?termId=${selectedTerm._id}&nextTermDate=${nextTermDate.toISOString()}&nextTermFees=${nextTermFees}`,
+      `/api/reports/reports/preview/class/${selectedClass}?termId=${selectedTerm._id}&nextTermDate=${nextTermDate.toISOString()}&nextTermFees=${nextTermFees}`,
       { responseType: "blob" }
     );
 
