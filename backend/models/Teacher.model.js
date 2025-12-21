@@ -33,10 +33,10 @@ const teacherSchema = new mongoose.Schema({
     enum: ["Class Teacher", "Subject Teacher", "Both"],
     required: true,
   },  
-  subjectSpecialization: {
-    type: [String],
-    default: [],
-  },
+subjectSpecialization: [{
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "Subject"
+}],
   classesAssigned: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Class' }],
   joinedDate: {
     type: Date,

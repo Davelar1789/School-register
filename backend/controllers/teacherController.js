@@ -207,13 +207,15 @@ export const getTeachersBySchool = async (req, res) => {
   }
 };
 
-// Get single teacher by ID
 export const getTeacherById = async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.params.id)
-      .populate('classesAssigned', 'className'); // ✅ this line populates class names
+      .populate("classesAssigned", "className")
+      .populate("subjectSpecialization", "name"); // ✅ ADD THIS
 
-    if (!teacher) return res.status(404).json({ message: "Teacher not found" });
+    if (!teacher) {
+      return res.status(404).json({ message: "Teacher not found" });
+    }
 
     res.status(200).json(teacher);
   } catch (error) {
