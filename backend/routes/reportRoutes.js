@@ -1,5 +1,6 @@
 import express from "express";
-import { generateClassReports, generateStudentReport, previewClassReports } from "../controllers/reportGeneratorController.js";
+import { generateClassReports, generateStudentReport } from "../controllers/reportGeneratorController.js";
+import { previewClassReports } from "../controllers/reportPreviewController.js";
 import { generateClassReports2} from "../controllers/report2.js";
 
 const router = express.Router();
