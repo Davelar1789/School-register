@@ -58,7 +58,36 @@ h2 {
   margin: 20px 0;
 }
 
-label {
+.form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-field label {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+  color: #333;
+}
+
+.form-field select {
+  padding: 10px 12px;
+  border: 1.5px solid #cbd5e1; /* visible box border */
+  border-radius: 6px;
+  background-color: #fff;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Focus state (very important for clarity) */
+.form-field select:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+}
+
+
+/* label {
   font-size: 14px;
   font-weight: 600;
 }
@@ -68,7 +97,7 @@ input {
   width: 100%;
   padding: 8px;
   margin-top: 5px;
-}
+} */
 
 /* Button */
 .generate-btn {

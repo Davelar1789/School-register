@@ -150,21 +150,20 @@ const GenerateClassReports = () => {
 
           {/* Form */}
           <div className="form-grid">
-            <div>
-              <label>Class</label>
-              <select
-                value={selectedClass}
-                onChange={(e) => setSelectedClass(e.target.value)}
-              >
-                <option value="">Select Class</option>
-                {classes.map((cls) => (
-                  <option key={cls._id} value={cls._id}>
-                    {cls.className}
-                  </option>
-                ))}
-              </select>
-            </div>
-
+           <div className="form-field">
+            <label>Class</label>
+            <select
+              value={selectedClass}
+              onChange={(e) => setSelectedClass(e.target.value)}
+            >
+              <option value="">Select Class</option>
+              {classes.map((cls) => (
+                <option key={cls._id} value={cls._id}>
+                  {cls.className}
+                </option>
+              ))}
+            </select>
+          </div>
             <div>
               <label>Next Term Begins</label>
               <DatePicker
