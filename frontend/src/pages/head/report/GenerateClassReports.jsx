@@ -11,6 +11,8 @@ const GenerateClassReports = () => {
   const [classes, setClasses] = useState([]);
   const [academicYears, setAcademicYears] = useState([]);
   const [terms, setTerms] = useState([]);
+  const [previewing, setPreviewing] = useState(false);
+
 
   const [selectedYear, setSelectedYear] = useState("");
   const [selectedTerm, setSelectedTerm] = useState(null);
@@ -57,23 +59,39 @@ const GenerateClassReports = () => {
     }
   };
 
-  const handlePreview = async () => {
+const handlePreview = async () => {
   if (!selectedClass || !selectedTerm) {
     toast.error("Select class and term first");
     return;
   }
 
+  // Open tab immediately (VERY IMPORTANT)
+  const previewWindow = window.open("", "_blank");
+
+  setPreviewing(true);
+  toast.loading("Generating preview reports...", { id: "preview" });
+
   try {
     const res = await api.get(
-      `/api/reports/reports/preview/class/${selectedClass}?termId=${selectedTerm._id}&nextTermDate=${nextTermDate.toISOString()}&nextTermFees=${nextTermFees}`,
-      { responseType: "blob" }
+      `/api/reports/reports/preview/class/${selectedClass}?termId=${selectedTerm._id}&nextTermDate=${nextTermDate?.toISOString()}&nextTermFees=${nextTermFees}`,
+      {
+        responseType: "blob",
+      }
     );
 
     const pdfBlob = new Blob([res.data], { type: "application/pdf" });
     const url = URL.createObjectURL(pdfBlob);
-    window.open(url, "_blank");
-  } catch {
-    toast.error("Failed to load preview");
+
+    // Redirect the already-opened tab to the PDF
+    previewWindow.location.href = url;
+
+    toast.success("Preview ready", { id: "preview" });
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to load preview", { id: "preview" });
+    previewWindow.close();
+  } finally {
+    setPreviewing(false);
   }
 };
 
@@ -212,12 +230,13 @@ const GenerateClassReports = () => {
             {generating ? "Generating..." : "Generate Reports"}
           </button>
 
-          <button
-            className="preview-btn"
-            onClick={handlePreview}
-          >
-            Preview Reports
-          </button>
+        <button
+          className="preview-btn"
+          onClick={handlePreview}
+          disabled={previewing}
+        >
+          {previewing ? "Generating Preview..." : "Preview Reports"}
+        </button>
 
           {downloadLink && (
             <div className="download-box">
