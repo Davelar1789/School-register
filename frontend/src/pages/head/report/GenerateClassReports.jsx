@@ -164,7 +164,7 @@ const GenerateClassReports = () => {
               ))}
             </select>
           </div>
-            <div>
+            <div className="form-field">
               <label>Next Term Begins</label>
               <DatePicker
                 selected={nextTermDate}
@@ -173,7 +173,7 @@ const GenerateClassReports = () => {
               />
             </div>
 
-            <div>
+            <div className="form-field">
               <label>Next Term Fees (GHS)</label>
               <input
                 type="number"
