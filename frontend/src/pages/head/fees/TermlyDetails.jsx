@@ -234,9 +234,7 @@ return (
           {academicYears.map((year) => (
             <button
               key={year}
-              className={`year-pill ${
-                selectedYear === year ? "active" : ""
-              }`}
+              className={`year-pill ${selectedYear === year ? "active" : ""}`}
               onClick={() => handleYearSelect(year)}
             >
               {year}
@@ -318,8 +316,9 @@ return (
           </div>
         )}
 
-        {/* ================= MODALS (UNCHANGED LOGIC) ================= */}
+        {/* ===================== MODALS ===================== */}
 
+        {/* ADD YEAR */}
         {showAddYearModal && (
           <div className="modal-overlay">
             <div className="modal">
@@ -347,6 +346,76 @@ return (
           </div>
         )}
 
+        {/* CREATE TERM */}
+        {showCreateTermModal && (
+          <div className="modal-overlay">
+            <div className="modal large">
+              <h3>Create {newTermData.termName}</h3>
+
+              <label>Start Date</label>
+              <input
+                type="date"
+                value={newTermData.startDate}
+                onChange={(e) =>
+                  setNewTermData({
+                    ...newTermData,
+                    startDate: e.target.value,
+                  })
+                }
+              />
+
+              <label>End Date</label>
+              <input
+                type="date"
+                value={newTermData.endDate}
+                onChange={(e) =>
+                  setNewTermData({
+                    ...newTermData,
+                    endDate: e.target.value,
+                  })
+                }
+              />
+
+              <h4>Set Fees</h4>
+              {newTermData.classFees.map((fee, index) => (
+                <div key={fee.classId} className="fee-row">
+                  <span>{fee.className}</span>
+                  <input
+                    type="number"
+                    value={fee.totalFees}
+                    onChange={(e) => {
+                      const updatedFees = [...newTermData.classFees];
+                      updatedFees[index].totalFees =
+                        parseFloat(e.target.value) || 0;
+                      setNewTermData({
+                        ...newTermData,
+                        classFees: updatedFees,
+                      });
+                    }}
+                    onWheel={(e) => e.target.blur()}
+                  />
+                </div>
+              ))}
+
+              <div className="modal-actions">
+                <button
+                  className="primary-btn"
+                  onClick={handleSubmitNewTerm}
+                >
+                  Create Term
+                </button>
+                <button
+                  className="ghost-btn"
+                  onClick={() => setShowCreateTermModal(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* EDIT FEES */}
         {editingTerm && (
           <div className="modal-overlay">
             <div className="modal large">
@@ -384,6 +453,63 @@ return (
           </div>
         )}
 
+        {/* START DATE */}
+        {isStartModalOpen && (
+          <div className="modal-overlay">
+            <div className="modal">
+              <h3>Edit Start Date</h3>
+              <input
+                type="date"
+                value={newStartDate}
+                onChange={(e) => setNewStartDate(e.target.value)}
+              />
+              <div className="modal-actions">
+                <button
+                  className="primary-btn"
+                  onClick={handleStartDateSave}
+                >
+                  Save
+                </button>
+                <button
+                  className="ghost-btn"
+                  onClick={() => setIsStartModalOpen(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* END DATE */}
+        {isEndModalOpen && (
+          <div className="modal-overlay">
+            <div className="modal">
+              <h3>Edit End Date</h3>
+              <input
+                type="date"
+                value={newEndDate}
+                onChange={(e) => setNewEndDate(e.target.value)}
+              />
+              <div className="modal-actions">
+                <button
+                  className="primary-btn"
+                  onClick={handleEndDateSave}
+                >
+                  Save
+                </button>
+                <button
+                  className="ghost-btn"
+                  onClick={() => setIsEndModalOpen(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* LOADING */}
         {isSaving && (
           <div className="loading-overlay">
             <div className="spinner"></div>
