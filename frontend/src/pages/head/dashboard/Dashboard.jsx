@@ -156,7 +156,7 @@ const Dashboard = () => {
 
         {/* Show Dashboard if school exists, else show Registration Form */}
 <div className="dashboard-content dashboard-surface">
-             <div className="overview-section">
+             {/* <div className="overview-section">
                 <div className="overview-card students">
                   <div className="card-header">
                     <i className="fas fa-user-graduate"></i>
@@ -200,7 +200,7 @@ const Dashboard = () => {
                   </div>
                   <div className="wave-chart green-wave"></div>
                 </div>
-              </div>
+              </div> */}
 
               <div className="overview-section4">
                 <div className="overview-card4 students4">
