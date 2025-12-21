@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "../../../api/axios";
+import api from "../../../api/axios";
 import Header from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
 import { toast } from "react-hot-toast";
@@ -12,7 +12,7 @@ const GenerateClassReports = () => {
   const [academicYears, setAcademicYears] = useState([]);
   const [terms, setTerms] = useState([]);
 
-  const [selectedYear, setSelectedYear] = useState(null);
+  const [selectedYear, setSelectedYear] = useState("");
   const [selectedTerm, setSelectedTerm] = useState(null);
 
   const [selectedClass, setSelectedClass] = useState("");
@@ -21,50 +21,65 @@ const GenerateClassReports = () => {
   const [generating, setGenerating] = useState(false);
   const [downloadLink, setDownloadLink] = useState("");
 
-  const token = localStorage.getItem("token");
+  const schoolDataRaw = localStorage.getItem("schoolData");
+  const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
 
   useEffect(() => {
+    if (!schoolId) return;
+    fetchAcademicYears();
     fetchClasses();
-    fetchAcademicYearsAndCurrentTerm();
-  }, []);
+  }, [schoolId]);
+
+  /* ================= FETCHERS ================= */
+
+  const fetchAcademicYears = async () => {
+    try {
+      const { data } = await api.get(`/api/terms/years/${schoolId}`);
+      setAcademicYears(data);
+
+      if (data.length > 0) {
+        setSelectedYear(data[data.length - 1]); // latest year
+      }
+    } catch {
+      toast.error("Failed to fetch academic years.");
+    }
+  };
+
+  const fetchTermsForYear = async (year) => {
+    try {
+      const { data } = await api.get(
+        `/api/terms/year/${schoolId}/${year}`
+      );
+
+      setTerms(data);
+
+      const current = data.find((t) => t.isCurrent);
+      setSelectedTerm(current || data[0] || null);
+    } catch {
+      toast.error("Failed to fetch terms.");
+    }
+  };
 
   const fetchClasses = async () => {
     try {
-      const res = await axios.get("/api/classes", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setClasses(res.data || []);
+      const { data } = await api.get(
+        `/api/classes/school/${schoolId}`
+      );
+      setClasses(data);
     } catch {
-      toast.error("Failed to fetch classes");
+      toast.error("Failed to fetch classes.");
     }
   };
 
-  const fetchAcademicYearsAndCurrentTerm = async () => {
-    try {
-      const res = await axios.get("/api/terms/all", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+  /* ================= EFFECTS ================= */
 
-      const allTerms = res.data || [];
-      const years = [...new Set(allTerms.map(t => t.academicYear))];
-
-      const latest = allTerms.find(t => t.isCurrent);
-
-      setAcademicYears(years);
-      setSelectedYear(latest.academicYear);
-      setTerms(allTerms.filter(t => t.academicYear === latest.academicYear));
-      setSelectedTerm(latest);
-    } catch {
-      toast.error("Failed to load terms");
+  useEffect(() => {
+    if (selectedYear) {
+      fetchTermsForYear(selectedYear);
     }
-  };
+  }, [selectedYear]);
 
-  const handleYearSelect = (year) => {
-    setSelectedYear(year);
-    const yearTerms = terms.filter(t => t.academicYear === year);
-    setTerms(yearTerms);
-    setSelectedTerm(yearTerms[0] || null);
-  };
+  /* ================= ACTIONS ================= */
 
   const handleGenerate = async () => {
     if (!selectedClass || !selectedTerm || !nextTermDate || !nextTermFees) {
@@ -76,23 +91,24 @@ const GenerateClassReports = () => {
     setDownloadLink("");
 
     try {
-      const res = await axios.get(
+      const res = await api.get(
         `/api/reports/generate/class/${selectedClass}?termId=${selectedTerm._id}&nextTermDate=${nextTermDate.toISOString()}&nextTermFees=${nextTermFees}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          responseType: "blob",
-        }
+        { responseType: "blob" }
       );
 
       const blob = new Blob([res.data], { type: "application/zip" });
-      setDownloadLink(URL.createObjectURL(blob));
-      toast.success("Reports generated successfully");
+      const url = URL.createObjectURL(blob);
+      setDownloadLink(url);
+
+      toast.success("Report cards generated successfully.");
     } catch {
-      toast.error("Report generation failed");
+      toast.error("Failed to generate reports.");
     } finally {
       setGenerating(false);
     }
   };
+
+  /* ================= UI ================= */
 
   return (
     <>
@@ -101,44 +117,52 @@ const GenerateClassReports = () => {
 
       <div className="reports-page">
         <div className="reports-card">
-
           <h2>Generate Report Cards</h2>
 
-          {/* YEAR SELECTOR */}
+          {/* Academic Years */}
           <div className="year-selector">
-            {academicYears.map(year => (
+            {academicYears.map((year) => (
               <button
                 key={year}
                 className={year === selectedYear ? "active" : ""}
-                onClick={() => handleYearSelect(year)}
+                onClick={() => setSelectedYear(year)}
               >
                 {year}
               </button>
             ))}
           </div>
 
-          {/* TERM SELECTOR */}
+          {/* Terms */}
           <div className="term-selector">
-            {terms.map(term => (
+            {terms.map((term) => (
               <button
                 key={term._id}
-                className={term._id === selectedTerm?._id ? "active" : ""}
+                className={
+                  selectedTerm?._id === term._id ? "active" : ""
+                }
                 onClick={() => setSelectedTerm(term)}
               >
                 {term.termName}
-                {term.isCurrent && <span className="current-badge">Current</span>}
+                {term.isCurrent && (
+                  <span className="current-badge">Current</span>
+                )}
               </button>
             ))}
           </div>
 
-          {/* FORM */}
+          {/* Form */}
           <div className="form-grid">
             <div>
               <label>Class</label>
-              <select value={selectedClass} onChange={e => setSelectedClass(e.target.value)}>
+              <select
+                value={selectedClass}
+                onChange={(e) => setSelectedClass(e.target.value)}
+              >
                 <option value="">Select Class</option>
-                {classes.map(cls => (
-                  <option key={cls._id} value={cls._id}>{cls.className}</option>
+                {classes.map((cls) => (
+                  <option key={cls._id} value={cls._id}>
+                    {cls.className}
+                  </option>
                 ))}
               </select>
             </div>
@@ -157,21 +181,26 @@ const GenerateClassReports = () => {
               <input
                 type="number"
                 value={nextTermFees}
-                onChange={e => setNextTermFees(e.target.value)}
+                onChange={(e) => setNextTermFees(e.target.value)}
               />
             </div>
           </div>
 
-          <button className="generate-btn" disabled={generating} onClick={handleGenerate}>
+          <button
+            className="generate-btn"
+            disabled={generating}
+            onClick={handleGenerate}
+          >
             {generating ? "Generating..." : "Generate Reports"}
           </button>
 
           {downloadLink && (
             <div className="download-box">
-              <a href={downloadLink} download>Download ZIP</a>
+              <a href={downloadLink} download="class_reports.zip">
+                Download ZIP
+              </a>
             </div>
           )}
-
         </div>
       </div>
     </>
