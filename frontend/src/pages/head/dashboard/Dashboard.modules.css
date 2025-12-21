@@ -203,8 +203,21 @@ body {
 }
 
 .overview-card.students {
-    border-color: #3d3cc5;
+  border-color: #3d3cc5;
 }
+
+.overview-card.teachers {
+  border-color: #d053cd;
+}
+
+.overview-card.classes {
+  border-color: #f26d67;
+}
+
+.overview-card.requests {
+  border-color: #19daac;
+}
+
 
 .card-info h3 {
   color: black;
@@ -228,7 +241,6 @@ body {
   /* Softer shadow for white cards */
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
 }
-
 
 .overview-card4 {
   padding: 20px;
