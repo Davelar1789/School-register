@@ -154,12 +154,18 @@ export const previewClassReports = async (req, res) => {
         totalFeesDue,
       };
 
-      // DOCX → HTML → PDF
-      const zip = new PizZip(templateBuffer);
-      const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
-      doc.compile();
-      doc.render(studentData);
-      const docxBuffer = doc.getZip().generate({ type: "nodebuffer" });
+      // DOCX generation
+const zip = new PizZip(templateBuffer);
+
+// Pass the student data directly via `data` instead of setData or compile
+const doc = new Docxtemplater(zip, {
+  paragraphLoop: true,
+  linebreaks: true,
+  data: studentData
+});
+
+doc.render(); // Render with the data
+const docxBuffer = doc.getZip().generate({ type: "nodebuffer" });
 
       const { value: html } = await mammoth.convertToHtml({ buffer: docxBuffer });
 
