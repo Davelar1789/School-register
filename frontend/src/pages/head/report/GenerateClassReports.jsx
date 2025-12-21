@@ -9,46 +9,65 @@ import "./GenerateClassReports.modules.css";
 
 const GenerateClassReports = () => {
   const [classes, setClasses] = useState([]);
+  const [academicYears, setAcademicYears] = useState([]);
+  const [terms, setTerms] = useState([]);
+
+  const [selectedYear, setSelectedYear] = useState(null);
+  const [selectedTerm, setSelectedTerm] = useState(null);
+
   const [selectedClass, setSelectedClass] = useState("");
-  const [termId, setTermId] = useState(null);
   const [nextTermDate, setNextTermDate] = useState(null);
   const [nextTermFees, setNextTermFees] = useState("");
   const [generating, setGenerating] = useState(false);
   const [downloadLink, setDownloadLink] = useState("");
 
-  const schoolDataRaw = localStorage.getItem("schoolData");
-  const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
   const token = localStorage.getItem("token");
 
   useEffect(() => {
     fetchClasses();
-    fetchLatestTerm();
+    fetchAcademicYearsAndCurrentTerm();
   }, []);
 
   const fetchClasses = async () => {
     try {
-      const res = await axios.get(`/api/classes/school/${schoolId}`, {
+      const res = await axios.get("/api/classes", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setClasses(res.data || []);
-    } catch (error) {
-      toast.error("Failed to fetch classes.");
+    } catch {
+      toast.error("Failed to fetch classes");
     }
   };
 
-  const fetchLatestTerm = async () => {
+  const fetchAcademicYearsAndCurrentTerm = async () => {
     try {
-      const res = await axios.get(`/api/terms/latest`, {
+      const res = await axios.get("/api/terms/all", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      setTermId(res.data?._id || null);
-    } catch (error) {
-      toast.error("Failed to fetch latest term.");
+
+      const allTerms = res.data || [];
+      const years = [...new Set(allTerms.map(t => t.academicYear))];
+
+      const latest = allTerms.find(t => t.isCurrent);
+
+      setAcademicYears(years);
+      setSelectedYear(latest.academicYear);
+      setTerms(allTerms.filter(t => t.academicYear === latest.academicYear));
+      setSelectedTerm(latest);
+    } catch {
+      toast.error("Failed to load terms");
     }
+  };
+
+  const handleYearSelect = (year) => {
+    setSelectedYear(year);
+    const yearTerms = terms.filter(t => t.academicYear === year);
+    setTerms(yearTerms);
+    setSelectedTerm(yearTerms[0] || null);
   };
 
   const handleGenerate = async () => {
-    if (!selectedClass || !termId || !nextTermDate || !nextTermFees) {
+    if (!selectedClass || !selectedTerm || !nextTermDate || !nextTermFees) {
       toast.error("Please complete all fields.");
       return;
     }
@@ -58,7 +77,7 @@ const GenerateClassReports = () => {
 
     try {
       const res = await axios.get(
-        `/api/reports/generate/class/${selectedClass}?termId=${termId}&nextTermDate=${nextTermDate.toISOString()}&nextTermFees=${nextTermFees}`,
+        `/api/reports/generate/class/${selectedClass}?termId=${selectedTerm._id}&nextTermDate=${nextTermDate.toISOString()}&nextTermFees=${nextTermFees}`,
         {
           headers: { Authorization: `Bearer ${token}` },
           responseType: "blob",
@@ -66,78 +85,96 @@ const GenerateClassReports = () => {
       );
 
       const blob = new Blob([res.data], { type: "application/zip" });
-      const url = window.URL.createObjectURL(blob);
-      setDownloadLink(url);
-      toast.success("Report generation complete.");
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to generate reports.");
+      setDownloadLink(URL.createObjectURL(blob));
+      toast.success("Reports generated successfully");
+    } catch {
+      toast.error("Report generation failed");
     } finally {
       setGenerating(false);
     }
   };
 
   return (
-    <div>
+    <>
       <Header />
       <Sidebar />
-      <div className="generate-container">
-        <div className="report-content">
+
+      <div className="reports-page">
+        <div className="reports-card">
+
           <h2>Generate Report Cards</h2>
 
-          <div className="select-class">
-            <label>Select Class:</label>
-            <select value={selectedClass} onChange={(e) => setSelectedClass(e.target.value)}>
-              <option value="">-- Select Class --</option>
-              {classes.map((cls) => (
-                <option key={cls._id} value={cls._id}>
-                  {cls.className}
-                </option>
-              ))}
-            </select>
+          {/* YEAR SELECTOR */}
+          <div className="year-selector">
+            {academicYears.map(year => (
+              <button
+                key={year}
+                className={year === selectedYear ? "active" : ""}
+                onClick={() => handleYearSelect(year)}
+              >
+                {year}
+              </button>
+            ))}
           </div>
 
-          <div className="select-date">
-            <label>Next Term Begins:</label>
-            <DatePicker
-              selected={nextTermDate}
-              onChange={(date) => setNextTermDate(date)}
-              dateFormat="yyyy-MM-dd"
-              placeholderText="Pick a date"
-            />
+          {/* TERM SELECTOR */}
+          <div className="term-selector">
+            {terms.map(term => (
+              <button
+                key={term._id}
+                className={term._id === selectedTerm?._id ? "active" : ""}
+                onClick={() => setSelectedTerm(term)}
+              >
+                {term.termName}
+                {term.isCurrent && <span className="current-badge">Current</span>}
+              </button>
+            ))}
           </div>
 
-          <div className="select-fee">
-            <label>Fees for Next Term (GHS):</label>
-            <input
-              type="number"
-              value={nextTermFees}
-              onChange={(e) => setNextTermFees(e.target.value)}
-              placeholder="e.g. 450"
-            />
+          {/* FORM */}
+          <div className="form-grid">
+            <div>
+              <label>Class</label>
+              <select value={selectedClass} onChange={e => setSelectedClass(e.target.value)}>
+                <option value="">Select Class</option>
+                {classes.map(cls => (
+                  <option key={cls._id} value={cls._id}>{cls.className}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label>Next Term Begins</label>
+              <DatePicker
+                selected={nextTermDate}
+                onChange={setNextTermDate}
+                dateFormat="yyyy-MM-dd"
+              />
+            </div>
+
+            <div>
+              <label>Next Term Fees (GHS)</label>
+              <input
+                type="number"
+                value={nextTermFees}
+                onChange={e => setNextTermFees(e.target.value)}
+              />
+            </div>
           </div>
 
-          <button
-            onClick={handleGenerate}
-            disabled={
-              generating || !selectedClass || !termId || !nextTermDate || !nextTermFees
-            }
-            className={`generate-button ${generating ? "disabled" : ""}`}
-          >
-            {generating ? "Generating..." : "Generate Report Cards"}
+          <button className="generate-btn" disabled={generating} onClick={handleGenerate}>
+            {generating ? "Generating..." : "Generate Reports"}
           </button>
 
           {downloadLink && (
-            <div className="download-section">
-              <p>✅ Reports are ready!</p>
-              <a href={downloadLink} download="class_reports.zip" className="download-button">
-                Click here to download ZIP
-              </a>
+            <div className="download-box">
+              <a href={downloadLink} download>Download ZIP</a>
             </div>
           )}
+
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
