@@ -22,24 +22,40 @@ export const previewClassReports = async (req, res) => {
     const { termId, nextTermDate, nextTermFees = 0 } = req.query;
 
     if (!classId || !termId) {
+      console.log("Missing classId or termId");
       return res.status(400).json({ message: "classId and termId required" });
     }
 
+    console.log("Fetching term...");
     const term = await TermSession.findById(termId);
-    if (!term) return res.status(404).json({ message: "Term not found" });
+    if (!term) {
+      console.log("Term not found");
+      return res.status(404).json({ message: "Term not found" });
+    }
 
     const isTermThree = term.termName?.trim().toLowerCase() === "term 3";
 
+    console.log("Fetching class info...");
     const classInfo = await Class.findById(classId).populate("students");
-    if (!classInfo) return res.status(404).json({ message: "Class not found" });
+    if (!classInfo) {
+      console.log("Class not found");
+      return res.status(404).json({ message: "Class not found" });
+    }
 
+    console.log("Fetching report template...");
     const template = await ReportTemplate.findOne({ classIds: classId });
-    if (!template) return res.status(404).json({ message: "No report template found" });
+    if (!template) {
+      console.log("No report template found");
+      return res.status(404).json({ message: "No report template found" });
+    }
 
+    console.log("Downloading template file...");
     const cloudResponse = await axios.get(template.templatePath, { responseType: "arraybuffer" });
     const templateBuffer = Buffer.from(cloudResponse.data, "binary");
+    console.log("Template file downloaded");
 
     // Compute class scores & ranking
+    console.log("Computing class scores and ranking...");
     const numberOnRoll = classInfo.students.length;
     const classScores = [];
     for (const student of classInfo.students) {
@@ -57,6 +73,7 @@ export const previewClassReports = async (req, res) => {
       rankedScores.push({ ...s, position: getOrdinal(currentRank) });
       lastScore = s.total;
     }
+    console.log("Class ranking computed");
 
     const getWeekdays = (start, end) => {
       let count = 0;
@@ -69,17 +86,20 @@ export const previewClassReports = async (req, res) => {
       return count;
     };
 
-    // Launch Puppeteer
+    console.log("Launching Puppeteer...");
     const browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath(),
       headless: chromium.headless,
     });
+    console.log("Puppeteer launched");
 
     const previewPdf = await PDFDocument.create();
 
     for (const student of classInfo.students) {
+      console.log(`Processing student: ${student.name}`);
+
       const grades = await GradeEntry.find({ studentId: student._id, termId }).populate("subjectId");
 
       const subjectData = grades.map(g => ({
@@ -154,22 +174,30 @@ export const previewClassReports = async (req, res) => {
         totalFeesDue,
       };
 
-      // DOCX generation
-const zip = new PizZip(templateBuffer);
+      console.log(`Generating DOCX for ${student.name}...`);
+      const zip = new PizZip(templateBuffer);
 
-// Pass the student data directly via `data` instead of setData or compile
-const doc = new Docxtemplater(zip, {
-  paragraphLoop: true,
-  linebreaks: true,
-  data: studentData
-});
+      const doc = new Docxtemplater(zip, {
+        paragraphLoop: true,
+        linebreaks: true,
+        data: studentData
+      });
 
-doc.render(); // Render with the data
-const docxBuffer = doc.getZip().generate({ type: "nodebuffer" });
+      try {
+        doc.render(); // Render with the data
+      } catch (err) {
+        console.error(`⚠️ Error rendering DOCX for ${student.name}:`, err);
+        continue;
+      }
+
+      const docxBuffer = doc.getZip().generate({ type: "nodebuffer" });
+      console.log("DOCX generated, converting to HTML...");
 
       const { value: html } = await mammoth.convertToHtml({ buffer: docxBuffer });
+      console.log("HTML conversion done");
 
       const page = await browser.newPage();
+      console.log("Setting page content for PDF...");
       await page.setContent(`
         <html>
           <head>
@@ -185,66 +213,25 @@ const docxBuffer = doc.getZip().generate({ type: "nodebuffer" });
 
       const pdfBuffer = await page.pdf({ format: "A4" });
       await page.close();
+      console.log(`PDF page created for ${student.name}`);
 
       const pdfDoc = await PDFDocument.load(pdfBuffer);
       const [firstPage] = await previewPdf.copyPages(pdfDoc, [0]);
       previewPdf.addPage(firstPage);
+      console.log(`Added PDF page to preview for ${student.name}`);
     }
 
     await browser.close();
+    console.log("Browser closed, saving final PDF...");
 
     const finalPdf = await previewPdf.save();
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", "inline; filename=preview.pdf");
     res.send(Buffer.from(finalPdf));
+    console.log("Preview PDF sent successfully");
 
   } catch (err) {
     console.error("❌ Preview error:", err);
     res.status(500).json({ message: "Preview failed", error: err.message });
   }
-};
-
-// --- HELPERS ---
-const CLASS_ORDER = [
-  "Creche","Nursery 1","Nursery 2","KG 1","KG 2",
-  "Basic 1","Basic 2","Basic 3","Basic 4","Basic 5","Basic 6",
-  "JHS 1","JHS 2","JHS 3"
-];
-
-const getNextClass = (currentClassName) => {
-  const index = CLASS_ORDER.indexOf(currentClassName);
-  if (index === -1 || index === CLASS_ORDER.length - 1) return "Completed";
-  return CLASS_ORDER[index + 1];
-};
-
-const getOrdinal = (n) => {
-  const s = ["th","st","nd","rd"];
-  const v = n % 100;
-  return n + (s[(v - 20) % 10] || s[v] || s[0]);
-};
-
-const computeGrade = (score) => {
-  if (score >= 80) return "1";
-  if (score >= 70) return "2";
-  if (score >= 60) return "3";
-  if (score >= 55) return "4";
-  if (score >= 50) return "5";
-  if (score >= 45) return "6";
-  if (score >= 40) return "7";
-  if (score >= 35) return "8";
-  return "9";
-};
-
-const getRemark = (score) => {
-  if (score >= 80) return "Excellent";
-  if (score >= 70) return "Very Good";
-  if (score >= 60) return "Good";
-  if (score >= 50) return "Pass";
-  if (score >= 40) return "Average";
-  return "Fail";
-};
-
-const formatDate = (date) => {
-  const d = new Date(date);
-  return d.toLocaleDateString("en-GB", { year:"numeric", month:"long", day:"numeric" });
 };
