@@ -56,6 +56,7 @@ const studentSchema = new Schema(
     classes: [{ type: Schema.Types.ObjectId, ref: "Class" }],
     idno: { type: String, unique: true, trim: true },
     dob: { type: String, required: true },
+    gender: { type: String, enum: ["male", "female"], default: "male",},
     phone: { type: String, trim: true },
     address: { type: String, trim: true },
     images: [{ type: String }],

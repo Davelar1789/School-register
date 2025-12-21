@@ -119,3 +119,24 @@ export const patchOldClassesToNewFormat = async (req, res) => {
     res.status(500).json({ message: "Failed to patch old classes", error: err.message });
   }
 };
+
+export const patchStudentsGenderToMale = async (req, res) => {
+  try {
+    const result = await Students.updateMany(
+      { gender: { $exists: false } }, // only students without gender
+      { $set: { gender: "male" } }
+    );
+
+    res.status(200).json({
+      message: "All existing students updated with default gender",
+      matched: result.matchedCount,
+      modified: result.modifiedCount,
+    });
+  } catch (error) {
+    console.error("❌ Gender patch error:", error);
+    res.status(500).json({
+      message: "Failed to patch student gender",
+      error: error.message,
+    });
+  }
+};
