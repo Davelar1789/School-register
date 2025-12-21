@@ -165,8 +165,8 @@ const handleClassEdit = async () => {
                 </span>
               </div>
               <div className="summary-box">
-                <span className="summary-title">ID Number</span>
-                <span className="summary-value">{student.idno}</span>
+                <span className="summary-title">Gender</span>
+                <span className="summary-value">{student.gender}</span>
               </div>
               <div className="summary-box">
                 <span className="summary-title">Date of Birth</span>

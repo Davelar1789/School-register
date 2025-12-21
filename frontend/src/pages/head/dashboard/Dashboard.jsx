@@ -248,17 +248,6 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Recent Activities */}
-              {/* <div className="recent-activities">
-                <h3>Recent Activities</h3>
-                <ul>
-                  <li>New student enrolled: John Doe</li>
-                  <li>Teacher application received: Mr. Kwame</li>
-                  <li>Upcoming PTA meeting scheduled</li>
-                  <li>New event: Science Fair on April 15</li>
-                </ul>
-              </div> */}
-
               {/* Quick Links */}
               <div className="quick-links">
                 <h3>Quick Links</h3>
