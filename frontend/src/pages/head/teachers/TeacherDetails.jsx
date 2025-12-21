@@ -84,7 +84,7 @@ const TeacherDetails = () => {
     }
 
     try {
-      await axios.post(`/api/classes/assign-subject-teacher`, {
+      await axios.post(`/api/classes/assign-subject-teacher2`, {
         teacherId: id,
         classId: selectedClass,
         subjectIds: selectedSubjects,
@@ -167,7 +167,7 @@ const TeacherDetails = () => {
           </option>
         ))}
     </select>
-    
+
     {/* Show already assigned classes */}
     <div className="td-assigned-list">
       <h4>Already Assigned Classes</h4>
