@@ -207,6 +207,10 @@ body {
     border-color: #3d3cc5;
 }
 
+.card-info h3 {
+  color: black;
+}
+
 
 .overview-card4 {
   padding: 20px;
