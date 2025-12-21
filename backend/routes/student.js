@@ -19,6 +19,7 @@ import {
   updateStudentInfo,
   patchMissingAcademicRecords,
   updateStudentClass,
+  updateStudentGender,
   // deleteAllStudents,
   // migrateAttendanceBooleans,
 } from "../controllers/studentController.js";
@@ -38,6 +39,7 @@ router.post("/mark-weekly-attendance", protect, markWeeklyAttendance);
 router.patch("/fix-missing-records", patchMissingAcademicRecords);
 // router.post("/migrate-attendance", migrateAttendanceBooleans);
 // router.delete("/all-time", deleteAllStudents); // DELETE /api/students/all
+router.patch("/:studentId/update-gender", updateStudentGender);
 router.get("/today/:studentId", getAttendanceForToday);
 router.get("/class/:classId", protect, getStudentsByClass);
 router.get("/:id", getStudentById);

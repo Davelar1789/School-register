@@ -26,11 +26,18 @@ const [classOpen, setClassOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 const [availableClasses, setAvailableClasses] = useState([]);
 const [selectedClassId, setSelectedClassId] = useState("");
+const [genderOpen, setGenderOpen] = useState(false);
+const [selectedGender, setSelectedGender] = useState(student.gender || "male");
+
 
 const token = localStorage.getItem("token");
 
   const schoolDataRaw = localStorage.getItem("schoolData");
   const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
+
+  const formatGender = (gender) =>
+  gender ? gender.charAt(0).toUpperCase() + gender.slice(1).toLowerCase() : "N/A";
+
 
 const fetchStudent = async () => {
   const res = await axios.get(`/api/student/free/${id}`);
@@ -41,6 +48,13 @@ const fetchStudent = async () => {
   }
   return res.data;
 };
+
+useEffect(() => {
+  if (student?.gender) {
+    setSelectedGender(student.gender);
+  }
+}, [student]);
+
 
 const fetchClasses = async () => {
   if (!schoolId) return;
@@ -67,6 +81,22 @@ useEffect(() => {
   loadData();
 }, [id]);
 
+const handleGenderEdit = async () => {
+  try {
+    await axios.patch(
+      `/api/student/${student._id}/update-gender`,
+      { gender: selectedGender },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    toast.success("Gender updated successfully");
+    await fetchStudent(student._id);
+    setGenderOpen(false);
+  } catch (err) {
+    console.error("Error updating gender:", err);
+    toast.error("Failed to update gender");
+  }
+};
 
 
   const handleEditDOB = async (newDOB) => {
@@ -166,7 +196,12 @@ const handleClassEdit = async () => {
               </div>
               <div className="summary-box">
                 <span className="summary-title">Gender</span>
-                <span className="summary-value">{student.gender}</span>
+                <span className="summary-value">
+                  {formatGender(student.gender)}
+                  <IconButton onClick={() => setGenderOpen(true)} size="small">
+                    <EditIcon sx={{ color: "white", ml: 1 }} />
+                  </IconButton>
+                </span>
               </div>
               <div className="summary-box">
                 <span className="summary-title">Date of Birth</span>
@@ -285,6 +320,34 @@ const handleClassEdit = async () => {
                 <button onClick={handleModalSave}>Save</button>
               </Box>
             </Modal>
+
+                    <Dialog open={genderOpen} onClose={() => setGenderOpen(false)}>
+          <DialogTitle>Edit Gender</DialogTitle>
+
+          <DialogContent>
+            <select
+              value={selectedGender}
+              onChange={(e) => setSelectedGender(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "10px",
+                marginTop: "10px",
+                borderRadius: "6px",
+              }}
+            >
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
+          </DialogContent>
+
+          <DialogActions>
+            <Button onClick={() => setGenderOpen(false)}>Cancel</Button>
+            <Button variant="contained" onClick={handleGenderEdit}>
+              Save
+            </Button>
+          </DialogActions>
+        </Dialog>
+
           </>
         )}
       </div>

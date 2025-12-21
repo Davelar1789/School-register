@@ -858,3 +858,33 @@ export const updateStudentClass = async (req, res) => {
     res.status(500).json({ message: "Failed to update student class" });
   }
 };
+
+
+export const updateStudentGender = async (req, res) => {
+  try {
+    const { studentId } = req.params;
+    const { gender } = req.body;
+
+    if (!["male", "female"].includes(gender)) {
+      return res.status(400).json({ message: "Invalid gender value" });
+    }
+
+    const student = await Students.findByIdAndUpdate(
+      studentId,
+      { gender },
+      { new: true }
+    );
+
+    if (!student) {
+      return res.status(404).json({ message: "Student not found" });
+    }
+
+    res.json({
+      message: "Gender updated successfully",
+      student,
+    });
+  } catch (error) {
+    console.error("Update gender error:", error);
+    res.status(500).json({ message: "Failed to update gender" });
+  }
+};
