@@ -155,7 +155,7 @@ const Dashboard = () => {
         <Header2 />
 
         {/* Show Dashboard if school exists, else show Registration Form */}
-        <div className="dashboard-content">
+<div className="dashboard-content dashboard-surface">
              <div className="overview-section">
                 <div className="overview-card students">
                   <div className="card-header">
