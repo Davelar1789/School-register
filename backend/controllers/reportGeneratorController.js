@@ -11,6 +11,10 @@ import ReportTemplate from "../models/ReportTemplate.model.js";
 import TermSession from "../models/TermSession.model.js";
 import Class from "../models/Class.model.js";
 import Attendance from "../models/Attendance.model.js";
+import mammoth from "mammoth";
+import puppeteer from "puppeteer";
+import { PDFDocument } from "pdf-lib";
+
 
 export const generateClassReports = async (req, res) => {
   try {
@@ -419,5 +423,102 @@ export const generateStudentReport = async (req, res) => {
   } catch (err) {
     console.error("❌ Error generating student report:", err);
     res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
+
+export const previewClassReports = async (req, res) => {
+  try {
+    const { classId } = req.params;
+    const { termId, nextTermDate, nextTermFees = 0 } = req.query;
+
+    if (!classId || !termId) {
+      return res.status(400).json({ message: "classId and termId required" });
+    }
+
+    const term = await TermSession.findById(termId);
+    const classInfo = await Class.findById(classId).populate("students");
+    const template = await ReportTemplate.findOne({ classIds: classId });
+
+    if (!term || !classInfo || !template) {
+      return res.status(404).json({ message: "Missing data" });
+    }
+
+    const templateRes = await axios.get(template.templatePath, {
+      responseType: "arraybuffer",
+    });
+    const templateBuffer = Buffer.from(templateRes.data, "binary");
+
+    const browser = await puppeteer.launch({ headless: "new" });
+    const previewPdf = await PDFDocument.create();
+
+    for (const student of classInfo.students) {
+      const grades = await GradeEntry.find({
+        studentId: student._id,
+        termId,
+      }).populate("subjectId");
+
+      const subjects = grades.map(g => ({
+        name: g.subjectId.name,
+        classScore: g.scores.test1 + g.scores.test2 + g.scores.test3 + g.scores.test4,
+        examScore: g.scores.exam,
+        total: g.scores.total,
+        grade: computeGrade(g.scores.total),
+        remark: getRemark(g.scores.total),
+      }));
+
+      const studentData = {
+        name: student.name,
+        className: classInfo.className,
+        yearLabel: term.yearLabel,
+        termName: term.termName,
+        subjects,
+        nextTermBegins: nextTermDate ? formatDate(nextTermDate) : "N/A",
+        feesNextTerm: nextTermFees,
+      };
+
+      // DOCX generation
+      const zip = new PizZip(templateBuffer);
+      const doc = new Docxtemplater(zip, { paragraphLoop: true, linebreaks: true });
+      doc.setData(studentData);
+      doc.render();
+      const docxBuffer = doc.getZip().generate({ type: "nodebuffer" });
+
+      // DOCX → HTML
+      const { value: html } = await mammoth.convertToHtml({ buffer: docxBuffer });
+
+      // HTML → PDF
+      const page = await browser.newPage();
+      await page.setContent(`
+        <html>
+          <head>
+            <style>
+              body { font-family: Arial; margin: 40px; }
+              table { width: 100%; border-collapse: collapse; }
+              td, th { border: 1px solid #000; padding: 6px; }
+            </style>
+          </head>
+          <body>${html}</body>
+        </html>
+      `);
+      const pdfBuffer = await page.pdf({ format: "A4" });
+      await page.close();
+
+      // Extract ONLY page 1
+      const pdfDoc = await PDFDocument.load(pdfBuffer);
+      const [firstPage] = await previewPdf.copyPages(pdfDoc, [0]);
+      previewPdf.addPage(firstPage);
+    }
+
+    await browser.close();
+
+    const finalPdf = await previewPdf.save();
+
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", "inline; filename=preview.pdf");
+    res.send(Buffer.from(finalPdf));
+
+  } catch (err) {
+    console.error("❌ Preview error:", err);
+    res.status(500).json({ message: "Preview failed" });
   }
 };

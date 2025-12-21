@@ -57,6 +57,27 @@ const GenerateClassReports = () => {
     }
   };
 
+  const handlePreview = async () => {
+  if (!selectedClass || !selectedTerm) {
+    toast.error("Select class and term first");
+    return;
+  }
+
+  try {
+    const res = await api.get(
+      `/api/reports/preview/class/${selectedClass}?termId=${selectedTerm._id}&nextTermDate=${nextTermDate.toISOString()}&nextTermFees=${nextTermFees}`,
+      { responseType: "blob" }
+    );
+
+    const pdfBlob = new Blob([res.data], { type: "application/pdf" });
+    const url = URL.createObjectURL(pdfBlob);
+    window.open(url, "_blank");
+  } catch {
+    toast.error("Failed to load preview");
+  }
+};
+
+
   /* ================= YEAR → TERMS ================= */
 
   const handleYearSelect = async (year) => {
@@ -189,6 +210,13 @@ const GenerateClassReports = () => {
             onClick={handleGenerate}
           >
             {generating ? "Generating..." : "Generate Reports"}
+          </button>
+
+          <button
+            className="preview-btn"
+            onClick={handlePreview}
+          >
+            Preview Reports
           </button>
 
           {downloadLink && (
