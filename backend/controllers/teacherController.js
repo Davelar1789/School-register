@@ -286,51 +286,56 @@ export const assignClassesToTeacher = async (req, res) => {
 
 export const getTeacherClasses = async (req, res) => {
   try {
-    const teacherId = req.user._id;
+    const teacherId = req.params.teacherId || req.user._id;
 
-    const teacher = await Teacher.findById(teacherId).populate("classesAssigned");
-    if (!teacher) {
-      return res.status(404).json({ message: "Teacher not found" });
-    }
+    const teacher = await Teacher.findById(teacherId);
+    if (!teacher) return res.status(404).json({ message: "Teacher not found" });
 
-    const classes = teacher.classesAssigned;
+    // Only include classes where teacher is Class Teacher or Both
+    const classes = await Class.find({
+      _id: { $in: teacher.classesAssigned }, // still use classesAssigned array
+      teachers: teacherId, // ensures teacher is actually in class's teachers array
+    }).select("className level");
 
     res.json({ count: classes.length, classes });
   } catch (err) {
-    console.error("❌ Error fetching classes:", err.message || err);
+    console.error("Error fetching teacher classes:", err);
     res.status(500).json({ message: "Failed to fetch classes" });
   }
 };
+
 
 export const getTeacherSubjects = async (req, res) => {
   const { teacherId } = req.params;
 
   try {
+    // Find classes where the teacher has subjects assigned
     const classes = await Class.find({ "subjects.teachers": teacherId })
-      .populate("subjects.subject", "name") // populates subject with its name and _id
+      .populate("subjects.subject", "name")
       .select("className level subjects");
 
-    const result = [];
+    const subjectsAssigned = [];
 
     for (const cls of classes) {
-      const teacherSubjects = cls.subjects
-        .filter(sub => sub.teachers.includes(teacherId))
-        .map(sub => ({
-          subjectId: sub.subject?._id,  // ✅ Include subject ID here
-          subjectName: sub.subject?.name || "Unknown",
-          className: cls.className,
-          level: cls.level,
-        }));
-
-      result.push(...teacherSubjects);
+      cls.subjects.forEach(sub => {
+        if (sub.teachers.includes(teacherId)) {
+          subjectsAssigned.push({
+            subjectId: sub.subject?._id,
+            subjectName: sub.subject?.name || "Unknown",
+            className: cls.className,
+            level: cls.level,
+          });
+        }
+      });
     }
 
-    return res.status(200).json({ subjects: result });
+    res.status(200).json({ subjects: subjectsAssigned });
   } catch (error) {
     console.error("Error fetching teacher subjects:", error);
-    return res.status(500).json({ message: "Server error fetching subjects" });
+    res.status(500).json({ message: "Server error fetching subjects" });
   }
 };
+
 
 export const getTeacherSubjects2 = async (req, res) => {
   const { teacherId } = req.params;

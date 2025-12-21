@@ -97,14 +97,14 @@ export const assignTeacherToClass = async (req, res) => {
       return res.status(404).json({ message: "Teacher not found" });
     }
 
-    // ❌ Subject teachers cannot be assigned as class teachers
+    // ❌ Subject-only teachers cannot be class teachers
     if (teacher.teacherType === "Subject Teacher") {
       return res.status(400).json({
         message: "Subject Teachers cannot be assigned as Class Teachers"
       });
     }
 
-    // ✅ Add class to teacher
+    // ✅ Add class to teacher (CLASS TEACHER ONLY)
     await Teacher.findByIdAndUpdate(
       teacherId,
       { $addToSet: { classesAssigned: classId } }
@@ -116,13 +116,14 @@ export const assignTeacherToClass = async (req, res) => {
       { $addToSet: { teachers: teacherId } }
     );
 
-    res.json({ message: "Class assigned successfully" });
+    res.json({ message: "Class teacher assigned successfully" });
 
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to assign class" });
   }
 };
+
 
 export const assignSubjectTeacher2 = async (req, res) => {
   const { teacherId, classId, subjectIds } = req.body;
@@ -135,7 +136,7 @@ export const assignSubjectTeacher2 = async (req, res) => {
       return res.status(404).json({ message: "Teacher or Class not found" });
     }
 
-    // ❌ Prevent random teachers
+    // ❌ Prevent wrong teacher type
     if (!["Subject Teacher", "Both"].includes(teacher.teacherType)) {
       return res.status(400).json({
         message: "Only Subject or Both teachers can be assigned subjects"
@@ -148,29 +149,31 @@ export const assignSubjectTeacher2 = async (req, res) => {
       );
 
       if (!subjectEntry) {
-        subjectEntry = {
-          subject: subjectId,
-          teachers: []
-        };
+        subjectEntry = { subject: subjectId, teachers: [] };
         classDoc.subjects.push(subjectEntry);
       }
 
-      // ✅ Add teacher ONLY to subject teachers
+      // ✅ Add teacher to subject
       if (!subjectEntry.teachers.includes(teacherId)) {
         subjectEntry.teachers.push(teacherId);
+      }
+
+      // ✅ Track subject on teacher profile
+      if (!teacher.subjectSpecialization.includes(subjectId)) {
+        teacher.subjectSpecialization.push(subjectId);
       }
     });
 
     await classDoc.save();
+    await teacher.save();
 
-    res.json({ message: "Subjects assigned successfully" });
+    res.json({ message: "Subject(s) assigned successfully" });
 
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to assign subjects" });
   }
 };
-
 
 export const assignStudentToClass = async (req, res) => {
   const { studentId, classId } = req.body;
