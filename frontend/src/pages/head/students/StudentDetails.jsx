@@ -4,6 +4,13 @@ import axios from "../../../api/axios";
 import "./StudentDetails.modules.css";
 import Header2 from "../../../components/Admin/Header2";
 import Sidebar from "../../../components/Admin/Sidebar";
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button
+} from "@mui/material";
 import { LinearProgress, Modal, Box, TextField, IconButton } from "@mui/material";
 import { FormControl, InputLabel, Select, MenuItem } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
