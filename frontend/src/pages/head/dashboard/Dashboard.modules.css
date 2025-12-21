@@ -196,14 +196,13 @@ body {
   }
 }
 
-.overview-card,
 .overview-card4 {
   background: #fff;
   border-radius: 14px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
-.overview-card .students {
+.overview-card.students {
     border-color: #3d3cc5;
 }
 
@@ -211,23 +210,29 @@ body {
   color: black;
 }
 
+.overview-card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 14px;
+  color: #000;
+  position: relative;
+  overflow: hidden;
+  min-height: 120px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  /* Border */
+  border: 2px solid transparent;
+
+  /* Softer shadow for white cards */
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
 
 .overview-card4 {
   padding: 20px;
   color: black;
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 120px;
-}
-
-.overview-card {
-  padding: 20px;
-  border-radius: 12px;
-  color: black;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -327,7 +332,6 @@ body {
 .card-info h3 {
   font-size: 28px;
   margin: 0;
-  color: white;
 }
 
 .card-info p {
