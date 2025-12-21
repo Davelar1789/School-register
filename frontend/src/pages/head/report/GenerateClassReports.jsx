@@ -245,6 +245,13 @@ const handlePreview = async () => {
               </a>
             </div>
           )}
+<p className="preview-warning">
+  <strong>Note:</strong> The preview is provided for quick review purposes only.
+  It may not fully reflect the final report format, layout, or all computed values.
+  For accurate and complete student reports, please use the generated report files.
+</p>
+
+
         </div>
       </div>
     </>
