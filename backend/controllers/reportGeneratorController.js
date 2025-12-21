@@ -12,8 +12,10 @@ import TermSession from "../models/TermSession.model.js";
 import Class from "../models/Class.model.js";
 import Attendance from "../models/Attendance.model.js";
 import mammoth from "mammoth";
-import puppeteer from "puppeteer";
 import { PDFDocument } from "pdf-lib";
+
+import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
 
 
 export const generateClassReports = async (req, res) => {
@@ -448,7 +450,14 @@ export const previewClassReports = async (req, res) => {
     });
     const templateBuffer = Buffer.from(templateRes.data, "binary");
 
-    const browser = await puppeteer.launch({ headless: "new" });
+    // Launch Puppeteer using @sparticuz/chromium
+    const browser = await puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+    });
+
     const previewPdf = await PDFDocument.create();
 
     for (const student of classInfo.students) {
@@ -457,7 +466,7 @@ export const previewClassReports = async (req, res) => {
         termId,
       }).populate("subjectId");
 
-      const subjects = grades.map(g => ({
+      const subjects = grades.map((g) => ({
         name: g.subjectId.name,
         classScore: g.scores.test1 + g.scores.test2 + g.scores.test3 + g.scores.test4,
         examScore: g.scores.exam,
@@ -519,6 +528,6 @@ export const previewClassReports = async (req, res) => {
 
   } catch (err) {
     console.error("❌ Preview error:", err);
-    res.status(500).json({ message: "Preview failed" });
+    res.status(500).json({ message: "Preview failed", error: err.message });
   }
 };
