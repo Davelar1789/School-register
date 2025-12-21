@@ -198,16 +198,32 @@ body {
 
 .overview-card,
 .overview-card4 {
-  background: #23243d;
+  background: #fff;
   border-radius: 14px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
+.overview-card .students {
+    border-color: #3d3cc5;
+}
+
 
 .overview-card4 {
-  background: #23243d; /* Dark Navy */
   padding: 20px;
-  color: #fff;
+  color: black;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 120px;
+}
+
+.overview-card {
+  padding: 20px;
+  border-radius: 12px;
+  color: black;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   position: relative;
   overflow: hidden;
   display: flex;
@@ -291,20 +307,6 @@ body {
 
 .requests4 .card-header4 i {
   color: #19daac; /* Green */
-}
-
-.overview-card {
-  background: #23243d; /* Dark Navy */
-  padding: 20px;
-  border-radius: 12px;
-  color: #fff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 120px;
 }
 
 /* Card Header: Icon + Text */
