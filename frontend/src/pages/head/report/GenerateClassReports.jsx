@@ -24,6 +24,8 @@ const GenerateClassReports = () => {
   const schoolDataRaw = localStorage.getItem("schoolData");
   const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
 
+  /* ================= INITIAL LOAD ================= */
+
   useEffect(() => {
     if (!schoolId) return;
     fetchAcademicYears();
@@ -38,48 +40,46 @@ const GenerateClassReports = () => {
       setAcademicYears(data);
 
       if (data.length > 0) {
-        setSelectedYear(data[data.length - 1]); // latest year
+        // Automatically select latest year
+        handleYearSelect(data[data.length - 1]);
       }
     } catch {
       toast.error("Failed to fetch academic years.");
     }
   };
 
-  const fetchTermsForYear = async (year) => {
-    try {
-      const { data } = await api.get(
-        `/api/terms/year/${schoolId}/${year}`
-      );
-
-      setTerms(data);
-
-      const current = data.find((t) => t.isCurrent);
-      setSelectedTerm(current || data[0] || null);
-    } catch {
-      toast.error("Failed to fetch terms.");
-    }
-  };
-
   const fetchClasses = async () => {
     try {
-      const { data } = await api.get(
-        `/api/classes/school/${schoolId}`
-      );
+      const { data } = await api.get(`/api/classes/school/${schoolId}`);
       setClasses(data);
     } catch {
       toast.error("Failed to fetch classes.");
     }
   };
 
-  /* ================= EFFECTS ================= */
+  /* ================= YEAR → TERMS ================= */
 
-  useEffect(() => {
-    if (selectedYear) {
-      fetchTermsForYear(selectedYear);
+  const handleYearSelect = async (year) => {
+    setSelectedYear(year);
+    setSelectedTerm(null);
+    setTerms([]);
+
+    try {
+      const encodedYear = encodeURIComponent(year);
+      const { data } = await api.get(
+        `/api/terms/${schoolId}/${encodedYear}`
+      );
+
+      setTerms(data);
+
+      const currentTerm = data.find((t) => t.isCurrent);
+      setSelectedTerm(currentTerm || data[0] || null);
+    } catch (error) {
+      toast.error("Failed to fetch terms for the selected year.");
     }
-  }, [selectedYear]);
+  };
 
-  /* ================= ACTIONS ================= */
+  /* ================= GENERATE REPORTS ================= */
 
   const handleGenerate = async () => {
     if (!selectedClass || !selectedTerm || !nextTermDate || !nextTermFees) {
@@ -125,7 +125,7 @@ const GenerateClassReports = () => {
               <button
                 key={year}
                 className={year === selectedYear ? "active" : ""}
-                onClick={() => setSelectedYear(year)}
+                onClick={() => handleYearSelect(year)}
               >
                 {year}
               </button>
@@ -137,9 +137,7 @@ const GenerateClassReports = () => {
             {terms.map((term) => (
               <button
                 key={term._id}
-                className={
-                  selectedTerm?._id === term._id ? "active" : ""
-                }
+                className={selectedTerm?._id === term._id ? "active" : ""}
                 onClick={() => setSelectedTerm(term)}
               >
                 {term.termName}
