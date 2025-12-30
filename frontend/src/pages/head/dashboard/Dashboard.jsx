@@ -88,13 +88,13 @@ const Dashboard = () => {
       icon: FaUsers,
       colorClass: "stat-card-orange"
     },
-    {
-      id: 4,
-      title: "Pending Requests",
-      value: 0,
-      icon: FaMoneyCheckAlt,
-      colorClass: "stat-card-green"
-    }
+    // {
+    //   id: 4,
+    //   title: "Pending Requests",
+    //   value: 0,
+    //   icon: FaMoneyCheckAlt,
+    //   colorClass: "stat-card-green"
+    // }
   ];
 
   const quickLinks = [
