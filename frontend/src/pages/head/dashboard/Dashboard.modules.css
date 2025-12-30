@@ -373,12 +373,15 @@ body {
 
 /* Tablets and below */
 @media (max-width: 1024px) {
-  .dashboard-main {
-    margin-left: 0;
-  }
-
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Remove sidebar margin only on mobile */
+@media (max-width: 768px) {
+  .dashboard-main {
+    margin-left: 0;
   }
 }
 
