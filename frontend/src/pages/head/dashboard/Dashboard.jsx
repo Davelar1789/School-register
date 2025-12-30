@@ -1,21 +1,22 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import api from "../../../api/axios"; // Ensure this is the correct API instance
+import api from "../../../api/axios";
 import Header2 from "../../../components/Admin/Header2";
-import Form from "../../general/register/Sign-up"; // School Registration Form
-import "@fortawesome/fontawesome-free/css/all.min.css";
-import { FaHome, FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt } from "react-icons/fa";
+import Sidebar from "../../../components/Admin/Sidebar";
+import { 
+  FaUserGraduate, 
+  FaChalkboardTeacher, 
+  FaUsers, 
+  FaMoneyCheckAlt,
+  FaSpinner,
+  FaArrowRight
+} from "react-icons/fa";
 import "./Dashboard.modules.css";
-import { NavLink } from "react-router-dom";
-import Sidebar from "../../../components/Admin/Sidebar"
-import Image1 from "../../../assets/images/userrr.png"
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
-  const [school, setSchool] = useState(null);
-  const [schoolName, setSchoolName] = useState("Loading...");
-  const [userProfile, setUserProfile] = useState({ fullName: "Loading...", role: "Loading..." });
+  const [loading, setLoading] = useState(true);
   const [schoolStats, setSchoolStats] = useState({
     numberOfStudents: 0,
     numberOfTeachers: 0,
@@ -25,112 +26,34 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get user from local storage
-    const storedUser = localStorage.getItem("user");
-    if (!storedUser) {
-      toast.error("Please login first.");
-      navigate("/sign-in");
-      return;
-    }
+    const initializeDashboard = async () => {
+      const storedUser = localStorage.getItem("user");
+      if (!storedUser) {
+        toast.error("Please login first.");
+        navigate("/sign-in");
+        return;
+      }
 
-    const parsedUser = JSON.parse(storedUser);
-    setUser(parsedUser);
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+      await fetchSchool(parsedUser._id);
+      setLoading(false);
+    };
 
-    // ✅ Fetch school based on user ID
-    fetchSchool(parsedUser._id);
+    initializeDashboard();
   }, [navigate]);
-
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("No token found, please log in again.");
-          return;
-        }
-  
-        const response = await api.get("/api/users/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-  
-        if (response.data) {
-          setUserProfile({
-            fullName: response.data.fullName || "Unknown",
-            role: response.data.role || "User",
-          });
-        }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      }
-    };
-  
-    fetchUserProfile();
-  }, []);
-
-  useEffect(() => {
-
-    const fetchSchoolName = async () => {
-      try {
-
-        // Get user from localStorage
-        const storedUser = localStorage.getItem("user");
-        if (!storedUser) {
-          return;
-        }
-
-        const parsedUser = JSON.parse(storedUser);
-        const userId = parsedUser._id; // Get logged-in user ID
-
-        const token = localStorage.getItem("token");
-        if (!token) {
-          return;
-        }
-
-        // Fetch all schools from the database
-        const response = await api.get("/api/schools", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-
-        // Find the school where user ID matches
-        const userSchool = response.data.find((school) => school.user.toString() === userId);
-
-        if (userSchool) {
-          setSchoolName(userSchool.name); // Set school name if found
-        } else {
-          console.log("❌ No school found for this user.");
-        }
-      } catch (error) {
-        console.error("🚨 Error fetching school name:", error);
-      }
-    };
-
-    fetchSchoolName();
-  }, []);
 
   const fetchSchool = async (userId) => {
     try {
-      const cachedSchoolData = localStorage.getItem('schoolData');
-      if (cachedSchoolData) {
-        const schoolData = JSON.parse(cachedSchoolData);
-        setSchool(schoolData);
-        setSchoolStats({
-          numberOfStudents: schoolData.numberOfStudents || 0,
-          numberOfTeachers: schoolData.numberOfTeachers || 0,
-          numberOfClasses: schoolData.numberOfClasses || 0,
-        });
-        return;
-      }
-  
       const token = localStorage.getItem("token");
-      if (!token) throw new Error("No token found, please log in again.");
+      if (!token) throw new Error("No token found");
+      
       const response = await api.get(`/api/schools/user/${userId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+      
       if (response.data) {
         const schoolData = response.data.school || response.data;
-        localStorage.setItem('schoolData', JSON.stringify(schoolData));
-        setSchool(schoolData);
         setSchoolStats({
           numberOfStudents: schoolData.numberOfStudents || 0,
           numberOfTeachers: schoolData.numberOfTeachers || 0,
@@ -139,126 +62,149 @@ const Dashboard = () => {
       }
     } catch (error) {
       console.error("Error fetching school:", error);
+      toast.error("Failed to load school data");
     }
   };
-  
-  
-  if (!user) return null; // Prevent rendering if user is still loading
+
+  const statsCards = [
+    {
+      id: 1,
+      title: "Total Students",
+      value: schoolStats.numberOfStudents,
+      icon: FaUserGraduate,
+      colorClass: "stat-card-blue"
+    },
+    {
+      id: 2,
+      title: "Total Teachers",
+      value: schoolStats.numberOfTeachers,
+      icon: FaChalkboardTeacher,
+      colorClass: "stat-card-pink"
+    },
+    {
+      id: 3,
+      title: "Active Classes",
+      value: schoolStats.numberOfClasses,
+      icon: FaUsers,
+      colorClass: "stat-card-orange"
+    },
+    {
+      id: 4,
+      title: "Pending Requests",
+      value: 0,
+      icon: FaMoneyCheckAlt,
+      colorClass: "stat-card-green"
+    }
+  ];
+
+  const quickLinks = [
+    { label: "Manage Students", path: "/students" },
+    { label: "Manage Teachers", path: "/teachers" },
+    { label: "View Reports", path: "/view-reports" },
+    { label: "School Settings", path: "/settings" }
+  ];
+
+  if (!user || loading) {
+    return (
+      <div className="loading-container">
+        <FaSpinner className="loading-spinner" />
+        <p className="loading-text">Loading dashboard...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="dashboard-container">
-      {/* Sidebar - Integrated Directly */}
       <Sidebar />
-
-      {/* Main Content - Starts After Sidebar */}
+      
       <div className="dashboard-main">
         <Header2 />
+        
+        <main className="dashboard-content">
+          <div className="dashboard-wrapper">
+            
+            <div className="welcome-section">
+              <h1 className="welcome-title">Welcome back! 👋</h1>
+              <p className="welcome-subtitle">
+                Here's what's happening with your school today
+              </p>
+            </div>
 
-        {/* Show Dashboard if school exists, else show Registration Form */}
-<div className="dashboard-content dashboard-surface">
-             <div className="overview-section">
-                <div className="overview-card students">
-                  <div className="card-header">
-                    <i className="fas fa-user-graduate"></i>
-                    <div className="card-info">
-                      <h3>{schoolStats.numberOfStudents}</h3>
-                      <p>Total Students</p>
+            <div className="stats-grid">
+              {statsCards.map((card) => (
+                <div key={card.id} className={`stat-card ${card.colorClass}`}>
+                  <div className="stat-card-bg"></div>
+                  
+                  <div className="stat-card-content">
+                    <div className="stat-icon-wrapper">
+                      <card.icon className="stat-icon" />
+                    </div>
+
+                    <div className="stat-value">
+                      {card.value.toLocaleString()}
+                    </div>
+
+                    <p className="stat-label">{card.title}</p>
+
+                    <div className="stat-trend">
+                      <span className="stat-trend-value">+12%</span>
+                      <span className="stat-trend-label">vs last month</span>
                     </div>
                   </div>
-                  <div className="wave-chart blue-wave"></div>
                 </div>
+              ))}
+            </div>
 
-                <div className="overview-card teachers">
-                  <div className="card-header">
-                    <i className="fas fa-user"></i>
-                    <div className="card-info">
-                      <h3>{schoolStats.numberOfTeachers}</h3>
-                      <p>Total Teachers</p>
-                    </div>
-                  </div>
-                  <div className="wave-chart pink-wave"></div>
-                </div>
-
-                <div className="overview-card classes">
-                  <div className="card-header">
-                    <i className="fas fa-users"></i>
-                    <div className="card-info">
-                      <h3>{schoolStats.numberOfClasses}</h3>
-                      <p>Active Classes</p>
-                    </div>
-                  </div>
-                  <div className="wave-chart orange-wave"></div>
-                </div>
-
-                <div className="overview-card requests">
-                  <div className="card-header">
-                    <i className="fas fa-money-check-alt"></i>
-                    <div className="card-info">
-                      <h3>0</h3>
-                      <p>Pending Requests</p>
-                    </div>
-                  </div>
-                  <div className="wave-chart green-wave"></div>
-                </div>
+            <div className="quick-links-section">
+              <div className="section-header">
+                <h2 className="section-title">Quick Actions</h2>
+                <div className="section-divider"></div>
               </div>
 
-              <div className="overview-section4">
-                <div className="overview-card4 students4">
-                  <div className="card-header4">
-                    <i className="fas fa-user-graduate4"></i>
-                    <div className="card-info4">
-                      <h3>{schoolStats.numberOfStudents}</h3>
-                      <p>Total Students</p>
-                    </div>
-                  </div>
-                  <div className="wave-chart4 blue-wave4"></div>
-                </div>
+              <div className="quick-links-grid">
+                {quickLinks.map((link, index) => (
+                  <button
+                    key={index}
+                    onClick={() => navigate(link.path)}
+                    className="quick-link-button"
+                  >
+                    <span className="quick-link-shine"></span>
+                    <span className="quick-link-text">{link.label}</span>
+                    <FaArrowRight className="quick-link-arrow" />
+                  </button>
+                ))}
+              </div>
+            </div>
 
-                <div className="overview-card4 teachers4">
-                  <div className="card-header4">
-                    <i className="fas fa-user4"></i>
-                    <div className="card-info4">
-                      <h3>{schoolStats.numberOfTeachers}</h3>
-                      <p>Total Teachers</p>
-                    </div>
+            <div className="recent-activity-section">
+              <h2 className="section-title">Recent Activity</h2>
+              <div className="activity-list">
+                <div className="activity-item">
+                  <div className="activity-dot"></div>
+                  <div className="activity-content">
+                    <p className="activity-text">New student registered</p>
+                    <p className="activity-time">2 hours ago</p>
                   </div>
-                  <div className="wave-chart4 pink-wave4"></div>
                 </div>
-
-                <div className="overview-card4 classes4">
-                  <div className="card-header4">
-                    <i className="fas fa-users4"></i>
-                    <div className="card-info4">
-                      <h3>{schoolStats.numberOfClasses}</h3>
-                      <p>Active Classes</p>
-                    </div>
+                <div className="activity-item">
+                  <div className="activity-dot"></div>
+                  <div className="activity-content">
+                    <p className="activity-text">Teacher submitted report</p>
+                    <p className="activity-time">5 hours ago</p>
                   </div>
-                  <div className="wave-chart4 orange-wave4"></div>
                 </div>
-
-                <div className="overview-card4 requests4">
-                  <div className="card-header4">
-                    <i className="fas fa-money-check-alt4"></i>
-                    <div className="card-info4">
-                      <h3>0</h3>
-                      <p>Pending Requests</p>
-                    </div>
+                <div className="activity-item">
+                  <div className="activity-dot"></div>
+                  <div className="activity-content">
+                    <p className="activity-text">Class schedule updated</p>
+                    <p className="activity-time">1 day ago</p>
                   </div>
-                  <div className="wave-chart4 green-wave4"></div>
                 </div>
               </div>
+            </div>
 
-              {/* Quick Links */}
-              <div className="quick-links">
-                <h3>Quick Links</h3>
-                <div className="links-grid">
-                  <button className="quick-link" onClick={() => navigate("/students")}>Manage Students</button>
-                  <button className="quick-link" onClick={() => navigate("/teachers")}>Manage Teachers</button>
-                  <button className="quick-link" onClick={() => navigate("/view-reports")}>View Reports</button>
-                  <button className="quick-link">School Settings</button>
-                </div>
-              </div>
-        </div>
+          </div>
+        </main>
       </div>
     </div>
   );
