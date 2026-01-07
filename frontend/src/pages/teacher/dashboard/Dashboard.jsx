@@ -44,8 +44,8 @@ const TeacherDashboard = () => {
   const stats = [
     { icon: BookOpen, label: "Total Classes", value: classCount, gradient: "blue-gradient" },
     { icon: ClipboardList, label: "Assignments Due", value: 0, gradient: "purple-gradient" },
-    { icon: Mail, label: "Messages", value: 0, gradient: "green-gradient" },
-    { icon: Users, label: "Total Students", value: 156, gradient: "orange-gradient" },
+    // { icon: Mail, label: "Messages", value: 0, gradient: "green-gradient" },
+    // { icon: Users, label: "Total Students", value: 156, gradient: "orange-gradient" },
   ];
 
   const recentActivities = [
