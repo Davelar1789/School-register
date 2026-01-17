@@ -395,7 +395,7 @@
 
 @media screen and (max-width: 768px) {
   .header-container {
-    padding: 0.6rem 4%;
+    padding: 0.1rem 2%;
   }
 
   /* Smaller logo for mobile */
@@ -418,13 +418,13 @@
 
   .mobile-menu-toggle {
     font-size: 1.2rem;
-    padding: 0.3rem;
+    padding: 0.2rem;
   }
 }
 
 @media screen and (max-width: 480px) {
   .header-container {
-    padding: 0.5rem 3%;
+    padding: 0.1rem 1%;
   }
 
   /* Compact logo for very small screens */
@@ -439,7 +439,7 @@
   }
 
   .logo-content {
-    margin-left: 0.15rem;
+    margin-left: 0.1rem;
     gap: 0;
   }
 
@@ -456,7 +456,7 @@
 @media screen and (max-width: 360px) {
   /* Extra small devices */
   .header-container {
-    padding: 0.45rem 3%;
+    padding: 0.1rem 1%;
   }
 
   .logo-text {
@@ -481,7 +481,7 @@
   }
 }
 
-/* Add padding to body to account for fixed header */
+/* Add padding to body to account for fixed header
 body {
   padding-top: 70px;
 }
@@ -502,4 +502,4 @@ body {
   body {
     padding-top: 50px;
   }
-}
+} */
