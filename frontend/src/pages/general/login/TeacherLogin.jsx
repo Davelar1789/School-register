@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaArrowLeft, FaEnvelope, FaLock, FaIdCard, FaChalkboardTeacher, FaWifi, FaWifiSlash } from "react-icons/fa";
+import { FaArrowLeft, FaEnvelope, FaLock, FaIdCard, FaChalkboardTeacher, FaWifi, FaExclamationTriangle } from "react-icons/fa";
 import api from "../../../api/axios";
 import { toast } from "react-hot-toast";
 import { sha256 } from "js-sha256";
@@ -143,7 +143,7 @@ function TeacherLogin() {
 
       {/* Connection Status Indicator */}
       <div className={`connection-status ${offlineMode ? 'offline' : 'online'}`}>
-        {offlineMode ? <FaWifiSlash /> : <FaWifi />}
+        {offlineMode ? <FaExclamationTriangle /> : <FaWifi />}
         <span>{offlineMode ? 'Offline Mode' : 'Online'}</span>
       </div>
 
@@ -182,7 +182,7 @@ function TeacherLogin() {
             </div>
             {offlineMode && (
               <div className="offline-notice">
-                <FaWifiSlash />
+                <FaExclamationTriangle />
                 <p>You're currently offline. Login with previously used credentials to continue.</p>
               </div>
             )}
