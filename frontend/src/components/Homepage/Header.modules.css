@@ -49,9 +49,7 @@
 }
 
 .logo {
-  display: flex;
-  align-items: baseline;
-  gap: 0.3rem;
+  display: block;
   text-decoration: none;
   transition: transform 0.3s ease;
 }
@@ -60,21 +58,32 @@
   transform: scale(1.02);
 }
 
+.logo-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.1rem;
+  margin-left: 0.5rem;
+}
+
 .logo-text {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
   font-weight: 800;
   background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   letter-spacing: -0.02em;
+  line-height: 1;
 }
 
 .logo-subtext {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: var(--primary-color);
-  letter-spacing: -0.02em;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1;
 }
 
 /* Desktop Navigation */
