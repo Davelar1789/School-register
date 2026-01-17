@@ -229,16 +229,16 @@ function UserLogin() {
               </p>
             </div>
 
-            {/* Divider */}
+            {/* Divider
             <div className="divider">
               <span>or</span>
-            </div>
+            </div> */}
 
-            {/* Additional Info */}
+            {/* Additional Info
             <div className="additional-info">
               <p>Need help accessing your account?</p>
               <a href="#contact" className="help-link">Contact Support</a>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
