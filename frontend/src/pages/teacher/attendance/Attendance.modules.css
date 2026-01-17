@@ -191,7 +191,7 @@
 .unmarked-date-chip {
   padding: 8px 14px;
   border-radius: 25px;
-  border: none;
+  border: none; 
   background: #e8edff;
   cursor: pointer;
   transition: 0.2s ease;

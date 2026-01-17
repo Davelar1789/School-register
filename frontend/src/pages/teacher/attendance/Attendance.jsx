@@ -38,8 +38,6 @@ const makeSubmissionKey = (classId, date) => {
   return `${classId}_${dateKey}`;
 };
 
-
-
 const Attendance = () => {
   const [classes, setClasses] = useState([]);
   const [showModal, setShowModal] = useState(false);
