@@ -167,7 +167,6 @@ function UserLogin() {
                     type="email"
                     id="email"
                     name="email"
-                    placeholder="admin@school.com"
                     value={formData.email}
                     onChange={handleChange}
                     onFocus={() => setFocusedInput('email')}
@@ -186,7 +185,6 @@ function UserLogin() {
                     type="password"
                     id="password"
                     name="password"
-                    placeholder="Enter your password"
                     value={formData.password}
                     onChange={handleChange}
                     onFocus={() => setFocusedInput('password')}
