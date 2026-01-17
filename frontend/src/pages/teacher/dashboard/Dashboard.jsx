@@ -112,7 +112,7 @@ const TeacherDashboard = () => {
               </div>
             </div>
 
-            <div className="activity-section">
+            {/* <div className="activity-section">
               <h2>Recent Activity</h2>
               <div className="activity-list">
                 {recentActivities.map((activity, index) => (
@@ -126,7 +126,7 @@ const TeacherDashboard = () => {
                 ))}
               </div>
               <button className="view-all-btn">View All Activities</button>
-            </div>
+            </div> */}
           </div>
         </main>
       </div>
