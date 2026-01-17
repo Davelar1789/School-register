@@ -162,7 +162,6 @@ function UserLogin() {
               <div className={`input-group ${focusedInput === 'email' ? 'focused' : ''}`}>
                 <label htmlFor="email">Email Address</label>
                 <div className="input-wrapper">
-                  <FaEnvelope className="input-icon" />
                   <input
                     type="email"
                     id="email"
@@ -180,7 +179,6 @@ function UserLogin() {
               <div className={`input-group ${focusedInput === 'password' ? 'focused' : ''}`}>
                 <label htmlFor="password">Password</label>
                 <div className="input-wrapper">
-                  <FaLock className="input-icon" />
                   <input
                     type="password"
                     id="password"
