@@ -69,7 +69,7 @@ const Header = () => {
         </div>
 
         {/* Desktop Navigation */}
-        <nav className="nav-desktop">
+        {/* <nav className="nav-desktop">
           <ul className="nav-list">
             <li className="nav-item">
               <a href="/" className="nav-link">Home</a>
@@ -84,7 +84,7 @@ const Header = () => {
               <a href="#contact" className="nav-link">Contact</a>
             </li>
           </ul>
-        </nav>
+        </nav> */}
 
         {/* Auth Buttons */}
         <div className="auth-buttons">
