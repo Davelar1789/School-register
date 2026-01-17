@@ -220,11 +220,9 @@ function TeacherLogin() {
                 <div className={`input-group ${focusedInput === 'email' ? 'focused' : ''}`}>
                   <label htmlFor="email">Email Address</label>
                   <div className="input-wrapper">
-                    <FaEnvelope className="input-icon" />
                     <input
                       type="email"
                       id="email"
-                      placeholder="teacher@school.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       onFocus={() => setFocusedInput('email')}
@@ -256,11 +254,9 @@ function TeacherLogin() {
                 <div className={`input-group ${focusedInput === 'staffId' ? 'focused' : ''}`}>
                   <label htmlFor="staffId">Staff ID</label>
                   <div className="input-wrapper">
-                    <FaIdCard className="input-icon" />
                     <input
                       type="text"
                       id="staffId"
-                      placeholder="Enter your staff ID"
                       value={staffId}
                       onChange={(e) => setStaffId(e.target.value)}
                       onFocus={() => setFocusedInput('staffId')}
@@ -273,11 +269,9 @@ function TeacherLogin() {
                 <div className={`input-group ${focusedInput === 'password' ? 'focused' : ''}`}>
                   <label htmlFor="password">Create Password</label>
                   <div className="input-wrapper">
-                    <FaLock className="input-icon" />
                     <input
                       type="password"
                       id="password"
-                      placeholder="Create a strong password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       onFocus={() => setFocusedInput('password')}
@@ -309,11 +303,9 @@ function TeacherLogin() {
                 <div className={`input-group ${focusedInput === 'password' ? 'focused' : ''}`}>
                   <label htmlFor="password">Password</label>
                   <div className="input-wrapper">
-                    <FaLock className="input-icon" />
                     <input
                       type="password"
                       id="password"
-                      placeholder="Enter your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       onFocus={() => setFocusedInput('password')}
