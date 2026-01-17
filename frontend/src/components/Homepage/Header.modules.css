@@ -372,22 +372,93 @@
   .mobile-menu-toggle {
     display: block;
   }
-}
 
-@media screen and (max-width: 480px) {
   .header-container {
     padding: 1rem 4%;
   }
 
-  .logo-text,
+  /* Adjust logo size for tablets */
+  .logo-text {
+    font-size: 1.4rem;
+  }
+
   .logo-subtext {
-    font-size: 1.5rem;
+    font-size: 0.75rem;
+  }
+
+  .logo-content {
+    margin-left: 0.3rem;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .header-container {
+    padding: 0.8rem 4%;
+  }
+
+  /* Smaller logo for mobile */
+  .logo-text {
+    font-size: 1.3rem;
+  }
+
+  .logo-subtext {
+    font-size: 0.7rem;
+  }
+
+  .logo-content {
+    margin-left: 0.2rem;
+    gap: 0.05rem;
   }
 
   .mobile-menu {
     width: 280px;
   }
 }
+
+@media screen and (max-width: 480px) {
+  .header-container {
+    padding: 0.8rem 3%;
+  }
+
+  /* Compact logo for very small screens */
+  .logo-text {
+    font-size: 1.2rem;
+  }
+
+  .logo-subtext {
+    font-size: 0.65rem;
+    letter-spacing: 0.03em;
+  }
+
+  .logo-content {
+    margin-left: 0.1rem;
+  }
+
+  .mobile-menu {
+    width: 260px;
+  }
+
+  .mobile-menu-toggle {
+    font-size: 1.3rem;
+    padding: 0.4rem;
+  }
+}
+
+@media screen and (max-width: 360px) {
+  /* Extra small devices */
+  .logo-text {
+    font-size: 1.1rem;
+  }
+
+  .logo-subtext {
+    font-size: 0.6rem;
+  }
+
+  .mobile-menu {
+    width: 240px;
+  }
+}
+
 
 /* Add padding to body to account for fixed header */
 body {
