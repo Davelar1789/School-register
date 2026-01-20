@@ -40,6 +40,8 @@ const Dashboard = () => {
     setSelectedDate(date);
   };
 
+    const selectedEvent = events[formattedDate];
+
   useEffect(() => {
     const initializeDashboard = async () => {
       const storedUser = localStorage.getItem("user");
