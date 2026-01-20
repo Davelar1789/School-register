@@ -13,10 +13,14 @@ import {
   FaArrowRight
 } from "react-icons/fa";
 import "./Dashboard.modules.css";
+import Calendar from "react-calendar";
+import "react-calendar/dist/Calendar.css";
+import { CalendarDays } from "lucide-react";
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+    const [selectedDate, setSelectedDate] = useState(new Date());
   const [schoolStats, setSchoolStats] = useState({
     numberOfStudents: 0,
     numberOfTeachers: 0,
@@ -24,6 +28,17 @@ const Dashboard = () => {
   });
 
   const navigate = useNavigate();
+
+   const events = {
+    "2025-01-15": "Prepare class notes for Basic 2",
+    "2025-01-16": "Staff meeting at 10:00am",
+    "2025-01-20": "Parent-Teacher Conference",
+    "2025-01-22": "Mid-term Assessment Review",
+  };
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+  };
 
   useEffect(() => {
     const initializeDashboard = async () => {
@@ -200,6 +215,34 @@ const Dashboard = () => {
                     <p className="activity-time">1 day ago</p>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <div className="calendar-section">
+              <div className="section-header">
+                <CalendarDays size={24} className="section-icon" />
+                <h2>Calendar</h2>
+              </div>
+              <Calendar
+                onChange={handleDateChange}
+                value={selectedDate}
+                tileContent={({ date }) => {
+                  const iso = date.toISOString().split("T")[0];
+                  return events[iso] ? <span className="event-dot"></span> : null;
+                }}
+              />
+              <div className="event-details">
+                <p className="event-date">
+                  {selectedDate.toLocaleDateString("en-US", { 
+                    weekday: "long", 
+                    month: "long", 
+                    day: "numeric", 
+                    year: "numeric" 
+                  })}
+                </p>
+                <p className="event-description">
+                  {selectedEvent || "No events scheduled for this day"}
+                </p>
               </div>
             </div>
 
