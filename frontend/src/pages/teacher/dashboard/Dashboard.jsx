@@ -10,13 +10,8 @@ import { BookOpen, Mail, ClipboardList, CalendarDays, TrendingUp, Users } from "
 const TeacherDashboard = () => {
   const [classCount, setClassCount] = useState(0);
   const [selectedDate, setSelectedDate] = useState(new Date());
-
-  const events = {
-    "2025-01-15": "Prepare class notes for Basic 2",
-    "2025-01-16": "Staff meeting at 10:00am",
-    "2025-01-20": "Parent-Teacher Conference",
-    "2025-01-22": "Mid-term Assessment Review",
-  };
+  const [events, setEvents] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
@@ -32,11 +27,51 @@ const TeacherDashboard = () => {
           },
         });
         setClassCount(response.data.count);
-      } catch (error) {}
+      } catch (error) {
+        console.error("Error fetching classes:", error);
+      }
     };
 
     fetchClasses();
   }, []);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("token");
+        
+        // Get events for the current month and next month
+        const startDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+        const endDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 2, 0);
+        
+        const response = await api.get("/api/events/my-school", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params: {
+            startDate: startDate.toISOString().split('T')[0],
+            endDate: endDate.toISOString().split('T')[0]
+          }
+        });
+
+        // Transform events array into an object with dates as keys
+        const eventsMap = {};
+        response.data.events.forEach(event => {
+          const eventDate = new Date(event.date).toISOString().split("T")[0];
+          eventsMap[eventDate] = event.title || event.description || "Event";
+        });
+        
+        setEvents(eventsMap);
+      } catch (error) {
+        console.error("Error fetching events:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, [selectedDate.getMonth(), selectedDate.getFullYear()]);
 
   const formattedDate = selectedDate.toISOString().split("T")[0];
   const selectedEvent = events[formattedDate];
@@ -89,6 +124,7 @@ const TeacherDashboard = () => {
                 <CalendarDays size={24} className="section-icon" />
                 <h2>Calendar</h2>
               </div>
+              {loading && <p className="loading-text">Loading events...</p>}
               <Calendar
                 onChange={handleDateChange}
                 value={selectedDate}
