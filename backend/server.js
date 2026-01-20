@@ -30,6 +30,7 @@ import patchRoutes from "./routes/patchRoutes.js";
 import examRoutes from "./routes/exams.js";
 // import excelRoutes from "./routes/BulkExcelRoutes.js";
 import topicRoutes from "./routes/topicRoutes.js";
+import eventRoutes from "./routes/eventRoutes.js";
 
 
 // Middleware
@@ -112,6 +113,7 @@ app.use("/api/reports", reportRoutes);
 app.use("/api/patch", patchRoutes);
 app.use("/api/topics", topicRoutes);
 app.use('/api/exams/', examRoutes);
+app.use("/api/events", eventRoutes);
 app.use('/generated-exams', express.static(path.join(__dirname, 'generated-exams')));
 // app.use("/api/excel-bulk", excelRoutes);
 app.use("/uploads", express.static("uploads"));
