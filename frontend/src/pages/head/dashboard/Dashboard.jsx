@@ -39,6 +39,8 @@ const Dashboard = () => {
   const handleDateChange = (date) => {
     setSelectedDate(date);
   };
+  
+  const formattedDate = selectedDate.toISOString().split("T")[0];
 
     const selectedEvent = events[formattedDate];
 
