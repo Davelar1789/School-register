@@ -584,3 +584,377 @@ body {
     gap: 0.75rem;
   }
 }
+
+/* Calendar Section Styles */
+.calendar-section {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-icon {
+  color: #3182CE;
+}
+
+.loading-spinner-small {
+  margin-left: auto;
+  animation: spin 1s linear infinite;
+}
+
+/* Calendar Tile Dots */
+.event-dot {
+  display: block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  margin: 2px auto 0;
+}
+
+.holiday-dot {
+  background-color: #ED8936;
+}
+
+.custom-dot {
+  background-color: #3182CE;
+}
+
+/* Event Details */
+.event-details {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #E2E8F0;
+}
+
+.event-date {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #2D3748;
+  margin-bottom: 1rem;
+}
+
+.event-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.event-type-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  align-self: flex-start;
+}
+
+.event-type-badge.holiday {
+  background: #FED7D7;
+  color: #C53030;
+}
+
+.event-type-badge.custom {
+  background: #BEE3F8;
+  color: #2C5282;
+}
+
+.event-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #2D3748;
+  margin: 0;
+}
+
+.event-description {
+  font-size: 1rem;
+  color: #4A5568;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.no-event {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.edit-event-btn,
+.add-event-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1.2rem;
+  background: #3182CE;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+.edit-event-btn:hover,
+.add-event-btn:hover {
+  background: #2C5282;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+}
+
+/* Event Modal */
+.event-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+.event-modal {
+  background: white;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+.event-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid #E2E8F0;
+}
+
+.event-modal-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2D3748;
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: #718096;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.close-modal-btn:hover {
+  background: #F7FAFC;
+  color: #2D3748;
+}
+
+.event-modal-body {
+  padding: 1.5rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #2D3748;
+  margin-bottom: 0.75rem;
+}
+
+.event-type-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.type-option {
+  padding: 1rem;
+  background: #F7FAFC;
+  border: 2px solid #E2E8F0;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: #4A5568;
+}
+
+.type-option:hover {
+  background: #EDF2F7;
+  border-color: #CBD5E0;
+}
+
+.type-option.active {
+  background: #BEE3F8;
+  border-color: #3182CE;
+  color: #2C5282;
+}
+
+.event-input,
+.event-textarea {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid #E2E8F0;
+  border-radius: 8px;
+  font-size: 1rem;
+  color: #2D3748;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.event-input:focus,
+.event-textarea:focus {
+  outline: none;
+  border-color: #3182CE;
+  box-shadow: 0 0 0 3px rgba(49, 130, 206, 0.1);
+}
+
+.event-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.event-date-display {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #F7FAFC;
+  border-radius: 8px;
+  color: #4A5568;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.event-modal-footer {
+  padding: 1.5rem;
+  border-top: 1px solid #E2E8F0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  margin-left: auto;
+}
+
+.cancel-btn,
+.save-event-btn,
+.delete-event-modal-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.cancel-btn {
+  background: #F7FAFC;
+  color: #4A5568;
+  border: 1px solid #E2E8F0;
+}
+
+.cancel-btn:hover {
+  background: #EDF2F7;
+}
+
+.save-event-btn {
+  background: #3182CE;
+  color: white;
+}
+
+.save-event-btn:hover {
+  background: #2C5282;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(49, 130, 206, 0.3);
+}
+
+.delete-event-modal-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #FC8181;
+  color: white;
+}
+
+.delete-event-modal-btn:hover {
+  background: #F56565;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(245, 101, 101, 0.3);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .event-modal {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .event-type-options {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .cancel-btn,
+  .save-event-btn {
+    width: 100%;
+  }
+}

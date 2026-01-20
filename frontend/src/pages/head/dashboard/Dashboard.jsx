@@ -8,9 +8,12 @@ import {
   FaUserGraduate, 
   FaChalkboardTeacher, 
   FaUsers, 
-  FaMoneyCheckAlt,
   FaSpinner,
-  FaArrowRight
+  FaArrowRight,
+  FaTimes,
+  FaPlus,
+  FaEdit,
+  FaTrash
 } from "react-icons/fa";
 import "./Dashboard.modules.css";
 import Calendar from "react-calendar";
@@ -20,7 +23,14 @@ import { CalendarDays } from "lucide-react";
 const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-    const [selectedDate, setSelectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [events, setEvents] = useState({});
+  const [showEventModal, setShowEventModal] = useState(false);
+  const [eventType, setEventType] = useState('custom');
+  const [eventTitle, setEventTitle] = useState('');
+  const [eventDescription, setEventDescription] = useState('');
+  const [editingEvent, setEditingEvent] = useState(null);
+  const [loadingEvents, setLoadingEvents] = useState(false);
   const [schoolStats, setSchoolStats] = useState({
     numberOfStudents: 0,
     numberOfTeachers: 0,
@@ -28,21 +38,6 @@ const Dashboard = () => {
   });
 
   const navigate = useNavigate();
-
-   const events = {
-    "2025-01-15": "Prepare class notes for Basic 2",
-    "2025-01-16": "Staff meeting at 10:00am",
-    "2025-01-20": "Parent-Teacher Conference",
-    "2025-01-22": "Mid-term Assessment Review",
-  };
-
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-  };
-  
-  const formattedDate = selectedDate.toISOString().split("T")[0];
-
-    const selectedEvent = events[formattedDate];
 
   useEffect(() => {
     const initializeDashboard = async () => {
@@ -56,6 +51,7 @@ const Dashboard = () => {
       const parsedUser = JSON.parse(storedUser);
       setUser(parsedUser);
       await fetchSchool(parsedUser._id);
+      await fetchEvents();
       setLoading(false);
     };
 
@@ -85,6 +81,128 @@ const Dashboard = () => {
     }
   };
 
+  const fetchEvents = async () => {
+    try {
+      setLoadingEvents(true);
+      const token = localStorage.getItem("token");
+      const response = await api.get('/api/events/my-school', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      // Convert events array to object with dates as keys
+      const eventsObj = {};
+      response.data.events.forEach(event => {
+        const dateKey = new Date(event.date).toISOString().split('T')[0];
+        eventsObj[dateKey] = {
+          id: event._id,
+          type: event.type,
+          title: event.title,
+          description: event.description
+        };
+      });
+
+      setEvents(eventsObj);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      toast.error("Failed to load events");
+    } finally {
+      setLoadingEvents(false);
+    }
+  };
+
+  const handleDateClick = (date) => {
+    setSelectedDate(date);
+    const formattedDate = date.toISOString().split('T')[0];
+    const existingEvent = events[formattedDate];
+    
+    if (existingEvent) {
+      // If event exists, show it in edit mode
+      setEditingEvent(existingEvent);
+      setEventType(existingEvent.type);
+      setEventTitle(existingEvent.title === 'Holiday' ? '' : existingEvent.title);
+      setEventDescription(existingEvent.description || '');
+    } else {
+      // If no event, prepare for creating new one
+      setEditingEvent(null);
+      setEventType('custom');
+      setEventTitle('');
+      setEventDescription('');
+    }
+    setShowEventModal(true);
+  };
+
+  const handleSaveEvent = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const formattedDate = selectedDate.toISOString().split('T')[0];
+
+      if (eventType === 'custom' && !eventTitle.trim()) {
+        toast.error("Please enter an event title");
+        return;
+      }
+
+      const eventData = {
+        date: formattedDate,
+        type: eventType,
+        title: eventType === 'holiday' ? 'Holiday' : eventTitle,
+        description: eventDescription
+      };
+
+      if (editingEvent) {
+        // Update existing event
+        await api.put(`/api/events/${editingEvent.id}`, eventData, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        toast.success("Event updated successfully");
+      } else {
+        // Create new event
+        await api.post('/api/events', eventData, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        toast.success("Event created successfully");
+      }
+
+      await fetchEvents();
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error saving event:", error);
+      toast.error(error.response?.data?.message || "Failed to save event");
+    }
+  };
+
+  const handleDeleteEvent = async () => {
+    if (!editingEvent) return;
+
+    if (!window.confirm("Are you sure you want to delete this event?")) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("token");
+      await api.delete(`/api/events/${editingEvent.id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      toast.success("Event deleted successfully");
+      await fetchEvents();
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error deleting event:", error);
+      toast.error("Failed to delete event");
+    }
+  };
+
+  const handleCloseModal = () => {
+    setShowEventModal(false);
+    setEventType('custom');
+    setEventTitle('');
+    setEventDescription('');
+    setEditingEvent(null);
+  };
+
+  const formattedDate = selectedDate.toISOString().split("T")[0];
+  const selectedEvent = events[formattedDate];
+
   const statsCards = [
     {
       id: 1,
@@ -106,14 +224,7 @@ const Dashboard = () => {
       value: schoolStats.numberOfClasses,
       icon: FaUsers,
       colorClass: "stat-card-orange"
-    },
-    // {
-    //   id: 4,
-    //   title: "Pending Requests",
-    //   value: 0,
-    //   icon: FaMoneyCheckAlt,
-    //   colorClass: "stat-card-green"
-    // }
+    }
   ];
 
   const quickLinks = [
@@ -225,14 +336,24 @@ const Dashboard = () => {
             <div className="calendar-section">
               <div className="section-header">
                 <CalendarDays size={24} className="section-icon" />
-                <h2>Calendar</h2>
+                <h2>School Calendar</h2>
+                {loadingEvents && <FaSpinner className="loading-spinner-small" />}
               </div>
               <Calendar
-                onChange={handleDateChange}
+                onChange={handleDateClick}
                 value={selectedDate}
                 tileContent={({ date }) => {
                   const iso = date.toISOString().split("T")[0];
-                  return events[iso] ? <span className="event-dot"></span> : null;
+                  const event = events[iso];
+                  if (event) {
+                    return (
+                      <span 
+                        className={`event-dot ${event.type === 'holiday' ? 'holiday-dot' : 'custom-dot'}`}
+                        title={event.title}
+                      ></span>
+                    );
+                  }
+                  return null;
                 }}
               />
               <div className="event-details">
@@ -244,15 +365,134 @@ const Dashboard = () => {
                     year: "numeric" 
                   })}
                 </p>
-                <p className="event-description">
-                  {selectedEvent || "No events scheduled for this day"}
-                </p>
+                {selectedEvent ? (
+                  <div className="event-info">
+                    <div className={`event-type-badge ${selectedEvent.type}`}>
+                      {selectedEvent.type === 'holiday' ? '🏖️ Holiday' : '📅 Event'}
+                    </div>
+                    <p className="event-title">{selectedEvent.title}</p>
+                    {selectedEvent.description && (
+                      <p className="event-description">{selectedEvent.description}</p>
+                    )}
+                    <button 
+                      className="edit-event-btn"
+                      onClick={() => handleDateClick(selectedDate)}
+                    >
+                      <FaEdit /> Edit Event
+                    </button>
+                  </div>
+                ) : (
+                  <div className="no-event">
+                    <p className="event-description">No events scheduled for this day</p>
+                    <button 
+                      className="add-event-btn"
+                      onClick={() => handleDateClick(selectedDate)}
+                    >
+                      <FaPlus /> Add Event
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
           </div>
         </main>
       </div>
+
+      {/* Event Modal */}
+      {showEventModal && (
+        <div className="event-modal-overlay" onClick={handleCloseModal}>
+          <div className="event-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="event-modal-header">
+              <h3>{editingEvent ? 'Edit Event' : 'Add New Event'}</h3>
+              <button className="close-modal-btn" onClick={handleCloseModal}>
+                <FaTimes />
+              </button>
+            </div>
+
+            <div className="event-modal-body">
+              <div className="form-group">
+                <label>Event Type</label>
+                <div className="event-type-options">
+                  <button
+                    className={`type-option ${eventType === 'holiday' ? 'active' : ''}`}
+                    onClick={() => setEventType('holiday')}
+                  >
+                    🏖️ Holiday
+                  </button>
+                  <button
+                    className={`type-option ${eventType === 'custom' ? 'active' : ''}`}
+                    onClick={() => setEventType('custom')}
+                  >
+                    📅 Custom Event
+                  </button>
+                </div>
+              </div>
+
+              {eventType === 'custom' && (
+                <div className="form-group">
+                  <label>Event Title *</label>
+                  <input
+                    type="text"
+                    className="event-input"
+                    placeholder="e.g., Staff meeting, Parent-Teacher Conference"
+                    value={eventTitle}
+                    onChange={(e) => setEventTitle(e.target.value)}
+                  />
+                </div>
+              )}
+
+              <div className="form-group">
+                <label>Description (Optional)</label>
+                <textarea
+                  className="event-textarea"
+                  placeholder="Add more details about this event..."
+                  value={eventDescription}
+                  onChange={(e) => setEventDescription(e.target.value)}
+                  rows="3"
+                />
+              </div>
+
+              <div className="event-date-display">
+                <CalendarDays size={18} />
+                <span>
+                  {selectedDate.toLocaleDateString("en-US", { 
+                    weekday: "long", 
+                    month: "long", 
+                    day: "numeric", 
+                    year: "numeric" 
+                  })}
+                </span>
+              </div>
+            </div>
+
+            <div className="event-modal-footer">
+              {editingEvent && (
+                <button 
+                  className="delete-event-modal-btn"
+                  onClick={handleDeleteEvent}
+                >
+                  <FaTrash /> Delete
+                </button>
+              )}
+              <div className="modal-actions">
+                <button 
+                  className="cancel-btn"
+                  onClick={handleCloseModal}
+                >
+                  Cancel
+                </button>
+                <button 
+                  className="save-event-btn"
+                  onClick={handleSaveEvent}
+                >
+                  {editingEvent ? 'Update Event' : 'Create Event'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
