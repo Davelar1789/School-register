@@ -107,10 +107,14 @@ export const getSchoolEvents = async (req, res) => {
 
 // Get events for user's school
 export const getMySchoolEvents = async (req, res) => {
+    console.log('📌 getMySchoolEvents HIT');
+  console.log('👉 req.user:', req.user);
   try {
     const { startDate, endDate } = req.query;
 
     const school = await resolveSchoolFromUser(req.user);
+    console.log('🏫 Resolved school:', school);
+
 
     if (!school) {
       return res.status(404).json({ message: 'School not found for this account' });

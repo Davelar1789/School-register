@@ -13,14 +13,13 @@ import { protect } from '../middleware/authMiddleware.js';
 const router = express.Router();
 
 // All routes require authentication
-router.use(protect);
 
-router.post('/', createEvent);
-router.get('/my-school', getMySchoolEvents);
-router.get('/school/:schoolId', getSchoolEvents);
-router.get('/school/:schoolId/holidays', getHolidays);
-router.get('/:eventId', getEventById);
-router.put('/:eventId', updateEvent);
-router.delete('/:eventId', deleteEvent);
+router.post('/', protect, createEvent);
+router.get('/my-school', protect, getMySchoolEvents);
+router.get('/school/:schoolId', protect, getSchoolEvents);
+router.get('/school/:schoolId/holidays', protect, getHolidays);
+router.get('/:eventId', protect, getEventById);
+router.put('/:eventId', protect, updateEvent);
+router.delete('/:eventId', protect, deleteEvent);
 
 export default router;
