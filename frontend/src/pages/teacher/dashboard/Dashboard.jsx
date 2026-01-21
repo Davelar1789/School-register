@@ -3,6 +3,7 @@ import Calendar from "react-calendar";
 import Header from "../../../components/Teacher/TeacherHeader";
 import Sidebar from "../../../components/Teacher/TeacherSidebar";
 import api from "../../../api/axios";
+import { toast } from "react-hot-toast";
 import "react-calendar/dist/Calendar.css";
 import "./TeacherDashboard.modules.css";
 import { BookOpen, Mail, ClipboardList, CalendarDays, TrendingUp, Users } from "lucide-react";
@@ -11,7 +12,7 @@ const TeacherDashboard = () => {
   const [classCount, setClassCount] = useState(0);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [events, setEvents] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loadingEvents, setLoadingEvents] = useState(false);
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
@@ -38,40 +39,37 @@ const TeacherDashboard = () => {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        setLoading(true);
+        setLoadingEvents(true);
         const token = localStorage.getItem("token");
         
-        // Get events for the current month and next month
-        const startDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
-        const endDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 2, 0);
-        
-        const response = await api.get("/api/events/my-school", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          params: {
-            startDate: startDate.toISOString().split('T')[0],
-            endDate: endDate.toISOString().split('T')[0]
-          }
+        // Fetch events for the teacher's school
+        const response = await api.get('/api/events/my-school', {
+          headers: { Authorization: `Bearer ${token}` }
         });
 
-        // Transform events array into an object with dates as keys
-        const eventsMap = {};
+        // Convert events array to object with dates as keys
+        const eventsObj = {};
         response.data.events.forEach(event => {
-          const eventDate = new Date(event.date).toISOString().split("T")[0];
-          eventsMap[eventDate] = event.title || event.description || "Event";
+          const dateKey = new Date(event.date).toISOString().split('T')[0];
+          eventsObj[dateKey] = {
+            id: event._id,
+            type: event.type,
+            title: event.title,
+            description: event.description
+          };
         });
-        
-        setEvents(eventsMap);
+
+        setEvents(eventsObj);
       } catch (error) {
         console.error("Error fetching events:", error);
+        toast.error("Failed to load calendar events");
       } finally {
-        setLoading(false);
+        setLoadingEvents(false);
       }
     };
 
     fetchEvents();
-  }, [selectedDate.getMonth(), selectedDate.getFullYear()]);
+  }, []);
 
   const formattedDate = selectedDate.toISOString().split("T")[0];
   const selectedEvent = events[formattedDate];
@@ -79,8 +77,6 @@ const TeacherDashboard = () => {
   const stats = [
     { icon: BookOpen, label: "Total Classes", value: classCount, gradient: "blue-gradient" },
     { icon: ClipboardList, label: "Assignments Due", value: 0, gradient: "purple-gradient" },
-    // { icon: Mail, label: "Messages", value: 0, gradient: "green-gradient" },
-    // { icon: Users, label: "Total Students", value: 156, gradient: "orange-gradient" },
   ];
 
   const recentActivities = [
@@ -122,15 +118,24 @@ const TeacherDashboard = () => {
             <div className="calendar-section">
               <div className="section-header">
                 <CalendarDays size={24} className="section-icon" />
-                <h2>Calendar</h2>
+                <h2>School Calendar</h2>
+                {loadingEvents && <span className="loading-text">Loading...</span>}
               </div>
-              {loading && <p className="loading-text">Loading events...</p>}
               <Calendar
                 onChange={handleDateChange}
                 value={selectedDate}
                 tileContent={({ date }) => {
                   const iso = date.toISOString().split("T")[0];
-                  return events[iso] ? <span className="event-dot"></span> : null;
+                  const event = events[iso];
+                  if (event) {
+                    return (
+                      <span 
+                        className={`event-dot ${event.type === 'holiday' ? 'holiday-dot' : 'custom-dot'}`}
+                        title={event.title}
+                      ></span>
+                    );
+                  }
+                  return null;
                 }}
               />
               <div className="event-details">
@@ -142,9 +147,21 @@ const TeacherDashboard = () => {
                     year: "numeric" 
                   })}
                 </p>
-                <p className="event-description">
-                  {selectedEvent || "No events scheduled for this day"}
-                </p>
+                {selectedEvent ? (
+                  <div className="event-info-teacher">
+                    <div className={`event-type-badge-teacher ${selectedEvent.type}`}>
+                      {selectedEvent.type === 'holiday' ? '🏖️ Holiday' : '📅 Event'}
+                    </div>
+                    <p className="event-title-teacher">{selectedEvent.title}</p>
+                    {selectedEvent.description && (
+                      <p className="event-description">{selectedEvent.description}</p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="event-description">
+                    No events scheduled for this day
+                  </p>
+                )}
               </div>
             </div>
 
