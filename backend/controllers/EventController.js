@@ -1,6 +1,9 @@
 import Event from '../models/Event.model.js';
 import School from '../models/School.model.js';
 
+import { resolveSchoolFromUser } from '../utils/resolveSchool.js';
+
+
 // Create a new event
 export const createEvent = async (req, res) => {
   try {
@@ -105,15 +108,18 @@ export const getSchoolEvents = async (req, res) => {
 // Get events for user's school
 export const getMySchoolEvents = async (req, res) => {
   try {
-    const userId = req.user._id;
     const { startDate, endDate } = req.query;
 
-    const school = await School.findOne({ user: userId });
+    const school = await resolveSchoolFromUser(req.user);
+
     if (!school) {
-      return res.status(404).json({ message: 'School not found' });
+      return res.status(404).json({ message: 'School not found for this account' });
     }
 
-    const query = { school: school._id, isActive: true };
+    const query = {
+      school: school._id,
+      isActive: true
+    };
 
     if (startDate && endDate) {
       query.date = {
@@ -124,7 +130,8 @@ export const getMySchoolEvents = async (req, res) => {
 
     const events = await Event.find(query)
       .sort({ date: 1 })
-      .populate('createdBy', 'name email');
+      .select('date type title description')
+      .lean();
 
     res.status(200).json({
       message: 'Events retrieved successfully',
