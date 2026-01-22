@@ -234,8 +234,6 @@ const fetchStudents = async (classId) => {
   }
 };
 
-
-
 // Fetch attendance for a given date (offline or online)
 const fetchAttendanceForDate = async (classId, date) => {
   if (!classId || !date || !currentTerm) return;
