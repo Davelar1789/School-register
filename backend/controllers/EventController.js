@@ -1,37 +1,40 @@
-// controllers/eventController.js
 import Event from '../models/Event.model.js';
 import School from '../models/School.model.js';
-import Teacher from '../models/Teacher.model.js';
 
-// Create a new event
+/* ======================================================
+   CREATE EVENT (ADMIN / SUPERADMIN ONLY)
+====================================================== */
 export const createEvent = async (req, res) => {
   try {
     const { date, type, title, description, schoolId } = req.body;
     const userId = req.user._id;
+    const userRole = req.user.role?.toLowerCase();
+
+    // Role guard
+    if (userRole !== 'admin' && userRole !== 'superadmin') {
+      return res.status(403).json({ message: 'Only admins can create events' });
+    }
 
     // Validate required fields
     if (!date || !type) {
-      return res.status(400).json({
-        message: 'Date and type are required'
-      });
+      return res.status(400).json({ message: 'Date and type are required' });
     }
 
-    // Validate type
     if (!['holiday', 'custom'].includes(type)) {
       return res.status(400).json({
-        message: 'Type must be either "holiday" or "custom"'
+        message: 'Type must be either "holiday" or "custom"',
       });
     }
 
-    // If custom type, title is required
     if (type === 'custom' && !title) {
       return res.status(400).json({
-        message: 'Title is required for custom events'
+        message: 'Title is required for custom events',
       });
     }
 
-    // Resolve school
+    // Resolve school (admin-owned)
     let school = schoolId;
+
     if (!school) {
       const userSchool = await School.findOne({ user: userId });
       if (!userSchool) {
@@ -40,16 +43,16 @@ export const createEvent = async (req, res) => {
       school = userSchool._id;
     }
 
-    // Prevent duplicate event on same date
+    // Prevent duplicate active event on same date
     const existingEvent = await Event.findOne({
       school,
       date: new Date(date),
-      isActive: true
+      isActive: true,
     });
 
     if (existingEvent) {
       return res.status(400).json({
-        message: 'An event already exists for this date'
+        message: 'An event already exists for this date',
       });
     }
 
@@ -59,25 +62,28 @@ export const createEvent = async (req, res) => {
       type,
       title: type === 'holiday' ? 'Holiday' : title,
       description: description || '',
-      createdBy: userId
+      createdBy: userId,
+      createdByModel: 'User', // ✅ admin only
     });
 
     await event.save();
 
     res.status(201).json({
       message: 'Event created successfully',
-      event
+      event,
     });
   } catch (error) {
     console.error('Error creating event:', error);
     res.status(500).json({
       message: 'Error creating event',
-      error: error.message
+      error: error.message,
     });
   }
 };
 
-// Get all events for a school
+/* ======================================================
+   GET ALL EVENTS FOR A SCHOOL (PUBLIC / AUTH)
+====================================================== */
 export const getSchoolEvents = async (req, res) => {
   try {
     const { schoolId } = req.params;
@@ -88,32 +94,35 @@ export const getSchoolEvents = async (req, res) => {
     if (startDate && endDate) {
       query.date = {
         $gte: new Date(startDate),
-        $lte: new Date(endDate)
+        $lte: new Date(endDate),
       };
     }
 
     const events = await Event.find(query)
       .sort({ date: 1 })
-      .populate('createdBy', 'name email');
+      .populate('createdBy', 'fullName email');
 
     res.status(200).json({
       message: 'Events retrieved successfully',
-      events
+      events,
     });
   } catch (error) {
     console.error('Error fetching events:', error);
     res.status(500).json({
       message: 'Error fetching events',
-      error: error.message
+      error: error.message,
     });
   }
 };
 
-// Get events for logged-in user's school (Admin / Teacher)
+/* ======================================================
+   GET EVENTS FOR LOGGED-IN USER'S SCHOOL
+   (ADMIN + TEACHER)
+====================================================== */
 export const getMySchoolEvents = async (req, res) => {
   try {
     const { startDate, endDate } = req.query;
-    const userRole = req.user.role;
+    const userRole = req.user.role?.toLowerCase();
 
     let schoolId;
 
@@ -123,14 +132,14 @@ export const getMySchoolEvents = async (req, res) => {
         return res.status(404).json({ message: 'School not found' });
       }
       schoolId = school._id;
-    } 
-    else if (userRole === 'teacher') {
+    } else if (userRole === 'teacher') {
       if (!req.user.school) {
-        return res.status(404).json({ message: 'Teacher has no school assigned' });
+        return res.status(404).json({
+          message: 'Teacher has no school assigned',
+        });
       }
       schoolId = req.user.school;
-    } 
-    else {
+    } else {
       return res.status(403).json({ message: 'Unauthorized access' });
     }
 
@@ -139,34 +148,36 @@ export const getMySchoolEvents = async (req, res) => {
     if (startDate && endDate) {
       query.date = {
         $gte: new Date(startDate),
-        $lte: new Date(endDate)
+        $lte: new Date(endDate),
       };
     }
 
     const events = await Event.find(query)
       .sort({ date: 1 })
-      .populate('createdBy', 'name email');
+      .populate('createdBy', 'fullName email');
 
     res.status(200).json({
       message: 'Events retrieved successfully',
-      events
+      events,
     });
   } catch (error) {
     console.error('Error fetching events:', error);
     res.status(500).json({
       message: 'Error fetching events',
-      error: error.message
+      error: error.message,
     });
   }
 };
 
-// Get event by ID
+/* ======================================================
+   GET EVENT BY ID
+====================================================== */
 export const getEventById = async (req, res) => {
   try {
     const { eventId } = req.params;
 
     const event = await Event.findById(eventId)
-      .populate('createdBy', 'name email')
+      .populate('createdBy', 'fullName email')
       .populate('school', 'name');
 
     if (!event) {
@@ -175,22 +186,29 @@ export const getEventById = async (req, res) => {
 
     res.status(200).json({
       message: 'Event retrieved successfully',
-      event
+      event,
     });
   } catch (error) {
     console.error('Error fetching event:', error);
     res.status(500).json({
       message: 'Error fetching event',
-      error: error.message
+      error: error.message,
     });
   }
 };
 
-// Update event
+/* ======================================================
+   UPDATE EVENT (ADMIN / SUPERADMIN ONLY)
+====================================================== */
 export const updateEvent = async (req, res) => {
   try {
     const { eventId } = req.params;
     const { date, type, title, description } = req.body;
+    const userRole = req.user.role?.toLowerCase();
+
+    if (userRole !== 'admin' && userRole !== 'superadmin') {
+      return res.status(403).json({ message: 'Only admins can update events' });
+    }
 
     const event = await Event.findById(eventId);
     if (!event) {
@@ -202,13 +220,11 @@ export const updateEvent = async (req, res) => {
     if (type) {
       if (!['holiday', 'custom'].includes(type)) {
         return res.status(400).json({
-          message: 'Type must be either "holiday" or "custom"'
+          message: 'Type must be either "holiday" or "custom"',
         });
       }
       event.type = type;
-      if (type === 'holiday') {
-        event.title = 'Holiday';
-      }
+      event.title = type === 'holiday' ? 'Holiday' : event.title;
     }
 
     if (title && event.type === 'custom') event.title = title;
@@ -218,21 +234,28 @@ export const updateEvent = async (req, res) => {
 
     res.status(200).json({
       message: 'Event updated successfully',
-      event
+      event,
     });
   } catch (error) {
     console.error('Error updating event:', error);
     res.status(500).json({
       message: 'Error updating event',
-      error: error.message
+      error: error.message,
     });
   }
 };
 
-// Delete event (soft delete)
+/* ======================================================
+   DELETE EVENT (SOFT DELETE — ADMIN ONLY)
+====================================================== */
 export const deleteEvent = async (req, res) => {
   try {
     const { eventId } = req.params;
+    const userRole = req.user.role?.toLowerCase();
+
+    if (userRole !== 'admin' && userRole !== 'superadmin') {
+      return res.status(403).json({ message: 'Only admins can delete events' });
+    }
 
     const event = await Event.findById(eventId);
     if (!event) {
@@ -242,19 +265,19 @@ export const deleteEvent = async (req, res) => {
     event.isActive = false;
     await event.save();
 
-    res.status(200).json({
-      message: 'Event deleted successfully'
-    });
+    res.status(200).json({ message: 'Event deleted successfully' });
   } catch (error) {
     console.error('Error deleting event:', error);
     res.status(500).json({
       message: 'Error deleting event',
-      error: error.message
+      error: error.message,
     });
   }
 };
 
-// Get holidays for a school
+/* ======================================================
+   GET HOLIDAYS FOR A SCHOOL
+====================================================== */
 export const getHolidays = async (req, res) => {
   try {
     const { schoolId } = req.params;
@@ -263,13 +286,13 @@ export const getHolidays = async (req, res) => {
     const query = {
       school: schoolId,
       type: 'holiday',
-      isActive: true
+      isActive: true,
     };
 
     if (startDate && endDate) {
       query.date = {
         $gte: new Date(startDate),
-        $lte: new Date(endDate)
+        $lte: new Date(endDate),
       };
     }
 
@@ -279,13 +302,13 @@ export const getHolidays = async (req, res) => {
 
     res.status(200).json({
       message: 'Holidays retrieved successfully',
-      holidays
+      holidays,
     });
   } catch (error) {
     console.error('Error fetching holidays:', error);
     res.status(500).json({
       message: 'Error fetching holidays',
-      error: error.message
+      error: error.message,
     });
   }
 };

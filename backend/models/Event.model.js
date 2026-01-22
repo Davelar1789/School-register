@@ -31,7 +31,12 @@ const eventSchema = new mongoose.Schema(
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User',
+      required: true,
+      refPath: 'createdByModel'
+    },
+    createdByModel: {
+      type: String,
+      enum: ['User', 'Teacher'],
       required: true
     },
     isActive: {

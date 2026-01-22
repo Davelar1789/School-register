@@ -13,7 +13,7 @@ export const protect = async (req, res, next) => {
 
       let user;
       // Check role to determine where to find the user
-      if (decoded.role === "teacher") {
+      if (decoded.role === "Teacher") {
         user = await Teacher.findById(decoded.id).select("-password");
         
         if (!user) {
