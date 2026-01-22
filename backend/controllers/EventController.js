@@ -1,7 +1,7 @@
 // controllers/eventController.js
-import Event from '../models/Event.js';
-import School from '../models/School.js';
-import Teacher from '../models/Teacher.js';
+import Event from '../models/Event.model.js';
+import School from '../models/School.model.js';
+import Teacher from '../models/Teacher.model.js';
 
 // Create a new event
 export const createEvent = async (req, res) => {
