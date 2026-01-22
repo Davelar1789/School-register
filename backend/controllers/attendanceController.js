@@ -648,10 +648,8 @@ export const fetchUnmarkedDates = async (req, res) => {
 
     console.log("👨‍👩‍👦 Total students found:", classDoc.students.length);
 
-    const sampleStudentId = classDoc.students[0];
     const schoolId = classDoc.schoolId || classDoc.school;
-    console.log("🎯 Using sample student:", sampleStudentId.toString());
-
+    
     const term = await TermSession.findById(termId);
     if (!term) {
       return res.status(404).json({ message: "Term not found." });
@@ -659,51 +657,90 @@ export const fetchUnmarkedDates = async (req, res) => {
 
     const start = new Date(term.startDate);
     const end = new Date(term.endDate);
+    const today = new Date();
+    
+    // Only check dates up to today (no point checking future dates)
+    const endDate = end < today ? end : today;
 
-    console.log("📅 Term Range:", start.toISOString(), "→", end.toISOString());
+    console.log("📅 Term Range:", start.toISOString(), "→", endDate.toISOString());
 
-    // ✅ Generate all school days (Mon–Fri, excluding holidays)
-    const allDates = [];
+    // ✅ OPTIMIZATION 1: Fetch ALL holidays for the term in ONE query
+    const holidays = await Event.find({
+      school: schoolId,
+      type: 'holiday',
+      isActive: true,
+      date: { $gte: start, $lte: endDate }
+    }).select('date').lean();
+
+    // Create a Set of holiday date strings for O(1) lookup
+    const holidaySet = new Set(
+      holidays.map(h => new Date(h.date).toISOString().slice(0, 10))
+    );
+
+    console.log("🏖️ Total holidays found:", holidaySet.size);
+
+    // ✅ OPTIMIZATION 2: Generate all valid school days (Mon-Fri, excluding holidays) in memory
+    const normalize = (d) => {
+      const year = d.getUTCFullYear();
+      const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(d.getUTCDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
+
+    const allValidSchoolDays = new Set();
     const temp = new Date(start);
 
-    while (temp <= end) {
-      const day = temp.getUTCDay();
-      const isHolidayDay = await isHoliday(temp, schoolId);
+    while (temp <= endDate) {
+      const dayOfWeek = temp.getUTCDay();
+      const dateStr = normalize(temp);
       
-      if (day !== 0 && day !== 6 && !isHolidayDay) {
-        allDates.push(new Date(temp));
+      // Include only weekdays that are not holidays
+      if (dayOfWeek !== 0 && dayOfWeek !== 6 && !holidaySet.has(dateStr)) {
+        allValidSchoolDays.add(dateStr);
       }
+      
       temp.setUTCDate(temp.getUTCDate() + 1);
     }
 
-    console.log("📘 Total school days (excluding holidays):", allDates.length);
+    console.log("📘 Total valid school days:", allValidSchoolDays.size);
 
-    const normalize = (d) => d.toISOString().slice(0, 10);
-    const unmarked = [];
+    // ✅ OPTIMIZATION 3: Fetch ALL marked attendance dates for this class/term in ONE query
+    const markedAttendance = await Attendance.find({
+      termId,
+      classId,
+      date: { $gte: start, $lte: endDate }
+    })
+    .select('date')
+    .distinct('date')
+    .lean();
 
-    for (const dateObj of allDates) {
-      const dateISO = normalize(dateObj);
+    // Create a Set of marked date strings for O(1) lookup
+    const markedDatesSet = new Set(
+      markedAttendance.map(date => normalize(new Date(date)))
+    );
 
-      const exists = await Attendance.findOne({
-        studentId: sampleStudentId,
-        termId,
-        date: {
-          $gte: new Date(dateISO + "T00:00:00.000Z"),
-          $lte: new Date(dateISO + "T23:59:59.999Z")
-        }
-      });
+    console.log("✅ Total marked dates:", markedDatesSet.size);
 
-      if (!exists) {
-        unmarked.push(dateObj.toISOString());
+    // ✅ OPTIMIZATION 4: Use Set difference to find unmarked dates in O(n)
+    const unmarkedDates = [];
+    
+    for (const schoolDay of allValidSchoolDays) {
+      if (!markedDatesSet.has(schoolDay)) {
+        // Convert back to ISO string for response
+        unmarkedDates.push(new Date(schoolDay + 'T00:00:00.000Z').toISOString());
       }
     }
 
-    console.log("🚨 Unmarked count:", unmarked.length);
+    // Sort unmarked dates chronologically
+    unmarkedDates.sort();
+
+    console.log("🚨 Unmarked count:", unmarkedDates.length);
 
     return res.status(200).json({
-      totalSchoolDays: allDates.length,
-      unmarkedCount: unmarked.length,
-      unmarkedDates: unmarked
+      totalSchoolDays: allValidSchoolDays.size,
+      markedDays: markedDatesSet.size,
+      unmarkedCount: unmarkedDates.length,
+      unmarkedDates: unmarkedDates
     });
 
   } catch (error) {
@@ -714,7 +751,6 @@ export const fetchUnmarkedDates = async (req, res) => {
     });
   }
 };
-
 // export const markAttendanceBatch = async (req, res) => {
 //     console.log(`Marking attendance batch for Term ID: ${req.body.termId}, Date: ${req.body.date}`);
 
