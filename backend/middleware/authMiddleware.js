@@ -21,7 +21,7 @@ export const protect = async (req, res, next) => {
         }
         
         // Ensure role is set on the user object
-        user.role = "Teacher";
+        user.role = "teacher";
         
         console.log('👨‍🏫 Teacher authenticated:', {
           id: user._id,

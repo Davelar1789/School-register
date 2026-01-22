@@ -34,7 +34,7 @@ export const resolveSchoolFromUser = async (user) => {
     }
 
     // Handle Teacher users
-    if (user.role === 'Teacher') {
+    if (user.role === 'teacher') {
       // The user object IS the teacher document (since protect middleware fetches Teacher by ID)
       // So user.school should already be available
       if (user.school) {
