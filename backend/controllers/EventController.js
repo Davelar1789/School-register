@@ -112,25 +112,25 @@ export const getSchoolEvents = async (req, res) => {
 // Get events for logged-in user's school (Admin / Teacher)
 export const getMySchoolEvents = async (req, res) => {
   try {
-    const userId = req.user._id;
-    const userRole = req.user.role;
     const { startDate, endDate } = req.query;
+    const userRole = req.user.role;
 
     let schoolId;
 
     if (userRole === 'admin' || userRole === 'superadmin') {
-      const school = await School.findOne({ user: userId });
+      const school = await School.findOne({ user: req.user._id });
       if (!school) {
         return res.status(404).json({ message: 'School not found' });
       }
       schoolId = school._id;
-    } else if (userRole === 'teacher') {
-      const teacher = await Teacher.findOne({ user: userId });
-      if (!teacher) {
-        return res.status(404).json({ message: 'Teacher not found' });
+    } 
+    else if (userRole === 'teacher') {
+      if (!req.user.school) {
+        return res.status(404).json({ message: 'Teacher has no school assigned' });
       }
-      schoolId = teacher.school;
-    } else {
+      schoolId = req.user.school;
+    } 
+    else {
       return res.status(403).json({ message: 'Unauthorized access' });
     }
 
