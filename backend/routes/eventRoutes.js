@@ -12,6 +12,8 @@ import { protect } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
+console.log('Event routes file loaded');
+
 // All routes require authentication
 
 router.post('/', protect, createEvent);
