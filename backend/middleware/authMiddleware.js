@@ -1,7 +1,7 @@
+// middleware/authMiddleware.js
 import jwt from "jsonwebtoken";
 import User from "../models/User.model.js";
-import Teacher from "../models/Teacher.model.js"; // <-- Import Teacher
-
+import Teacher from "../models/Teacher.model.js";
 
 // Protect routes (Ensure user is logged in)
 export const protect = async (req, res, next) => {
@@ -12,21 +12,41 @@ export const protect = async (req, res, next) => {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       let user;
-      // Optional: check role to determine where to find the user
+      // Check role to determine where to find the user
       if (decoded.role === "Teacher") {
         user = await Teacher.findById(decoded.id).select("-password");
+        
+        if (!user) {
+          return res.status(404).json({ message: "Teacher not found" });
+        }
+        
+        // Ensure role is set on the user object
+        user.role = "Teacher";
+        
+        console.log('👨‍🏫 Teacher authenticated:', {
+          id: user._id,
+          email: user.email,
+          school: user.school,
+          role: user.role
+        });
       } else {
         user = await User.findById(decoded.id).select("-password");
-      }
-
-      if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        
+        if (!user) {
+          return res.status(404).json({ message: "User not found" });
+        }
+        
+        console.log('👤 User authenticated:', {
+          id: user._id,
+          email: user.email,
+          role: user.role
+        });
       }
 
       req.user = user;
       next();
     } catch (error) {
-      console.log("Decoded token or error reason:", error);
+      console.log("Token error:", error.message);
       if (error.name === "TokenExpiredError") {
         return res.status(401).json({ message: "Token expired. Please log in again." });
       }

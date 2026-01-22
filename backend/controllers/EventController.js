@@ -1,8 +1,7 @@
-import Event from '../models/Event.model.js';
-import School from '../models/School.model.js';
-
-import { resolveSchoolFromUser } from '../utils/resolveSchool.js';
-
+// controllers/eventController.js
+import Event from '../models/Event.js';
+import School from '../models/School.js';
+import Teacher from '../models/Teacher.js';
 
 // Create a new event
 export const createEvent = async (req, res) => {
@@ -10,24 +9,28 @@ export const createEvent = async (req, res) => {
     const { date, type, title, description, schoolId } = req.body;
     const userId = req.user._id;
 
+    // Validate required fields
     if (!date || !type) {
       return res.status(400).json({
         message: 'Date and type are required'
       });
     }
 
+    // Validate type
     if (!['holiday', 'custom'].includes(type)) {
       return res.status(400).json({
         message: 'Type must be either "holiday" or "custom"'
       });
     }
 
+    // If custom type, title is required
     if (type === 'custom' && !title) {
       return res.status(400).json({
         message: 'Title is required for custom events'
       });
     }
 
+    // Resolve school
     let school = schoolId;
     if (!school) {
       const userSchool = await School.findOne({ user: userId });
@@ -37,6 +40,7 @@ export const createEvent = async (req, res) => {
       school = userSchool._id;
     }
 
+    // Prevent duplicate event on same date
     const existingEvent = await Event.findOne({
       school,
       date: new Date(date),
@@ -105,25 +109,32 @@ export const getSchoolEvents = async (req, res) => {
   }
 };
 
-// Get events for user's school
+// Get events for logged-in user's school (Admin / Teacher)
 export const getMySchoolEvents = async (req, res) => {
-    console.log('📌 getMySchoolEvents HIT');
-  console.log('👉 req.user:', req.user);
   try {
+    const userId = req.user._id;
+    const userRole = req.user.role;
     const { startDate, endDate } = req.query;
 
-    const school = await resolveSchoolFromUser(req.user);
-    console.log('🏫 Resolved school:', school);
+    let schoolId;
 
-
-    if (!school) {
-      return res.status(404).json({ message: 'School not found for this account' });
+    if (userRole === 'admin' || userRole === 'superadmin') {
+      const school = await School.findOne({ user: userId });
+      if (!school) {
+        return res.status(404).json({ message: 'School not found' });
+      }
+      schoolId = school._id;
+    } else if (userRole === 'Teacher') {
+      const teacher = await Teacher.findOne({ user: userId });
+      if (!teacher) {
+        return res.status(404).json({ message: 'Teacher not found' });
+      }
+      schoolId = teacher.school;
+    } else {
+      return res.status(403).json({ message: 'Unauthorized access' });
     }
 
-    const query = {
-      school: school._id,
-      isActive: true
-    };
+    const query = { school: schoolId, isActive: true };
 
     if (startDate && endDate) {
       query.date = {
@@ -134,8 +145,7 @@ export const getMySchoolEvents = async (req, res) => {
 
     const events = await Event.find(query)
       .sort({ date: 1 })
-      .select('date type title description')
-      .lean();
+      .populate('createdBy', 'name email');
 
     res.status(200).json({
       message: 'Events retrieved successfully',
