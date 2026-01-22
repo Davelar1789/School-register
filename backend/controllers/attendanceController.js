@@ -705,18 +705,31 @@ export const fetchUnmarkedDates = async (req, res) => {
     console.log("📘 Total valid school days:", allValidSchoolDays.size);
 
     // ✅ OPTIMIZATION 3: Fetch ALL marked attendance dates for this class/term in ONE query
-    const markedAttendance = await Attendance.find({
-      termId,
-      classId,
-      date: { $gte: start, $lte: endDate }
-    })
-    .select('date')
-    .distinct('date')
-    .lean();
+    // We need to check if attendance exists for ANY student in the class
+    const studentIds = classDoc.students.map(s => s.toString());
+    
+    const markedAttendance = await Attendance.aggregate([
+      {
+        $match: {
+          termId: new mongoose.Types.ObjectId(termId),
+          studentId: { $in: studentIds.map(id => new mongoose.Types.ObjectId(id)) },
+          date: { $gte: start, $lte: endDate }
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$date" }
+          },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
 
     // Create a Set of marked date strings for O(1) lookup
+    // A date is considered "marked" if attendance exists for it
     const markedDatesSet = new Set(
-      markedAttendance.map(date => normalize(new Date(date)))
+      markedAttendance.map(item => item._id)
     );
 
     console.log("✅ Total marked dates:", markedDatesSet.size);
