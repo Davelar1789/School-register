@@ -124,7 +124,7 @@ export const getMySchoolEvents = async (req, res) => {
         return res.status(404).json({ message: 'School not found' });
       }
       schoolId = school._id;
-    } else if (userRole === 'Teacher') {
+    } else if (userRole === 'teacher') {
       const teacher = await Teacher.findOne({ user: userId });
       if (!teacher) {
         return res.status(404).json({ message: 'Teacher not found' });
