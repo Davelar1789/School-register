@@ -37,7 +37,7 @@ api.interceptors.response.use(
       error.response.data?.message === "Token expired. Please log in again."
     ) {
       localStorage.removeItem("token");
-      window.location.href = "/sign-in";
+      window.location.href = "/teacher-login";
     }
 
     return Promise.reject(error);

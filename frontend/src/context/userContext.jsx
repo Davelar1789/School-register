@@ -10,7 +10,7 @@ export const UserProvider = ({ children }) => {
   const logout = () => {
     localStorage.clear();
     setCurrentUser(null);
-    window.location.href = "/sign-in"; // safer navigation
+    window.location.href = "/teacher-login"; // safer navigation
   };
 
   const fetchUserDetails = async () => {

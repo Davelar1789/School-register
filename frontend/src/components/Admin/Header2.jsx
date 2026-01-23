@@ -38,7 +38,7 @@ const Header = () => {
     const token = localStorage.getItem("token");
     if (!token) {
       toast.error("Please login first.");
-      navigate("/sign-in");
+      navigate("/teacher-login");
       return;
     }
 
@@ -97,7 +97,7 @@ const Header = () => {
   
       localStorage.removeItem("token");   
       toast.success("Logged out successfully");
-      navigate("/sign-in"); // or your login route
+      navigate("/teacher-login"); // or your login route
     } catch (error) {
       console.error("Logout failed:", error);
       toast.error("Logout failed. Please try again.");
