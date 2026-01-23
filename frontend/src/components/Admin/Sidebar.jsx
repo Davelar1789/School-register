@@ -135,31 +135,6 @@ const Sidebar = () => {
         </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="sidebar-stats">
-        <div className="stat-item">
-          <FaUserGraduate className="stat-icon" />
-          <div>
-            <div className="stat-number">{schoolStats.numberOfStudents}</div>
-            <div className="stat-label">Students</div>
-          </div>
-        </div>
-        <div className="stat-item">
-          <FaChalkboardTeacher className="stat-icon" />
-          <div>
-            <div className="stat-number">{schoolStats.numberOfTeachers}</div>
-            <div className="stat-label">Teachers</div>
-          </div>
-        </div>
-        <div className="stat-item">
-          <FaUsers className="stat-icon" />
-          <div>
-            <div className="stat-number">{schoolStats.numberOfClasses}</div>
-            <div className="stat-label">Classes</div>
-          </div>
-        </div>
-      </div>
-
       {/* Menu Items with Groups */}
       <nav className="sidebar-nav">
         {/* Overview Section */}
