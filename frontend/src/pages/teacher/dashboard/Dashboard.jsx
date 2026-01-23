@@ -152,7 +152,7 @@ const TeacherDashboard = () => {
                     <div className={`event-type-badge-teacher ${selectedEvent.type}`}>
                       {selectedEvent.type === 'holiday' ? '🏖️ Holiday' : '📅 Event'}
                     </div>
-                    <p className="event-title-teacher">{selectedEvent.title}</p>
+                    {/* <p className="event-title-teacher">{selectedEvent.title}</p> */}
                     {selectedEvent.description && (
                       <p className="event-description">{selectedEvent.description}</p>
                     )}
