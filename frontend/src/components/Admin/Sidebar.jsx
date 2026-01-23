@@ -1,36 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { 
-  FaHome, 
-  FaUserGraduate, 
-  FaChalkboardTeacher, 
-  FaCalendar, 
-  FaMoneyBillWave,
-  FaChartLine,
-  FaUsers,
-  FaClipboardList,
-  FaSignOutAlt 
-} from "react-icons/fa";
-import { useNavigate, NavLink, useLocation } from "react-router-dom";
+import { FaHome, FaUser, FaCommentDots, FaUsers, FaCalendarAlt, FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt } from "react-icons/fa";
+import { useNavigate, NavLink, useLocation  } from "react-router-dom";
 import "../../pages/head/students/Students.modules.css";
 import { toast } from "react-hot-toast";
-import api from "../../api/axios";
+import api from "../../api/axios"; // API instance
 import "@fortawesome/fontawesome-free/css/all.min.css";
 import Image1 from "../../assets/images/userrr.png";
 import { jwtDecode } from "jwt-decode";
 
 const Sidebar = () => {
   const [user, setUser] = useState(null);
-  const [school, setSchool] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
+  const location = useLocation();
+  const isFeesActive = ["/fees", "/school-fees", "/feeding-fee"].includes(location.pathname);
+  const [school, setSchool] = useState(null)
   const [schoolStats, setSchoolStats] = useState({
     numberOfStudents: 0,
     numberOfTeachers: 0,
     numberOfClasses: 0,
   });
 
-  const location = useLocation();
   const navigate = useNavigate();
-  
-  const isFeesActive = ["/fees", "/school-fees", "/feeding-fee"].includes(location.pathname);
 
   const fetchSchool = async (userId) => {
     try {
@@ -66,6 +56,7 @@ const Sidebar = () => {
     }
   };
   
+  
   useEffect(() => {
     const token = localStorage.getItem("token");
   
@@ -85,6 +76,7 @@ const Sidebar = () => {
   
     fetchSchool(decoded.id);
   
+    // ✅ Listen for school data updates
     const handleSchoolUpdate = () => {
       const cachedSchoolData = localStorage.getItem("schoolData");
       if (cachedSchoolData) {
@@ -105,107 +97,93 @@ const Sidebar = () => {
     };
   }, [navigate]);
   
+
   const handleLogout = async () => {
     try {
+      // const token = localStorage.getItem("token");
+      // await api.post("/api/users/logout", {}, {
+      //   headers: { Authorization: `Bearer ${token}` }
+      // });
+  
       localStorage.removeItem("token");   
       toast.success("Logged out successfully");
-      navigate("/sign-in");
+      navigate("/sign-in"); // or your login route
     } catch (error) {
       console.error("Logout failed:", error);
       toast.error("Logout failed. Please try again.");
     }
   };
 
+
   if (!user) return null;
 
   return (
     <div className="sidebar">
-      {/* School Logo */}
-      <div className="sidebar-header">
-        <div className="logo">{school?.name ? school.name.charAt(0) : "S"}</div>
-        <div className="school-name">{school?.name || "School Dashboard"}</div>
-      </div>
-
-      {/* User Profile */}
-      <div className="sidebar-profile">
-        <img src={Image1} alt="User" className="profile-pic" />
-        <div>
-          <h4>{user.fullName}</h4>
-          <p className="user-role">{user.role}</p>
-        </div>
-      </div>
-
-      {/* Menu Items with Groups */}
-      <nav className="sidebar-nav">
-        {/* Overview Section */}
-        <div className="nav-section">
-          <div className="section-title">OVERVIEW</div>
-          <ul>
-            <li>
-              <NavLink to="/dashboard" className={({ isActive }) => isActive ? "active" : ""}>
-                <FaHome className="icon" /> Dashboard
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/termly-details" className={({ isActive }) => isActive ? "active" : ""}>
-                <FaCalendar className="icon" /> Termly Details
-              </NavLink>
-            </li>
-          </ul>
-        </div>
-
-        {/* Academic Management */}
-        <div className="nav-section">
-          <div className="section-title">ACADEMIC</div>
-          <ul>
-            <li>
-              <NavLink to="/students-teachers" className={({ isActive }) => isActive ? "active" : ""}>
-                <FaUsers className="icon" /> Students & Teachers
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/classes-main" className={({ isActive }) => isActive ? "active" : ""}>
-                <FaChalkboardTeacher className="icon" /> Classes
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/view-attendance" className={({ isActive }) => isActive ? "active" : ""}>
-                <FaClipboardList className="icon" /> Attendance
-              </NavLink>
-            </li>
-          </ul>
-        </div>
-
-        {/* Financial Management */}
-        <div className="nav-section">
-          <div className="section-title">FINANCIAL</div>
-          <ul>
-            <li>
-              <NavLink to="/fees" className={isFeesActive ? "active" : ""}>
-                <FaMoneyBillWave className="icon" /> Fees Management
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/expenses">
-                <FaChartLine className="icon" /> Expenses
-              </NavLink>
-            </li>
-            <li>
-              <NavLink to="/income">
-                <FaChartLine className="icon" /> Income Statement
-              </NavLink>
-            </li>
-          </ul>
-        </div>
-      </nav>
-
-      {/* Logout */}
-      <div className="sidebar-footer">
-        <div className="logout-btn" onClick={handleLogout}>
+            {/* School Logo */}
+            <div className="sidebar-header">
+              <div className="logo">{school?.name ? school.name.charAt(0) : "S"}</div>
+              <div className="school-name">{school?.name || "School Dashboard"}</div>
+            </div>
+    
+            {/* User Profile */}
+            <div className="sidebar-profile">
+              <img src={Image1} alt="User" className="profile-pic" />
+              <div>
+              <h4>{user.fullName}</h4>
+              <p className="user-role">{user.role}</p>
+            </div>
+            </div>
+    
+            {/* Menu Items */}
+            <ul className="sidebar-nav">
+      <li>
+        <NavLink to="/dashboard" className={({ isActive }) => isActive ? "active" : ""}>
+          <FaHome className="icon" /> Dashboard
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/termly-details" className={({ isActive }) => isActive ? "active" : ""}>
+          <FaComments className="icon" /> Termly Details
+        </NavLink>
+      </li>
+      <li>
+      <NavLink to="/fees" className={isFeesActive ? "active" : ""}>
+        <FaUserGraduate className="icon" /> Fees
+      </NavLink>
+    </li>
+      <li>
+                <NavLink to="/expenses" onClick={() => setSidebarOpen(false)}>
+                  <FaCalendar className="icon" /> Accounts
+                </NavLink>
+              </li>
+       <li>
+                <NavLink to="/income" onClick={() => setSidebarOpen(false)}>
+                  <FaChalkboardTeacher className="icon" /> Income Statement
+                </NavLink>
+              </li>
+      <li>
+        <NavLink to="/students-teachers" className={({ isActive }) => isActive ? "active" : ""}>
+          <FaUserGraduate className="icon" /> Students/Teachers 
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/view-attendance" className={({ isActive }) => isActive ? "active" : ""}>
+          <FaChalkboardTeacher className="icon" /> View Attendance
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/classes-main" className={({ isActive }) => isActive ? "active" : ""}>
+          <FaChalkboardTeacher className="icon" /> Classes
+        </NavLink>
+      </li>
+      <li onClick={handleLogout} style={{ cursor: "pointer" }}>
+        <div className="nav-link-custom">
           <FaSignOutAlt className="icon" /> Logout
         </div>
-      </div>
-    </div>
+      </li>
+
+    </ul>
+          </div>
   );
 };
 
