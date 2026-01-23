@@ -28,7 +28,7 @@ import {
   ArrowBack as ArrowBackIcon,
   Phone as PhoneIcon,
   Home as HomeIcon,
-  Calendar as CalendarIcon,
+CalendarToday as CalendarIcon,
   School as SchoolIcon,
   Person as PersonIcon,
   AttachMoney as MoneyIcon
