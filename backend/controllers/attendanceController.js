@@ -246,7 +246,7 @@ export const markAttendanceBatch = async (req, res) => {
 };
 
 // ============================
-// FETCH UNMARKED DATES (OPTIMIZED)
+// FETCH UNMARKED DATES (OPTIMIZED & FIXED)
 // ============================
 
 export const fetchUnmarkedDates = async (req, res) => {
@@ -259,7 +259,7 @@ export const fetchUnmarkedDates = async (req, res) => {
       return res.status(400).json({ message: "classId and termId are required." });
     }
 
-    // 1️⃣ Get class + verify it exists
+    // 1️⃣ Get class + all student IDs
     const classDoc = await Class.findById(classId)
       .select("students school")
       .populate('school', '_id')
@@ -273,8 +273,10 @@ export const fetchUnmarkedDates = async (req, res) => {
       return res.status(404).json({ message: "No students in this class." });
     }
 
+    const studentIds = classDoc.students.map(s => s.toString());
     const schoolId = classDoc.school?._id || classDoc.school;
-    console.log("👨‍👩‍👦 Total students found:", classDoc.students.length);
+    
+    console.log("👨‍👩‍👦 Total students in class:", studentIds.length);
 
     // 2️⃣ Load term
     const term = await TermSession.findById(termId).lean();
@@ -310,36 +312,46 @@ export const fetchUnmarkedDates = async (req, res) => {
 
     console.log("📘 Total valid school days:", validSchoolDays.length);
 
-    // 5️⃣ Fetch ALL attendance records for this class in ONE query
+    // 5️⃣ Fetch ALL attendance records for ALL students in this class (ONE query)
     const attendanceRecords = await Attendance.find({
-      classId,
+      studentId: { $in: studentIds },
       termId,
       date: {
         $gte: start,
         $lte: effectiveEnd
       }
     })
-    .select('date')
+    .select('date studentId')
     .lean();
 
-    // 6️⃣ Build a Set of marked dates for O(1) lookup
-    const markedDates = new Set(
-      attendanceRecords.map(record => normalizeDate(record.date))
-    );
+    console.log("📝 Total attendance records found:", attendanceRecords.length);
 
-    console.log("✅ Marked dates count:", markedDates.size);
+    // 6️⃣ Group attendance by date
+    // A date is "marked" if at least ONE student has attendance for that date
+    const markedDatesSet = new Set();
+    
+    attendanceRecords.forEach(record => {
+      const dateStr = normalizeDate(record.date);
+      markedDatesSet.add(dateStr);
+    });
 
-    // 7️⃣ Find unmarked dates (dates in validSchoolDays but not in markedDates)
-    const unmarkedDates = validSchoolDays.filter(date => !markedDates.has(date));
+    console.log("✅ Unique dates with attendance:", markedDatesSet.size);
 
-    console.log("🚨 Unmarked count:", unmarkedDates.length);
+    // 7️⃣ Find unmarked dates (dates in validSchoolDays but not in markedDatesSet)
+    const unmarkedDates = validSchoolDays.filter(date => !markedDatesSet.has(date));
+
+    console.log("🚨 Unmarked dates count:", unmarkedDates.length);
 
     return res.status(200).json({
       totalSchoolDays: validSchoolDays.length,
-      markedDays: markedDates.size,
+      markedDays: markedDatesSet.size,
       unmarkedCount: unmarkedDates.length,
       unmarkedDates: unmarkedDates.map(d => new Date(d + 'T00:00:00.000Z').toISOString()),
-      holidaysExcluded: holidays.size
+      holidaysExcluded: holidays.size,
+      debug: {
+        studentsInClass: studentIds.length,
+        attendanceRecordsFound: attendanceRecords.length
+      }
     });
 
   } catch (error) {
