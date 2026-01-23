@@ -339,8 +339,8 @@ function TeacherLogin() {
             </div>
              <div className="form-footer">
                           <p className="footer-text">
-                            Not an admin? 
-                            <Link to="/teacher-login" className="footer-link">Login as Teacher</Link>
+                            Not a teacher? 
+                            <Link to="/sign-in" className="footer-link">Login as Admin</Link>
                           </p>
                         </div>
           </div>
