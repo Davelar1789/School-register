@@ -238,7 +238,7 @@ const Dashboard = () => {
     return (
       <div className="loading-container">
         <FaSpinner className="loading-spinner" />
-        <p className="loading-text">Loading dashboard...</p>
+        {/* <p className="loading-text">Loading dashboard...</p> */}
       </div>
     );
   }

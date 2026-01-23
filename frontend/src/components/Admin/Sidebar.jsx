@@ -14,7 +14,8 @@ import {
   FaChevronRight
 } from "react-icons/fa";
 import { useNavigate, NavLink, useLocation } from "react-router-dom";
-import "../../pages/head/students/Students.modules.css";
+// import "../../pages/head/students/Students.modules.css";
+import "./Sidebar.modules.css";
 import { toast } from "react-hot-toast";
 import api from "../../api/axios";
 import "@fortawesome/fontawesome-free/css/all.min.css";
