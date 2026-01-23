@@ -337,6 +337,12 @@ function TeacherLogin() {
                 Not yet registered? Contact your admin for access.
               </p>
             </div>
+             <div className="form-footer">
+                          <p className="footer-text">
+                            Not an admin? 
+                            <Link to="/teacher-login" className="footer-link">Login as Teacher</Link>
+                          </p>
+                        </div>
           </div>
         </div>
       </div>
