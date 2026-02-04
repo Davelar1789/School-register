@@ -22,99 +22,97 @@ const Sidebar = () => {
 
   const navigate = useNavigate();
 
-const fetchSchool = async (userId) => {
-  try {
-    const cachedSchoolData = localStorage.getItem('schoolData');
-    if (cachedSchoolData) {
-      const schoolData = JSON.parse(cachedSchoolData);
-      setSchool(schoolData);
-      setSchoolStats({
-        numberOfStudents: schoolData.numberOfStudents || 0,
-        numberOfTeachers: schoolData.numberOfTeachers || 0,
-        numberOfClasses: schoolData.numberOfClasses || 0,
+  const fetchSchool = async (userId) => {
+    try {
+      const cachedSchoolData = localStorage.getItem('schoolData');
+      if (cachedSchoolData) {
+        const schoolData = JSON.parse(cachedSchoolData);
+        setSchool(schoolData);
+        setSchoolStats({
+          numberOfStudents: schoolData.numberOfStudents || 0,
+          numberOfTeachers: schoolData.numberOfTeachers || 0,
+          numberOfClasses: schoolData.numberOfClasses || 0,
+        });
+        return;
+      }
+  
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found, please log in again.");
+      const response = await api.get(`/api/schools/user/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
       });
+      if (response.data) {
+        const schoolData = response.data.school || response.data;
+        localStorage.setItem('schoolData', JSON.stringify(schoolData));
+        setSchool(schoolData);
+        setSchoolStats({
+          numberOfStudents: schoolData.numberOfStudents || 0,
+          numberOfTeachers: schoolData.numberOfTeachers || 0,
+          numberOfClasses: schoolData.numberOfClasses || 0,
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching school:", error);
+    }
+  };
+  
+  
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+  
+    if (!token) {
+      toast.error("Please login first.");
+      navigate("/sign-in");
       return;
     }
-
-    const response = await api.get(`/api/schools/user/${userId}`);
-    
-    if (response.data) {
-      const schoolData = response.data.school || response.data;
-      localStorage.setItem('schoolData', JSON.stringify(schoolData));
-      setSchool(schoolData);
-      setSchoolStats({
-        numberOfStudents: schoolData.numberOfStudents || 0,
-        numberOfTeachers: schoolData.numberOfTeachers || 0,
-        numberOfClasses: schoolData.numberOfClasses || 0,
-      });
-    }
-  } catch (error) {
-    console.error("Error fetching school:", error);
-  }
-};
   
-useEffect(() => {
-  const storedUser = localStorage.getItem("user");
-
-  if (!storedUser) {
-    toast.error("Please login first.");
-    navigate("/sign-in");
-    return;
-  }
-
-  const parsedUser = JSON.parse(storedUser);
-  setUser({
-    id: parsedUser._id,
-    fullName: parsedUser.fullName,
-    role: parsedUser.role,
-    schoolName: parsedUser.schoolName || "Unknown School",
-  });
-
-  fetchSchool(parsedUser._id);
-
-  // ✅ Listen for school data updates
-  const handleSchoolUpdate = () => {
-    const cachedSchoolData = localStorage.getItem("schoolData");
-    if (cachedSchoolData) {
-      const schoolData = JSON.parse(cachedSchoolData);
-      setSchool(schoolData);
-      setSchoolStats({
-        numberOfStudents: schoolData.numberOfStudents || 0,
-        numberOfTeachers: schoolData.numberOfTeachers || 0,
-        numberOfClasses: schoolData.numberOfClasses || 0,
-      });
-    }
-  };
-
-  window.addEventListener("schoolDataUpdated", handleSchoolUpdate);
-
-  return () => {
-    window.removeEventListener("schoolDataUpdated", handleSchoolUpdate);
-  };
-}, [navigate]);
+    const decoded = jwtDecode(token);
+    setUser({
+      id: decoded.id,
+      fullName: decoded.fullName,
+      role: decoded.role,
+      schoolName: decoded.schoolName,
+    });
+  
+    fetchSchool(decoded.id);
+  
+    // ✅ Listen for school data updates
+    const handleSchoolUpdate = () => {
+      const cachedSchoolData = localStorage.getItem("schoolData");
+      if (cachedSchoolData) {
+        const schoolData = JSON.parse(cachedSchoolData);
+        setSchool(schoolData);
+        setSchoolStats({
+          numberOfStudents: schoolData.numberOfStudents || 0,
+          numberOfTeachers: schoolData.numberOfTeachers || 0,
+          numberOfClasses: schoolData.numberOfClasses || 0,
+        });
+      }
+    };
+  
+    window.addEventListener("schoolDataUpdated", handleSchoolUpdate);
+  
+    return () => {
+      window.removeEventListener("schoolDataUpdated", handleSchoolUpdate);
+    };
+  }, [navigate]);
   
 
-const handleLogout = async () => {
-  try {
-    // Call logout endpoint (will clear cookie on server)
-    await api.post("/api/users/logout");
-
-    // Clear local storage
-    localStorage.removeItem("user");
-    localStorage.removeItem("schoolData");
-    localStorage.removeItem("offlineAdmin");
-    
-    toast.success("Logged out successfully");
-    navigate("/sign-in");
-  } catch (error) {
-    console.error("Logout failed:", error);
-    // Even if server logout fails, clear local data
-    localStorage.removeItem("user");
-    localStorage.removeItem("schoolData");
-    localStorage.removeItem("offlineAdmin");
-    navigate("/sign-in");
-  }
-};
+  const handleLogout = async () => {
+    try {
+      // const token = localStorage.getItem("token");
+      // await api.post("/api/users/logout", {}, {
+      //   headers: { Authorization: `Bearer ${token}` }
+      // });
+  
+      localStorage.removeItem("token");   
+      toast.success("Logged out successfully");
+      navigate("/sign-in"); // or your login route
+    } catch (error) {
+      console.error("Logout failed:", error);
+      toast.error("Logout failed. Please try again.");
+    }
+  };
 
 
   if (!user) return null;
