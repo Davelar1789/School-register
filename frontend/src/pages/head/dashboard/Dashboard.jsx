@@ -58,57 +58,48 @@ const Dashboard = () => {
     initializeDashboard();
   }, [navigate]);
 
-  const fetchSchool = async (userId) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("No token found");
-      
-      const response = await api.get(`/api/schools/user/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+const fetchSchool = async (userId) => {
+  try {
+    const response = await api.get(`/api/schools/user/${userId}`);
+    
+    if (response.data) {
+      const schoolData = response.data.school || response.data;
+      setSchoolStats({
+        numberOfStudents: schoolData.numberOfStudents || 0,
+        numberOfTeachers: schoolData.numberOfTeachers || 0,
+        numberOfClasses: schoolData.numberOfClasses || 0,
       });
-      
-      if (response.data) {
-        const schoolData = response.data.school || response.data;
-        setSchoolStats({
-          numberOfStudents: schoolData.numberOfStudents || 0,
-          numberOfTeachers: schoolData.numberOfTeachers || 0,
-          numberOfClasses: schoolData.numberOfClasses || 0,
-        });
-      }
-    } catch (error) {
-      console.error("Error fetching school:", error);
-      toast.error("Failed to load school data");
     }
-  };
+  } catch (error) {
+    console.error("Error fetching school:", error);
+    toast.error("Failed to load school data");
+  }
+};
 
-  const fetchEvents = async () => {
-    try {
-      setLoadingEvents(true);
-      const token = localStorage.getItem("token");
-      const response = await api.get('/api/events/my-school', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-
-      // Convert events array to object with dates as keys
-      const eventsObj = {};
-      response.data.events.forEach(event => {
-        const dateKey = new Date(event.date).toISOString().split('T')[0];
-        eventsObj[dateKey] = {
-          id: event._id,
-          type: event.type,
-          title: event.title,
-          description: event.description
-        };
-      });
-
-      setEvents(eventsObj);
-    } catch (error) {
-      console.error("Error fetching events:", error);
-      toast.error("Failed to load events");
-    } finally {
-      setLoadingEvents(false);
-    }
-  };
+const fetchEvents = async () => {
+  try {
+    setLoadingEvents(true);
+    const response = await api.get('/api/events/my-school');
+    
+    // Convert events array to object with dates as keys
+    const eventsObj = {};
+    response.data.events.forEach(event => {
+      const dateKey = new Date(event.date).toISOString().split('T')[0];
+      eventsObj[dateKey] = {
+        id: event._id,
+        type: event.type,
+        title: event.title,
+        description: event.description
+      };
+    });
+    setEvents(eventsObj);
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    toast.error("Failed to load events");
+  } finally {
+    setLoadingEvents(false);
+  }
+};
 
   const handleDateClick = (date) => {
     setSelectedDate(date);
@@ -131,66 +122,58 @@ const Dashboard = () => {
     setShowEventModal(true);
   };
 
-  const handleSaveEvent = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const formattedDate = selectedDate.toISOString().split('T')[0];
-
-      if (eventType === 'custom' && !eventTitle.trim()) {
-        toast.error("Please enter an event title");
-        return;
-      }
-
-      const eventData = {
-        date: formattedDate,
-        type: eventType,
-        title: eventType === 'holiday' ? 'Holiday' : eventTitle,
-        description: eventDescription
-      };
-
-      if (editingEvent) {
-        // Update existing event
-        await api.put(`/api/events/${editingEvent.id}`, eventData, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        toast.success("Event updated successfully");
-      } else {
-        // Create new event
-        await api.post('/api/events', eventData, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        toast.success("Event created successfully");
-      }
-
-      await fetchEvents();
-      handleCloseModal();
-    } catch (error) {
-      console.error("Error saving event:", error);
-      toast.error(error.response?.data?.message || "Failed to save event");
-    }
-  };
-
-  const handleDeleteEvent = async () => {
-    if (!editingEvent) return;
-
-    if (!window.confirm("Are you sure you want to delete this event?")) {
+const handleSaveEvent = async () => {
+  try {
+    const formattedDate = selectedDate.toISOString().split('T')[0];
+    
+    if (eventType === 'custom' && !eventTitle.trim()) {
+      toast.error("Please enter an event title");
       return;
     }
 
-    try {
-      const token = localStorage.getItem("token");
-      await api.delete(`/api/events/${editingEvent.id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      
-      toast.success("Event deleted successfully");
-      await fetchEvents();
-      handleCloseModal();
-    } catch (error) {
-      console.error("Error deleting event:", error);
-      toast.error("Failed to delete event");
+    const eventData = {
+      date: formattedDate,
+      type: eventType,
+      title: eventType === 'holiday' ? 'Holiday' : eventTitle,
+      description: eventDescription
+    };
+
+    if (editingEvent) {
+      // Update existing event
+      await api.put(`/api/events/${editingEvent.id}`, eventData);
+      toast.success("Event updated successfully");
+    } else {
+      // Create new event
+      await api.post('/api/events', eventData);
+      toast.success("Event created successfully");
     }
-  };
+
+    await fetchEvents();
+    handleCloseModal();
+  } catch (error) {
+    console.error("Error saving event:", error);
+    toast.error(error.response?.data?.message || "Failed to save event");
+  }
+};
+
+const handleDeleteEvent = async () => {
+  if (!editingEvent) return;
+  
+  if (!window.confirm("Are you sure you want to delete this event?")) {
+    return;
+  }
+
+  try {
+    await api.delete(`/api/events/${editingEvent.id}`);
+    
+    toast.success("Event deleted successfully");
+    await fetchEvents();
+    handleCloseModal();
+  } catch (error) {
+    console.error("Error deleting event:", error);
+    toast.error("Failed to delete event");
+  }
+};
 
   const handleCloseModal = () => {
     setShowEventModal(false);

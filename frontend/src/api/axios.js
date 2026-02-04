@@ -6,13 +6,13 @@ const BACKUP_URL = "https://school-register-a2bx.onrender.com";
 
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL || PRIMARY_URL,
-  withCredentials: true,
+  withCredentials: true, // ✅ This ensures cookies are sent with every request
 });
 
 // Intercept responses
 api.interceptors.response.use(
-  response => response,
-  async error => {
+  (response) => response,
+  async (error) => {
     const originalRequest = error.config;
 
     // If it's a 503 and not already retried with backup
@@ -23,7 +23,6 @@ api.interceptors.response.use(
     ) {
       originalRequest._retry = true;
       originalRequest.baseURL = BACKUP_URL;
-
       try {
         return await axios(originalRequest); // retry with backup
       } catch (err) {
@@ -31,13 +30,16 @@ api.interceptors.response.use(
       }
     }
 
-    // Token expired logic (unchanged)
+    // Token expired logic - redirect to login
     if (
       error.response?.status === 401 &&
-      error.response.data?.message === "Token expired. Please log in again."
+      (error.response.data?.message === "Token expired. Please log in again." ||
+        error.response.data?.message === "User not logged in" ||
+        error.response.data?.message === "Token has expired")
     ) {
-      localStorage.removeItem("token");
-      window.location.href = "/teacher-login";
+      localStorage.removeItem("user");
+      localStorage.removeItem("offlineAdmin");
+      window.location.href = "/login"; // Redirect to appropriate login page
     }
 
     return Promise.reject(error);
