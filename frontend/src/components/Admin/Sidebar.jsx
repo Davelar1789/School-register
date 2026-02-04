@@ -20,9 +20,8 @@ const Sidebar = () => {
     numberOfClasses: 0,
   });
 
-  // Dropdown states
-  const [studentsDropdownOpen, setStudentsDropdownOpen] = useState(false);
-  const [teachersDropdownOpen, setTeachersDropdownOpen] = useState(false);
+  // Dropdown state
+  const [studentsTeachersDropdownOpen, setStudentsTeachersDropdownOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -113,35 +112,31 @@ const Sidebar = () => {
     }
   };
 
-  const toggleStudentsDropdown = () => {
-    setStudentsDropdownOpen(!studentsDropdownOpen);
-  };
-
-  const toggleTeachersDropdown = () => {
-    setTeachersDropdownOpen(!teachersDropdownOpen);
+  const toggleStudentsTeachersDropdown = () => {
+    setStudentsTeachersDropdownOpen(!studentsTeachersDropdownOpen);
   };
 
   if (!user) return null;
 
   return (
     <div className="sidebar">
-      {/* School Logo */}
-      <div className="sidebar-header">
-        <div className="logo">{school?.name ? school.name.charAt(0) : "S"}</div>
-        <div className="school-name">{school?.name || "School Dashboard"}</div>
-      </div>
-
-      {/* User Profile */}
-      <div className="sidebar-profile">
-        <img src={Image1} alt="User" className="profile-pic" />
-        <div>
-          <h4>{user.fullName}</h4>
-          <p className="user-role">{user.role}</p>
+      <div className="sidebar-content">
+        {/* School Logo */}
+        <div className="sidebar-header">
+          <div className="logo">{school?.name ? school.name.charAt(0) : "S"}</div>
+          <div className="school-name">{school?.name || "School Dashboard"}</div>
         </div>
-      </div>
 
-      {/* Scrollable Menu Items */}
-      <div className="sidebar-nav-wrapper">
+        {/* User Profile */}
+        <div className="sidebar-profile">
+          <img src={Image1} alt="User" className="profile-pic" />
+          <div>
+            <h4>{user.fullName}</h4>
+            <p className="user-role">{user.role}</p>
+          </div>
+        </div>
+
+        {/* Menu Items */}
         <ul className="sidebar-nav">
           <li>
             <NavLink to="/dashboard" className={({ isActive }) => isActive ? "active" : ""}>
@@ -173,74 +168,27 @@ const Sidebar = () => {
             </NavLink>
           </li>
 
-          {/* Students Dropdown */}
+          {/* Students/Teachers Dropdown */}
           <li className="dropdown-item">
             <div 
               className="dropdown-trigger" 
-              onClick={toggleStudentsDropdown}
+              onClick={toggleStudentsTeachersDropdown}
             >
               <span className="dropdown-trigger-content">
-                <FaUserGraduate className="icon" /> Students
+                <FaUsers className="icon" /> Students/Teachers
               </span>
-              {studentsDropdownOpen ? <FaChevronUp className="dropdown-icon" /> : <FaChevronDown className="dropdown-icon" />}
+              {studentsTeachersDropdownOpen ? <FaChevronUp className="dropdown-icon" /> : <FaChevronDown className="dropdown-icon" />}
             </div>
-            {studentsDropdownOpen && (
+            {studentsTeachersDropdownOpen && (
               <ul className="dropdown-menu">
                 <li>
-                  <NavLink to="/students-teachers" className={({ isActive }) => isActive ? "active" : ""}>
-                    All Students
+                  <NavLink to="/students" className={({ isActive }) => isActive ? "active" : ""}>
+                    <FaUserGraduate className="icon" /> Students
                   </NavLink>
                 </li>
-                <li>
-                  <NavLink to="/add-student" className={({ isActive }) => isActive ? "active" : ""}>
-                    Add Student
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink to="/student-attendance" className={({ isActive }) => isActive ? "active" : ""}>
-                    Student Attendance
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink to="/student-reports" className={({ isActive }) => isActive ? "active" : ""}>
-                    Student Reports
-                  </NavLink>
-                </li>
-              </ul>
-            )}
-          </li>
-
-          {/* Teachers Dropdown */}
-          <li className="dropdown-item">
-            <div 
-              className="dropdown-trigger" 
-              onClick={toggleTeachersDropdown}
-            >
-              <span className="dropdown-trigger-content">
-                <FaChalkboardTeacher className="icon" /> Teachers
-              </span>
-              {teachersDropdownOpen ? <FaChevronUp className="dropdown-icon" /> : <FaChevronDown className="dropdown-icon" />}
-            </div>
-            {teachersDropdownOpen && (
-              <ul className="dropdown-menu">
                 <li>
                   <NavLink to="/teachers" className={({ isActive }) => isActive ? "active" : ""}>
-                    All Teachers
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink to="/add-teacher" className={({ isActive }) => isActive ? "active" : ""}>
-                    Add Teacher
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink to="/teacher-attendance" className={({ isActive }) => isActive ? "active" : ""}>
-                    Teacher Attendance
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink to="/teacher-schedule" className={({ isActive }) => isActive ? "active" : ""}>
-                    Teacher Schedule
+                    <FaChalkboardTeacher className="icon" /> Teachers
                   </NavLink>
                 </li>
               </ul>
@@ -258,14 +206,13 @@ const Sidebar = () => {
               <FaChalkboardTeacher className="icon" /> Classes
             </NavLink>
           </li>
-        </ul>
-      </div>
 
-      {/* Logout at bottom */}
-      <div className="sidebar-footer">
-        <div className="logout-item" onClick={handleLogout}>
-          <FaSignOutAlt className="icon" /> Logout
-        </div>
+          <li onClick={handleLogout} style={{ cursor: "pointer" }}>
+            <div className="nav-link-custom">
+              <FaSignOutAlt className="icon" /> Logout
+            </div>
+          </li>
+        </ul>
       </div>
     </div>
   );
