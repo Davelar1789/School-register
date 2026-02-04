@@ -1,32 +1,18 @@
 /* pages/dashboard/students/Students.modules.css */
-/* Sidebar - Fully Scrollable */
+/* Sidebar */
 .sidebar {
   width: 250px;
   height: 100vh;
   background: #1b1f3b; /* Dark navy */
   color: white;
+  padding: 20px;
   position: fixed;
   left: 0;
   top: 0;
   bottom: 0;
-  z-index: 1000;
-  overflow-y: auto;
-  overflow-x: hidden;
-  
-  /* Hide scrollbar for all browsers */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE and Edge */
-}
-
-/* Hide scrollbar for Chrome, Safari and Opera */
-.sidebar::-webkit-scrollbar {
-  display: none;
-}
-
-/* Sidebar Content Wrapper */
-.sidebar-content {
-  padding: 20px;
-  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000; /* Ensure Sidebar stays on top */
 }
 
 /* School Logo */
@@ -35,12 +21,6 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 20px;
-}
-
-.school-name {
-  font-size: 14px;
-  font-weight: 600;
-  line-height: 1.2;
 }
 
 .logo {
@@ -54,7 +34,6 @@
   font-size: 20px;
   font-weight: bold;
   border-radius: 50%;
-  flex-shrink: 0;
 }
 
 /* User Profile */
@@ -63,120 +42,48 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 20px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.sidebar-profile h4 {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
 }
 
 .profile-pic {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  object-fit: cover;
 }
 
 .user-role {
   font-size: 12px;
   color: #ccc;
-  margin: 0;
 }
 
 /* Menu Items */
 .sidebar-nav {
   list-style: none;
   padding: 0;
-  margin: 0;
 }
 
-.sidebar-nav li a,
-.sidebar-nav li .nav-link-custom {
+.sidebar-nav li a {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 10px 15px;
   border-radius: 5px;
   cursor: pointer;
-  transition: background 0.3s;
-  color: white;
-  text-decoration: none;
+  transition: 0.3s;
 }
 
-.sidebar-nav li a:hover,
-.sidebar-nav li .nav-link-custom:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
 
 .sidebar-nav li a.active {
   background: rgba(255, 255, 255, 0.1);
   font-weight: bold;
 }
 
+
+.sidebar-nav li:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
 .icon {
   font-size: 18px;
-}
-
-/* Dropdown Styles */
-.dropdown-item {
-  margin: 0;
-}
-
-.dropdown-trigger {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.3s;
-  color: white;
-}
-
-.dropdown-trigger-content {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.dropdown-trigger:hover {
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.dropdown-icon {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-/* Dropdown Menu - Indented */
-.dropdown-menu {
-  list-style: none;
-  padding: 5px 0 5px 0;
-  margin: 5px 0 0 0;
-}
-
-.dropdown-menu li {
-  margin: 0;
-}
-
-.dropdown-menu li a {
-  padding: 10px 15px 10px 45px; /* Left padding for indentation */
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.dropdown-menu li a:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
-}
-
-.dropdown-menu li a.active {
-  background: rgba(255, 255, 255, 0.1);
-  color: white;
-  font-weight: bold;
 }
 
 /* Student Badge */
@@ -189,7 +96,12 @@
   margin-left: auto;
 }
 
-/* Mobile Responsive */
+/* Logout */
+.logout {
+  margin-top: auto;
+  color: #ff4d4d;
+}
+
 @media screen and (max-width: 768px) {
   .sidebar {
     display: none !important;

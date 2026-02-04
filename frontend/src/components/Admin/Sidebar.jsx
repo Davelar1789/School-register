@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaHome, FaUser, FaCommentDots, FaUsers, FaCalendarAlt, FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { FaHome, FaUser, FaCommentDots, FaUsers, FaCalendarAlt, FaComments, FaUserGraduate, FaChalkboardTeacher, FaCalendar, FaSignOutAlt } from "react-icons/fa";
 import { useNavigate, NavLink, useLocation  } from "react-router-dom";
 import "../../pages/head/students/Students.modules.css";
 import { toast } from "react-hot-toast";
@@ -13,15 +13,12 @@ const Sidebar = () => {
   const [userProfile, setUserProfile] = useState(null);
   const location = useLocation();
   const isFeesActive = ["/fees", "/school-fees", "/feeding-fee"].includes(location.pathname);
-  const [school, setSchool] = useState(null);
+  const [school, setSchool] = useState(null)
   const [schoolStats, setSchoolStats] = useState({
     numberOfStudents: 0,
     numberOfTeachers: 0,
     numberOfClasses: 0,
   });
-
-  // Dropdown state
-  const [studentsTeachersDropdownOpen, setStudentsTeachersDropdownOpen] = useState(false);
 
   const navigate = useNavigate();
 
@@ -103,118 +100,90 @@ const Sidebar = () => {
 
   const handleLogout = async () => {
     try {
+      // const token = localStorage.getItem("token");
+      // await api.post("/api/users/logout", {}, {
+      //   headers: { Authorization: `Bearer ${token}` }
+      // });
+  
       localStorage.removeItem("token");   
       toast.success("Logged out successfully");
-      navigate("/sign-in");
+      navigate("/sign-in"); // or your login route
     } catch (error) {
       console.error("Logout failed:", error);
       toast.error("Logout failed. Please try again.");
     }
   };
 
-  const toggleStudentsTeachersDropdown = () => {
-    setStudentsTeachersDropdownOpen(!studentsTeachersDropdownOpen);
-  };
 
   if (!user) return null;
 
   return (
     <div className="sidebar">
-      <div className="sidebar-content">
-        {/* School Logo */}
-        <div className="sidebar-header">
-          <div className="logo">{school?.name ? school.name.charAt(0) : "S"}</div>
-          <div className="school-name">{school?.name || "School Dashboard"}</div>
+            {/* School Logo */}
+            <div className="sidebar-header">
+              <div className="logo">{school?.name ? school.name.charAt(0) : "S"}</div>
+              <div className="school-name">{school?.name || "School Dashboard"}</div>
+            </div>
+    
+            {/* User Profile */}
+            <div className="sidebar-profile">
+              <img src={Image1} alt="User" className="profile-pic" />
+              <div>
+              <h4>{user.fullName}</h4>
+              <p className="user-role">{user.role}</p>
+            </div>
+            </div>
+    
+            {/* Menu Items */}
+            <ul className="sidebar-nav">
+      <li>
+        <NavLink to="/dashboard" className={({ isActive }) => isActive ? "active" : ""}>
+          <FaHome className="icon" /> Dashboard
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/termly-details" className={({ isActive }) => isActive ? "active" : ""}>
+          <FaComments className="icon" /> Termly Details
+        </NavLink>
+      </li>
+      <li>
+      <NavLink to="/fees" className={isFeesActive ? "active" : ""}>
+        <FaUserGraduate className="icon" /> Fees
+      </NavLink>
+    </li>
+      <li>
+                <NavLink to="/expenses" onClick={() => setSidebarOpen(false)}>
+                  <FaCalendar className="icon" /> Accounts
+                </NavLink>
+              </li>
+       <li>
+                <NavLink to="/income" onClick={() => setSidebarOpen(false)}>
+                  <FaChalkboardTeacher className="icon" /> Income Statement
+                </NavLink>
+              </li>
+      <li>
+        <NavLink to="/students-teachers" className={({ isActive }) => isActive ? "active" : ""}>
+          <FaUserGraduate className="icon" /> Students/Teachers 
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/view-attendance" className={({ isActive }) => isActive ? "active" : ""}>
+          <FaChalkboardTeacher className="icon" /> View Attendance
+        </NavLink>
+      </li>
+      <li>
+        <NavLink to="/classes-main" className={({ isActive }) => isActive ? "active" : ""}>
+          <FaChalkboardTeacher className="icon" /> Classes
+        </NavLink>
+      </li>
+      <li onClick={handleLogout} style={{ cursor: "pointer" }}>
+        <div className="nav-link-custom">
+          <FaSignOutAlt className="icon" /> Logout
         </div>
+      </li>
 
-        {/* User Profile */}
-        <div className="sidebar-profile">
-          <img src={Image1} alt="User" className="profile-pic" />
-          <div>
-            <h4>{user.fullName}</h4>
-            <p className="user-role">{user.role}</p>
+    </ul>
           </div>
-        </div>
-
-        {/* Menu Items */}
-        <ul className="sidebar-nav">
-          <li>
-            <NavLink to="/dashboard" className={({ isActive }) => isActive ? "active" : ""}>
-              <FaHome className="icon" /> Dashboard
-            </NavLink>
-          </li>
-          
-          <li>
-            <NavLink to="/termly-details" className={({ isActive }) => isActive ? "active" : ""}>
-              <FaComments className="icon" /> Termly Details
-            </NavLink>
-          </li>
-          
-          <li>
-            <NavLink to="/fees" className={isFeesActive ? "active" : ""}>
-              <FaUserGraduate className="icon" /> Fees
-            </NavLink>
-          </li>
-          
-          <li>
-            <NavLink to="/expenses">
-              <FaCalendar className="icon" /> Accounts
-            </NavLink>
-          </li>
-          
-          <li>
-            <NavLink to="/income">
-              <FaChalkboardTeacher className="icon" /> Income Statement
-            </NavLink>
-          </li>
-
-          {/* Students/Teachers Dropdown */}
-          <li className="dropdown-item">
-            <div 
-              className="dropdown-trigger" 
-              onClick={toggleStudentsTeachersDropdown}
-            >
-              <span className="dropdown-trigger-content">
-                <FaUsers className="icon" /> Students/Teachers
-              </span>
-              {studentsTeachersDropdownOpen ? <FaChevronUp className="dropdown-icon" /> : <FaChevronDown className="dropdown-icon" />}
-            </div>
-            {studentsTeachersDropdownOpen && (
-              <ul className="dropdown-menu">
-                <li>
-                  <NavLink to="/students" className={({ isActive }) => isActive ? "active" : ""}>
-                    <FaUserGraduate className="icon" /> Students
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink to="/teachers" className={({ isActive }) => isActive ? "active" : ""}>
-                    <FaChalkboardTeacher className="icon" /> Teachers
-                  </NavLink>
-                </li>
-              </ul>
-            )}
-          </li>
-
-          <li>
-            <NavLink to="/view-attendance" className={({ isActive }) => isActive ? "active" : ""}>
-              <FaChalkboardTeacher className="icon" /> View Attendance
-            </NavLink>
-          </li>
-          
-          <li>
-            <NavLink to="/classes-main" className={({ isActive }) => isActive ? "active" : ""}>
-              <FaChalkboardTeacher className="icon" /> Classes
-            </NavLink>
-          </li>
-
-          <li onClick={handleLogout} style={{ cursor: "pointer" }}>
-            <div className="nav-link-custom">
-              <FaSignOutAlt className="icon" /> Logout
-            </div>
-          </li>
-        </ul>
-      </div>
-    </div>
   );
 };
 
