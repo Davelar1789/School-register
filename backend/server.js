@@ -34,7 +34,7 @@ import eventRoutes from "./routes/eventRoutes.js";
 
 
 // Middleware
-import { authToken } from "./middleware/authMiddleware.js";
+import { authToken } from "./middleware/authToken.js";
 import { verifyAdmin } from "./middleware/verifyAdmin.js";
 import { verifyTeacher } from "./middleware/verifyTeacher.js";
 import User from "./models/User.model.js"; // Import User model

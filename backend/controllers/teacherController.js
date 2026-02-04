@@ -1,26 +1,14 @@
+// controllers/teacherController.js
 import Teacher from "../models/Teacher.model.js";
 import School from "../models/School.model.js";
 import Class from "../models/Class.model.js";
 import User from "../models/User.model.js";
 import jwt from "jsonwebtoken";
 
-const generateToken = ({ id, fullName, email, role, schoolName, schoolId, teacherType, seenTutorial }) => {
-  return jwt.sign(
-    { id, fullName, email, role, schoolName, schoolId, teacherType, seenTutorial },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: "6h",
-    }
-  );
-};
 
-// Helper function to set cookie
-const setCookie = (res, token) => {
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    maxAge: 6 * 60 * 60 * 1000, // 6 hours
+const generateToken = ({ id, fullName, email, role, schoolName, schoolId, teacherType, seenTutorial }) => {
+  return jwt.sign({ id, fullName, email, role, schoolName, schoolId, teacherType, seenTutorial }, process.env.JWT_SECRET, {
+    expiresIn: "6h",
   });
 };
 
@@ -30,7 +18,7 @@ const generateStaffId = async () => {
   let staffId;
 
   while (idExists) {
-    staffId = "T" + Math.floor(100000 + Math.random() * 900000); // T123456
+    staffId = 'T' + Math.floor(100000 + Math.random() * 900000); // T123456
     const existing = await Teacher.findOne({ staffId });
     idExists = !!existing;
   }
@@ -46,25 +34,30 @@ export const createTeacher = async (req, res) => {
 
     if (!schoolId) return res.status(400).json({ message: "School ID is required" });
 
+    // Log incoming data
     console.log("Incoming teacher data:", req.body);
 
+    // Check if email already exists in Teacher model
     const existingTeacher = await Teacher.findOne({ email });
     if (existingTeacher) {
       return res.status(400).json({ message: "Email is already in use by a teacher" });
     }
 
+    // Check if email already exists in User model
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Email is already in use by a system user" });
     }
 
     const { teacherType } = req.body;
-    if (!["Class Teacher", "Subject Teacher", "Both"].includes(teacherType)) {
-      return res.status(400).json({ message: "Invalid teacher type" });
-    }
+      if (!["Class Teacher", "Subject Teacher", "Both"].includes(teacherType)) {
+        return res.status(400).json({ message: "Invalid teacher type" });
+      }
+
 
     const staffId = await generateStaffId();
 
+    // Build new teacher
     const newTeacher = new Teacher({
       ...req.body,
       staffId,
@@ -73,17 +66,20 @@ export const createTeacher = async (req, res) => {
 
     console.log("New teacher to be saved:", newTeacher);
 
+    // Save to DB
     const savedTeacher = await newTeacher.save();
 
+    // Log after saving
     console.log("Teacher successfully saved:", savedTeacher);
 
+    // Optionally update school teacher count
     await School.findByIdAndUpdate(schoolId, {
       $inc: { numberOfTeachers: 1 },
     });
 
     res.status(201).json(savedTeacher);
   } catch (error) {
-    console.error("Error creating teacher:", error.stack);
+    console.error("Error creating teacher:", error.stack); // better error message
     res.status(500).json({
       message: "Error creating teacher",
       error: error.message,
@@ -91,6 +87,7 @@ export const createTeacher = async (req, res) => {
     });
   }
 };
+
 
 // Phase 1: Check email existence and usage
 export const verifyTeacherEmail = async (req, res) => {
@@ -132,9 +129,6 @@ export const firstTimeSetup = async (req, res) => {
       seenTutorial: teacher.seenTutorial,
     });
 
-    // Set cookie instead of sending token in response
-    setCookie(res, token);
-
     res.status(200).json({
       message: "Password created successfully",
       teacher: {
@@ -145,6 +139,7 @@ export const firstTimeSetup = async (req, res) => {
         school: teacher.school,
         teacherType: teacher.teacherType,
         seenTutorial: teacher.seenTutorial,
+        token,
       },
     });
   } catch (error) {
@@ -152,6 +147,7 @@ export const firstTimeSetup = async (req, res) => {
     res.status(500).json({ message: "Error setting up teacher", error });
   }
 };
+
 
 // Phase 3: Normal login
 export const loginTeacher = async (req, res) => {
@@ -178,10 +174,8 @@ export const loginTeacher = async (req, res) => {
       schoolId: teacher.school?._id || "",
       teacherType: teacher.teacherType,
       seenTutorial: teacher.seenTutorial,
-    });
 
-    // Set cookie instead of sending token in response
-    setCookie(res, token);
+    });
 
     res.status(200).json({
       message: "Login successful",
@@ -193,12 +187,14 @@ export const loginTeacher = async (req, res) => {
         school: teacher.school,
         teacherType: teacher.teacherType,
         seenTutorial: teacher.seenTutorial,
+        token,
       },
     });
   } catch (error) {
     res.status(500).json({ message: "Login error", error });
   }
 };
+
 
 // Get all teachers for a school
 export const getTeachersBySchool = async (req, res) => {
