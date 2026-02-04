@@ -11,7 +11,6 @@ function UserLogin() {
     email: "",
     password: "",
   });
-
   const [loading, setLoading] = useState(false);
   const [focusedInput, setFocusedInput] = useState("");
 
@@ -35,7 +34,7 @@ function UserLogin() {
       }
 
       if (isOnline) {
-        // Online login
+        // Online login - Cookie will be set automatically by server
         const response = await api.post("/api/users/login", {
           email: formData.email,
           password: formData.password,
@@ -46,20 +45,19 @@ function UserLogin() {
         }
 
         const user = response.data.user;
-
         toast.success("Login successful! Redirecting...");
-        localStorage.setItem("user", JSON.stringify(user));
-        localStorage.setItem("token", user.token);
 
-        // Store user info & token for offline login
+        // Store user info only (NO TOKEN - it's in httpOnly cookie)
+        localStorage.setItem("user", JSON.stringify(user));
+
+        // Store credentials for offline login
         localStorage.setItem(
           "offlineAdmin",
           JSON.stringify({
             email: formData.email,
             password: formData.password,
-            token: user.token,
             role: user.role,
-            name: user.name,
+            name: user.fullName,
             userId: user._id,
           })
         );
@@ -68,26 +66,23 @@ function UserLogin() {
           if (user?.role === "superadmin") navigate("/superadmin/");
           else navigate("/dashboard");
         }, 1500);
-
       } else {
         // Offline login
         const cached = JSON.parse(localStorage.getItem("offlineAdmin"));
 
-        if (!cached || cached.email !== formData.email || !cached.token) {
+        if (!cached || cached.email !== formData.email) {
           throw new Error("No offline credentials found or email mismatch");
         }
 
         toast.success("Offline login successful! Redirecting...");
 
-        localStorage.setItem("token", cached.token);
         localStorage.setItem(
           "user",
           JSON.stringify({
             _id: cached.userId,
-            name: cached.name,
+            fullName: cached.name,
             email: cached.email,
             role: cached.role,
-            token: cached.token,
           })
         );
 
@@ -98,7 +93,7 @@ function UserLogin() {
       }
     } catch (err) {
       console.error("Login Error:", err);
-      toast.error("Invalid email/password or cannot login offline.");
+      toast.error(err.response?.data?.message || "Invalid email/password or cannot login offline.");
     } finally {
       setLoading(false);
     }
@@ -129,7 +124,7 @@ function UserLogin() {
             </div>
             <h1 className="brand-title">Admin Portal</h1>
             <p className="brand-description">
-              Manage your educational institution with powerful tools and insights. 
+              Manage your educational institution with powerful tools and insights.
               Your secure gateway to comprehensive school management.
             </p>
             <div className="feature-list">
@@ -159,7 +154,7 @@ function UserLogin() {
 
             <form onSubmit={handleSubmit} className="login-form">
               {/* Email Input */}
-              <div className={`input-group ${focusedInput === 'email' ? 'focused' : ''}`}>
+              <div className={`input-group ${focusedInput === "email" ? "focused" : ""}`}>
                 <label htmlFor="email">Email Address</label>
                 <div className="input-wrapper">
                   <input
@@ -168,15 +163,15 @@ function UserLogin() {
                     name="email"
                     value={formData.email}
                     onChange={handleChange}
-                    onFocus={() => setFocusedInput('email')}
-                    onBlur={() => setFocusedInput('')}
+                    onFocus={() => setFocusedInput("email")}
+                    onBlur={() => setFocusedInput("")}
                     required
                   />
                 </div>
               </div>
 
               {/* Password Input */}
-              <div className={`input-group ${focusedInput === 'password' ? 'focused' : ''}`}>
+              <div className={`input-group ${focusedInput === "password" ? "focused" : ""}`}>
                 <label htmlFor="password">Password</label>
                 <div className="input-wrapper">
                   <input
@@ -185,8 +180,8 @@ function UserLogin() {
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
-                    onFocus={() => setFocusedInput('password')}
-                    onBlur={() => setFocusedInput('')}
+                    onFocus={() => setFocusedInput("password")}
+                    onBlur={() => setFocusedInput("")}
                     required
                   />
                 </div>
@@ -198,15 +193,13 @@ function UserLogin() {
                   <input type="checkbox" />
                   <span>Remember me</span>
                 </label>
-                <a href="#" className="forgot-link">Forgot password?</a>
+                <a href="#" className="forgot-link">
+                  Forgot password?
+                </a>
               </div>
 
               {/* Submit Button */}
-              <button 
-                type="submit" 
-                className="submit-button" 
-                disabled={loading}
-              >
+              <button type="submit" className="submit-button" disabled={loading}>
                 {loading ? (
                   <>
                     <span className="spinner"></span>
@@ -224,21 +217,12 @@ function UserLogin() {
             {/* Footer Links */}
             <div className="form-footer">
               <p className="footer-text">
-                Not an admin? 
-                <Link to="/teacher-login" className="footer-link">Login as Teacher</Link>
+                Not an admin?
+                <Link to="/teacher-login" className="footer-link">
+                  Login as Teacher
+                </Link>
               </p>
             </div>
-
-            {/* Divider
-            <div className="divider">
-              <span>or</span>
-            </div> */}
-
-            {/* Additional Info
-            <div className="additional-info">
-              <p>Need help accessing your account?</p>
-              <a href="#contact" className="help-link">Contact Support</a>
-            </div> */}
           </div>
         </div>
       </div>
