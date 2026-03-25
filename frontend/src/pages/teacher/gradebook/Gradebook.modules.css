@@ -1,3 +1,373 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   EARLY YEARS TICKING UI  — append to your existing Gradebook.modules.css
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Mode badge ─────────────────────────────────────────────────────────── */
+.early-years-section {
+  margin-top: 1.5rem;
+}
+
+.ey-mode-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, #e8f5e9 0%, #f1f8e9 100%);
+  border: 1.5px solid #a5d6a7;
+  border-radius: 12px;
+  padding: 0.85rem 1.2rem;
+  margin-bottom: 1.5rem;
+}
+
+.ey-badge-icon {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.ey-badge-title {
+  display: block;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #2e7d32;
+}
+
+.ey-badge-subtitle {
+  display: block;
+  font-size: 0.8rem;
+  color: #558b2f;
+  margin-top: 0.1rem;
+}
+
+/* ── Legend ─────────────────────────────────────────────────────────────── */
+.ey-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.4rem;
+}
+
+.legend-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border: 1.5px solid transparent;
+}
+
+.legend-excellent        { background: #e8f5e9; color: #1b5e20; border-color: #81c784; }
+.legend-very-good        { background: #e3f2fd; color: #0d47a1; border-color: #64b5f6; }
+.legend-good             { background: #fff8e1; color: #e65100; border-color: #ffcc02; }
+.legend-needs-improvement{ background: #fce4ec; color: #880e4f; border-color: #f48fb1; }
+
+/* ── Student tick cards list ────────────────────────────────────────────── */
+.tick-cards-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.8rem;
+}
+
+/* ── Individual card ────────────────────────────────────────────────────── */
+.tick-card {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 14px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease;
+}
+
+.tick-card:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* ── Card header ────────────────────────────────────────────────────────── */
+.tick-card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(90deg, #f9f9f9 0%, #ffffff 100%);
+  border-bottom: 1px solid #eeeeee;
+}
+
+.student-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #66bb6a, #43a047);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: 0.03em;
+}
+
+.student-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.student-name {
+  display: block;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #212121;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.student-id {
+  display: block;
+  font-size: 0.75rem;
+  color: #9e9e9e;
+  margin-top: 0.1rem;
+}
+
+/* Progress bar */
+.tick-progress {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.progress-label {
+  font-size: 0.72rem;
+  color: #757575;
+  display: block;
+  margin-bottom: 0.35rem;
+}
+
+.progress-bar-wrap {
+  width: 100px;
+  height: 5px;
+  background: #e0e0e0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #66bb6a, #43a047);
+  border-radius: 999px;
+  transition: width 0.35s ease;
+}
+
+/* ── Tick table wrapper ──────────────────────────────────────────────────── */
+.tick-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Tick table ──────────────────────────────────────────────────────────── */
+.tick-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  min-width: 520px;
+}
+
+.tick-table thead tr {
+  background: #f5f5f5;
+}
+
+.tick-table th {
+  padding: 0.65rem 0.75rem;
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #616161;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.activity-col {
+  text-align: left;
+  width: 38%;
+}
+
+.rating-col {
+  text-align: center;
+  width: 15.5%;
+}
+
+/* Column accent colours */
+.rating-excellent         { color: #2e7d32 !important; }
+.rating-very-good         { color: #1565c0 !important; }
+.rating-good              { color: #e65100 !important; }
+.rating-needs-improvement { color: #880e4f !important; }
+
+.rating-symbol {
+  display: block;
+  font-size: 1rem;
+  margin-bottom: 0.1rem;
+}
+
+.rating-label {
+  display: block;
+  font-size: 0.7rem;
+}
+
+/* ── Tick rows ───────────────────────────────────────────────────────────── */
+.tick-row {
+  transition: background 0.15s ease;
+}
+
+.tick-row.even { background: #ffffff; }
+.tick-row.odd  { background: #fafafa; }
+
+.tick-row:hover {
+  background: #f3f8f3;
+}
+
+.tick-row.rated .activity-name {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.activity-name {
+  padding: 0.65rem 0.75rem;
+  color: #424242;
+  border-right: 1px solid #f0f0f0;
+  transition: color 0.15s ease;
+}
+
+.tick-cell {
+  text-align: center;
+  padding: 0.5rem 0.25rem;
+  border-right: 1px dashed #f0f0f0;
+}
+
+.tick-cell:last-child {
+  border-right: none;
+}
+
+/* ── Tick radio label ───────────────────────────────────────────────────── */
+.tick-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* Hide native radio */
+.tick-label input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.tick-box {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 2px solid #bdbdbd;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.tick-label:hover .tick-box {
+  border-color: #66bb6a;
+  background: #f1f8e9;
+  transform: scale(1.08);
+}
+
+.tick-label.checked .tick-box {
+  border-color: transparent;
+  transform: scale(1.05);
+}
+
+/* Checked colour per column — target via parent column class on <th> */
+/* We use a data approach: colour the checked box per activity */
+/* Simple: tint all checked boxes green, differentiate via symbol colour */
+.tick-label.checked .tick-box {
+  background: #e8f5e9;
+  border-color: #66bb6a;
+}
+
+/* Per-rating checked colours — applied via JS class on the row's td */
+.tick-row td:nth-child(2) .tick-label.checked .tick-box { background: #e8f5e9; border-color: #43a047; color: #2e7d32; }
+.tick-row td:nth-child(3) .tick-label.checked .tick-box { background: #e3f2fd; border-color: #1e88e5; color: #0d47a1; }
+.tick-row td:nth-child(4) .tick-label.checked .tick-box { background: #fff8e1; border-color: #ffa000; color: #e65100; }
+.tick-row td:nth-child(5) .tick-label.checked .tick-box { background: #fce4ec; border-color: #e91e63; color: #880e4f; }
+
+.tick-check {
+  font-size: 0.9rem;
+  font-weight: 700;
+  display: block;
+  line-height: 1;
+}
+
+/* ── Save button (early years variant) ──────────────────────────────────── */
+.ey-save-button {
+  margin-top: 2rem;
+  background: linear-gradient(135deg, #43a047, #2e7d32);
+  color: #fff;
+  border: none;
+  padding: 0.85rem 2.5rem;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: opacity 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 14px rgba(46, 125, 50, 0.3);
+}
+
+.ey-save-button:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(46, 125, 50, 0.35);
+}
+
+.ey-save-button:active {
+  transform: translateY(0);
+}
+
+/* ── No students ─────────────────────────────────────────────────────────── */
+.no-students {
+  color: #9e9e9e;
+  font-size: 0.9rem;
+  margin-top: 1rem;
+}
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .tick-card-header {
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .tick-progress {
+    width: 100%;
+    text-align: left;
+  }
+
+  .progress-bar-wrap {
+    width: 100%;
+  }
+
+  .tick-table {
+    font-size: 0.8rem;
+  }
+
+  .tick-box {
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+  }
+}
 .gradebook-container {
   padding: 20px;
 }
