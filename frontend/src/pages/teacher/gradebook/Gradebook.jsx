@@ -7,10 +7,26 @@ import "./Gradebook.modules.css";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const EARLY_YEARS_LEVELS = ["creche", "nursery"];
+// Only "Creche" and "Nursery 1" use the ticking format.
+// "Nursery 2" and above use the regular gradebook (scores + subjects).
+const EARLY_YEARS_CLASSES = ["creche", "nursery 1"];
 
-const ACTIVITIES = [
-  "Speaks clearly",
+const isEarlyYears = (className = "") =>
+  EARLY_YEARS_CLASSES.includes(className.trim().toLowerCase());
+
+// Returns a key used to look up the correct activity list
+const getClassKey = (className = "") => {
+  const name = className.trim().toLowerCase();
+  if (name === "creche") return "creche";
+  if (name === "nursery 1") return "nursery1";
+  return null;
+};
+
+// Activities differ between Creche and Nursery 1.
+// Replace the nursery1 entries with the real list when ready.
+const ACTIVITIES_BY_CLASS = {
+  creche: [
+    "Speaks clearly",
   "Holds pencil/crayon properly",
   "Scribbles well",
   "Traces well",
@@ -20,7 +36,25 @@ const ACTIVITIES = [
   "Expresses needs and feelings clearly",
   "Plays well with others",
   "Cooperates during dressing",
-];
+  ],
+  nursery1: [
+    // ── Dummy list — replace with real Nursery 1 activities ──
+    "Recognizes A - Z",
+    "Identifies numbers 1 - 20",
+    "Writes letters A - Z",
+    "Writes numbers 1 - 20",
+    "Matches objects/pictures",
+    "Colours within lines",
+    "Speaks clearly",
+    "Responds to simple instructions",
+    "Names common objects/animals",
+    "Participates in songs/rhymes",
+    "Plays well with others",
+    "Follows classroom rules",
+    "Expresses needs and feelings clearly",
+    "Maintains personal hygiene",
+  ],
+};
 
 const RATINGS = ["Excellent", "Very Good", "Good", "Needs Improvement"];
 
@@ -48,9 +82,6 @@ const getDataFromToken = () => {
   }
 };
 
-const isEarlyYears = (className = "") =>
-  EARLY_YEARS_LEVELS.some((lvl) => className.toLowerCase().includes(lvl));
-
 const formatPosition = (pos) => {
   if (!pos) return "";
   const suffix = (n) => {
@@ -67,14 +98,12 @@ const formatPosition = (pos) => {
 
 // ─── Early Years Ticking Table (per student) ──────────────────────────────────
 
-const StudentTickCard = ({ student, ticks, onTick }) => {
+const StudentTickCard = ({ student, ticks, onTick, activities }) => {
+  const totalActivities = activities.length;
+  const ratedCount = activities.filter((a) => ticks?.[a]).length;
+
   const getInitials = (name = "") =>
-    name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-      .slice(0, 2);
+    name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 
   return (
     <div className="tick-card">
@@ -82,19 +111,16 @@ const StudentTickCard = ({ student, ticks, onTick }) => {
         <div className="student-avatar">{getInitials(student.name)}</div>
         <div className="student-info">
           <span className="student-name">{student.name}</span>
+          <span className="student-id">Student ID: {student.studentId}</span>
         </div>
         <div className="tick-progress">
           <span className="progress-label">
-            {Object.keys(ticks || {}).length} / {ACTIVITIES.length} rated
+            {ratedCount} / {totalActivities} rated
           </span>
           <div className="progress-bar-wrap">
             <div
               className="progress-bar-fill"
-              style={{
-                width: `${
-                  ((Object.keys(ticks || {}).length) / ACTIVITIES.length) * 100
-                }%`,
-              }}
+              style={{ width: `${(ratedCount / totalActivities) * 100}%` }}
             />
           </div>
         </div>
@@ -106,7 +132,10 @@ const StudentTickCard = ({ student, ticks, onTick }) => {
             <tr>
               <th className="activity-col">Activity</th>
               {RATINGS.map((r) => (
-                <th key={r} className={`rating-col rating-${r.toLowerCase().replace(/\s+/g, "-")}`}>
+                <th
+                  key={r}
+                  className={`rating-col rating-${r.toLowerCase().replace(/\s+/g, "-")}`}
+                >
                   <span className="rating-symbol">{RATING_SYMBOLS[r]}</span>
                   <span className="rating-label">{r}</span>
                 </th>
@@ -114,7 +143,7 @@ const StudentTickCard = ({ student, ticks, onTick }) => {
             </tr>
           </thead>
           <tbody>
-            {ACTIVITIES.map((activity, idx) => (
+            {activities.map((activity, idx) => (
               <tr
                 key={activity}
                 className={`tick-row ${idx % 2 === 0 ? "even" : "odd"} ${
@@ -124,7 +153,11 @@ const StudentTickCard = ({ student, ticks, onTick }) => {
                 <td className="activity-name">{activity}</td>
                 {RATINGS.map((rating) => (
                   <td key={rating} className="tick-cell">
-                    <label className={`tick-label ${ticks?.[activity] === rating ? "checked" : ""}`}>
+                    <label
+                      className={`tick-label ${
+                        ticks?.[activity] === rating ? "checked" : ""
+                      }`}
+                    >
                       <input
                         type="radio"
                         name={`${student.studentId}-${activity}`}
@@ -169,9 +202,12 @@ const Gradebook = () => {
   const teacherId = teacherData?.teacherId;
   const schoolId = teacherData?.schoolId;
 
-  // Derive whether the selected class is early-years
+  // Derived values based on selected class
   const selectedClassObj = classes.find((c) => c._id === selectedClass);
-  const earlyYears = selectedClassObj ? isEarlyYears(selectedClassObj.className) : false;
+  const selectedClassName = selectedClassObj?.className || "";
+  const earlyYears = isEarlyYears(selectedClassName);
+  const classKey = getClassKey(selectedClassName);
+  const activities = classKey ? ACTIVITIES_BY_CLASS[classKey] : [];
 
   // ── Fetchers ────────────────────────────────────────────────────────────────
 
@@ -222,7 +258,6 @@ const Gradebook = () => {
     }
   };
 
-  // Fetch students for regular classes (with subject)
   const fetchStudents = async (classId, subjectId) => {
     if (!token || !currentTerm?._id) return;
     try {
@@ -240,23 +275,17 @@ const Gradebook = () => {
     }
   };
 
-  // Fetch students for early-years classes (no subject)
   const fetchEarlyYearsStudents = async (classId) => {
     if (!token || !currentTerm?._id) return;
     try {
-      // Fetch the student list for the class; adapt endpoint as needed
       const res = await axios.get(
         `/api/grades/early-years?classId=${classId}&termId=${currentTerm._id}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
       const fetched = Array.isArray(res.data) ? res.data : [];
       setStudents(fetched);
-
-      // Pre-populate ticks if server returns saved data
       const initialTicks = {};
-      fetched.forEach((s) => {
-        initialTicks[s.studentId] = s.ticks || {};
-      });
+      fetched.forEach((s) => { initialTicks[s.studentId] = s.ticks || {}; });
       setTicks(initialTicks);
     } catch (err) {
       console.error("Error fetching early-years students:", err);
@@ -288,7 +317,8 @@ const Gradebook = () => {
   const calculateTotalsWithPositions = (grades, students) => {
     const studentTotals = students.map((student) => {
       const g = grades[student.studentId] || {};
-      const testSum = (g.test1 || 0) + (g.test2 || 0) + (g.test3 || 0) + (g.test4 || 0);
+      const testSum =
+        (g.test1 || 0) + (g.test2 || 0) + (g.test3 || 0) + (g.test4 || 0);
       const total = Math.round(testSum + (g.exam || 0) / 2);
       return { studentId: student.studentId, total };
     });
@@ -342,9 +372,10 @@ const Gradebook = () => {
       toast.error("Please select a class.");
       return;
     }
-    // Check all students have all activities ticked
+    // Validate all students have every activity ticked
     const incomplete = students.filter(
-      (s) => Object.keys(ticks[s.studentId] || {}).length < ACTIVITIES.length
+      (s) =>
+        activities.filter((a) => ticks[s.studentId]?.[a]).length < activities.length
     );
     if (incomplete.length > 0) {
       toast.error(
@@ -383,19 +414,23 @@ const Gradebook = () => {
   }, [token, teacherId]);
 
   useEffect(() => {
-    if (selectedClass && !earlyYears) {
-      fetchSubjects(selectedClass);
-    }
-    // Reset state on class change
+    // Reset everything whenever the class changes
     setSelectedSubject("");
     setStudents([]);
     setGrades({});
     setTicks({});
+
+    if (!selectedClass) return;
+
+    // Only fetch subjects for non-early-years classes
+    if (!earlyYears) {
+      fetchSubjects(selectedClass);
+    }
   }, [selectedClass]);
 
   useEffect(() => {
-    if (!currentTerm?._id) return;
-    if (earlyYears && selectedClass) {
+    if (!currentTerm?._id || !selectedClass) return;
+    if (earlyYears) {
       fetchEarlyYearsStudents(selectedClass);
     }
   }, [earlyYears, selectedClass, currentTerm]);
@@ -435,7 +470,7 @@ const Gradebook = () => {
             ))}
           </select>
 
-          {/* Subject selector — hidden for early-years */}
+          {/* Subject selector — only for non-early-years classes */}
           {!earlyYears && (
             <select
               value={selectedSubject}
@@ -452,14 +487,15 @@ const Gradebook = () => {
           )}
         </div>
 
-        {/* ── Early-Years Mode ── */}
+        {/* ── Early-Years Mode (Creche & Nursery 1 only) ── */}
         {earlyYears && selectedClass && (
           <div className="early-years-section">
-            {/* Mode badge */}
             <div className="ey-mode-badge">
               <span className="ey-badge-icon">🌱</span>
               <div>
-                <span className="ey-badge-title">Early Years Report Mode</span>
+                <span className="ey-badge-title">
+                  Early Years Report Mode — {selectedClassName}
+                </span>
                 <span className="ey-badge-subtitle">
                   Tick one rating per activity for each student
                 </span>
@@ -472,16 +508,19 @@ const Gradebook = () => {
               <p className="no-students">No students found for this class.</p>
             ) : (
               <>
-                {/* Legend */}
                 <div className="ey-legend">
                   {RATINGS.map((r) => (
-                    <span key={r} className={`legend-pill legend-${r.toLowerCase().replace(/\s+/g, "-")}`}>
+                    <span
+                      key={r}
+                      className={`legend-pill legend-${r
+                        .toLowerCase()
+                        .replace(/\s+/g, "-")}`}
+                    >
                       {RATING_SYMBOLS[r]} {r}
                     </span>
                   ))}
                 </div>
 
-                {/* Student cards */}
                 <div className="tick-cards-list">
                   {students.map((student) => (
                     <StudentTickCard
@@ -489,11 +528,15 @@ const Gradebook = () => {
                       student={student}
                       ticks={ticks[student.studentId] || {}}
                       onTick={handleTick}
+                      activities={activities}
                     />
                   ))}
                 </div>
 
-                <button className="save-button ey-save-button" onClick={handleSaveEarlyYears}>
+                <button
+                  className="save-button ey-save-button"
+                  onClick={handleSaveEarlyYears}
+                >
                   Save All Reports
                 </button>
               </>
@@ -501,10 +544,9 @@ const Gradebook = () => {
           </div>
         )}
 
-        {/* ── Regular Gradebook Mode ── */}
+        {/* ── Regular Gradebook Mode (Nursery 2, KG, Primary, JHS) ── */}
         {!earlyYears && (
           <>
-            {/* Column visibility selector */}
             <div className="column-selector">
               <label className="view-color">View:</label>
               <select
@@ -550,7 +592,9 @@ const Gradebook = () => {
                           (Number(g.test2) || 0) +
                           (Number(g.test3) || 0) +
                           (Number(g.test4) || 0);
-                        const total = Math.round(testTotal + (Number(g.exam) || 0) / 2);
+                        const total = Math.round(
+                          testTotal + (Number(g.exam) || 0) / 2
+                        );
                         const position = positionMap[student.studentId] || "-";
 
                         return (
