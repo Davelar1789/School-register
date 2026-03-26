@@ -14,12 +14,12 @@ const ACTIVITIES = [
   "Holds pencil/crayon properly",
   "Scribbles well",
   "Traces well",
-  "Identifies colours",
-  "Counts 1–10",
-  "Recognises letters",
-  "Follows instructions",
-  "Shares with others",
-  "Participates in class activities",
+  "Colours within lines",
+  "Participates in songs and rhymes",
+  "Responds to simple instructions",
+  "Expresses needs and feelings clearly",
+  "Plays well with others",
+  "Cooperates during dressing",
 ];
 
 const RATINGS = ["Excellent", "Very Good", "Good", "Needs Improvement"];
