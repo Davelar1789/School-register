@@ -110,7 +110,7 @@ const StudentTickCard = ({ student, ticks, onTick, activities }) => {
       <div className="tick-card-header">
         <div className="student-avatar">{getInitials(student.name)}</div>
         <div className="student-info">
-          <span className="student-name">{student.name}</span>
+          <span className="student-name79">{student.name}</span>
         </div>
         <div className="tick-progress">
           <span className="progress-label">
