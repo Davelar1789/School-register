@@ -5,7 +5,7 @@ const EarlyYearsReportSchema = new mongoose.Schema(
   {
     studentId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Students",
+      ref: "students",
       required: true,
     },
     classId: {
