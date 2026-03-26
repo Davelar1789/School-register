@@ -116,7 +116,7 @@
   display: block;
   font-weight: 700;
   font-size: 1rem;
-  color: black;
+  color: black !important;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
