@@ -367,39 +367,29 @@ const Gradebook = () => {
   };
 
   const handleSaveEarlyYears = async () => {
-    if (!selectedClass || !currentTerm?._id) {
-      toast.error("Please select a class.");
-      return;
-    }
-    // Validate all students have every activity ticked
-    const incomplete = students.filter(
-      (s) =>
-        activities.filter((a) => ticks[s.studentId]?.[a]).length < activities.length
-    );
-    if (incomplete.length > 0) {
-      toast.error(
-        `${incomplete.length} student(s) still have unrated activities. Please complete all before saving.`
-      );
-      return;
-    }
-    try {
-      const payload = {
-        classId: selectedClass,
-        termId: currentTerm._id,
-        reports: students.map((s) => ({
-          studentId: s.studentId,
-          ticks: ticks[s.studentId] || {},
-        })),
-      };
-      await axios.post("/api/grades/early-years", payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      toast.success("Reports saved successfully!");
-    } catch (error) {
-      console.error("Error saving early-years reports:", error);
-      toast.error("Failed to save reports.");
-    }
-  };
+  if (!selectedClass || !currentTerm?._id) {
+    toast.error("Please select a class.");
+    return;
+  }
+
+  try {
+    const payload = {
+      classId: selectedClass,
+      termId: currentTerm._id,
+      reports: students.map((s) => ({
+        studentId: s.studentId,
+        ticks: ticks[s.studentId] || {},
+      })),
+    };
+    await axios.post("/api/grades/early-years", payload, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    toast.success("Reports saved successfully!");
+  } catch (error) {
+    console.error("Error saving early-years reports:", error);
+    toast.error("Failed to save reports.");
+  }
+};
 
   // ── Effects ───────────────────────────────────────────────────────────────────
 
@@ -496,7 +486,7 @@ const Gradebook = () => {
                   Early Years Report Mode — {selectedClassName}
                 </span>
                 <span className="ey-badge-subtitle">
-                  Tick one rating per activity for each student
+                  Tick one rating per activity for each student — you can save and return later
                 </span>
               </div>
             </div>
