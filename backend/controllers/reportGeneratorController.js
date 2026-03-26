@@ -69,6 +69,10 @@ const injectTicksIntoXml = (xmlString, ticks, className) => {
   const activities = ACTIVITIES[className.trim().toLowerCase()] || [];
   let xml = xmlString;
 
+  // Pre-collect all rows from the XML once
+  const rowRegex = /<w:tr\b[\s\S]*?<\/w:tr>/g;
+  const allRows = [...xml.matchAll(rowRegex)].map((m) => m[0]);
+
   for (const activity of activities) {
     const rating = ticks[activity]; // e.g. "Very Good" or undefined
     if (!rating) continue;
@@ -77,24 +81,17 @@ const injectTicksIntoXml = (xmlString, ticks, className) => {
     if (colIndex === -1) continue;
 
     // ── Find the <w:tr> that contains this activity text ──────────────────────
-    // We search for the activity text inside a table row and then find the
-    // correct (colIndex+1)-th empty <w:tc> after the activity cell.
+    // Strip all XML tags from each row to get plain text, then match by activity name.
+    // This handles cases where Word splits text across multiple <w:r> runs.
+    const originalRow = allRows.find((row) => {
+      const plainText = row.replace(/<[^>]+>/g, "");
+      return plainText.includes(activity);
+    });
 
-    // Escape special regex characters in the activity name
-    const escaped = activity.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    // Match the entire <w:tr>...</w:tr> that contains the activity text
-    const rowRegex = new RegExp(
-      `(<w:tr\\b[^>]*>(?:(?!<w:tr\\b).)*?${escaped}(?:(?!<w:tr\\b).)*?</w:tr>)`,
-      "s"
-    );
-
-    const rowMatch = xml.match(rowRegex);
-    if (!rowMatch) {
+    if (!originalRow) {
       console.warn(`⚠️  Could not find row for activity: "${activity}"`);
       continue;
     }
-
-    const originalRow = rowMatch[1];
 
     // Split the row into its <w:tc> cells
     const cellRegex = /<w:tc\b[\s\S]*?<\/w:tc>/g;
@@ -129,7 +126,6 @@ const injectTicksIntoXml = (xmlString, ticks, className) => {
 
   return xml;
 };
-
 // ─── Helper: generate one early-years .docx buffer for a student ─────────────
 const generateEarlyYearsDocx = async (
   templateBuffer,
