@@ -107,11 +107,14 @@ const injectTicksIntoXml = (xmlString, ticks, className) => {
     const targetCell = cells[targetCellIndex];
 
     // Build a bold ✔ run with the same font size as the rest of the table (26)
-    const tickRun = `<w:r><w:rPr><w:b/><w:bCs/><w:sz w:val="26"/><w:szCs w:val="26"/></w:rPr><w:t>&#x2714;</w:t></w:r>`;
+const tickRun = `
+  <w:pPr><w:jc w:val="center"/></w:pPr>
+  <w:r>
+    <w:rPr><w:b/><w:bCs/><w:sz w:val="26"/><w:szCs w:val="26"/></w:rPr>
+    <w:t>&#x2714;</w:t>
+  </w:r>`;
 
-    // Inject the tick run inside the <w:p> of the target cell.
-    // Each empty cell has a <w:p>...</w:p> with no runs — we add the run before </w:p>.
-    const tickedCell = targetCell.replace(/<\/w:p>/, `${tickRun}</w:p>`);
+const tickedCell = targetCell.replace(/<\/w:p>/, `${tickRun}</w:p>`);
 
     // Rebuild the row with the ticked cell substituted in
     let cellCount = 0;
@@ -162,8 +165,21 @@ const generateEarlyYearsDocx = async (
     new Date(term.endDate)
   );
 
-  const conductOptions = ["Excellent", "Satisfactory", "Very obedient", "Well-behaved"];
-  const conduct = conductOptions[Math.floor(Math.random() * conductOptions.length)];
+const conductOptions = [
+  "Excellent",
+  "Satisfactory",
+  "Very obedient",
+  "Well-behaved",
+  "Cooperative",
+  "Respectful",
+  "Cheerful and friendly",
+  "Attentive",
+  "Hardworking",
+  "Polite and courteous",
+  "Shows great enthusiasm",
+  "Kind to others",
+];
+const conduct = conductOptions[Math.floor(Math.random() * conductOptions.length)];
 
   const isTermThree = term.termName?.trim().toLowerCase() === "term 3";
   const promotedTo = isTermThree ? getNextClass(classInfo.className) : "N/A";
@@ -176,11 +192,41 @@ const generateEarlyYearsDocx = async (
   const goodCount = tickValues.filter((v) => v === "Good").length;
   const topRatio = total > 0 ? (excellentCount + veryGoodCount) / total : 0;
 
-  let classTeacherRemark = "More room for improvement.";
-  if (topRatio >= 0.8) classTeacherRemark = "An excellent performance.";
-  else if (topRatio >= 0.6) classTeacherRemark = "Very good work done.";
-  else if (topRatio >= 0.4 || goodCount / total >= 0.5)
-    classTeacherRemark = "Good effort. Keep it up.";
+  const remarksMap = {
+  excellent: [
+    "An excellent performance. Keep it up!",
+    "Outstanding effort this term. We are very proud!",
+    "A brilliant performance. Continue to shine!",
+    "Exceptional work this term. Well done!",
+  ],
+  veryGood: [
+    "Very good work done. Keep pushing forward!",
+    "A commendable performance. You are doing great!",
+    "Very impressive effort this term. Keep it up!",
+    "Great work shown this term. We are pleased with your progress!",
+  ],
+  good: [
+    "Good effort. Keep it up!",
+    "A solid performance. There is room to grow even further!",
+    "Good work this term. With more effort, you can do even better!",
+    "A decent showing. We believe you can achieve more!",
+  ],
+  needsImprovement: [
+    "More room for improvement. We encourage greater effort next term.",
+    "We know you can do better. Let us work harder next term!",
+    "Keep trying — improvement comes with practice and dedication.",
+    "With more focus and effort, great things are possible next term.",
+  ],
+};
+
+const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+let classTeacherRemark;
+if (topRatio >= 0.8)       classTeacherRemark = pick(remarksMap.excellent);
+else if (topRatio >= 0.6)  classTeacherRemark = pick(remarksMap.veryGood);
+else if (topRatio >= 0.4 || goodCount / total >= 0.5)
+                           classTeacherRemark = pick(remarksMap.good);
+else                       classTeacherRemark = pick(remarksMap.needsImprovement);
 
   let arrears = 0;
   const yearRecord = student.academicRecords?.find(
