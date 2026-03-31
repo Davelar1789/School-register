@@ -1,8 +1,8 @@
 // src/api/axios.js
 import axios from "axios";
 
-const PRIMARY_URL = "https://school-register6.onrender.com";
-const BACKUP_URL = "https://school-register-a2bx.onrender.com";
+const BACKUP_URL = "https://school-register6.onrender.com";
+const PRIMARY_URL = "https://school-register-a2bx.onrender.com";
 
 const api = axios.create({
   baseURL: process.env.REACT_APP_API_URL || PRIMARY_URL,
