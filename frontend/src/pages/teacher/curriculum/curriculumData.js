@@ -577,7 +577,12 @@ const curriculumData = {
     },
     "Social Studies": {
       1: [
-        { week: 1, subStrand: "Location of Ghana", contentStandards: "Describe the location of Ghana in Africa and the world", indicators: ["Locate Ghana on a map of Africa", "State Ghana's absolute and relative location"] },
+        { week: 1, subStrand: "Environmental Issues", 
+            contentStandards: "Examine ways of dealing with sanitation challenges in the environment", 
+            indicators: ["Explain Environment and Sanitation", "Discuss the types of environment"] },
+        { week: 2, subStrand: "Environmental Issues", 
+            contentStandards: "Examine ways of dealing with sanitation challenges in the environment", 
+            indicators: ["Identify some environmental problems", "Examine cultural practices and their effects on sanitation", "Discuss the effects of poor sanitation"] },
         // ADD MORE ROWS HERE...
       ],
       2: [ /* ADD ROWS */ ],
