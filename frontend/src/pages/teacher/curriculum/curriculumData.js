@@ -549,7 +549,7 @@ const curriculumData = {
   // ═══════════════════════════════════════════════════════════════════════════
   // BASIC 7
   // ═══════════════════════════════════════════════════════════════════════════
-  "Basic 7": {
+  "JHS 1": {
     "Mathematics": {
       1: [
         { week: 1, subStrand: "Number – Integers", contentStandards: "Perform operations on integers", indicators: ["Add and subtract positive and negative integers", "Multiply and divide integers"] },
