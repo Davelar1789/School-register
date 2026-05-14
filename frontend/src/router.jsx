@@ -73,6 +73,7 @@ import AVReport2 from "./pages/head/report/Report2";
 import ClassSubjectsPage from "./pages/head/classes/ClassSubjectsPage";
 import TopicEditor from "./pages/head/classes/TopicsEditorPage";
 import ExamGenerator from "./pages/head/exams/ExamGenerator";
+import Curriculum from "./pages/teacher/curriculum/curriculum";
 
 const router = createBrowserRouter([
   {
@@ -262,6 +263,10 @@ const router = createBrowserRouter([
       {
         path: "my-classes",
         element: <TeacherClasses />,
+      },
+      {
+        path: "curriculum",
+        element: <Curriculum />,
       },
       {
         path: "my-subjects",

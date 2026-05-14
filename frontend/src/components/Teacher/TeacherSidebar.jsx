@@ -152,6 +152,15 @@ const SidebarTeacher = () => {
           </NavLink>
         </li>
 
+        <li>
+          <NavLink
+            to="/curriculum"
+            className={({ isActive }) => isActive ? "active" : ""}
+          >
+            <FaComments className="icon" /> Curriculum
+          </NavLink>
+        </li>
+
         <li onClick={handleLogout} style={{ cursor: "pointer" }}>
           <div className="nav-link-custom">
             <FaSignOutAlt className="icon" /> Logout
