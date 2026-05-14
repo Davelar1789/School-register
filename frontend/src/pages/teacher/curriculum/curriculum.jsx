@@ -2,23 +2,26 @@ import React, { useEffect, useState, useCallback } from "react";
 import axios from "../../../api/axios";
 import Sidebar from "../../../components/Teacher/TeacherSidebar";
 import Header from "../../../components/Teacher/TeacherHeader";
+import curriculumData from "../../../data/curriculumData"; // adjust path if needed
 import "./Curriculum.modules.css";
+
+const TERMS = [1, 2, 3];
 
 const Curriculum = () => {
   const [classes, setClasses] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [selectedClass, setSelectedClass] = useState(null);
   const [selectedSubject, setSelectedSubject] = useState(null);
-  const [curriculum, setCurriculum] = useState(null);
+  const [activeTerm, setActiveTerm] = useState(1);
   const [step, setStep] = useState("classes"); // "classes" | "subjects" | "curriculum"
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const teacher = JSON.parse(localStorage.getItem("teacher"));
   const teacherId = teacher?.id;
-  const teacherType = teacher?.teacherType; // "Class Teacher" | "Subject Teacher" | "Both"
+  const teacherType = teacher?.teacherType;
 
-  // Step 1: Fetch classes
+  // ── Step 1: Fetch classes ────────────────────────────────────────────────
   const fetchClasses = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -28,7 +31,7 @@ const Curriculum = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       setClasses(data.classes || []);
-    } catch (err) {
+    } catch {
       setError("Failed to load classes. Please try again.");
     } finally {
       setLoading(false);
@@ -39,66 +42,42 @@ const Curriculum = () => {
     fetchClasses();
   }, [fetchClasses]);
 
-  // Step 2: Fetch subjects when a class is selected
+  // ── Step 2: Fetch subjects for selected class ────────────────────────────
   const handleClassClick = async (cls) => {
     setSelectedClass(cls);
     setSelectedSubject(null);
-    setCurriculum(null);
+    setActiveTerm(1);
     setStep("subjects");
     setLoading(true);
     setError("");
 
     try {
       const token = localStorage.getItem("token");
-      const { data } = await axios.get(
-        `/api/teachers/${teacherId}/subjects2`,
-        {
-          params: { classId: cls._id },
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      // Filter subjects to only those belonging to the selected class
-      const filtered = (data.subjects || []).filter(
-        (s) => s.classId === cls._id || s.className === cls.className
-      );
-      setSubjects(filtered.length > 0 ? filtered : data.subjects || []);
-    } catch (err) {
+      const { data } = await axios.get(`/api/teachers/${teacherId}/subjects2`, {
+        params: { classId: cls._id },
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setSubjects(data.subjects || []);
+    } catch {
       setError("Failed to load subjects for this class.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Step 3: Fetch curriculum when a subject is selected
-  const handleSubjectClick = async (subject) => {
+  // ── Step 3: Show curriculum (from hardcoded data) ───────────────────────
+  const handleSubjectClick = (subject) => {
     setSelectedSubject(subject);
+    setActiveTerm(1);
     setStep("curriculum");
-    setLoading(true);
     setError("");
-
-    try {
-      const token = localStorage.getItem("token");
-      const { data } = await axios.get(
-        `/api/curriculum/${subject.subjectId}/${selectedClass._id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-      setCurriculum(data.curriculum || null);
-    } catch (err) {
-      setError("No curriculum found for this subject.");
-      setCurriculum(null);
-    } finally {
-      setLoading(false);
-    }
   };
 
+  // ── Navigation ───────────────────────────────────────────────────────────
   const goBack = () => {
     if (step === "curriculum") {
       setStep("subjects");
       setSelectedSubject(null);
-      setCurriculum(null);
     } else if (step === "subjects") {
       setStep("classes");
       setSelectedClass(null);
@@ -107,17 +86,62 @@ const Curriculum = () => {
     setError("");
   };
 
+  const goToClasses = () => {
+    setStep("classes");
+    setSelectedClass(null);
+    setSelectedSubject(null);
+    setSubjects([]);
+    setError("");
+  };
+
+  const goToSubjects = () => {
+    if (step === "curriculum") {
+      setStep("subjects");
+      setSelectedSubject(null);
+    }
+  };
+
+  // ── Resolve class name to curriculumData key ─────────────────────────────
+  // Handles cases like "Basic 7A" → "Basic 7", "Basic 7" → "Basic 7"
+  const resolveCurriculumKey = (className) => {
+    if (!className) return null;
+    if (curriculumData[className]) return className;
+    // Strip trailing letter suffix: "Basic 7A" → "Basic 7"
+    const stripped = className.replace(/\s*[A-Za-z]+$/, "").trim();
+    if (curriculumData[stripped]) return stripped;
+    // Match "Basic N" anywhere in string
+    const match = className.match(/Basic\s*(\d)/i);
+    if (match) {
+      const key = `Basic ${match[1]}`;
+      if (curriculumData[key]) return key;
+    }
+    return null;
+  };
+
+  const getCurriculumRows = () => {
+    if (!selectedClass || !selectedSubject) return [];
+    const classKey = resolveCurriculumKey(selectedClass.className);
+    if (!classKey) return [];
+    const subjectData = curriculumData[classKey]?.[selectedSubject.subjectName];
+    if (!subjectData) return [];
+    return subjectData[activeTerm] || [];
+  };
+
+  const curriculumRows = getCurriculumRows();
+
+  // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="curriculum-wrapper">
       <Header />
       <Sidebar />
 
       <div className="curriculum-container">
+
         {/* Breadcrumb */}
         <div className="curriculum-breadcrumb">
           <span
             className={step === "classes" ? "crumb active" : "crumb clickable"}
-            onClick={() => step !== "classes" && setStep("classes")}
+            onClick={goToClasses}
           >
             Classes
           </span>
@@ -126,7 +150,7 @@ const Curriculum = () => {
               <span className="crumb-sep">›</span>
               <span
                 className={step === "subjects" ? "crumb active" : "crumb clickable"}
-                onClick={() => step === "curriculum" && setStep("subjects")}
+                onClick={goToSubjects}
               >
                 {selectedClass.className}
               </span>
@@ -142,21 +166,17 @@ const Curriculum = () => {
 
         {/* Back button */}
         {step !== "classes" && (
-          <button className="back-btn" onClick={goBack}>
-            ← Back
-          </button>
+          <button className="back-btn" onClick={goBack}>← Back</button>
         )}
 
-        {/* Page Title */}
-        <h2 className="curriculum-heading">
-          {step === "classes" && "Select a Class"}
-          {step === "subjects" && `Subjects — ${selectedClass?.className}`}
-          {step === "curriculum" && `Curriculum — ${selectedSubject?.subjectName}`}
-        </h2>
-
-        {/* Teacher type badge */}
-        <div className="teacher-type-badge">
-          <span>{teacherType}</span>
+        {/* Title + badge */}
+        <div className="curriculum-title-row">
+          <h2 className="curriculum-heading">
+            {step === "classes" && "Select a Class"}
+            {step === "subjects" && `Subjects — ${selectedClass?.className}`}
+            {step === "curriculum" && "Curriculum"}
+          </h2>
+          <div className="teacher-type-badge"><span>{teacherType}</span></div>
         </div>
 
         {/* Error */}
@@ -165,7 +185,7 @@ const Curriculum = () => {
         {/* Loading */}
         {loading && <div className="curriculum-loading">Loading...</div>}
 
-        {/* STEP 1: Classes */}
+        {/* ── STEP 1: Classes ─────────────────────────────────────────────── */}
         {!loading && step === "classes" && (
           <div className="curriculum-grid">
             {classes.length === 0 ? (
@@ -186,7 +206,7 @@ const Curriculum = () => {
           </div>
         )}
 
-        {/* STEP 2: Subjects */}
+        {/* ── STEP 2: Subjects ────────────────────────────────────────────── */}
         {!loading && step === "subjects" && (
           <div className="curriculum-grid">
             {subjects.length === 0 ? (
@@ -207,60 +227,88 @@ const Curriculum = () => {
           </div>
         )}
 
-        {/* STEP 3: Curriculum */}
+        {/* ── STEP 3: Curriculum Table ─────────────────────────────────────── */}
         {!loading && step === "curriculum" && (
           <div className="curriculum-content">
-            {!curriculum ? (
+
+            {/* Class + Subject banner */}
+            <div className="curriculum-table-header">
+              <div className="cth-item">
+                <span className="cth-label">Class</span>
+                <span className="cth-value">{selectedClass?.className}</span>
+              </div>
+              <div className="cth-divider" />
+              <div className="cth-item">
+                <span className="cth-label">Subject</span>
+                <span className="cth-value">{selectedSubject?.subjectName}</span>
+              </div>
+            </div>
+
+            {/* Term tabs */}
+            <div className="term-tabs">
+              {TERMS.map((term) => (
+                <button
+                  key={term}
+                  className={`term-tab ${activeTerm === term ? "active" : ""}`}
+                  onClick={() => setActiveTerm(term)}
+                >
+                  Term {term}
+                </button>
+              ))}
+            </div>
+
+            {/* Table or empty state */}
+            {curriculumRows.length === 0 ? (
               <div className="curriculum-empty-box">
                 <span className="empty-icon">📄</span>
-                <p>No curriculum has been set for <strong>{selectedSubject?.subjectName}</strong> in <strong>{selectedClass?.className}</strong> yet.</p>
+                <p>
+                  No curriculum data yet for{" "}
+                  <strong>{selectedSubject?.subjectName}</strong> —{" "}
+                  <strong>{selectedClass?.className}</strong>, Term {activeTerm}.
+                </p>
+                <p className="empty-hint">
+                  Add rows to <code>curriculumData.js</code> to populate this table.
+                </p>
               </div>
             ) : (
-              <div className="curriculum-detail">
-                <div className="curriculum-meta-bar">
-                  <span>📘 {selectedSubject?.subjectName}</span>
-                  <span>🏫 {selectedClass?.className}</span>
-                  <span>📅 {curriculum.term || "All Terms"}</span>
-                </div>
-
-                {curriculum.topics?.length > 0 && (
-                  <div className="curriculum-section">
-                    <h3>Topics</h3>
-                    <ul className="topic-list">
-                      {curriculum.topics.map((topic, i) => (
-                        <li key={i} className="topic-item">
-                          <span className="topic-num">{i + 1}</span>
-                          <div>
-                            <strong>{topic.title || topic}</strong>
-                            {topic.description && <p>{topic.description}</p>}
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {curriculum.objectives?.length > 0 && (
-                  <div className="curriculum-section">
-                    <h3>Learning Objectives</h3>
-                    <ul className="objectives-list">
-                      {curriculum.objectives.map((obj, i) => (
-                        <li key={i}>{obj}</li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-
-                {curriculum.notes && (
-                  <div className="curriculum-section">
-                    <h3>Notes</h3>
-                    <p>{curriculum.notes}</p>
-                  </div>
-                )}
+              <div className="curriculum-table-wrap">
+                <table className="curriculum-table">
+                  <thead>
+                    <tr>
+                      <th className="col-week">Week</th>
+                      <th className="col-substrand">Sub-Strand</th>
+                      <th className="col-standards">Content Standards</th>
+                      <th className="col-indicators">Indicators</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {curriculumRows.map((row, idx) => (
+                      <tr key={idx} className={idx % 2 === 0 ? "row-even" : "row-odd"}>
+                        <td className="col-week">
+                          <span className="week-badge">{row.week}</span>
+                        </td>
+                        <td className="col-substrand">{row.subStrand}</td>
+                        <td className="col-standards">{row.contentStandards}</td>
+                        <td className="col-indicators">
+                          {Array.isArray(row.indicators) ? (
+                            <ul className="indicators-list">
+                              {row.indicators.map((ind, i) => (
+                                <li key={i}>{ind}</li>
+                              ))}
+                            </ul>
+                          ) : (
+                            row.indicators
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             )}
           </div>
         )}
+
       </div>
     </div>
   );
