@@ -579,11 +579,15 @@ const curriculumData = {
       1: [
         { week: 1, subStrand: "Environmental Issues", 
             contentStandards: "Examine ways of dealing with sanitation challenges in the environment", 
-            indicators: ["Explain Environment and Sanitation", "Discuss the types of environment"] },
+            indicators: ["Explain Environment and Sanitation", "Discuss the types of environment", "Identify some environmental problems including sanitation"] },
         { week: 2, subStrand: "Environmental Issues", 
             contentStandards: "Examine ways of dealing with sanitation challenges in the environment", 
-            indicators: ["Identify some environmental problems", "Examine cultural practices and their effects on sanitation", "Discuss the effects of poor sanitation"] },
+            indicators: ["Examine cultural practices and their effects on sanitation", "Discuss the effects of poor sanitation", "Ways of managing sanitation problems"] },
+        { week: 3, subStrand: "Environmental Issues", 
+            contentStandards: "Examine the sources of energy", 
+            indicators: ["Explain energy", "Examples of sources of energy", "Categorise into renewable and non-renewable sources"] },
         // ADD MORE ROWS HERE...
+            // ADD MORE ROWS HERE...
       ],
       2: [ /* ADD ROWS */ ],
       3: [ /* ADD ROWS */ ],

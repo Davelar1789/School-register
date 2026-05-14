@@ -179,7 +179,6 @@ const Curriculum = () => {
             {step === "subjects" && `Subjects — ${selectedClass?.className}`}
             {step === "curriculum" && "Curriculum"}
           </h2>
-          <div className="teacher-type-badge"><span>{teacherType}</span></div>
         </div>
 
         {/* Error */}
@@ -270,7 +269,7 @@ const Curriculum = () => {
                   <strong>{selectedClass?.className}</strong>, Term {activeTerm}.
                 </p>
                 <p className="empty-hint">
-                  Add rows to <code>curriculumData.js</code> to populate this table.
+                  {/* Add rows to <code>curriculumData.js</code> to populate this table. */}
                 </p>
               </div>
             ) : (
