@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import axios from "../../../api/axios";
 import Sidebar from "../../../components/Teacher/TeacherSidebar";
 import Header from "../../../components/Teacher/TeacherHeader";
-import curriculumData from "../../../data/curriculumData"; // adjust path if needed
+import curriculumData from "./curriculumData"; // adjust path if needed
 import "./Curriculum.modules.css";
 
 const TERMS = [1, 2, 3];
