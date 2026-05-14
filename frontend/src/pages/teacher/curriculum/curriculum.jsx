@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import axios from "../../../api/axios";
 import Sidebar from "../../../components/Teacher/TeacherSidebar";
 import Header from "../../../components/Teacher/TeacherHeader";
-import curriculumData from "./curriculumData"; // adjust path if needed
+import curriculumData from "../../../data/curriculumData"; // adjust path if needed
 import "./Curriculum.modules.css";
 
 const TERMS = [1, 2, 3];
@@ -46,27 +46,22 @@ const Curriculum = () => {
   const handleClassClick = async (cls) => {
     setSelectedClass(cls);
     setSelectedSubject(null);
-    setCurriculum(null);
+    setActiveTerm(1);
     setStep("subjects");
     setLoading(true);
     setError("");
 
     try {
       const token = localStorage.getItem("token");
-      const { data } = await axios.get(
-        `/api/teachers/${teacherId}/subjects2`,
-        {
-          params: { classId: cls._id },
-          headers: { Authorization: `Bearer ${token}` },
-        }
-      );
-
-      // Filter subjects to only those belonging to the selected class
+      const { data } = await axios.get(`/api/teachers/${teacherId}/subjects2`, {
+        params: { classId: cls._id },
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const filtered = (data.subjects || []).filter(
         (s) => s.classId === cls._id || s.className === cls.className
       );
       setSubjects(filtered.length > 0 ? filtered : data.subjects || []);
-    } catch (err) {
+    } catch {
       setError("Failed to load subjects for this class.");
     } finally {
       setLoading(false);
