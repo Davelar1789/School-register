@@ -266,9 +266,6 @@ const Curriculum = () => {
                   <strong>{selectedSubject?.subjectName}</strong> —{" "}
                   <strong>{selectedClass?.className}</strong>, Term {activeTerm}.
                 </p>
-                <p className="empty-hint">
-                  Add rows to <code>curriculumData.js</code> to populate this table.
-                </p>
               </div>
             ) : (
               <div className="curriculum-table-wrap">
