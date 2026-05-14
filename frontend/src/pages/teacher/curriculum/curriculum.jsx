@@ -46,19 +46,27 @@ const Curriculum = () => {
   const handleClassClick = async (cls) => {
     setSelectedClass(cls);
     setSelectedSubject(null);
-    setActiveTerm(1);
+    setCurriculum(null);
     setStep("subjects");
     setLoading(true);
     setError("");
 
     try {
       const token = localStorage.getItem("token");
-      const { data } = await axios.get(`/api/teachers/${teacherId}/subjects2`, {
-        params: { classId: cls._id },
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setSubjects(data.subjects || []);
-    } catch {
+      const { data } = await axios.get(
+        `/api/teachers/${teacherId}/subjects2`,
+        {
+          params: { classId: cls._id },
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
+
+      // Filter subjects to only those belonging to the selected class
+      const filtered = (data.subjects || []).filter(
+        (s) => s.classId === cls._id || s.className === cls.className
+      );
+      setSubjects(filtered.length > 0 ? filtered : data.subjects || []);
+    } catch (err) {
       setError("Failed to load subjects for this class.");
     } finally {
       setLoading(false);
