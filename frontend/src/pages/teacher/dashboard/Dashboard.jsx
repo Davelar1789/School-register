@@ -6,7 +6,7 @@ import api from "../../../api/axios";
 import { toast } from "react-hot-toast";
 import "react-calendar/dist/Calendar.css";
 import "./TeacherDashboard.modules.css";
-import { BookOpen, Mail, ClipboardList, CalendarDays, TrendingUp, Users } from "lucide-react";
+import { BookOpen, ClipboardList, CalendarDays, TrendingUp } from "lucide-react";
 
 const TeacherDashboard = () => {
   const [classCount, setClassCount] = useState(0);
@@ -41,21 +41,19 @@ const TeacherDashboard = () => {
       try {
         setLoadingEvents(true);
         const token = localStorage.getItem("token");
-        
-        // Fetch events for the teacher's school
-        const response = await api.get('/api/events/my-school', {
-          headers: { Authorization: `Bearer ${token}` }
+
+        const response = await api.get("/api/events/my-school", {
+          headers: { Authorization: `Bearer ${token}` },
         });
 
-        // Convert events array to object with dates as keys
         const eventsObj = {};
-        response.data.events.forEach(event => {
-          const dateKey = new Date(event.date).toISOString().split('T')[0];
+        response.data.events.forEach((event) => {
+          const dateKey = new Date(event.date).toISOString().split("T")[0];
           eventsObj[dateKey] = {
             id: event._id,
             type: event.type,
             title: event.title,
-            description: event.description
+            description: event.description,
           };
         });
 
@@ -92,7 +90,7 @@ const TeacherDashboard = () => {
         <Sidebar />
         <main className="dashboard-main2">
           <div className="welcome-section">
-            <h1 className="dashboard-title">Welcome Back, Teacher! 👋</h1>
+            <h1 className="dashboard-title">Welcome Back, Teacher 👋</h1>
             <p className="dashboard-subtitle">Here's what's happening with your classes today</p>
           </div>
 
@@ -103,9 +101,9 @@ const TeacherDashboard = () => {
                 <div key={index} className="widget-card">
                   <div className="widget-header">
                     <div className={`widget-icon ${stat.gradient}`}>
-                      <Icon size={28} color="white" />
+                      <Icon size={24} />
                     </div>
-                    <TrendingUp size={20} className="trend-icon" />
+                    <TrendingUp size={18} className="trend-icon" />
                   </div>
                   <h3>{stat.label}</h3>
                   <p>{stat.value}</p>
@@ -117,7 +115,7 @@ const TeacherDashboard = () => {
           <div className="dashboard-grid">
             <div className="calendar-section">
               <div className="section-header">
-                <CalendarDays size={24} className="section-icon" />
+                <CalendarDays size={22} className="section-icon" />
                 <h2>School Calendar</h2>
                 {loadingEvents && <span className="loading-text">Loading...</span>}
               </div>
@@ -129,8 +127,8 @@ const TeacherDashboard = () => {
                   const event = events[iso];
                   if (event) {
                     return (
-                      <span 
-                        className={`event-dot ${event.type === 'holiday' ? 'holiday-dot' : 'custom-dot'}`}
+                      <span
+                        className={`event-dot ${event.type === "holiday" ? "holiday-dot" : "custom-dot"}`}
                         title={event.title}
                       ></span>
                     );
@@ -140,27 +138,24 @@ const TeacherDashboard = () => {
               />
               <div className="event-details">
                 <p className="event-date">
-                  {selectedDate.toLocaleDateString("en-US", { 
-                    weekday: "long", 
-                    month: "long", 
-                    day: "numeric", 
-                    year: "numeric" 
+                  {selectedDate.toLocaleDateString("en-US", {
+                    weekday: "long",
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
                   })}
                 </p>
                 {selectedEvent ? (
                   <div className="event-info-teacher">
                     <div className={`event-type-badge-teacher ${selectedEvent.type}`}>
-                      {selectedEvent.type === 'holiday' ? '🏖️ Holiday' : '📅 Event'}
+                      {selectedEvent.type === "holiday" ? "🏖️ Holiday" : "📅 Event"}
                     </div>
-                    {/* <p className="event-title-teacher">{selectedEvent.title}</p> */}
                     {selectedEvent.description && (
                       <p className="event-description">{selectedEvent.description}</p>
                     )}
                   </div>
                 ) : (
-                  <p className="event-description">
-                    No events scheduled for this day
-                  </p>
+                  <p className="event-description">No events scheduled for this day.</p>
                 )}
               </div>
             </div>
