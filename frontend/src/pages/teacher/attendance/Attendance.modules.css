@@ -27,6 +27,43 @@
   color: #856404;
 }
 
+.attendance-quick-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.mark-all-btn {
+  padding: 0.5rem 1.25rem;
+  background: #2b6cb0;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.mark-all-btn:hover {
+  background: #2c5282;
+}
+
+.clear-all-btn {
+  padding: 0.5rem 1.25rem;
+  background: #fff;
+  color: #c53030;
+  border: 1px solid #feb2b2;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.clear-all-btn:hover {
+  background: #fff5f5;
+}
 
 .class-selector {
   width: 100%;
