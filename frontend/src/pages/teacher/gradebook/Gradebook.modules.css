@@ -57,11 +57,9 @@
    HEADER  (exact copy from Dashboard CSS)
 ═══════════════════════════════════════════ */
 .td-header {
-  position: fixed;       /* instead of sticky */
+  position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
-  z-index: 9999;         /* very high so it stays above all content */
+  z-index: 100;
   height: var(--header-h);
   background: var(--white);
   border-bottom: 1.5px solid rgba(26,140,122,.10);
@@ -162,7 +160,7 @@
    MAIN CONTENT AREA
 ═══════════════════════════════════════════ */
 .td-main {
-  padding: calc(var(--header-h) + 4rem) 2.25rem 2rem; 
+  padding: 2rem 2.25rem;
   max-width: 1100px;
   margin: 0 auto;
   display: flex;
