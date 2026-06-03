@@ -1,6 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap');
 
-/* ── Tokens (keep in sync with TeacherDashboard.modules.css) ── */
+/* ── Tokens (mirrored from HomePage) ── */
 :root {
   --teal:         #1a8c7a;
   --teal-light:   #d1f0eb;
@@ -41,7 +41,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* ═══════════════════════════════════════════
-   PAGE SHELL  (reused from Dashboard)
+   PAGE SHELL
 ═══════════════════════════════════════════ */
 .td-page {
   font-family: var(--font-body);
@@ -52,7 +52,7 @@
 }
 
 /* ═══════════════════════════════════════════
-   HEADER  (exact copy from Dashboard CSS)
+   DASHBOARD HEADER
 ═══════════════════════════════════════════ */
 .td-header {
   position: sticky;
@@ -69,6 +69,7 @@
   gap: 1rem;
 }
 
+/* Brand / school name — left side */
 .td-header-brand {
   display: flex;
   align-items: center;
@@ -89,7 +90,11 @@
   flex-shrink: 0;
 }
 
-.td-header-school { display: flex; flex-direction: column; gap: .05rem; }
+.td-header-school {
+  display: flex;
+  flex-direction: column;
+  gap: .05rem;
+}
 
 .td-header-school-name {
   font-family: var(--font-display);
@@ -103,11 +108,26 @@
   max-width: 260px;
 }
 
-.td-header-school-sub { font-size: .72rem; color: var(--muted); font-weight: 500; letter-spacing: .02em; }
+.td-header-school-sub {
+  font-size: .72rem;
+  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: .02em;
+}
 
-.td-header-right { display: flex; align-items: center; gap: 1rem; flex-shrink: 0; }
+/* Right side — user info + logout */
+.td-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
 
-.td-header-user { display: flex; align-items: center; gap: .6rem; }
+.td-header-user {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
 
 .td-header-avatar {
   width: 36px;
@@ -125,10 +145,28 @@
   border: 2px solid rgba(26,140,122,.20);
 }
 
-.td-header-user-info { display: flex; flex-direction: column; gap: .05rem; }
-.td-header-user-name  { font-family: var(--font-display); font-size: .85rem; font-weight: 800; color: var(--dark); white-space: nowrap; }
-.td-header-user-role  { font-size: .7rem; color: var(--muted); font-weight: 500; text-transform: capitalize; }
+.td-header-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: .05rem;
+}
 
+.td-header-user-name {
+  font-family: var(--font-display);
+  font-size: .85rem;
+  font-weight: 800;
+  color: var(--dark);
+  white-space: nowrap;
+}
+
+.td-header-user-role {
+  font-size: .7rem;
+  color: var(--muted);
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+/* Logout button */
 .td-logout-btn {
   display: inline-flex;
   align-items: center;
@@ -156,6 +194,7 @@
 
 /* ═══════════════════════════════════════════
    MAIN CONTENT AREA
+   Sits below the sticky header
 ═══════════════════════════════════════════ */
 .td-main {
   padding: 2rem 2.25rem;
@@ -167,7 +206,7 @@
 }
 
 /* ═══════════════════════════════════════════
-   WELCOME BANNER  (reused)
+   WELCOME BANNER
 ═══════════════════════════════════════════ */
 .td-welcome {
   display: flex;
@@ -204,7 +243,12 @@
   margin-bottom: .3rem;
 }
 
-.td-welcome-sub  { font-size: .9rem; color: rgba(255,255,255,.80); font-weight: 400; line-height: 1.5; }
+.td-welcome-sub {
+  font-size: .9rem;
+  color: rgba(255,255,255,.80);
+  font-weight: 400;
+  line-height: 1.5;
+}
 
 .td-date-pill {
   font-family: var(--font-display);
@@ -222,7 +266,7 @@
 }
 
 /* ═══════════════════════════════════════════
-   SHARED CARD BASE  (reused)
+   SHARED CARD BASE
 ═══════════════════════════════════════════ */
 .td-card {
   background: var(--white);
@@ -233,6 +277,142 @@
   transition: box-shadow var(--t);
 }
 
+.td-card:hover { box-shadow: var(--shadow-md); }
+
+.td-card-header {
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  margin-bottom: 1.25rem;
+}
+
+.td-card-header h2 {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--dark);
+  flex: 1;
+}
+
+.td-card-icon { flex-shrink: 0; }
+
+.icon-teal   { color: var(--teal);   }
+.icon-amber  { color: var(--amber);  }
+.icon-coral  { color: var(--coral);  }
+.icon-purple { color: var(--purple); }
+.icon-green  { color: var(--green);  }
+.icon-blue   { color: var(--blue);   }
+
+/* ═══════════════════════════════════════════
+   TOP ROW — Attendance + Quick Actions
+═══════════════════════════════════════════ */
+.td-top-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+/* ── Attendance ── */
+.td-att-label {
+  font-size: .92rem;
+  color: var(--muted);
+  margin-bottom: .75rem;
+}
+
+.td-att-marked { font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; color: var(--teal); }
+.td-att-total  { font-family: var(--font-display); font-size: 1.4rem; font-weight: 900; color: var(--dark); }
+.td-att-sep    { font-size: .92rem; color: var(--muted); }
+
+.td-progress-track {
+  width: 100%;
+  height: 10px;
+  background: var(--teal-light);
+  border-radius: 50px;
+  overflow: hidden;
+  margin-bottom: .65rem;
+}
+
+.td-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal) 0%, var(--teal-mid) 100%);
+  border-radius: 50px;
+  transition: width .6s cubic-bezier(.4,0,.2,1);
+  min-width: 4px;
+}
+
+.td-att-hint {
+  font-size: .8rem;
+  color: var(--muted);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.td-att-link {
+  font-family: var(--font-display);
+  font-size: .85rem;
+  font-weight: 800;
+  color: var(--teal);
+  text-decoration: none;
+  transition: color var(--t);
+}
+.td-att-link:hover { color: var(--teal-mid); text-decoration: underline; }
+
+/* ── Quick Actions ── */
+.td-qa-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: .85rem;
+}
+
+.td-qa-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .55rem;
+  padding: 1.1rem .75rem;
+  border-radius: var(--r);
+  text-decoration: none;
+  transition: transform var(--t), box-shadow var(--t);
+  border: 2px solid transparent;
+}
+
+.td-qa-btn:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+
+.qa-teal   { background: var(--teal-light);   color: var(--teal);   border-color: rgba(26,140,122,.20); }
+.qa-amber  { background: var(--amber-light);  color: #9a6300;       border-color: rgba(245,166,35,.25); }
+.qa-coral  { background: var(--coral-light);  color: var(--coral);  border-color: rgba(242,107,91,.20); }
+.qa-purple { background: var(--purple-light); color: var(--purple); border-color: rgba(124,92,191,.20); }
+
+.td-qa-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r);
+  background: rgba(255,255,255,.7);
+}
+
+.td-qa-label {
+  font-family: var(--font-display);
+  font-size: .78rem;
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* ═══════════════════════════════════════════
+   BOTTOM ROW — Agenda + Calendar + Announcements
+═══════════════════════════════════════════ */
+.td-bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+/* ── Empty State ── */
 .td-empty-state {
   display: flex;
   flex-direction: column;
@@ -246,448 +426,213 @@
 
 .td-empty-icon { font-size: 2rem; opacity: .55; }
 
-/* ═══════════════════════════════════════════
-   GRADEBOOK CARD
-═══════════════════════════════════════════ */
-.gb-card { padding: 1.75rem; }
-
-/* ── Selector row ── */
-.gb-selector-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.gb-select-wrap {
-  display: flex;
-  flex-direction: column;
-  gap: .35rem;
-  min-width: 180px;
-  flex: 1;
-}
-
-.gb-label {
+/* ── Calendar ── */
+.td-loading-pill {
   font-family: var(--font-display);
-  font-size: .75rem;
-  font-weight: 800;
-  color: var(--muted);
-  letter-spacing: .04em;
-  text-transform: uppercase;
+  font-size: .7rem;
+  font-weight: 700;
+  background: var(--teal-light);
+  color: var(--teal);
+  border-radius: 50px;
+  padding: .2rem .7rem;
+  margin-left: auto;
+  animation: pulsePill 1.4s ease-in-out infinite;
 }
 
-.gb-select {
+@keyframes pulsePill {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .5; }
+}
+
+.td-calendar .react-calendar {
+  width: 100%;
+  border: none;
+  background: transparent;
   font-family: var(--font-body);
-  font-size: .88rem;
+  font-size: .82rem;
   color: var(--text);
-  background: var(--ivory);
-  border: 1.5px solid rgba(26,140,122,.18);
+}
+
+.td-calendar .react-calendar__navigation button {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: .85rem;
+  color: var(--dark);
+  background: transparent;
+  border: none;
   border-radius: var(--r);
-  padding: .6rem 1rem;
+  padding: .4rem .6rem;
+  transition: background var(--t);
   cursor: pointer;
-  transition: border-color var(--t), box-shadow var(--t);
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%235a7a76' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right .9rem center;
-  padding-right: 2.25rem;
+  min-width: 36px;
 }
 
-.gb-select:focus {
-  outline: none;
-  border-color: var(--teal);
-  box-shadow: 0 0 0 3px rgba(26,140,122,.12);
+.td-calendar .react-calendar__navigation button:hover {
+  background: var(--teal-light);
+  color: var(--teal);
 }
 
-.gb-select:disabled {
-  opacity: .5;
+.td-calendar .react-calendar__navigation button:disabled {
+  opacity: .35;
   cursor: not-allowed;
 }
 
-/* ── Loading ── */
-.gb-loading {
-  font-size: .9rem;
-  color: var(--muted);
-  padding: 1.5rem 0;
-  font-style: italic;
-}
-
-/* ── Grades table ── */
-.gb-table-wrap {
-  width: 100%;
-  overflow-x: auto;
-  border-radius: var(--r);
-  border: 1.5px solid rgba(26,140,122,.10);
-  margin-bottom: 1.5rem;
-}
-
-.gb-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: .88rem;
-}
-
-.gb-table thead tr {
-  background: var(--teal-light);
-}
-
-.gb-table th {
-  font-family: var(--font-display);
-  font-size: .75rem;
-  font-weight: 800;
-  color: var(--teal);
-  text-transform: uppercase;
-  letter-spacing: .04em;
-  padding: .85rem 1rem;
-  text-align: left;
-  white-space: nowrap;
-  border-bottom: 1.5px solid rgba(26,140,122,.15);
-}
-
-.th-max {
-  font-weight: 600;
-  opacity: .7;
-  margin-left: .2rem;
-}
-
-.gb-table tbody tr {
-  border-bottom: 1px solid rgba(26,140,122,.07);
-  transition: background var(--t);
-}
-
-.gb-table tbody tr:last-child { border-bottom: none; }
-
-.gb-table tbody tr:hover { background: rgba(26,140,122,.04); }
-
-.gb-table td {
-  padding: .65rem 1rem;
-  vertical-align: middle;
-}
-
-.gb-student-name {
-  font-family: var(--font-display);
-  font-weight: 700;
-  color: var(--dark);
-  white-space: nowrap;
-}
-
-.gb-total {
-  font-family: var(--font-display);
-  font-weight: 800;
-  color: var(--teal);
-}
-
-.gb-position {
-  font-family: var(--font-display);
-  font-weight: 800;
-  color: var(--amber);
-}
-
-/* ── Grade inputs ── */
-.gb-input {
-  width: 72px;
-  font-family: var(--font-body);
-  font-size: .88rem;
-  color: var(--text);
-  background: var(--ivory);
-  border: 1.5px solid rgba(26,140,122,.18);
-  border-radius: 10px;
-  padding: .4rem .6rem;
-  text-align: center;
-  transition: border-color var(--t), box-shadow var(--t);
-  -moz-appearance: textfield;
-}
-
-.gb-input::-webkit-outer-spin-button,
-.gb-input::-webkit-inner-spin-button { -webkit-appearance: none; }
-
-.gb-input:focus {
-  outline: none;
-  border-color: var(--teal);
-  box-shadow: 0 0 0 3px rgba(26,140,122,.12);
-  background: var(--white);
-}
-
-/* ── Save button ── */
-.gb-action-row {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 1rem;
-  border-top: 1.5px solid rgba(26,140,122,.08);
-  margin-top: .5rem;
-}
-
-.gb-save-btn {
-  font-family: var(--font-display);
-  font-size: .88rem;
-  font-weight: 800;
-  color: var(--white);
-  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-mid) 100%);
-  border: none;
-  border-radius: 50px;
-  padding: .65rem 1.75rem;
-  cursor: pointer;
-  transition: all var(--t);
-  box-shadow: 0 4px 14px rgba(26,140,122,.28);
-}
-
-.gb-save-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(26,140,122,.38);
-}
-
-.gb-save-btn:active { transform: translateY(0); }
-
-/* ═══════════════════════════════════════════
-   EARLY YEARS SECTION
-   (tick cards, legend, badges)
-═══════════════════════════════════════════ */
-.early-years-section { display: flex; flex-direction: column; gap: 1.25rem; }
-
-.ey-mode-badge {
-  display: flex;
-  align-items: flex-start;
-  gap: .85rem;
-  background: var(--green-light);
-  border: 1.5px solid rgba(58,170,110,.22);
-  border-radius: var(--r);
-  padding: 1rem 1.25rem;
-}
-
-.ey-badge-icon { font-size: 1.5rem; flex-shrink: 0; line-height: 1; margin-top: .1rem; }
-
-.ey-badge-title {
-  display: block;
-  font-family: var(--font-display);
-  font-size: .92rem;
-  font-weight: 800;
-  color: var(--green);
-  margin-bottom: .2rem;
-}
-
-.ey-badge-subtitle { display: block; font-size: .8rem; color: var(--muted); line-height: 1.5; }
-
-/* Legend */
-.ey-legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: .5rem;
-}
-
-.legend-pill {
-  font-family: var(--font-display);
-  font-size: .75rem;
-  font-weight: 800;
-  border-radius: 50px;
-  padding: .3rem .85rem;
-}
-
-.legend-excellent        { background: #fef9e7; color: #b7860b; border: 1.5px solid rgba(183,134,11,.22); }
-.legend-very-good        { background: var(--teal-light); color: var(--teal); border: 1.5px solid rgba(26,140,122,.22); }
-.legend-good             { background: var(--green-light); color: var(--green); border: 1.5px solid rgba(58,170,110,.22); }
-.legend-needs-improvement{ background: var(--coral-light); color: var(--coral); border: 1.5px solid rgba(242,107,91,.22); }
-
-/* Tick card list */
-.tick-cards-list { display: flex; flex-direction: column; gap: 1.25rem; }
-
-/* Tick card */
-.tick-card {
-  border: 1.5px solid rgba(26,140,122,.10);
-  border-radius: var(--r);
-  overflow: hidden;
-  background: var(--white);
-  transition: box-shadow var(--t);
-}
-
-.tick-card:hover { box-shadow: var(--shadow-md); }
-
-.tick-card-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem 1.25rem;
-  background: rgba(26,140,122,.03);
-  border-bottom: 1.5px solid rgba(26,140,122,.08);
-  flex-wrap: wrap;
-}
-
-.student-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: var(--teal-light);
-  color: var(--teal);
-  font-family: var(--font-display);
-  font-size: .9rem;
-  font-weight: 900;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  border: 2px solid rgba(26,140,122,.20);
-}
-
-.student-info { flex: 1; min-width: 0; }
-
-.student-name79 {
-  font-family: var(--font-display);
-  font-size: .95rem;
-  font-weight: 800;
-  color: var(--dark);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.tick-progress {
-  display: flex;
-  flex-direction: column;
-  gap: .3rem;
-  min-width: 130px;
-}
-
-.progress-label {
+.td-calendar .react-calendar__month-view__weekdays {
   font-family: var(--font-display);
   font-size: .72rem;
-  font-weight: 700;
-  color: var(--muted);
-  text-align: right;
-}
-
-.progress-bar-wrap {
-  width: 100%;
-  height: 6px;
-  background: var(--teal-light);
-  border-radius: 50px;
-  overflow: hidden;
-}
-
-.progress-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--teal) 0%, var(--teal-mid) 100%);
-  border-radius: 50px;
-  transition: width .5s cubic-bezier(.4,0,.2,1);
-  min-width: 4px;
-}
-
-/* Tick table */
-.tick-table-wrap { overflow-x: auto; }
-
-.tick-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: .83rem;
-}
-
-.tick-table thead tr { background: var(--ivory); }
-
-.tick-table th {
-  font-family: var(--font-display);
-  font-size: .7rem;
   font-weight: 800;
   color: var(--muted);
+  letter-spacing: .05em;
   text-transform: uppercase;
-  letter-spacing: .04em;
-  padding: .65rem .75rem;
-  border-bottom: 1.5px solid rgba(26,140,122,.10);
-  text-align: center;
-  white-space: nowrap;
 }
 
-.activity-col { text-align: left; min-width: 200px; }
-.rating-col   { min-width: 90px; }
+.td-calendar .react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none;
+}
 
-.rating-symbol { display: block; font-size: .9rem; margin-bottom: .1rem; }
-.rating-label  { display: block; font-size: .65rem; }
-
-/* Row colours */
-.tick-row.even { background: var(--white); }
-.tick-row.odd  { background: rgba(26,140,122,.025); }
-.tick-row.rated { background: rgba(26,140,122,.06) !important; }
-
-.tick-row { transition: background var(--t); }
-.tick-row:hover { background: var(--teal-light) !important; }
-
-.activity-name {
-  font-size: .83rem;
+.td-calendar .react-calendar__tile {
+  position: relative;
+  font-family: var(--font-body);
+  font-size: .8rem;
   color: var(--text);
-  padding: .6rem .75rem;
-  font-weight: 500;
-}
-
-.tick-cell {
-  text-align: center;
-  padding: .5rem .4rem;
-  border-left: 1px solid rgba(26,140,122,.06);
-}
-
-/* Radio tick UI */
-.tick-label {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: var(--r);
+  padding: .5rem .3rem;
   cursor: pointer;
+  transition: background var(--t), color var(--t);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
 }
 
-.tick-label input[type="radio"] { display: none; }
-
-.tick-box {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
-  border: 2px solid rgba(26,140,122,.22);
-  background: var(--white);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all var(--t);
-  font-size: .85rem;
+.td-calendar .react-calendar__tile:hover {
+  background: var(--teal-light);
   color: var(--teal);
 }
 
-.tick-label.checked .tick-box {
-  background: var(--teal);
-  border-color: var(--teal);
-  color: var(--white);
-  box-shadow: 0 3px 8px rgba(26,140,122,.30);
+.td-calendar .react-calendar__tile--active {
+  background: var(--teal) !important;
+  color: var(--white) !important;
+  font-weight: 700;
+  box-shadow: 0 3px 10px rgba(26,140,122,.30);
 }
 
-.tick-label:hover .tick-box {
-  border-color: var(--teal);
-  background: var(--teal-light);
+.td-calendar .react-calendar__tile--now {
+  background: var(--amber-light);
+  color: #7a5200;
+  font-weight: 700;
 }
 
-/* Rating column accent colours */
-.rating-excellent         .tick-label.checked .tick-box { background: #d4a017; border-color: #d4a017; }
-.rating-very-good         .tick-label.checked .tick-box { background: var(--teal); border-color: var(--teal); }
-.rating-good              .tick-label.checked .tick-box { background: var(--green); border-color: var(--green); }
-.rating-needs-improvement .tick-label.checked .tick-box { background: var(--coral); border-color: var(--coral); }
+.td-calendar .react-calendar__tile--now.react-calendar__tile--active {
+  background: var(--teal) !important;
+  color: var(--white) !important;
+}
+
+.td-calendar .react-calendar__tile--neighboringMonth { opacity: .4; }
+
+.td-event-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: block;
+}
+
+.dot-holiday { background: var(--coral); }
+.dot-custom  { background: var(--teal);  }
+
+.td-event-detail {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1.5px solid rgba(26,140,122,.08);
+}
+
+.td-event-date {
+  font-family: var(--font-display);
+  font-size: .8rem;
+  font-weight: 700;
+  color: var(--muted);
+  margin-bottom: .6rem;
+}
+
+.td-event-info { display: flex; flex-direction: column; gap: .45rem; }
+
+.td-event-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font-family: var(--font-display);
+  font-size: .75rem;
+  font-weight: 800;
+  border-radius: 50px;
+  padding: .25rem .75rem;
+  width: fit-content;
+}
+
+.td-event-badge.holiday { background: var(--coral-light); color: var(--coral); }
+.td-event-badge.event,
+.td-event-badge.custom  { background: var(--teal-light);  color: var(--teal);  }
+
+.td-event-desc { font-size: .82rem; color: var(--muted); line-height: 1.55; }
+.td-event-none { font-size: .82rem; color: var(--muted); font-style: italic;  }
 
 /* ═══════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════ */
-@media (max-width: 768px) {
-  .td-main   { padding: 1.25rem 1rem; gap: 1.25rem; }
-  .td-header { padding: 0 1rem; }
-  .td-header-user-info  { display: none; }
-  .td-header-school-sub { display: none; }
-  .td-header-school-name { font-size: .88rem; max-width: 160px; }
-  .td-logout-btn span   { display: none; }
-  .td-logout-btn        { padding: .45rem .65rem; border-radius: 50%; }
-  .td-welcome           { padding: 1.4rem 1.25rem; }
-  .td-welcome-title     { font-size: 1.15rem; }
 
-  .gb-selector-row      { flex-direction: column; }
-  .gb-select-wrap       { min-width: unset; width: 100%; }
-  .gb-action-row        { justify-content: stretch; }
-  .gb-save-btn          { width: 100%; justify-content: center; }
+/* ── Tablet (769px – 1024px) ── */
+@media (max-width: 1024px) {
+  .td-main { padding: 1.75rem 1.5rem; }
+
+  .td-bottom-row { grid-template-columns: 1fr 1fr; }
+
+  .td-agenda {
+    grid-column: 1 / -1;
+    order: 3;
+  }
+}
+
+/* ── Mobile (≤768px) ──
+   Header only — no sidebar offset needed.
+   Push content down by the header height.          */
+@media (max-width: 768px) {
+  .td-main {
+    padding: 1.25rem 1rem;
+    gap: 1.25rem;
+  }
+
+  /* Collapse header: hide user info text, keep avatar + logout */
+  .td-header {
+    padding: 0 1rem;
+  }
+
+  .td-header-user-info { display: none; }
+
+  .td-header-school-sub { display: none; }
+
+  .td-header-school-name {
+    font-size: .88rem;
+    max-width: 160px;
+  }
+
+  .td-logout-btn span { display: none; }   /* icon only on mobile */
+  .td-logout-btn {
+    padding: .45rem .65rem;
+    border-radius: 50%;
+  }
+
+  .td-top-row    { grid-template-columns: 1fr; }
+  .td-bottom-row { grid-template-columns: 1fr; }
+  .td-agenda { grid-column: auto; order: unset; }
+
+  .td-welcome { padding: 1.4rem 1.25rem; }
+  .td-welcome-title { font-size: 1.15rem; }
 }
 
 @media (max-width: 480px) {
   .td-date-pill { font-size: .72rem; padding: .4rem .85rem; }
   .td-card      { padding: 1.1rem; }
-  .gb-card      { padding: 1.1rem; }
-  .activity-col { min-width: 150px; }
-  .rating-col   { min-width: 70px; }
-  .tick-box     { width: 26px; height: 26px; font-size: .75rem; }
+  .td-qa-grid   { grid-template-columns: 1fr; }
 }
