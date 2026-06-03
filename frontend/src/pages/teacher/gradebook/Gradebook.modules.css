@@ -168,6 +168,27 @@
   gap: 1.75rem;
 }
 
+.tl-back {
+  position: fixed;
+  top: 1.1rem; left: 1.1rem;
+  display: flex; align-items: center; gap: .5rem;
+  font-family: var(--font-d);
+  font-size: .8rem; font-weight: 700;
+  color: var(--tl-teal);
+  background: var(--tl-white);
+  border: 1.5px solid var(--tl-border);
+  border-radius: 50px;
+  padding: .38rem .9rem;
+  cursor: pointer;
+  z-index: 999;
+  box-shadow: var(--tl-shadow-sm);
+  transition: all var(--tl-t);
+}
+.tl-back:hover {
+  background: var(--tl-teal-light);
+  border-color: var(--tl-teal);
+}
+
 /* ═══════════════════════════════════════════
    WELCOME BANNER  (reused)
 ═══════════════════════════════════════════ */
