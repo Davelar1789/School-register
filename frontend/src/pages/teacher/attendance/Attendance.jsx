@@ -17,6 +17,9 @@ import {
   ChevronRight,
   RotateCcw,
 } from "lucide-react";
+import {
+  FaArrowLeft
+} from "react-icons/fa";
 
 // ── Token helpers ──────────────────────────────────────────────
 const getDataFromToken = () => {
