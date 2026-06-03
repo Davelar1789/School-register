@@ -293,6 +293,7 @@ function TeacherLogin() {
           <div className="tl-footer-links">
             <p>Not yet registered? <span className="tl-muted">Contact your school admin.</span></p>
             <p>Not a teacher? <Link to="/sign-in" className="tl-link">Login as Admin →</Link></p>
+            {/* <p><Link to="/forgot-password" className="tl-link">Forgot password</Link></p> */}
           </div>
         </div>
       </div>

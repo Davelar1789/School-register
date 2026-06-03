@@ -3,7 +3,8 @@ import HomePage from "./pages/general/homepage/HomePage";
 import Admission from "./pages/general/admission/Admission";
 import ApplyT from "./pages/general/admission/ApplyTeacher";
 import ApplyS from "./pages/general/admission/ApplyStudent";
-import Students from "./pages/head/students/Students"
+import Students from "./pages/head/students/Students";
+import ForgotPassword from "./pages/general/login/ForgotPassword";
 // import Dashboard from "./pages/admin2/dashboard/Dashboard";
 // import Events from "./pages/admin2/events/Events";
 import Fees from "./pages/head/fees/MainPage";
@@ -364,6 +365,10 @@ const router = createBrowserRouter([
       {
         path: "sign-in",
         element: <SignIn />,
+      },
+      {
+        path: "forgot-password",
+        element: <ForgotPassword />,
       },
       {
         path: "trial",
