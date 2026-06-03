@@ -70,17 +70,17 @@
 }
 
 /* ── Logo ── */
-.logo-container {
+.logo4-container {
   flex-shrink: 0;
 }
 
-.logo {
+.logo4 {
   text-decoration: none;
   display: inline-flex;
   align-items: center;
 }
 
-.logo-text {
+.logo4-text {
   font-family: 'Playfair Display', Georgia, serif;
   font-size: 1.35rem;
   font-weight: 700;

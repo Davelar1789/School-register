@@ -61,9 +61,9 @@ const Header = () => {
     <header className={`header ${scrolled ? "scrolled" : ""}`}>
       <div className="header-container">
         {/* Logo */}
-       <div className="logo-container">
-  <a href="/" className="logo">
-    <span className="logo-text">Codewhiz Schools</span>
+       <div className="logo4-container">
+  <a href="/" className="logo4">
+    <span className="logo4-text">Codewhiz Schools</span>
   </a>
 </div>
 
