@@ -78,37 +78,6 @@
   text-decoration: none;
   display: inline-flex;
   align-items: center;
-  gap: 0.55rem;
-}
-
-.logo::before {
-  content: '';
-  display: block;
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, var(--h-teal) 0%, var(--h-teal-mid) 100%);
-  border-radius: 10px;
-  box-shadow: 0 4px 12px rgba(26,107,107,.30);
-  flex-shrink: 0;
-  position: relative;
-}
-
-/* Decorative dot on logo block */
-.logo::after {
-  content: '✦';
-  position: absolute;
-  font-size: 0.5rem;
-  color: var(--h-amber);
-  left: calc(1.5rem + 10px);
-  top: 50%;
-  transform: translateY(-50%);
-  pointer-events: none;
-}
-
-.logo-content {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.05;
 }
 
 .logo-text {
@@ -117,15 +86,6 @@
   font-weight: 700;
   color: var(--h-teal);
   letter-spacing: -0.01em;
-}
-
-.logo-subtext {
-  font-family: 'DM Sans', sans-serif;
-  font-size: 0.65rem;
-  font-weight: 500;
-  color: var(--h-amber);
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
 }
 
 /* ── Desktop Nav ── */

@@ -61,14 +61,12 @@ const Header = () => {
     <header className={`header ${scrolled ? "scrolled" : ""}`}>
       <div className="header-container">
         {/* Logo */}
-        <div className="logo-container">
-          <a href="/" className="logo">
-            <div className="logo-content">
-              <span className="logo-text">De-ƒem</span>
-              <span className="logo-subtext">Services</span>
-            </div>
-          </a>
-        </div>
+       <div className="logo-container">
+  <a href="/" className="logo">
+    <span className="logo-text">Codewhiz Schools</span>
+  </a>
+</div>
+
 
         {/* Desktop Navigation */}
         <nav className="nav-desktop">
