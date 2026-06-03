@@ -3,6 +3,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "../../../api/axios";
 import toast from "react-hot-toast";
 import { jwtDecode } from "jwt-decode";
+import {
+  FaArrowLeft
+} from "react-icons/fa";
 import { LogOut, GraduationCap, BookOpenCheck } from "lucide-react";
 import "./Gradebook.modules.css";
 
@@ -501,6 +504,10 @@ const Gradebook = () => {
           MAIN CONTENT
       ══════════════════════════════════ */}
       <main className="td-main">
+
+        <button className="tl-back" onClick={() => navigate("/teacher-dashboard")}>
+        <FaArrowLeft /> Back to Home
+      </button>
 
         {/* ── Page Title ── */}
         <div className="td-welcome">
