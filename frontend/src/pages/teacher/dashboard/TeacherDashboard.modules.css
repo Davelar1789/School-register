@@ -1,9 +1,3 @@
-/* ============================================================
-   TeacherDashboard.modules.css
-   De-ƒem Services — School Management System
-   Inherits tokens from HomePage: Nunito + DM Sans, teal/amber/coral/purple palette
-   ============================================================ */
-
 @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap');
 
 /* ── Tokens (mirrored from HomePage) ── */
@@ -32,6 +26,8 @@
   --shadow-md:    0 8px 32px rgba(26,140,122,.14);
   --shadow-lg:    0 20px 60px rgba(26,140,122,.16);
 
+  --header-h:     68px;
+
   --r:            16px;
   --r-lg:         24px;
   --r-xl:         32px;
@@ -55,20 +51,155 @@
   overflow-x: hidden;
 }
 
-.td-body {
+/* ═══════════════════════════════════════════
+   DASHBOARD HEADER
+═══════════════════════════════════════════ */
+.td-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: var(--header-h);
+  background: var(--white);
+  border-bottom: 1.5px solid rgba(26,140,122,.10);
+  box-shadow: var(--shadow-sm);
   display: flex;
-  min-height: calc(100dvh - 64px); /* account for header height */
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 2rem;
+  gap: 1rem;
+}
+
+/* Brand / school name — left side */
+.td-header-brand {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  flex-shrink: 0;
+}
+
+.td-header-logo {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--teal) 0%, var(--teal-mid) 100%);
+  border-radius: var(--r);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  box-shadow: 0 4px 12px rgba(26,140,122,.30);
+  flex-shrink: 0;
+}
+
+.td-header-school {
+  display: flex;
+  flex-direction: column;
+  gap: .05rem;
+}
+
+.td-header-school-name {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--dark);
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 260px;
+}
+
+.td-header-school-sub {
+  font-size: .72rem;
+  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: .02em;
+}
+
+/* Right side — user info + logout */
+.td-header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-shrink: 0;
+}
+
+.td-header-user {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+}
+
+.td-header-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--teal-light);
+  color: var(--teal);
+  font-family: var(--font-display);
+  font-size: .9rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 2px solid rgba(26,140,122,.20);
+}
+
+.td-header-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: .05rem;
+}
+
+.td-header-user-name {
+  font-family: var(--font-display);
+  font-size: .85rem;
+  font-weight: 800;
+  color: var(--dark);
+  white-space: nowrap;
+}
+
+.td-header-user-role {
+  font-size: .7rem;
+  color: var(--muted);
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+/* Logout button */
+.td-logout-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  font-family: var(--font-display);
+  font-size: .82rem;
+  font-weight: 800;
+  color: var(--coral);
+  background: var(--coral-light);
+  border: 1.5px solid rgba(242,107,91,.22);
+  border-radius: 50px;
+  padding: .45rem 1rem;
+  cursor: pointer;
+  transition: all var(--t);
+  white-space: nowrap;
+}
+
+.td-logout-btn:hover {
+  background: var(--coral);
+  color: var(--white);
+  border-color: var(--coral);
+  box-shadow: 0 4px 14px rgba(242,107,91,.35);
+  transform: translateY(-1px);
 }
 
 /* ═══════════════════════════════════════════
    MAIN CONTENT AREA
+   Sits below the sticky header
 ═══════════════════════════════════════════ */
 .td-main {
-  flex: 1;
   padding: 2rem 2.25rem;
   max-width: 1100px;
   margin: 0 auto;
-  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 1.75rem;
@@ -91,7 +222,6 @@
   overflow: hidden;
 }
 
-/* Subtle decorative blob inside the banner */
 .td-welcome::before {
   content: '';
   position: absolute;
@@ -147,11 +277,8 @@
   transition: box-shadow var(--t);
 }
 
-.td-card:hover {
-  box-shadow: var(--shadow-md);
-}
+.td-card:hover { box-shadow: var(--shadow-md); }
 
-/* Card header row */
 .td-card-header {
   display: flex;
   align-items: center;
@@ -167,11 +294,8 @@
   flex: 1;
 }
 
-.td-card-icon {
-  flex-shrink: 0;
-}
+.td-card-icon { flex-shrink: 0; }
 
-/* Icon colour variants */
 .icon-teal   { color: var(--teal);   }
 .icon-amber  { color: var(--amber);  }
 .icon-coral  { color: var(--coral);  }
@@ -188,7 +312,7 @@
   gap: 1.5rem;
 }
 
-/* ── Attendance Card ── */
+/* ── Attendance ── */
 .td-att-label {
   font-size: .92rem;
   color: var(--muted);
@@ -231,10 +355,9 @@
   text-decoration: none;
   transition: color var(--t);
 }
-
 .td-att-link:hover { color: var(--teal-mid); text-decoration: underline; }
 
-/* ── Quick Actions Card ── */
+/* ── Quick Actions ── */
 .td-qa-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -254,32 +377,12 @@
   border: 2px solid transparent;
 }
 
-.td-qa-btn:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-md);
-}
+.td-qa-btn:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
 
-/* Quick action colour variants */
-.qa-teal {
-  background: var(--teal-light);
-  color: var(--teal);
-  border-color: rgba(26,140,122,.20);
-}
-.qa-amber {
-  background: var(--amber-light);
-  color: #9a6300;
-  border-color: rgba(245,166,35,.25);
-}
-.qa-coral {
-  background: var(--coral-light);
-  color: var(--coral);
-  border-color: rgba(242,107,91,.20);
-}
-.qa-purple {
-  background: var(--purple-light);
-  color: var(--purple);
-  border-color: rgba(124,92,191,.20);
-}
+.qa-teal   { background: var(--teal-light);   color: var(--teal);   border-color: rgba(26,140,122,.20); }
+.qa-amber  { background: var(--amber-light);  color: #9a6300;       border-color: rgba(245,166,35,.25); }
+.qa-coral  { background: var(--coral-light);  color: var(--coral);  border-color: rgba(242,107,91,.20); }
+.qa-purple { background: var(--purple-light); color: var(--purple); border-color: rgba(124,92,191,.20); }
 
 .td-qa-icon {
   display: flex;
@@ -309,7 +412,7 @@
   align-items: start;
 }
 
-/* ── Empty State (shared) ── */
+/* ── Empty State ── */
 .td-empty-state {
   display: flex;
   flex-direction: column;
@@ -323,7 +426,7 @@
 
 .td-empty-icon { font-size: 2rem; opacity: .55; }
 
-/* ── Calendar Card ── */
+/* ── Calendar ── */
 .td-loading-pill {
   font-family: var(--font-display);
   font-size: .7rem;
@@ -338,10 +441,9 @@
 
 @keyframes pulsePill {
   0%, 100% { opacity: 1; }
-  50% { opacity: .5; }
+  50%       { opacity: .5; }
 }
 
-/* react-calendar overrides — scoped inside td-calendar */
 .td-calendar .react-calendar {
   width: 100%;
   border: none;
@@ -428,11 +530,8 @@
   color: var(--white) !important;
 }
 
-.td-calendar .react-calendar__tile--neighboringMonth {
-  opacity: .4;
-}
+.td-calendar .react-calendar__tile--neighboringMonth { opacity: .4; }
 
-/* Event dots on calendar tiles */
 .td-event-dot {
   width: 6px;
   height: 6px;
@@ -444,7 +543,6 @@
 .dot-holiday { background: var(--coral); }
 .dot-custom  { background: var(--teal);  }
 
-/* Selected date event info */
 .td-event-detail {
   margin-top: 1rem;
   padding-top: 1rem;
@@ -459,11 +557,7 @@
   margin-bottom: .6rem;
 }
 
-.td-event-info {
-  display: flex;
-  flex-direction: column;
-  gap: .45rem;
-}
+.td-event-info { display: flex; flex-direction: column; gap: .45rem; }
 
 .td-event-badge {
   display: inline-flex;
@@ -477,84 +571,68 @@
   width: fit-content;
 }
 
-.td-event-badge.holiday {
-  background: var(--coral-light);
-  color: var(--coral);
-}
-
+.td-event-badge.holiday { background: var(--coral-light); color: var(--coral); }
 .td-event-badge.event,
-.td-event-badge.custom {
-  background: var(--teal-light);
-  color: var(--teal);
-}
+.td-event-badge.custom  { background: var(--teal-light);  color: var(--teal);  }
 
-.td-event-desc {
-  font-size: .82rem;
-  color: var(--muted);
-  line-height: 1.55;
-}
-
-.td-event-none {
-  font-size: .82rem;
-  color: var(--muted);
-  font-style: italic;
-}
+.td-event-desc { font-size: .82rem; color: var(--muted); line-height: 1.55; }
+.td-event-none { font-size: .82rem; color: var(--muted); font-style: italic;  }
 
 /* ═══════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════ */
-@media (max-width: 1024px) {
-  .td-bottom-row {
-    grid-template-columns: 1fr 1fr;
-  }
 
-  /* Agenda goes full-width on second row */
+/* ── Tablet (769px – 1024px) ── */
+@media (max-width: 1024px) {
+  .td-main { padding: 1.75rem 1.5rem; }
+
+  .td-bottom-row { grid-template-columns: 1fr 1fr; }
+
   .td-agenda {
     grid-column: 1 / -1;
     order: 3;
   }
 }
 
+/* ── Mobile (≤768px) ──
+   Header only — no sidebar offset needed.
+   Push content down by the header height.          */
 @media (max-width: 768px) {
   .td-main {
     padding: 1.25rem 1rem;
     gap: 1.25rem;
   }
 
-  .td-welcome {
-    padding: 1.4rem 1.25rem;
+  /* Collapse header: hide user info text, keep avatar + logout */
+  .td-header {
+    padding: 0 1rem;
   }
 
-  .td-top-row {
-    grid-template-columns: 1fr;
+  .td-header-user-info { display: none; }
+
+  .td-header-school-sub { display: none; }
+
+  .td-header-school-name {
+    font-size: .88rem;
+    max-width: 160px;
   }
 
-  .td-bottom-row {
-    grid-template-columns: 1fr;
+  .td-logout-btn span { display: none; }   /* icon only on mobile */
+  .td-logout-btn {
+    padding: .45rem .65rem;
+    border-radius: 50%;
   }
 
-  .td-agenda { order: unset; grid-column: auto; }
+  .td-top-row    { grid-template-columns: 1fr; }
+  .td-bottom-row { grid-template-columns: 1fr; }
+  .td-agenda { grid-column: auto; order: unset; }
 
-  .td-qa-grid {
-    grid-template-columns: 1fr 1fr;
-  }
+  .td-welcome { padding: 1.4rem 1.25rem; }
+  .td-welcome-title { font-size: 1.15rem; }
 }
 
 @media (max-width: 480px) {
-  .td-date-pill {
-    font-size: .72rem;
-    padding: .4rem .85rem;
-  }
-
-  .td-welcome-title {
-    font-size: 1.15rem;
-  }
-
-  .td-card {
-    padding: 1.1rem;
-  }
-
-  .td-qa-grid {
-    grid-template-columns: 1fr;
-  }
+  .td-date-pill { font-size: .72rem; padding: .4rem .85rem; }
+  .td-card      { padding: 1.1rem; }
+  .td-qa-grid   { grid-template-columns: 1fr; }
 }
