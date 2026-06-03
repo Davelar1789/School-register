@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import Calendar from "react-calendar";
 import Header from "../../../components/Teacher/TeacherHeader";
 import Sidebar from "../../../components/Teacher/TeacherSidebar";
@@ -6,33 +7,35 @@ import api from "../../../api/axios";
 import { toast } from "react-hot-toast";
 import "react-calendar/dist/Calendar.css";
 import "./TeacherDashboard.modules.css";
-import { BookOpen, ClipboardList, CalendarDays, TrendingUp } from "lucide-react";
+import {
+  CalendarDays, ClipboardCheck, ClipboardList,
+  BookOpenCheck, Megaphone, Zap
+} from "lucide-react";
 
 const TeacherDashboard = () => {
-  const [classCount, setClassCount] = useState(0);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [events, setEvents] = useState({});
-  const [loadingEvents, setLoadingEvents] = useState(false);
+  const [classCount, setClassCount]         = useState(0);
+  const [selectedDate, setSelectedDate]     = useState(new Date());
+  const [events, setEvents]                 = useState({});
+  const [loadingEvents, setLoadingEvents]   = useState(false);
 
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
+  // Attendance status — replace with real data when API is ready
+  const attendanceStatus = {
+    total:  classCount,
+    marked: 0,
   };
 
   useEffect(() => {
     const fetchClasses = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await api.get("/api/teachers/teacher/teacher-classes", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const res = await api.get("/api/teachers/teacher/teacher-classes", {
+          headers: { Authorization: `Bearer ${token}` },
         });
-        setClassCount(response.data.count);
-      } catch (error) {
-        console.error("Error fetching classes:", error);
+        setClassCount(res.data.count);
+      } catch (err) {
+        console.error("Error fetching classes:", err);
       }
     };
-
     fetchClasses();
   }, []);
 
@@ -41,13 +44,11 @@ const TeacherDashboard = () => {
       try {
         setLoadingEvents(true);
         const token = localStorage.getItem("token");
-
-        const response = await api.get("/api/events/my-school", {
+        const res = await api.get("/api/events/my-school", {
           headers: { Authorization: `Bearer ${token}` },
         });
-
         const eventsObj = {};
-        response.data.events.forEach((event) => {
+        res.data.events.forEach((event) => {
           const dateKey = new Date(event.date).toISOString().split("T")[0];
           eventsObj[dateKey] = {
             id: event._id,
@@ -56,125 +57,165 @@ const TeacherDashboard = () => {
             description: event.description,
           };
         });
-
         setEvents(eventsObj);
-      } catch (error) {
-        console.error("Error fetching events:", error);
+      } catch (err) {
+        console.error("Error fetching events:", err);
         toast.error("Failed to load calendar events");
       } finally {
         setLoadingEvents(false);
       }
     };
-
     fetchEvents();
   }, []);
 
-  const formattedDate = selectedDate.toISOString().split("T")[0];
-  const selectedEvent = events[formattedDate];
+  const formattedDate  = selectedDate.toISOString().split("T")[0];
+  const selectedEvent  = events[formattedDate];
+  const attendancePct  = attendanceStatus.total > 0
+    ? Math.round((attendanceStatus.marked / attendanceStatus.total) * 100)
+    : 0;
 
-  const stats = [
-    { icon: BookOpen, label: "Total Classes", value: classCount, gradient: "blue-gradient" },
-    { icon: ClipboardList, label: "Assignments Due", value: 0, gradient: "purple-gradient" },
-  ];
-
-  const recentActivities = [
-    { action: "Graded Math Quiz", class: "Basic 4A", time: "2 hours ago" },
-    { action: "Posted New Assignment", class: "Basic 5B", time: "5 hours ago" },
-    { action: "Responded to Parent Query", class: "Basic 3C", time: "Yesterday" },
+  const quickActions = [
+    { label: "Mark Attendance", icon: <ClipboardCheck size={22} />, to: "/attendance", color: "qa-teal"   },
+    { label: "Gradebook",       icon: <BookOpenCheck  size={22} />, to: "/gradebook",  color: "qa-amber"  },
   ];
 
   return (
-    <div className="teacher-dashboard2">
+    <div className="td-page">
       <Header />
-      <div className="dashboard-body">
+      <div className="td-body">
         <Sidebar />
-        <main className="dashboard-main2">
-          <div className="welcome-section">
-            <h1 className="dashboard-title">Welcome Back, Teacher 👋</h1>
-            <p className="dashboard-subtitle">Here's what's happening with your classes today</p>
+
+        <main className="td-main">
+
+          {/* ── Welcome ── */}
+          <div className="td-welcome">
+            <div>
+              <h1 className="td-welcome-title">Welcome Back, Teacher 👋</h1>
+              <p className="td-welcome-sub">Here's what's happening with your classes today.</p>
+            </div>
+            <div className="td-date-pill">
+              {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}
+            </div>
           </div>
 
-          <div className="dashboard-widgets">
-            {stats.map((stat, index) => {
-              const Icon = stat.icon;
-              return (
-                <div key={index} className="widget-card">
-                  <div className="widget-header">
-                    <div className={`widget-icon ${stat.gradient}`}>
-                      <Icon size={24} />
-                    </div>
-                    <TrendingUp size={18} className="trend-icon" />
-                  </div>
-                  <h3>{stat.label}</h3>
-                  <p>{stat.value}</p>
-                </div>
-              );
-            })}
+          {/* ── Top row: Attendance + Quick Actions ── */}
+          <div className="td-top-row">
+
+            {/* Attendance Status */}
+            <div className="td-card td-attendance">
+              <div className="td-card-header">
+                <ClipboardList size={20} className="td-card-icon icon-teal" />
+                <h2>Attendance Status</h2>
+              </div>
+              <p className="td-att-label">
+                <span className="td-att-marked">{attendanceStatus.marked}</span>
+                <span className="td-att-sep"> of </span>
+                <span className="td-att-total">{attendanceStatus.total}</span>
+                <span className="td-att-sep"> classes marked today</span>
+              </p>
+              <div className="td-progress-track">
+                <div
+                  className="td-progress-fill"
+                  style={{ width: `${attendancePct}%` }}
+                />
+              </div>
+              <p className="td-att-hint">
+                {attendanceStatus.marked === attendanceStatus.total && attendanceStatus.total > 0
+                  ? "✅ All classes marked — great work!"
+                  : attendanceStatus.marked === 0
+                  ? "No classes marked yet today."
+                  : `${attendanceStatus.total - attendanceStatus.marked} class(es) still need marking.`
+                }
+              </p>
+              <Link to="/attendance" className="td-att-link">Go to Attendance →</Link>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="td-card td-quick-actions">
+              <div className="td-card-header">
+                <Zap size={20} className="td-card-icon icon-amber" />
+                <h2>Quick Actions</h2>
+              </div>
+              <div className="td-qa-grid">
+                {quickActions.map((a, i) => (
+                  <Link key={i} to={a.to} className={`td-qa-btn ${a.color}`}>
+                    <span className="td-qa-icon">{a.icon}</span>
+                    <span className="td-qa-label">{a.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </div>
           </div>
 
-          <div className="dashboard-grid">
-            <div className="calendar-section">
-              <div className="section-header">
-                <CalendarDays size={22} className="section-icon" />
+          {/* ── Bottom row: Agenda + Calendar + Announcements ── */}
+          <div className="td-bottom-row">
+
+            {/* Agenda */}
+            <div className="td-card td-agenda">
+              <div className="td-card-header">
+                <CalendarDays size={20} className="td-card-icon icon-purple" />
+                <h2>Agenda for Today</h2>
+              </div>
+              <div className="td-empty-state">
+                <span className="td-empty-icon">📋</span>
+                <p>Nothing here yet.</p>
+              </div>
+            </div>
+
+            {/* Calendar */}
+            <div className="td-card td-calendar">
+              <div className="td-card-header">
+                <CalendarDays size={20} className="td-card-icon icon-teal" />
                 <h2>School Calendar</h2>
-                {loadingEvents && <span className="loading-text">Loading...</span>}
+                {loadingEvents && <span className="td-loading-pill">Loading…</span>}
               </div>
               <Calendar
-                onChange={handleDateChange}
+                onChange={setSelectedDate}
                 value={selectedDate}
                 tileContent={({ date }) => {
-                  const iso = date.toISOString().split("T")[0];
+                  const iso   = date.toISOString().split("T")[0];
                   const event = events[iso];
-                  if (event) {
-                    return (
-                      <span
-                        className={`event-dot ${event.type === "holiday" ? "holiday-dot" : "custom-dot"}`}
-                        title={event.title}
-                      ></span>
-                    );
-                  }
-                  return null;
+                  return event ? (
+                    <span
+                      className={`td-event-dot ${event.type === "holiday" ? "dot-holiday" : "dot-custom"}`}
+                      title={event.title}
+                    />
+                  ) : null;
                 }}
               />
-              <div className="event-details">
-                <p className="event-date">
+              <div className="td-event-detail">
+                <p className="td-event-date">
                   {selectedDate.toLocaleDateString("en-US", {
-                    weekday: "long",
-                    month: "long",
-                    day: "numeric",
-                    year: "numeric",
+                    weekday: "long", month: "long", day: "numeric", year: "numeric",
                   })}
                 </p>
                 {selectedEvent ? (
-                  <div className="event-info-teacher">
-                    <div className={`event-type-badge-teacher ${selectedEvent.type}`}>
+                  <div className="td-event-info">
+                    <span className={`td-event-badge ${selectedEvent.type}`}>
                       {selectedEvent.type === "holiday" ? "🏖️ Holiday" : "📅 Event"}
-                    </div>
+                    </span>
                     {selectedEvent.description && (
-                      <p className="event-description">{selectedEvent.description}</p>
+                      <p className="td-event-desc">{selectedEvent.description}</p>
                     )}
                   </div>
                 ) : (
-                  <p className="event-description">No events scheduled for this day.</p>
+                  <p className="td-event-none">No events scheduled for this day.</p>
                 )}
               </div>
             </div>
 
-            {/* <div className="activity-section">
-              <h2>Recent Activity</h2>
-              <div className="activity-list">
-                {recentActivities.map((activity, index) => (
-                  <div key={index} className="activity-item">
-                    <p className="activity-action">{activity.action}</p>
-                    <div className="activity-meta">
-                      <span className="activity-class">{activity.class}</span>
-                      <span className="activity-time">{activity.time}</span>
-                    </div>
-                  </div>
-                ))}
+            {/* Announcements */}
+            <div className="td-card td-announcements">
+              <div className="td-card-header">
+                <Megaphone size={20} className="td-card-icon icon-coral" />
+                <h2>Announcements</h2>
               </div>
-              <button className="view-all-btn">View All Activities</button>
-            </div> */}
+              <div className="td-empty-state">
+                <span className="td-empty-icon">📢</span>
+                <p>No announcements yet.</p>
+              </div>
+            </div>
+
           </div>
         </main>
       </div>
