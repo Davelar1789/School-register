@@ -81,9 +81,9 @@ const TeacherDashboard = () => {
 
   return (
     <div className="td-page">
-      <Header />
+      {/* <Header /> */}
       <div className="td-body">
-        <Sidebar />
+        {/* <Sidebar /> */}
 
         <main className="td-main">
 
