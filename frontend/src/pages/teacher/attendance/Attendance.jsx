@@ -394,6 +394,10 @@ const Attendance = () => {
       {/* ══ MAIN ════════════════════════════════════ */}
       <main className="att-main">
 
+        <button className="tl-back" onClick={() => navigate("/teacher-dashboard")}>
+                <FaArrowLeft /> Back to Home
+              </button>
+
         {/* Page title row */}
         <div className="att-page-title-row">
           <div>
