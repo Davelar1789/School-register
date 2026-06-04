@@ -1,5 +1,5 @@
-import Attendance from "../models/Attendance.js";
-import Student from "../models/Student.js";
+import Attendance from "../models/Attendance.model.js";
+import Student from "../models/Student.model.js";
 
 // ─── Class IDs from DB1 (school website DB) with their names ──────────────
 const DB1_CLASSES = [
