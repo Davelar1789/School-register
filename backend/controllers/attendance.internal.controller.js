@@ -1,9 +1,7 @@
 import Attendance from "../models/Attendance.js";
 import Student from "../models/Student.js";
-import ClassModel from "../models/Class.js";
-import Teacher from "../models/Teacher.js";
 
-// ─── Class IDs from DB1 (TIME_URI) with their names ───────────────────────
+// ─── Class IDs from DB1 (school website DB) with their names ──────────────
 const DB1_CLASSES = [
   { name: "Creche",    id: "680e3af74798fa9e62db7f0d" },
   { name: "Nursery 1", id: "680e3b054798fa9e62db7f15" },
@@ -23,7 +21,6 @@ const DB1_CLASSES = [
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
 
-// Get Monday–Friday dates for the current week
 const getWeekDays = () => {
   const now = new Date();
   const day = now.getDay(); // 0=Sun, 1=Mon ... 5=Fri
@@ -45,8 +42,8 @@ export const getWeeklyAttendanceSummary = async (req, res) => {
   try {
     const weekDays = getWeekDays(); // [Mon, Tue, Wed, Thu, Fri] as Date objects
 
-    // ── STEP 1: DB1 — For each class, check which days have attendance ──────
-    // Structure: { className -> { Monday: true/false, Tuesday: true/false, ... } }
+    // ── STEP 1: For each class, check which days have attendance entries ────
+    // Structure: { "Basic 1": { Monday: true, Tuesday: false, ... }, ... }
     const classAttendanceMap = {};
 
     for (const cls of DB1_CLASSES) {
@@ -58,21 +55,22 @@ export const getWeeklyAttendanceSummary = async (req, res) => {
         const dayEnd = new Date(weekDays[i]);
         dayEnd.setHours(23, 59, 59, 999);
 
-        // Find students in this class from DB1
+        // Find all students in this class
         const studentsInClass = await Student.find(
           { classes: cls.id },
           { _id: 1 }
         ).lean();
 
         if (studentsInClass.length === 0) {
-          // No students enrolled — skip, treat as not marked
+          // No students enrolled in this class — treat as not marked
           dayStatus[dayNames[i]] = false;
           continue;
         }
 
         const studentIds = studentsInClass.map((s) => s._id);
 
-        // Check if even one attendance entry exists for this class on this day
+        // If even one attendance entry exists for any student in this class
+        // on this day, the class is considered marked
         const entry = await Attendance.findOne({
           studentId: { $in: studentIds },
           date: { $gte: dayStart, $lte: dayEnd },
@@ -84,76 +82,17 @@ export const getWeeklyAttendanceSummary = async (req, res) => {
       classAttendanceMap[cls.name] = dayStatus;
     }
 
-    // ── STEP 2: DB2 — Get all classes with their classTeacher populated ─────
-    const db2Classes = await ClassModel.find({
-      name: { $in: DB1_CLASSES.map((c) => c.name) },
-      status: "Active",
-    })
-      .populate("classTeacher", "name phone isActive")
-      .lean();
-
-    // ── STEP 3: Build teacher → classes map using name as the join key ──────
-    // { teacherId -> { teacher: {...}, classes: ["Creche", "Basic 1", ...] } }
-    const teacherMap = {};
-
-    for (const cls of db2Classes) {
-      if (!cls.classTeacher) continue; // class has no teacher assigned
-
-      const teacherId = cls.classTeacher._id.toString();
-
-      if (!teacherMap[teacherId]) {
-        teacherMap[teacherId] = {
-          teacher: cls.classTeacher,
-          classes: [],
-        };
-      }
-
-      teacherMap[teacherId].classes.push(cls.name);
-    }
-
-    // ── STEP 4: For each teacher, calculate weekly score ────────────────────
-    // A teacher earns 1 point for a day only if ALL their classes were marked
-    const teacherSummaries = [];
-
-    for (const [, entry] of Object.entries(teacherMap)) {
-      const { teacher, classes } = entry;
-
-      if (!teacher.isActive) continue;
-
-      let daysMarked = 0;
-      const dailyBreakdown = {};
-
-      for (const dayName of dayNames) {
-        // All assigned classes must be marked for that day to count
-        const allMarked = classes.every(
-          (className) => classAttendanceMap[className]?.[dayName] === true
-        );
-
-        dailyBreakdown[dayName] = allMarked;
-        if (allMarked) daysMarked++;
-      }
-
-      teacherSummaries.push({
-        name: teacher.name,
-        phone: teacher.phone,
-        classes,
-        daysMarked,       // out of 5
-        dailyBreakdown,   // { Monday: true, Tuesday: false, ... }
-      });
-    }
-
-    // Sort alphabetically by teacher name
-    teacherSummaries.sort((a, b) => a.name.localeCompare(b.name));
-
-    // ── STEP 5: Return ───────────────────────────────────────────────────────
+    // ── STEP 2: Return classAttendanceMap to the bot ────────────────────────
+    // The bot will handle teacher mapping and scoring from its own DB
     return res.status(200).json({
       message: "Weekly attendance summary retrieved successfully",
       week: {
         monday: weekDays[0].toISOString().split("T")[0],
         friday: weekDays[4].toISOString().split("T")[0],
       },
-      teachers: teacherSummaries,
+      classAttendance: classAttendanceMap,
     });
+
   } catch (error) {
     console.error("Error generating weekly attendance summary:", error);
     return res.status(500).json({
