@@ -22,6 +22,7 @@ import attendanceRoutes from "./routes/attendanceRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import tutorialRoutes from "./routes/tutorialRoutes.js";
 import gradeRoutes from "./routes/gradeRoutes.js";
+import attendanceInternalRouter from "./routes/attendance.internal.js";
 import path from 'path';
 
 import reportTemplateRoutes from "./routes/reportTemplateRoutes.js";
@@ -116,6 +117,7 @@ app.use("/api/topics", topicRoutes);
 app.use('/api/exams/', examRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/eventss", eventRoutes2);
+app.use("/api/attendance2", attendanceInternalRouter);
 app.use('/generated-exams', express.static(path.join(__dirname, 'generated-exams')));
 // app.use("/api/excel-bulk", excelRoutes);
 app.use("/uploads", express.static("uploads"));
