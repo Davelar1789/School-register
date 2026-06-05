@@ -291,7 +291,7 @@ const Dashboard = () => {
       <Sidebar />
 
       <div className="ad-body">
-        {/* <Header2 /> */}
+        <Header2 />
 
         <main className="ad-main">
 
