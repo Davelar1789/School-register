@@ -60,7 +60,7 @@ function useCounter(target, duration = 1200) {
 }
 
 /* ── stat card with animated counter ── */
-function StatCard({ title, value, icon: Icon, colorKey, trend, trendLabel, delay }) {
+function StatCard({ title, value, icon: Icon, colorKey, trend, delay }) {
   const animated = useCounter(value);
   return (
     <div className={`ad-stat-card ad-stat-${colorKey}`} style={{ animationDelay: `${delay}ms` }}>
@@ -76,7 +76,6 @@ function StatCard({ title, value, icon: Icon, colorKey, trend, trendLabel, delay
       </div>
       <div className="ad-stat-value">{animated.toLocaleString()}</div>
       <div className="ad-stat-label">{title}</div>
-      <div className="ad-stat-sub">{trendLabel}</div>
     </div>
   );
 }
@@ -292,7 +291,7 @@ const Dashboard = () => {
       <Sidebar />
 
       <div className="ad-body">
-        <Header2 />
+        {/* <Header2 /> */}
 
         <main className="ad-main">
 
@@ -320,10 +319,9 @@ const Dashboard = () => {
 
           {/* ── Stat Cards ── */}
           <section className="ad-stats-row">
-            <StatCard title="Total Students"  value={totalStudents}  icon={FaUserGraduate}      colorKey="teal"   trend={12}  trendLabel="vs last term"  delay={0}   />
-            <StatCard title="Total Teachers"  value={totalTeachers}  icon={FaChalkboardTeacher} colorKey="purple" trend={4}   trendLabel="vs last term"  delay={80}  />
-            <StatCard title="Active Classes"  value={totalClasses}   icon={Users2}              colorKey="amber"  trend={-2}  trendLabel="vs last term"  delay={160} />
-            <StatCard title="Books Available" value={1284}           icon={BookOpen}            colorKey="coral"  trend={8}   trendLabel="added this term" delay={240} />
+            <StatCard title="Total Students"  value={totalStudents}  icon={FaUserGraduate}      colorKey="teal"   trend={12}   delay={0}   />
+            <StatCard title="Total Teachers"  value={totalTeachers}  icon={FaChalkboardTeacher} colorKey="purple" trend={4}    delay={80}  />
+            <StatCard title="Active Classes"  value={totalClasses}   icon={Users2}              colorKey="amber"  trend={-2}   delay={160} />
           </section>
 
           {/* ── Middle Row ── */}
