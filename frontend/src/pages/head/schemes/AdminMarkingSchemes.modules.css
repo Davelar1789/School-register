@@ -1,0 +1,15 @@
+.ams-page { max-width: 900px; margin: 0 auto; padding: 2rem; font-family: var(--font-body); }
+.ams-title { font-family: var(--font-display); font-weight: 900; font-size: 1.3rem; margin-bottom: 1.5rem; color: var(--dark); }
+.ams-form { background: var(--white); border-radius: var(--r-lg); padding: 1.5rem; box-shadow: var(--shadow-sm); margin-bottom: 2rem; }
+.ams-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+.ams-form-grid select, .ams-form-grid input { padding: .6rem .8rem; border-radius: var(--r); border: 1.5px solid rgba(26,140,122,.15); font-size: .85rem; }
+.ams-datetime-label { display: flex; flex-direction: column; gap: .3rem; font-size: .78rem; color: var(--muted); font-weight: 600; }
+.ams-file-drop { display: flex; align-items: center; gap: .6rem; border: 2px dashed rgba(26,140,122,.3); border-radius: var(--r); padding: 1rem; cursor: pointer; color: var(--muted); font-size: .85rem; margin-bottom: 1rem; }
+.ams-submit-btn { background: var(--teal); color: var(--white); border: none; border-radius: 50px; padding: .7rem 1.5rem; font-family: var(--font-display); font-weight: 800; cursor: pointer; }
+.ams-list { display: flex; flex-direction: column; gap: .75rem; }
+.ams-list-item { display: flex; align-items: center; gap: .8rem; background: var(--white); border-radius: var(--r); padding: .9rem 1.1rem; box-shadow: var(--shadow-sm); }
+.ams-list-info { display: flex; flex-direction: column; gap: .1rem; flex: 1; }
+.ams-list-title { font-weight: 700; font-size: .85rem; color: var(--dark); }
+.ams-list-meta { font-size: .75rem; color: var(--muted); }
+.ams-list-unlock { font-size: .72rem; color: var(--coral); }
+.ams-delete-btn { background: var(--coral-light); color: var(--coral); border: none; border-radius: 50%; width: 34px; height: 34px; cursor: pointer; }

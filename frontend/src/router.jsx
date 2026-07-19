@@ -76,6 +76,7 @@ import TopicEditor from "./pages/head/classes/TopicsEditorPage";
 import ExamGenerator from "./pages/head/exams/ExamGenerator";
 import Curriculum from "./pages/teacher/curriculum/curriculum";
 import MarkingSchemes from "./pages/teacher/schemes/MarkingSchemes";
+import AdminMarkingSchemes from "./pages/head/schemes/AdminMarkingSchemes";
 
 const router = createBrowserRouter([
   {
@@ -147,6 +148,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRoles={["admin"]}>
             <AReport />
+          </ProtectedRoute>
+        ),      
+      },
+        {
+        path: "upload-scheme",
+        element: (
+          <ProtectedRoute allowedRoles={["admin"]}>
+            <AdminMarkingSchemes />
           </ProtectedRoute>
         ),      
       },
