@@ -28,6 +28,12 @@
   margin-bottom: 1rem;
 }
 
+.ams-form-grid select {
+  color: var(--text);
+  background: var(--white);
+  color-scheme: light;
+}
+
 .ams-form-grid select,
 .ams-form-grid input {
   width: 100%;
