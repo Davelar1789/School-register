@@ -14,6 +14,8 @@ const AdminMarkingSchemes = () => {
   });
   const [file, setFile] = useState(null);
   const [uploading, setUploading] = useState(false);
+    const schoolDataRaw = localStorage.getItem("schoolData");
+  const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
 
   const token = localStorage.getItem("adminToken");
 
@@ -28,10 +30,23 @@ const AdminMarkingSchemes = () => {
     }
   };
 
-  useEffect(() => {
-    fetchSchemes();
-    // also fetch classesList / subjectsList here from your existing endpoints
-  }, []);
+useEffect(() => {
+  const fetchDropdownData = async () => {
+        if (!schoolId) return toast.error("School ID not found!");
+    try {
+      const [classesRes, subjectsRes] = await Promise.all([
+        api.get("/api/classes/school/${schoolId}", { headers: { Authorization: `Bearer ${token}` } }),
+        api.get("/api/subjects/school/${schoolId}", { headers: { Authorization: `Bearer ${token}` } }),
+      ]);
+      setClassesList(classesRes.data.classes || classesRes.data);
+      setSubjectsList(subjectsRes.data.subjects || subjectsRes.data);
+    } catch (err) {
+      toast.error("Failed to load classes/subjects.");
+    }
+  };
+  fetchSchemes();
+  fetchDropdownData();
+}, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
