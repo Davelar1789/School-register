@@ -19,10 +19,6 @@ const AdminMarkingSchemes = () => {
 
   const token = localStorage.getItem("token");
 
-  console.log("schoolDataRaw:", schoolDataRaw);
-  console.log("schoolId:", schoolId);
-  console.log("token:", token);
-
   const fetchSchemes = async () => {
     console.log("fetchSchemes: starting request");
     try {
@@ -46,8 +42,6 @@ useEffect(() => {
   api.get(`/api/classes/school/${schoolId}`, { headers: { Authorization: `Bearer ${token}` } }),
   api.get(`/api/subjects/school/${schoolId}`, { headers: { Authorization: `Bearer ${token}` } }),
 ]);
-      console.log("fetchDropdownData: classesRes:", classesRes.data);
-      console.log("fetchDropdownData: subjectsRes:", subjectsRes.data);
       setClassesList(classesRes.data.classes || classesRes.data);
       setSubjectsList(subjectsRes.data.subjects || subjectsRes.data);
     } catch (err) {
