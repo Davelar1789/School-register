@@ -33,6 +33,8 @@ import examRoutes from "./routes/exams.js";
 import topicRoutes from "./routes/topicRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import eventRoutes2 from "./routes/eventRoutes2.js";
+import teacherMarkingSchemeRoutes from "./routes/teacherMarkingScheme.routes.js";
+import adminMarkingSchemeRoutes from "./routes/adminMarkingScheme.routes.js";
 
 
 // Middleware
@@ -118,6 +120,8 @@ app.use('/api/exams/', examRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/eventss", eventRoutes2);
 app.use("/api/attendance2", attendanceInternalRouter);
+app.use("/api/marking-schemes/teacher", teacherMarkingSchemeRoutes);
+app.use("/api/marking-schemes/admin", adminMarkingSchemeRoutes);
 app.use('/generated-exams', express.static(path.join(__dirname, 'generated-exams')));
 // app.use("/api/excel-bulk", excelRoutes);
 app.use("/uploads", express.static("uploads"));
