@@ -127,7 +127,7 @@ export const getAllSchemesForSchool = async (req, res) => {
 ══════════════════════════════════════════ */
 export const getTeacherSchemeScope = async (req, res) => {
   try {
-    const teacherId = req.teacher?._id || req.query.teacherId; // fallback: pass ?teacherId= while testing without auth
+const teacherId = req.user?._id || req.query.teacherId;
     if (!teacherId) return res.status(400).json({ message: "No teacher context available." });
 
     const teacher = await Teacher.findById(teacherId)
@@ -210,7 +210,7 @@ export const getTeacherSchemeScope = async (req, res) => {
 export const accessScheme = async (req, res) => {
   try {
     const { schemeId } = req.params;
-    const teacherId = req.teacher?._id || req.query.teacherId;
+const teacherId = req.user?._id || req.query.teacherId;
     if (!teacherId) return res.status(400).json({ message: "No teacher context available." });
 
     const teacher = await Teacher.findById(teacherId);
