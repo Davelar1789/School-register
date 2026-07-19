@@ -129,6 +129,7 @@ const QUICK_ACTIONS = [
   { label: "Class Schedule",  path: "/schedule",  icon: FaClipboardList,      color: "coral"  },
   { label: "Announcements",   path: "/announcements", icon: FaBell,            color: "green"  },
   { label: "School Settings", path: "/settings",  icon: FaGraduationCap,      color: "blue"   },
+  { label: "Marking Schemes", path: "/upload-scheme",  icon: FaGraduationCap,      color: "teal"   },
 ];
 
 /* ── grade distribution mock — replace with real API data ── */
