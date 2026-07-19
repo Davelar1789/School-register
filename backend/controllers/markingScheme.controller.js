@@ -6,6 +6,9 @@ import { v2 as cloudinary } from "cloudinary";
    ADMIN — Upload a marking scheme
 ══════════════════════════════════════════ */
 export const uploadScheme = async (req, res) => {
+  console.log("🔥 uploadScheme HIT");
+  console.log("body:", req.body);
+  console.log("file:", req.file);
   try {
     const { classId, subjectId, term, academicYear, title, availableFrom } = req.body;
 
@@ -17,22 +20,23 @@ export const uploadScheme = async (req, res) => {
     }
 
     const scheme = await MarkingScheme.create({
-      school: req.admin.school, // adjust to however you attach admin's school in auth middleware
+      school: req.admin.school,
       class: classId,
       subject: subjectId,
       term,
       academicYear,
       title: title || "End of Term Marking Scheme",
       fileUrl: req.file.path,
-      filePublicId: req.file.filename, // multer-storage-cloudinary sets this to the public_id
+      filePublicId: req.file.filename,
       fileType: req.file.mimetype.includes("pdf") ? "pdf" : "docx",
       availableFrom: new Date(availableFrom),
       uploadedBy: req.admin._id,
     });
 
+    console.log("✅ scheme created:", scheme._id);
     res.status(201).json({ message: "Marking scheme uploaded successfully", scheme });
   } catch (err) {
-    console.error("Upload marking scheme error:", err);
+    console.error("❌ Upload marking scheme error:", err);
     if (err.code === 11000) {
       return res.status(409).json({
         message: "A marking scheme for this subject/class/term/year already exists. Delete or edit it instead.",
@@ -95,15 +99,18 @@ export const deleteScheme = async (req, res) => {
    ADMIN — List all schemes for the school (for the admin table)
 ══════════════════════════════════════════ */
 export const getAllSchemesForSchool = async (req, res) => {
+  console.log("🔥 getAllSchemesForSchool HIT");
+  console.log("req.admin:", req.admin);
   try {
     const schemes = await MarkingScheme.find({ school: req.admin.school })
       .populate("class", "name")
       .populate("subject", "name")
       .sort({ createdAt: -1 });
 
+    console.log("✅ schemes found:", schemes.length);
     res.status(200).json({ schemes });
   } catch (err) {
-    console.error("Get all schemes error:", err);
+    console.error("❌ Get all schemes error:", err);
     res.status(500).json({ message: "Server error while fetching marking schemes." });
   }
 };
