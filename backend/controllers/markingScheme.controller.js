@@ -136,16 +136,7 @@ export const getTeacherSchemeScope = async (req, res) => {
 
     if (!teacher) return res.status(404).json({ message: "Teacher not found." });
 
-    let classIds = [];
-
-    if (teacher.teacherType === "Class Teacher" || teacher.teacherType === "Both") {
-      classIds = teacher.classesAssigned.map((c) => c._id.toString());
-    }
-
-    if (teacher.teacherType === "Subject Teacher" || teacher.teacherType === "Both") {
-      const subjectTeacherClassIds = teacher.classesAssigned.map((c) => c._id.toString());
-      classIds = [...new Set([...classIds, ...subjectTeacherClassIds])];
-    }
+    const classIds = teacher.classesAssigned.map((c) => c._id.toString());
 
     if (classIds.length === 0) {
       return res.status(200).json({ classes: [] });
@@ -164,16 +155,13 @@ export const getTeacherSchemeScope = async (req, res) => {
       const classId = scheme.class._id.toString();
       const subjectId = scheme.subject._id.toString();
 
-      const isClassTeacherForThis =
-        (teacher.teacherType === "Class Teacher" || teacher.teacherType === "Both") &&
-        teacher.classesAssigned.some((c) => c._id.toString() === classId);
-
-      const isSubjectTeacherForThis =
-        (teacher.teacherType === "Subject Teacher" || teacher.teacherType === "Both") &&
+      // Regardless of teacherType, access to a subject's scheme requires
+      // actually teaching that subject in that class.
+      const teachesThisSubjectInThisClass =
         teacher.subjectSpecialization.some((s) => s._id.toString() === subjectId) &&
         teacher.classesAssigned.some((c) => c._id.toString() === classId);
 
-      if (!isClassTeacherForThis && !isSubjectTeacherForThis) return;
+      if (!teachesThisSubjectInThisClass) return;
 
       if (!classMap[classId]) {
         classMap[classId] = {
@@ -225,16 +213,11 @@ export const accessScheme = async (req, res) => {
     const classId = scheme.class._id.toString();
     const subjectId = scheme.subject._id.toString();
 
-    const isClassTeacherForThis =
-      (teacher.teacherType === "Class Teacher" || teacher.teacherType === "Both") &&
-      teacher.classesAssigned.some((c) => c.toString() === classId);
-
-    const isSubjectTeacherForThis =
-      (teacher.teacherType === "Subject Teacher" || teacher.teacherType === "Both") &&
+    const teachesThisSubjectInThisClass =
       teacher.subjectSpecialization.some((s) => s.toString() === subjectId) &&
       teacher.classesAssigned.some((c) => c.toString() === classId);
 
-    if (!isClassTeacherForThis && !isSubjectTeacherForThis) {
+    if (!teachesThisSubjectInThisClass) {
       return res.status(403).json({ message: "You do not have access to this marking scheme." });
     }
 
