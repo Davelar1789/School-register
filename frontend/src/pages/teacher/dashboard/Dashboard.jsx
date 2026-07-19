@@ -8,7 +8,7 @@ import "react-calendar/dist/Calendar.css";
 import "./TeacherDashboard.modules.css";
 import {
   CalendarDays, ClipboardCheck, ClipboardList,
-  BookOpenCheck, Megaphone, Zap, LogOut, GraduationCap
+  BookOpenCheck, Megaphone, Zap, LogOut, GraduationCap, FileCheck2, ArrowRight
 } from "lucide-react";
 
 const TeacherDashboard = () => {
@@ -158,6 +158,23 @@ const TeacherDashboard = () => {
           </button>
         </div>
       </header>
+
+      <div className="td-banner">
+        <div className="td-banner-left">
+          <span className="td-banner-icon">
+            <FileCheck2 size={20} />
+          </span>
+          <div className="td-banner-text">
+            <p className="td-banner-title">End of Term Marking Schemes Available</p>
+            <p className="td-banner-sub">
+              View and download the official marking schemes for this term's exams.
+            </p>
+          </div>
+        </div>
+        <Link to="/marking-schemes" className="td-banner-btn">
+          View Marking Schemes <ArrowRight size={16} />
+        </Link>
+      </div>
 
       {/* ══════════════════════════════════
           MAIN CONTENT

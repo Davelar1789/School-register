@@ -75,6 +75,7 @@ import ClassSubjectsPage from "./pages/head/classes/ClassSubjectsPage";
 import TopicEditor from "./pages/head/classes/TopicsEditorPage";
 import ExamGenerator from "./pages/head/exams/ExamGenerator";
 import Curriculum from "./pages/teacher/curriculum/curriculum";
+import MarkingSchemes from "./pages/teacher/schemes/MarkingSchemes";
 
 const router = createBrowserRouter([
   {
@@ -128,6 +129,10 @@ const router = createBrowserRouter([
        {
         path: "teacher-dashboard",
         element: <Welcome2 />,
+      },
+             {
+        path: "marking-schemes",
+        element: <MarkingSchemes />,
       },
        {
         path: "notifications",

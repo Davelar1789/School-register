@@ -578,6 +578,86 @@
 .td-event-desc { font-size: .82rem; color: var(--muted); line-height: 1.55; }
 .td-event-none { font-size: .82rem; color: var(--muted); font-style: italic;  }
 
+
+/* ═══════════════════════════════════════════
+   MARKING SCHEMES BANNER
+═══════════════════════════════════════════ */
+.td-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background: linear-gradient(135deg, var(--amber-light) 0%, var(--white) 100%);
+  border: 1.5px solid rgba(245,166,35,.22);
+  border-radius: var(--r-lg);
+  padding: 1rem 1.5rem;
+  margin: 1.25rem 2.25rem 0;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--t);
+}
+
+.td-banner:hover { box-shadow: var(--shadow-md); }
+
+.td-banner-left {
+  display: flex;
+  align-items: center;
+  gap: .9rem;
+}
+
+.td-banner-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r);
+  background: linear-gradient(135deg, var(--amber) 0%, #e0951f 100%);
+  color: var(--white);
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(245,166,35,.30);
+}
+
+.td-banner-title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: .92rem;
+  color: var(--dark);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.td-banner-sub {
+  font-size: .82rem;
+  color: var(--muted);
+  font-weight: 400;
+  margin: .15rem 0 0;
+  line-height: 1.5;
+}
+
+.td-banner-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  font-family: var(--font-display);
+  background: var(--amber);
+  color: var(--white);
+  font-size: .82rem;
+  font-weight: 800;
+  padding: .55rem 1.1rem;
+  border-radius: 50px;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: all var(--t);
+  flex-shrink: 0;
+}
+
+.td-banner-btn:hover {
+  background: #d68c0f;
+  box-shadow: 0 4px 14px rgba(245,166,35,.35);
+  transform: translateY(-1px);
+}
+
 /* ═══════════════════════════════════════════
    RESPONSIVE
 ═══════════════════════════════════════════ */
@@ -608,6 +688,19 @@
     padding: 0 1rem;
   }
 
+    .td-banner {
+    margin: 1rem 1rem 0;
+    padding: .9rem 1.1rem;
+  }
+
+  .td-banner-sub { display: none; }
+
+  .td-banner-btn span { display: none; }
+  .td-banner-btn {
+    padding: .55rem .7rem;
+    border-radius: 50%;
+  }
+
   .td-header-user-info { display: none; }
 
   .td-header-school-sub { display: none; }
@@ -635,4 +728,5 @@
   .td-date-pill { font-size: .72rem; padding: .4rem .85rem; }
   .td-card      { padding: 1.1rem; }
   .td-qa-grid   { grid-template-columns: 1fr; }
+    .td-banner-title { font-size: .85rem; }
 }
