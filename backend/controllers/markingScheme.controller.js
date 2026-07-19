@@ -127,11 +127,11 @@ export const getAllSchemesForSchool = async (req, res) => {
 ══════════════════════════════════════════ */
 export const getTeacherSchemeScope = async (req, res) => {
   try {
-const teacherId = req.user?._id || req.query.teacherId;
+    const teacherId = req.user?._id || req.query.teacherId;
     if (!teacherId) return res.status(400).json({ message: "No teacher context available." });
 
     const teacher = await Teacher.findById(teacherId)
-      .populate("classesAssigned", "name")
+      .populate("classesAssigned", "className")
       .populate("subjectSpecialization", "name");
 
     if (!teacher) return res.status(404).json({ message: "Teacher not found." });
@@ -155,7 +155,7 @@ const teacherId = req.user?._id || req.query.teacherId;
       school: teacher.school,
       class: { $in: classIds },
     })
-      .populate("class", "name")
+      .populate("class", "className")
       .populate("subject", "name");
 
     const classMap = {};
@@ -178,7 +178,7 @@ const teacherId = req.user?._id || req.query.teacherId;
       if (!classMap[classId]) {
         classMap[classId] = {
           classId,
-          className: scheme.class.name,
+          className: scheme.class.className,
           subjects: [],
         };
       }
@@ -210,14 +210,14 @@ const teacherId = req.user?._id || req.query.teacherId;
 export const accessScheme = async (req, res) => {
   try {
     const { schemeId } = req.params;
-const teacherId = req.user?._id || req.query.teacherId;
+    const teacherId = req.user?._id || req.query.teacherId;
     if (!teacherId) return res.status(400).json({ message: "No teacher context available." });
 
     const teacher = await Teacher.findById(teacherId);
     if (!teacher) return res.status(404).json({ message: "Teacher not found." });
 
     const scheme = await MarkingScheme.findById(schemeId)
-      .populate("class", "name")
+      .populate("class", "className")
       .populate("subject", "name");
 
     if (!scheme) return res.status(404).json({ message: "Marking scheme not found." });
