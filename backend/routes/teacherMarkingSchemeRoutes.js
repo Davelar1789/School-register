@@ -4,7 +4,7 @@ import { getTeacherSchemeScope, accessScheme } from "../controllers/markingSchem
 
 const router = express.Router();
 
-router.get("/my-scope", getTeacherSchemeScope);
-router.get("/access/:schemeId", accessScheme);
+router.get("/my-scope", protect, getTeacherSchemeScope);
+router.get("/access/:schemeId", protect, accessScheme);
 
 export default router;
