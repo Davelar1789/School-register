@@ -17,7 +17,7 @@ const AdminMarkingSchemes = () => {
     const schoolDataRaw = localStorage.getItem("schoolData");
   const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
 
-  const token = localStorage.getItem("adminToken");
+  const token = localStorage.getItem("token");
 
   const fetchSchemes = async () => {
     try {
