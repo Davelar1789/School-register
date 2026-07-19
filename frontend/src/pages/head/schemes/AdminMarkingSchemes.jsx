@@ -97,7 +97,7 @@ useEffect(() => {
         <div className="ams-form-grid">
           <select value={form.classId} onChange={(e) => setForm({ ...form, classId: e.target.value })} required>
             <option value="">Select Class</option>
-            {classesList.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
+            {classesList.map((c) => <option key={c._id} value={c._id}>{c.className}</option>)}
           </select>
 
           <select value={form.subjectId} onChange={(e) => setForm({ ...form, subjectId: e.target.value })} required>
