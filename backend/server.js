@@ -33,8 +33,8 @@ import examRoutes from "./routes/exams.js";
 import topicRoutes from "./routes/topicRoutes.js";
 import eventRoutes from "./routes/eventRoutes.js";
 import eventRoutes2 from "./routes/eventRoutes2.js";
-import teacherMarkingSchemeRoutes from "./routes/teacherMarkingScheme.routes.js";
-import adminMarkingSchemeRoutes from "./routes/adminMarkingScheme.routes.js";
+import teacherMarkingSchemeRoutes from "./routes/teacherMarkingSchemeRoutes.js";
+import adminMarkingSchemeRoutes from "./routes/adminMarkingSchemeRoutes.js";
 
 
 // Middleware

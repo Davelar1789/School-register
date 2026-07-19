@@ -10,9 +10,9 @@ import {
 
 const router = express.Router();
 
-router.get("/", protect, getAllSchemesForSchool);
-router.post("/upload", protect, uploadMarkingScheme.single("file"), uploadScheme);
-router.put("/:id", protect, uploadMarkingScheme.single("file"), updateScheme);
-router.delete("/:id", protect, deleteScheme);
+router.get("/", getAllSchemesForSchool);
+router.post("/upload", uploadMarkingScheme.single("file"), uploadScheme);
+router.put("/:id", uploadMarkingScheme.single("file"), updateScheme);
+router.delete("/:id", deleteScheme);
 
 export default router;
