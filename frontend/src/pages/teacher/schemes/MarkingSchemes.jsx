@@ -30,33 +30,34 @@ const MarkingSchemes = () => {
     fetchScope();
   }, []);
 
-  const handleAccess = async (schemeId, mode) => {
-    try {
-      setAccessingId(schemeId);
-      const token = localStorage.getItem("token");
-      const res = await api.get(`/api/marking-schemes/teacher/access/${schemeId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+const handleAccess = async (schemeId, mode, className, subjectName) => {
+  try {
+    setAccessingId(schemeId);
+    const token = localStorage.getItem("token");
+    const res = await api.get(`/api/marking-schemes/teacher/access/${schemeId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-      const { fileUrl, title } = res.data;
+    const { fileUrl, title } = res.data;
+    const cleanName = `${className}_${subjectName}`.replace(/\s+/g, "_");
 
-      if (mode === "open") {
-        window.open(fileUrl, "_blank", "noopener,noreferrer");
-      } else {
-        const link = document.createElement("a");
-        link.href = fileUrl;
-        link.setAttribute("download", title || "marking-scheme");
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-      }
-    } catch (err) {
-      const msg = err.response?.data?.message || "Unable to access this marking scheme.";
-      toast.error(msg);
-    } finally {
-      setAccessingId(null);
+    if (mode === "open") {
+      window.open(fileUrl, "_blank", "noopener,noreferrer");
+    } else {
+      const link = document.createElement("a");
+      link.href = fileUrl;
+      link.setAttribute("download", `${cleanName}_${title || "marking-scheme"}`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
     }
-  };
+  } catch (err) {
+    const msg = err.response?.data?.message || "Unable to access this marking scheme.";
+    toast.error(msg);
+  } finally {
+    setAccessingId(null);
+  }
+};
 
   const formatDate = (d) =>
     new Date(d).toLocaleString("en-US", {
@@ -104,38 +105,39 @@ const MarkingSchemes = () => {
           </button>
           <h2 className="ms-class-heading">{selectedClass.className}</h2>
 
-          <div className="ms-subject-list">
-            {selectedClass.subjects.map((subj) => (
-              <div key={subj.subjectId} className={`ms-subject-card ${!subj.isUnlocked ? "locked" : ""}`}>
-                <div className="ms-subject-info">
-                  <span className="ms-subject-name">{subj.subjectName}</span>
-                  <span className="ms-subject-meta">{subj.term} · {subj.academicYear}</span>
-                  {!subj.isUnlocked && (
-                    <span className="ms-lock-note">
-                      <Lock size={13} /> Unlocks {formatDate(subj.availableFrom)}
-                    </span>
-                  )}
-                </div>
+<div className="ms-subject-list">
+  {selectedClass.subjects.map((subj) => (
+    <div key={subj.subjectId} className={`ms-subject-card ${!subj.isUnlocked ? "locked" : ""}`}>
+      <div className="ms-subject-info">
+        <span className="ms-subject-class-tag">{selectedClass.className}</span>
+        <span className="ms-subject-name">{subj.subjectName}</span>
+        <span className="ms-subject-meta">{subj.term} · {subj.academicYear}</span>
+        {!subj.isUnlocked && (
+          <span className="ms-lock-note">
+            <Lock size={13} /> Unlocks {formatDate(subj.availableFrom)}
+          </span>
+        )}
+      </div>
 
-                <div className="ms-subject-actions">
-                  <button
-                    disabled={!subj.isUnlocked || accessingId === subj.schemeId}
-                    onClick={() => handleAccess(subj.schemeId, "open")}
-                    className="ms-action-btn ms-open-btn"
-                  >
-                    {subj.isUnlocked ? <Unlock size={15} /> : <Lock size={15} />} Open
-                  </button>
-                  <button
-                    disabled={!subj.isUnlocked || accessingId === subj.schemeId}
-                    onClick={() => handleAccess(subj.schemeId, "download")}
-                    className="ms-action-btn ms-download-btn"
-                  >
-                    <Download size={15} /> Download
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+      <div className="ms-subject-actions">
+        {/* <button
+          disabled={!subj.isUnlocked || accessingId === subj.schemeId}
+          onClick={() => handleAccess(subj.schemeId, "open", selectedClass.className, subj.subjectName)}
+          className="ms-action-btn ms-open-btn"
+        >
+          {subj.isUnlocked ? <Unlock size={15} /> : <Lock size={15} />} Open
+        </button> */}
+        <button
+          disabled={!subj.isUnlocked || accessingId === subj.schemeId}
+          onClick={() => handleAccess(subj.schemeId, "download", selectedClass.className, subj.subjectName)}
+          className="ms-action-btn ms-download-btn"
+        >
+          <Download size={15} /> Download
+        </button>
+      </div>
+    </div>
+  ))}
+</div>
         </div>
       )}
     </div>
