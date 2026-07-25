@@ -473,29 +473,95 @@ export const generateClassReports = async (req, res) => {
         new Date(term.endDate)
       );
 
-      const conductOptions = [
-        "Excellent",
-        "Satisfactory",
-        "Very obedient",
-        "Well-behaved",
-      ];
-      const conduct =
-        conductOptions[Math.floor(Math.random() * conductOptions.length)];
+// Expanded conduct options
+const conductOptions = [
+  "Excellent",
+  "Satisfactory",
+  "Very obedient",
+  "Well-behaved",
+  "Very respectful",
+  "Very hardworking",
+  "Very polite",
+  "Very attentive in class",
+  "Very disciplined",
+];
 
-      const highestScore = Math.max(...subjectData.map((s) => s.total));
-      const interestSubjects = subjectData
-        .filter((s) => s.total === highestScore)
-        .map((s) => s.name)
-        .slice(0, 2);
-      const interest = interestSubjects.join(", ");
+const conduct =
+  conductOptions[Math.floor(Math.random() * conductOptions.length)];
 
-      const percentage =
-        (studentTotalMarks / (maxTotalMarks || 1)) * 100;
-      let classTeacherRemark = "More room for improvement.";
-      if (percentage >= 80) classTeacherRemark = "An excellent performance.";
-      else if (percentage >= 70) classTeacherRemark = "Very good work done.";
-      else if (percentage >= 60) classTeacherRemark = "Good effort. Keep it up.";
-      else if (percentage >= 50) classTeacherRemark = "Satisfactory";
+// Highest scoring subjects
+const highestScore = Math.max(...subjectData.map((s) => s.total));
+const interestSubjects = subjectData
+  .filter((s) => s.total === highestScore)
+  .map((s) => s.name)
+  .slice(0, 2);
+const interest = interestSubjects.join(", ");
+
+// Percentage calculation
+const percentage = (studentTotalMarks / (maxTotalMarks || 1)) * 100;
+
+// Remarks pool by percentile range
+const remarkOptions = {
+  excellent: [
+    "An excellent performance.",
+    "Outstanding work, keep it up.",
+    "Truly impressive results.",
+    "Exceptional achievement this term.",
+  ],
+  veryGood: [
+    "Very good work done.",
+    "Strong performance overall.",
+    "Well done, keep striving higher.",
+    "Consistently good effort.",
+  ],
+  good: [
+    "Good effort. Keep it up.",
+    "Solid progress made.",
+    "Shows promise, continue working hard.",
+    "A commendable performance.",
+  ],
+  satisfactory: [
+    "Satisfactory.",
+    "Adequate progress, but can improve.",
+    "Fair effort, more consistency needed.",
+    "Room for improvement.",
+  ],
+  needsImprovement: [
+    "Needs to put in more effort.",
+    "Work harder next term.",
+    "Performance below expectations.",
+    "Greater dedication required.",
+  ],
+};
+
+// Pick remark based on percentage
+let classTeacherRemark;
+if (percentage >= 80) {
+  classTeacherRemark =
+    remarkOptions.excellent[
+      Math.floor(Math.random() * remarkOptions.excellent.length)
+    ];
+} else if (percentage >= 70) {
+  classTeacherRemark =
+    remarkOptions.veryGood[
+      Math.floor(Math.random() * remarkOptions.veryGood.length)
+    ];
+} else if (percentage >= 60) {
+  classTeacherRemark =
+    remarkOptions.good[
+      Math.floor(Math.random() * remarkOptions.good.length)
+    ];
+} else if (percentage >= 50) {
+  classTeacherRemark =
+    remarkOptions.satisfactory[
+      Math.floor(Math.random() * remarkOptions.satisfactory.length)
+    ];
+} else {
+  classTeacherRemark =
+    remarkOptions.needsImprovement[
+      Math.floor(Math.random() * remarkOptions.needsImprovement.length)
+    ];
+}
 
       let arrears = 0;
       const yearRecord = student.academicRecords.find(
