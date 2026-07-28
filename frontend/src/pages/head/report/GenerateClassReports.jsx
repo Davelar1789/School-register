@@ -131,13 +131,15 @@ const handlePreview = async () => {
 
     try {
       const res = await api.get(
-        `/api/reports/generate/class/${selectedClass}?termId=${selectedTerm._id}&nextTermDate=${nextTermDate.toISOString()}&nextTermFees=${nextTermFees}`,
-        { responseType: "blob" }
-      );
+  `/api/reports/generate/class/${selectedClass}?termId=${selectedTerm._id}&nextTermDate=${nextTermDate.toISOString()}&nextTermFees=${nextTermFees}`,
+  { responseType: "blob" }
+);
 
-      const blob = new Blob([res.data], { type: "application/zip" });
-      const url = URL.createObjectURL(blob);
-      setDownloadLink(url);
+const blob = new Blob([res.data], {
+  type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+});
+const url = URL.createObjectURL(blob);
+setDownloadLink(url);
 
       toast.success("Report cards generated successfully.");
     } catch {
@@ -239,19 +241,17 @@ const handlePreview = async () => {
         </button>
 
           {downloadLink && (
-            <div className="download-box">
-              <a href={downloadLink} download="class_reports.zip">
-                Download ZIP
-              </a>
-            </div>
-          )}
+  <div className="download-box">
+    <a href={downloadLink} download="class_reports.docx">
+      Download Report (Word)
+    </a>
+  </div>
+)}
 <p className="preview-warning">
   <strong>Note:</strong> The preview is provided for quick review purposes only.
   It may not fully reflect the final report format, layout, or all computed values.
   For accurate and complete student reports, please use the generated report files.
 </p>
-
-
         </div>
       </div>
     </>
