@@ -12,6 +12,7 @@ import ReportTemplate from "../models/ReportTemplate.model.js";
 import TermSession from "../models/TermSession.model.js";
 import Class from "../models/Class.model.js";
 import Attendance from "../models/Attendance.model.js";
+import DocxMerger from "docx-merger";
 import mammoth from "mammoth";
 import { PDFDocument } from "pdf-lib";
 import puppeteer from "puppeteer-core";
@@ -318,16 +319,13 @@ export const generateClassReports = async (req, res) => {
     const reportsDir = path.resolve("generatedReports");
     if (!fs.existsSync(reportsDir)) fs.mkdirSync(reportsDir, { recursive: true });
 
-    const zipPath = path.join(reportsDir, `class-${classId}-reports.zip`);
-    const output = fs.createWriteStream(zipPath);
-    const archive = archiver("zip");
-    archive.pipe(output);
-
     const numberOnRoll = classInfo.students.length;
 
     // ── Route: Early Years (Creche / Nursery 1) ───────────────────────────────
     if (isEarlyYearsClass(classInfo.className)) {
       console.log(`🌱 Generating early-years reports for ${classInfo.className}`);
+
+      const studentBuffers = [];
 
       for (const student of classInfo.students) {
         // Fetch saved ticks for this student
@@ -363,20 +361,32 @@ export const generateClassReports = async (req, res) => {
           continue;
         }
 
-        const fileName = `${student.name.replace(/\s+/g, "_")}_report.docx`;
-        const reportPath = path.join(reportsDir, fileName);
-        fs.writeFileSync(reportPath, buffer);
-        archive.append(fs.createReadStream(reportPath), { name: fileName });
+        studentBuffers.push(buffer);
         console.log(`✅ Generated early-years report for ${student.name}`);
       }
 
-      await archive.finalize();
-      output.on("close", () => {
-        res.download(zipPath, `report_cards_class_${classId}.zip`, () => {
-          fs.rmSync(zipPath);
-        });
+      if (studentBuffers.length === 0) {
+        return res
+          .status(404)
+          .json({ message: "No reports could be generated for this class." });
+      }
+
+      const docxMerger = new DocxMerger({}, studentBuffers);
+      const mergedBuffer = await new Promise((resolve) => {
+        docxMerger.save("nodebuffer", (data) => resolve(data));
       });
-      return;
+
+      const mergedFileName = `class-${classId}-reports.docx`;
+      const mergedPath = path.join(reportsDir, mergedFileName);
+      fs.writeFileSync(mergedPath, mergedBuffer);
+
+      return res.download(
+        mergedPath,
+        `report_cards_class_${classId}.docx`,
+        () => {
+          fs.rmSync(mergedPath);
+        }
+      );
     }
 
     // ── Route: Regular classes (Nursery 2, KG, Primary, JHS) ─────────────────
@@ -416,6 +426,8 @@ export const generateClassReports = async (req, res) => {
       }
       return count;
     };
+
+    const studentBuffers = [];
 
     for (const student of classInfo.students) {
       const grades = await GradeEntry.find({
@@ -473,95 +485,95 @@ export const generateClassReports = async (req, res) => {
         new Date(term.endDate)
       );
 
-// Expanded conduct options
-const conductOptions = [
-  "Excellent",
-  "Satisfactory",
-  "Very obedient",
-  "Well-behaved",
-  "Very respectful",
-  "Very hardworking",
-  "Very polite",
-  "Very attentive in class",
-  "Very disciplined",
-];
+      // Expanded conduct options
+      const conductOptions = [
+        "Excellent",
+        "Satisfactory",
+        "Very obedient",
+        "Well-behaved",
+        "Very respectful",
+        "Very hardworking",
+        "Very polite",
+        "Very attentive in class",
+        "Very disciplined",
+      ];
 
-const conduct =
-  conductOptions[Math.floor(Math.random() * conductOptions.length)];
+      const conduct =
+        conductOptions[Math.floor(Math.random() * conductOptions.length)];
 
-// Highest scoring subjects
-const highestScore = Math.max(...subjectData.map((s) => s.total));
-const interestSubjects = subjectData
-  .filter((s) => s.total === highestScore)
-  .map((s) => s.name)
-  .slice(0, 2);
-const interest = interestSubjects.join(", ");
+      // Highest scoring subjects
+      const highestScore = Math.max(...subjectData.map((s) => s.total));
+      const interestSubjects = subjectData
+        .filter((s) => s.total === highestScore)
+        .map((s) => s.name)
+        .slice(0, 2);
+      const interest = interestSubjects.join(", ");
 
-// Percentage calculation
-const percentage = (studentTotalMarks / (maxTotalMarks || 1)) * 100;
+      // Percentage calculation
+      const percentage = (studentTotalMarks / (maxTotalMarks || 1)) * 100;
 
-// Remarks pool by percentile range
-const remarkOptions = {
-  excellent: [
-    "An excellent performance.",
-    "Outstanding work, keep it up.",
-    "Truly impressive results.",
-    "Exceptional achievement this term.",
-  ],
-  veryGood: [
-    "Very good work done.",
-    "Strong performance overall.",
-    "Well done, keep striving higher.",
-    "Consistently good effort.",
-  ],
-  good: [
-    "Good effort. Keep it up.",
-    "Solid progress made.",
-    "Shows promise, continue working hard.",
-    "A commendable performance.",
-  ],
-  satisfactory: [
-    "Satisfactory.",
-    "Adequate progress, but can improve.",
-    "Fair effort, more consistency needed.",
-    "Room for improvement.",
-  ],
-  needsImprovement: [
-    "Needs to put in more effort.",
-    "Work harder next term.",
-    "Performance below expectations.",
-    "Greater dedication required.",
-  ],
-};
+      // Remarks pool by percentile range
+      const remarkOptions = {
+        excellent: [
+          "An excellent performance.",
+          "Outstanding work, keep it up.",
+          "Truly impressive results.",
+          "Exceptional achievement this term.",
+        ],
+        veryGood: [
+          "Very good work done.",
+          "Strong performance overall.",
+          "Well done, keep striving higher.",
+          "Consistently good effort.",
+        ],
+        good: [
+          "Good effort. Keep it up.",
+          "Solid progress made.",
+          "Shows promise, continue working hard.",
+          "A commendable performance.",
+        ],
+        satisfactory: [
+          "Satisfactory.",
+          "Adequate progress, but can improve.",
+          "Fair effort, more consistency needed.",
+          "Room for improvement.",
+        ],
+        needsImprovement: [
+          "Needs to put in more effort.",
+          "Work harder next term.",
+          "Performance below expectations.",
+          "Greater dedication required.",
+        ],
+      };
 
-// Pick remark based on percentage
-let classTeacherRemark;
-if (percentage >= 80) {
-  classTeacherRemark =
-    remarkOptions.excellent[
-      Math.floor(Math.random() * remarkOptions.excellent.length)
-    ];
-} else if (percentage >= 70) {
-  classTeacherRemark =
-    remarkOptions.veryGood[
-      Math.floor(Math.random() * remarkOptions.veryGood.length)
-    ];
-} else if (percentage >= 60) {
-  classTeacherRemark =
-    remarkOptions.good[
-      Math.floor(Math.random() * remarkOptions.good.length)
-    ];
-} else if (percentage >= 50) {
-  classTeacherRemark =
-    remarkOptions.satisfactory[
-      Math.floor(Math.random() * remarkOptions.satisfactory.length)
-    ];
-} else {
-  classTeacherRemark =
-    remarkOptions.needsImprovement[
-      Math.floor(Math.random() * remarkOptions.needsImprovement.length)
-    ];
-}
+      // Pick remark based on percentage
+      let classTeacherRemark;
+      if (percentage >= 80) {
+        classTeacherRemark =
+          remarkOptions.excellent[
+            Math.floor(Math.random() * remarkOptions.excellent.length)
+          ];
+      } else if (percentage >= 70) {
+        classTeacherRemark =
+          remarkOptions.veryGood[
+            Math.floor(Math.random() * remarkOptions.veryGood.length)
+          ];
+      } else if (percentage >= 60) {
+        classTeacherRemark =
+          remarkOptions.good[
+            Math.floor(Math.random() * remarkOptions.good.length)
+          ];
+      } else if (percentage >= 50) {
+        classTeacherRemark =
+          remarkOptions.satisfactory[
+            Math.floor(Math.random() * remarkOptions.satisfactory.length)
+          ];
+      } else {
+        classTeacherRemark =
+          remarkOptions.needsImprovement[
+            Math.floor(Math.random() * remarkOptions.needsImprovement.length)
+          ];
+      }
 
       let arrears = 0;
       const yearRecord = student.academicRecords.find(
@@ -616,18 +628,31 @@ if (percentage >= 80) {
       }
 
       const buffer = doc.getZip().generate({ type: "nodebuffer" });
-      const fileName = `${student.name.replace(/\s+/g, "_")}_report.docx`;
-      const reportPath = `generatedReports/${fileName}`;
-      fs.writeFileSync(reportPath, buffer);
-      archive.append(fs.createReadStream(reportPath), { name: fileName });
+      studentBuffers.push(buffer);
     }
 
-    await archive.finalize();
-    output.on("close", () => {
-      res.download(zipPath, `report_cards_class_${classId}.zip`, () => {
-        fs.rmSync(zipPath);
-      });
+    if (studentBuffers.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No reports could be generated for this class." });
+    }
+
+    const docxMerger = new DocxMerger({}, studentBuffers);
+    const mergedBuffer = await new Promise((resolve) => {
+      docxMerger.save("nodebuffer", (data) => resolve(data));
     });
+
+    const mergedFileName = `class-${classId}-reports.docx`;
+    const mergedPath = path.join(reportsDir, mergedFileName);
+    fs.writeFileSync(mergedPath, mergedBuffer);
+
+    return res.download(
+      mergedPath,
+      `report_cards_class_${classId}.docx`,
+      () => {
+        fs.rmSync(mergedPath);
+      }
+    );
   } catch (error) {
     console.error("❌ Error generating reports:", error);
     res

@@ -8,6 +8,7 @@
     "cloudinary": "^1.41.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "docx-merger": "^1.2.2",
     "docxtemplater": "^3.63.0",
     "dotenv": "^16.4.5",
     "express": "^4.21.1",
