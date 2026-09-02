@@ -3,6 +3,23 @@ import TermSession from "../models/TermSession.model.js";
 import Student from "../models/Student.model.js";
 import Class from "../models/Class.model.js";
 
+// Call this after create/update, or via a daily cron job
+export const syncActiveTermFlags = async (schoolId) => {
+  const now = new Date();
+
+  // Deactivate everything first
+  await TermSession.updateMany(
+    { schoolId },
+    { $set: { isActive: false } }
+  );
+
+  // Activate only the term whose range contains "now"
+  await TermSession.updateOne(
+    { schoolId, startDate: { $lte: now }, endDate: { $gte: now } },
+    { $set: { isActive: true } }
+  );
+};
+
 function findPreviousTerm(student, currentYear, currentTermName) {
   const termOrder = ["Term 1", "Term 2", "Term 3"];
   console.log("🔍 [findPreviousTerm] Looking for previous term...");
@@ -172,6 +189,7 @@ export const addAcademicYear = async (req, res) => {
 
   export const createTermSession = async (req, res) => {
     const { schoolId, yearLabel, termName, startDate, endDate, classFees } = req.body;
+    await syncActiveTermFlags(newTerm.schoolId);
   
     try {
       const term = new TermSession({
@@ -375,25 +393,35 @@ export const updateTermDates = async (req, res) => {
 
 export const getLatestTerm = async (req, res) => {
   try {
-    const token = req.headers.authorization?.split(" ")[1]; // Extract token
+    const token = req.headers.authorization?.split(" ")[1];
     if (!token) return res.status(401).json({ message: "Unauthorized access" });
-
-    const decodedToken = JSON.parse(atob(token.split(".")[1])); // Decode JWT payload
+    const decodedToken = JSON.parse(atob(token.split(".")[1]));
     const schoolId = decodedToken.schoolId;
-
-
     if (!schoolId) return res.status(400).json({ message: "Missing school ID in token" });
 
-    const latestTerm = await TermSession.findOne({ schoolId })
-      .sort({ startDate: -1 })
-      .limit(1);
+    const now = new Date();
 
-    if (!latestTerm) {
-      console.warn("No active term found for school:", schoolId);
-      return res.status(404).json({ message: "No active term found." });
+    // Try to find the term whose date range contains "now"
+    let currentTerm = await TermSession.findOne({
+      schoolId,
+      startDate: { $lte: now },
+      endDate: { $gte: now },
+    });
+
+    // Fallback: if no term currently covers today (gap between terms),
+    // pick the most recently started term as the closest "current" one
+    if (!currentTerm) {
+      currentTerm = await TermSession.findOne({ schoolId })
+        .sort({ startDate: -1 })
+        .limit(1);
     }
 
-    res.status(200).json(latestTerm);
+    if (!currentTerm) {
+      console.warn("No term found for school:", schoolId);
+      return res.status(404).json({ message: "No term found." });
+    }
+
+    res.status(200).json(currentTerm);
   } catch (error) {
     console.error("Error fetching latest term:", error);
     res.status(500).json({ message: "Database query failed!", error: error.message });
