@@ -66,7 +66,8 @@ function UserLogin() {
 
         setTimeout(() => {
           if (user?.role === "superadmin") navigate("/superadmin/");
-          else navigate("/dashboard");
+          // else navigate("/dashboard");
+          else navigate("/teacher-dashboard2");
         }, 1500);
 
       } else {
