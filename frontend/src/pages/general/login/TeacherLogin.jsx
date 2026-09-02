@@ -104,8 +104,8 @@ function TeacherLogin() {
         localStorage.setItem("teacher", JSON.stringify({ ...teacherData, passwordHash: sha256(password) }));
         localStorage.setItem("token", teacherData.token);
         toast.success("Login successful!");
-        // navigate("/teacher-dashboard");
-        navigate("/teacher-dashboard2");
+        navigate("/teacher-dashboard");
+        // navigate("/teacher-dashboard2");
       } else {
         toast.error("Cannot reach server");
       }
