@@ -1,12 +1,17 @@
 import mongoose from "mongoose";
-import dotenv from "dotenv";
-import TermSession from "../models/TermSession.model.js"; // adjust path
+import TermSession from "../models/TermSession.model.js"; // adjust path to your actual model file
 
-dotenv.config();
+// 🔧 Paste your MongoDB connection string here manually
+const MONGO_URI = "mongodb+srv://Codewhiz:fu28IUFjk5ZxVshN@cluster0.xiy0lld.mongodb.net/";
 
 const syncActiveTermFlags = async (schoolId) => {
   const now = new Date();
-  await TermSession.updateMany({ schoolId }, { $set: { isActive: false } });
+
+  await TermSession.updateMany(
+    { schoolId },
+    { $set: { isActive: false } }
+  );
+
   await TermSession.updateOne(
     { schoolId, startDate: { $lte: now }, endDate: { $gte: now } },
     { $set: { isActive: true } }
@@ -14,21 +19,23 @@ const syncActiveTermFlags = async (schoolId) => {
 };
 
 const run = async () => {
-  await mongoose.connect(process.env.MONGO_URI);
+  try {
+    await mongoose.connect(MONGO_URI);
+    console.log("Connected to MongoDB");
 
-  // Get all distinct schoolIds that have terms
-  const schoolIds = await TermSession.distinct("schoolId");
+    const schoolIds = await TermSession.distinct("schoolId");
 
-  for (const schoolId of schoolIds) {
-    await syncActiveTermFlags(schoolId);
-    console.log(`Synced terms for school: ${schoolId}`);
+    for (const schoolId of schoolIds) {
+      await syncActiveTermFlags(schoolId);
+      console.log(`Synced terms for school: ${schoolId}`);
+    }
+
+    console.log("Done.");
+    process.exit(0);
+  } catch (err) {
+    console.error("Error syncing terms:", err);
+    process.exit(1);
   }
-
-  console.log("Done.");
-  process.exit(0);
 };
 
-run().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+run();
