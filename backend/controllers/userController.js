@@ -63,24 +63,76 @@ export const registerUser = async (req, res) => {
 
 // Login user
 export const loginUser = async (req, res) => {
+  console.log("========================================");
+  console.log("🔐 LOGIN ROUTE HIT");
+  console.log("📅 Time:", new Date().toISOString());
+  console.log("🌐 IP:", req.ip);
+  console.log("📍 Method:", req.method);
+  console.log("📍 URL:", req.originalUrl);
+  console.log("👤 Login attempt from:", req.body?.email);
+  console.log("========================================");
+
   try {
     const { email, password } = req.body;
+
+    console.log("🔎 Looking for user:", email);
+
     const user = await User.findOne({ email });
 
-    if (!user || !(await user.matchPassword(password))) {
-      return res.status(401).json({ message: "Invalid email or password" });
+    if (!user) {
+      console.log("❌ LOGIN FAILED: User not found:", email);
+
+      return res.status(401).json({
+        message: "Invalid email or password",
+      });
     }
+
+    console.log("✅ User found:", {
+      id: user._id,
+      email: user.email,
+      fullName: user.fullName,
+      role: user.role,
+      schoolId: user.schoolId,
+    });
+
+    const passwordMatches = await user.matchPassword(password);
+
+    console.log("🔑 Password match:", passwordMatches);
+
+    if (!passwordMatches) {
+      console.log("❌ LOGIN FAILED: Incorrect password for:", email);
+
+      return res.status(401).json({
+        message: "Invalid email or password",
+      });
+    }
+
+    console.log("✅ Credentials valid for:", email);
 
     let schoolName = "Unknown School";
     let schoolId = null;
 
     if (user.schoolId) {
+      console.log("🏫 Looking up school:", user.schoolId);
+
       const school = await School.findById(user.schoolId);
+
       if (school) {
         schoolName = school.name;
         schoolId = school._id;
+
+        console.log("✅ School found:", {
+          id: school._id,
+          name: school.name,
+        });
+      } else {
+        console.log("⚠️ School not found:", user.schoolId);
       }
+    } else {
+      console.log("ℹ️ User has no schoolId");
     }
+
+    console.log("🎟️ Generating JWT token...");
 
     const token = generateToken({
       id: user._id,
@@ -89,6 +141,9 @@ export const loginUser = async (req, res) => {
       schoolName,
       schoolId,
     });
+
+    console.log("✅ JWT token generated successfully");
+    console.log("🚀 Login successful:", email);
 
     res.status(200).json({
       message: "Login successful",
@@ -101,8 +156,19 @@ export const loginUser = async (req, res) => {
         token,
       },
     });
+
+    console.log("📤 Login response sent for:", email);
+    console.log("========================================");
+
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error("💥 LOGIN ROUTE ERROR");
+    console.error("📧 Email:", req.body?.email);
+    console.error("❌ Error:", error);
+    console.error("========================================");
+
+    res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
