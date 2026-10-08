@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import "./styles/theme.css";
 import "./components/layout/AppShell.css";
+import "./styles/public.css";
 import { RouterProvider } from "react-router-dom";
 import router from "./router.jsx";
 import { UserProvider } from "./context/userContext";

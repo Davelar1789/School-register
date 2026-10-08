@@ -106,8 +106,8 @@ function Home() {
           </div>
 
           <h1 className="hero-title">
-            Learning is
-            <span className="hero-title-highlight"> Brighter </span>
+            Learning is{" "}
+            <span className="hero-title-highlight">Brighter</span>{" "}
             with De-ƒem
           </h1>
 

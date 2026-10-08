@@ -20,9 +20,9 @@
 .dash-stat:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
 .dash-stat-ico { width: 50px; height: 50px; border-radius: 16px; display: grid; place-items: center; background: var(--tone-bg); color: var(--tone); flex-shrink: 0; }
 .dash-stat-body { display: flex; flex-direction: column; min-width: 0; flex: 1; }
-.dash-stat-body strong { font-family: var(--font-display); font-weight: 900; font-size: 1.6rem; line-height: 1.1; color: var(--dark); white-space: nowrap; }
+.dash-stat-body strong { font-family: var(--font-display); font-weight: 900; font-size: clamp(1.15rem, 1.7vw, 1.6rem); line-height: 1.1; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dash-stat-body small { color: var(--muted); font-weight: 600; font-size: .8rem; }
-.dash-stat-go { color: var(--subtle); transition: transform var(--t); }
+.dash-stat-go { color: var(--subtle); transition: transform var(--t); flex-shrink: 0; }
 .dash-stat:hover .dash-stat-go { transform: translateX(3px); color: var(--tone); }
 .tone-teal   { --tone: var(--teal);   --tone-bg: var(--teal-light); }
 .tone-purple { --tone: var(--purple); --tone-bg: var(--purple-light); }

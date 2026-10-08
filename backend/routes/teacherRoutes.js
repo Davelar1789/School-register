@@ -1,5 +1,6 @@
 // routes/teacherRoutes.js
 import express from "express";
+import { rateLimit } from "../middleware/rateLimit.js";
 import {
   createTeacher,
   getTeachersBySchool,
@@ -21,8 +22,8 @@ const router = express.Router();
 // All routes use protect if needed
 router.post("/", createTeacher);
 router.post("/verify-email", verifyTeacherEmail);   // Phase 1
-router.post("/setup", firstTimeSetup);              // Phase 2
-router.post("/login", loginTeacher);   
+router.post("/setup", rateLimit({ max: 15 }), firstTimeSetup);              // Phase 2
+router.post("/login", rateLimit({ max: 15 }), loginTeacher);   
 router.get("/teacher/teacher-classes", protect, getTeacherClasses);          
 router.get("/school/:schoolId", getTeachersBySchool);
 router.get("/:id", getTeacherById);

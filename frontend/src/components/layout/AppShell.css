@@ -7,7 +7,7 @@
 .app-sidebar, .as-drawer {
   width: var(--sidebar-w); display: flex; flex-direction: column;
   background: linear-gradient(175deg, var(--teal-deep) 0%, #0b3b35 55%, #082b27 100%);
-  color: #d9efeb; overflow-y: auto; overflow-x: hidden;
+  color: #d9efeb; overflow: hidden;
 }
 .app-sidebar { position: fixed; inset: 0 auto 0 0; z-index: 900; }
 .shell-content { margin-left: var(--sidebar-w); min-height: 100dvh; display: flex; flex-direction: column; min-width: 0; }
@@ -20,7 +20,9 @@
 .as-brand-text strong { font-family: var(--font-display); font-weight: 800; color: #fff; font-size: .98rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .as-brand-text span { font-size: .72rem; color: #8fc9bf; letter-spacing: .04em; }
 
-.as-nav { flex: 1; padding: .3rem .8rem 1rem; }
+.as-nav { flex: 1; min-height: 0; overflow-y: auto; padding: .3rem .8rem 1rem; scrollbar-width: none; }
+.as-nav::-webkit-scrollbar { display: none; }
+.as-brand, .as-side-foot { flex-shrink: 0; }
 .as-nav-section + .as-nav-section { margin-top: 1rem; }
 .as-nav-label { margin: 0 .6rem .35rem; font-size: .66rem; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: #6fa89e; }
 .as-link {
@@ -112,7 +114,8 @@
 @media (max-width: 720px) {
   .as-user-name, .as-user-btn svg { display: none; }
   .as-user-btn { padding: .2rem !important; }
-  .as-search { position: static; flex: 0 0 auto; width: auto; margin-left: auto; }
+  .as-search { position: relative; flex: 0 0 40px; width: 40px; margin-left: auto; }
+  .as-title { flex: 1; min-width: 0; }
   .as-search input { width: 40px; padding: 0 !important; color: transparent; cursor: pointer; background: transparent !important; border-color: transparent !important; }
   .as-search input::placeholder { color: transparent; }
   .as-search-ico { left: 50%; transform: translate(-50%, -50%); color: var(--muted); }

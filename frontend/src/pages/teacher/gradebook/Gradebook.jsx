@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "../../../api/axios";
 import toast from "react-hot-toast";
-import { BookOpenCheck, Save } from "lucide-react";
+import { Save } from "lucide-react";
+import PageHeader from "../../../components/ui/PageHeader";
 import "./Gradebook.modules.css";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -451,23 +452,8 @@ const Gradebook = () => {
       ══════════════════════════════════ */}
       <main className="td-main">
 
-        {/* ── Page Title ── */}
-        <div className="td-welcome">
-          <div>
-            <h1 className="td-welcome-title">
-              <BookOpenCheck size={24} style={{ display: "inline", marginRight: "0.5rem", verticalAlign: "middle" }} />
-              Gradebook
-            </h1>
-            <p className="td-welcome-sub">
-              Manage student grades and early-years activity reports.
-            </p>
-          </div>
-          <div className="td-date-pill">
-            {new Date().toLocaleDateString("en-US", {
-              weekday: "long", month: "long", day: "numeric",
-            })}
-          </div>
-        </div>
+        <PageHeader title="Gradebook" subtitle="Enter test and exam scores, or complete early-years activity reports."
+          actions={dirty ? <span className="badge-pill amber">Unsaved changes</span> : null} />
 
         {/* ── Gradebook Card ── */}
         <div className="td-card gb-card">

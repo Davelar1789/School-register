@@ -124,3 +124,17 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 We hope this system will help improve the efficiency of school operations and create a seamless experience for students, parents, and school staff alike. 🌟
 
+
+
+---
+
+## What's new in this overhaul
+
+- **Design system** (`frontend/src/styles/theme.css`) – tokens, buttons, cards, tables, modals, badges; shared UI primitives in `src/components/ui`.
+- **One layout shell per role** (`src/components/layout/AppShell.jsx`) – persistent sidebar, top bar with quick search (Ctrl/⌘ K), live notification badge, offline indicator, mobile drawer.
+- **Role-guarded, code-split routes** – initial JS dropped from ~1.9 MB to ~0.4 MB.
+- **Every admin, teacher and super-admin page rebuilt** with validation, confirm dialogs, empty/loading/error states, search, sorting, pagination and CSV export.
+- **Real data on dashboards** (no more hard-coded demo numbers) via new `/api/attendance/school-today/:schoolId` and `/api/attendance/my-today`.
+- **Backend fixes** – school/notification access control, per-user socket rooms, class edit/delete, term date validation, expense delete, marking schemes scoped to the admin's school, password hashes no longer returned, login rate limiting, configurable CORS (`CLIENT_ORIGINS`).
+
+Run locally: `cd backend && npm i && npm start` and `cd frontend && npm i && npm run dev`.

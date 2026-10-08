@@ -81,9 +81,7 @@ export const createTeacher = async (req, res) => {
   } catch (error) {
     console.error("Error creating teacher:", error.stack); // better error message
     res.status(500).json({
-      message: "Error creating teacher",
-      error: error.message,
-      stack: error.stack,
+      message: error.code === 11000 ? "A teacher with that email already exists" : "Error creating teacher",
     });
   }
 };
@@ -200,7 +198,7 @@ export const loginTeacher = async (req, res) => {
 export const getTeachersBySchool = async (req, res) => {
   try {
     const schoolId = req.params.schoolId;
-    const teachers = await Teacher.find({ school: schoolId }).sort({ createdAt: -1 });
+    const teachers = await Teacher.find({ school: schoolId }).select("-password").sort({ createdAt: -1 });
     res.status(200).json(teachers);
   } catch (error) {
     res.status(500).json({ message: "Error fetching teachers", error });
@@ -210,6 +208,7 @@ export const getTeachersBySchool = async (req, res) => {
 export const getTeacherById = async (req, res) => {
   try {
     const teacher = await Teacher.findById(req.params.id)
+      .select("-password")
       .populate("classesAssigned", "className")
       .populate("subjectSpecialization", "name"); // ✅ ADD THIS
 
@@ -227,9 +226,11 @@ export const getTeacherById = async (req, res) => {
 // Update teacher
 export const updateTeacher = async (req, res) => {
   try {
-    const updated = await Teacher.findByIdAndUpdate(req.params.id, req.body, {
+    // never let a client overwrite credentials or ownership through this endpoint
+    const { password, usage, school, staffId, ...safe } = req.body;
+    const updated = await Teacher.findByIdAndUpdate(req.params.id, safe, {
       new: true,
-    });
+    }).select("-password");
     if (!updated) return res.status(404).json({ message: "Teacher not found" });
     res.status(200).json(updated);
   } catch (error) {

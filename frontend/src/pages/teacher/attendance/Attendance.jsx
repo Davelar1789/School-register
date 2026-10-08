@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../../api/axios";
 import toast from "react-hot-toast";
+import PageHeader from "../../../components/ui/PageHeader";
 import "./Attendance.modules.css";
 import {
   ClipboardCheck,
@@ -329,22 +330,8 @@ const Attendance = () => {
       {/* ══ MAIN ════════════════════════════════════ */}
       <main className="att-main">
 
-        {/* Page title row */}
-        <div className="att-page-title-row">
-          <div>
-            <h1 className="att-page-title">
-              <ClipboardCheck size={26} className="att-title-icon" />
-              Mark Attendance
-            </h1>
-            <p className="att-page-sub">Select a class and date to record student attendance.</p>
-          </div>
-          {offlineMode && (
-            <div className="att-offline-notice">
-              <WifiOff size={15} />
-              Working offline — changes saved locally.
-            </div>
-          )}
-        </div>
+        <PageHeader title="Mark attendance" subtitle="Select a class and date to record student attendance."
+          actions={offlineMode ? <span className="att-offline-notice"><WifiOff size={15} /> Working offline — changes saved on this device</span> : null} />
 
         {/* ── Controls card ── */}
         <div className="td-card att-controls-card">

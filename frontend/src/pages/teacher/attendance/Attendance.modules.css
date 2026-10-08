@@ -782,3 +782,6 @@
   .att-modal-actions { flex-direction: column; }
   .att-modal-actions .att-btn { width: 100%; justify-content: center; }
 }
+/* ── shell integration ── */
+.att-page { min-height: auto; background: transparent; }
+.att-main { max-width: 1100px; width: 100%; margin: 0 auto; padding: 1.75rem clamp(1rem, 3vw, 2.25rem) 3rem; gap: 1.25rem; }

@@ -277,7 +277,7 @@ export const deleteStudent = async (req, res) => {
 
 // Search student by name or ID number (optional)
 export const searchStudents = async (req, res) => {
-  const { query } = req.query;
+  const query = String(req.query.query || "").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const schoolId = req.user?.schoolId || req.query.schoolId;
 
   try {

@@ -1,0 +1,21 @@
+/* Public pages: admissions + application forms */
+.admissions-page { background: var(--ivory) !important; color: var(--text) !important; font-family: var(--font-body) !important; min-height: 100vh; }
+.hero-admissions { padding: 140px 1rem 80px !important; }
+.hero-content-admissions h1 { color: var(--dark) !important; font-family: var(--font-display); font-weight: 900; font-size: clamp(2rem, 5vw, 3rem) !important; }
+.hero-content-admissions p { color: var(--muted); }
+.admissions-options { flex-wrap: wrap; justify-content: center; gap: 1.2rem !important; }
+.admission-box { background: #fff !important; color: var(--dark) !important; border: 1px solid var(--border); border-radius: 22px !important; padding: 2rem 2.4rem !important; width: 270px; box-shadow: var(--shadow-sm); cursor: pointer; transition: transform var(--t), box-shadow var(--t); }
+.admission-box:hover { transform: translateY(-5px); box-shadow: var(--shadow-md); border-color: var(--teal); }
+.admission-box h3 { margin: .5rem 0 .2rem; font-family: var(--font-display); }
+.admission-box p { margin: 0 !important; font-size: .9rem !important; color: var(--muted); }
+.ab-emoji { font-size: 2.2rem; }
+.apply-student, .apply-teacher, .apply-page { padding-top: 96px; background: var(--ivory); min-height: 100vh; font-family: var(--font-body); }
+.apply-student .form-container, .apply-teacher .form-container { border: 1px solid var(--border); border-radius: 22px; box-shadow: var(--shadow-sm); margin-bottom: 3rem; }
+.apply-student h1, .apply-student h2, .apply-teacher h1, .apply-teacher h2 { font-family: var(--font-display); color: var(--dark) !important; }
+.apply-student h2, .apply-teacher h2 { color: var(--teal) !important; }
+.apply-student input[type=radio], .apply-teacher input[type=radio] { width: 18px; height: 18px; accent-color: var(--teal); margin: 0 .4rem 0 1rem; vertical-align: -3px; }
+.apply-student input[type=radio]:first-child, .apply-teacher input[type=radio]:first-child { margin-left: 0; }
+.apply-student form input:not([type=radio]), .apply-teacher form input:not([type=radio]), .apply-student select, .apply-teacher select, .apply-student textarea, .apply-teacher textarea { border: 1.5px solid var(--border-strong) !important; border-radius: 12px !important; }
+.apply-student form input:focus, .apply-teacher form input:focus { outline: none; border-color: var(--teal) !important; box-shadow: 0 0 0 4px rgba(26,140,122,.14); }
+.apply-student button[type=submit], .apply-teacher button[type=submit] { background: linear-gradient(120deg, var(--teal), var(--teal-mid)) !important; border-radius: 12px !important; font-family: var(--font-display); font-weight: 800; }
+.admission-box h3 { color: var(--dark) !important; font-size: 1.15rem; }
