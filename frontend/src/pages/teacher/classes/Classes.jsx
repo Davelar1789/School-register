@@ -1,73 +1,48 @@
-// Classes.jsx
-import React, { useEffect, useState } from "react";
-import "./Classes.modules.css";
-import axios from "../../../api/axios";
-import Sidebar from "../../../components/Teacher/TeacherSidebar";
-import Header from "../../../components/Teacher/TeacherHeader";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight, ClipboardCheck, GraduationCap } from "lucide-react";
+import api from "../../../api/axios";
+import { readJSON } from "../../../utils/auth";
+import PageHeader from "../../../components/ui/PageHeader";
+import EmptyState from "../../../components/ui/EmptyState";
+import Loading from "../../../components/ui/Loading";
 
-
-const Classes = () => {
-  const [classes, setClasses] = useState([]);
+export default function TeacherClasses() {
+  const [classes, setClasses] = useState(() => readJSON("offlineClasses", []));
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-
-
-  const fetchClasses = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(
-        "/api/teachers/teacher/teacher-classes",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-      setClasses(response.data.classes || []);
-    } catch (err) {
-      // console.error("Error fetching classes:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
-    fetchClasses();
+    api.get("/api/teachers/teacher/teacher-classes")
+      .then(({ data }) => { setClasses(data.classes || []); localStorage.setItem("offlineClasses", JSON.stringify(data.classes || [])); })
+      .catch(() => setFailed(true))
+      .finally(() => setLoading(false));
   }, []);
 
-
-return (
-  <div>
-    <Header />
-    <Sidebar />
-    <div className="class-container">
-      <h2 className="class-heading">My Classes</h2>
-
-      {loading ? (
-        <div className="loading-inline">Loading classes...</div>
-      ) : classes.length === 0 ? (
-        <p className="no-classes">No classes assigned to you.</p>
+  return (
+    <div className="page">
+      <PageHeader title="My classes" subtitle={classes.length ? `You teach ${classes.length} class${classes.length === 1 ? "" : "es"}.` : ""} />
+      {loading && !classes.length ? <Loading /> : classes.length === 0 ? (
+        <div className="card"><EmptyState emoji="🏫" title={failed ? "Couldn't load your classes" : "No classes assigned yet"}>
+          {failed ? "Check your connection and try again." : "Ask your school admin to assign you to a class."}</EmptyState></div>
       ) : (
-        <div className="class-grid">
-          {classes.map((cls) => (
-            <div
-              key={cls._id}
-              className="class-card"
-              onClick={() => navigate(`/class/${cls._id}`)}
-            >
-              <h3>{cls.className}</h3>
-              <p><strong>Level:</strong> {cls.level}</p>
-              <p><strong>Students:</strong> {cls.students?.length || 0}</p>
-            </div>
+        <div className="grid-cards">
+          {classes.map((c) => (
+            <article key={c._id} className="card card-hover" style={{ display: "flex", flexDirection: "column", gap: ".9rem" }}>
+              <div className="row" style={{ justifyContent: "space-between", flexWrap: "nowrap" }}>
+                <span className="avatar" style={{ width: 48, height: 48, borderRadius: 14 }}><GraduationCap size={22} /></span>
+                <span className="badge-pill">{c.level}</span>
+              </div>
+              <div><h3 style={{ margin: 0, fontSize: "1.25rem" }}>{c.className}</h3>
+                <small className="muted">{c.students?.length ?? 0} student{c.students?.length === 1 ? "" : "s"}</small></div>
+              <div className="row" style={{ marginTop: "auto" }}>
+                <Link to={`/class/${c._id}`} className="btn btn-secondary btn-sm">Students <ArrowRight size={14} /></Link>
+                <Link to="/attendance" className="btn btn-ghost btn-sm"><ClipboardCheck size={14} /> Attendance</Link>
+              </div>
+            </article>
           ))}
         </div>
       )}
     </div>
-  </div>
-);
-
-};
-
-
-export default Classes;
+  );
+}

@@ -1,0 +1,8 @@
+.att-toggle { display: inline-flex; align-items: center; gap: .5rem; font-weight: 600; font-size: .88rem; color: var(--muted); cursor: pointer; }
+.att-bar { display: flex; align-items: center; gap: .7rem; }
+.att-bar .track { flex: 1; height: 9px; border-radius: 9px; background: var(--teal-50); overflow: hidden; }
+.att-bar .fill { display: block; height: 100%; border-radius: 9px; transition: width .6s ease; }
+.att-bar .fill.green { background: var(--green); }
+.att-bar .fill.amber { background: var(--amber); }
+.att-bar .fill.coral { background: var(--coral); }
+.att-bar b { width: 42px; text-align: right; font-size: .82rem; font-variant-numeric: tabular-nums; }

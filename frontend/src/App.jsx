@@ -1,53 +1,46 @@
 import "./styles/App.css";
-import { Outlet } from "react-router-dom";
-import { Toaster as SonnerToaster, toast } from "sonner";
-import { Toaster as HotToastToaster } from "react-hot-toast";
-import { LocalizationProvider } from '@mui/x-date-pickers';
-import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { useUserContext } from "./context/userContext";  
-import { useEffect, useState } from "react";
+import { Outlet, ScrollRestoration } from "react-router-dom";
+import { Toaster, toast } from "react-hot-toast";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { useEffect } from "react";
+
+const toastOptions = {
+  duration: 4000,
+  style: {
+    fontFamily: "var(--font-body)",
+    fontWeight: 600,
+    fontSize: ".9rem",
+    color: "var(--dark)",
+    background: "#fff",
+    border: "1px solid var(--border)",
+    borderRadius: "14px",
+    boxShadow: "0 12px 36px rgba(14,42,38,.16)",
+    padding: ".7rem 1rem",
+  },
+  success: { iconTheme: { primary: "#1a8c7a", secondary: "#fff" } },
+  error: { iconTheme: { primary: "#dc4c3c", secondary: "#fff" } },
+};
 
 function App() {
-  const { fetchUserDetails } = useUserContext();  
-  const [offlineMode, setOfflineMode] = useState(!navigator.onLine);
-
+  /* announce connectivity changes once, without reloading the page under the user */
   useEffect(() => {
-    fetchUserDetails();
-
-    const handleOffline = () => {
-      setOfflineMode(true);
-      toast("You are offline. Some features may be limited.");
-    };
-    const handleOnline = () => {
-      setOfflineMode(false);
-      toast.success("Back online!");
-      window.location.reload()
-    };
-
-    window.addEventListener("offline", handleOffline);
-    window.addEventListener("online", handleOnline);
-
+    const off = () => toast("You are offline. Some features are limited.", { icon: "📡", id: "net" });
+    const on = () => toast.success("Back online", { id: "net" });
+    window.addEventListener("offline", off);
+    window.addEventListener("online", on);
     return () => {
-      window.removeEventListener("offline", handleOffline);
-      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", off);
+      window.removeEventListener("online", on);
     };
   }, []);
 
   return (
-    <>
-      {offlineMode && (
-        <div style={{backgroundColor:"#fcd34d", padding:"5px", textAlign:"center"}}>
-          Offline Mode Enabled
-        </div>
-      )}
-      <main className="min-h-[calc(100vh-120px)]">
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <Outlet />
-        </LocalizationProvider>
-        <SonnerToaster richColors position="top-right" />
-        <HotToastToaster />
-      </main>
-    </>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
+      <Outlet />
+      <ScrollRestoration />
+      <Toaster position="top-right" toastOptions={toastOptions} containerClassName="toast-root" />
+    </LocalizationProvider>
   );
 }
 

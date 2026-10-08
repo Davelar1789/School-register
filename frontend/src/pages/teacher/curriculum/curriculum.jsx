@@ -1,9 +1,12 @@
 import React, { useEffect, useState, useCallback } from "react";
 import axios from "../../../api/axios";
-import Sidebar from "../../../components/Teacher/TeacherSidebar";
-import Header from "../../../components/Teacher/TeacherHeader";
 import curriculumData from "./curriculumData"; // adjust path if needed
-import "./Curriculum.modules.css";
+import { ChevronRight, GraduationCap, BookOpen, Search } from "lucide-react";
+import { decodeToken } from "../../../utils/auth";
+import PageHeader from "../../../components/ui/PageHeader";
+import EmptyState from "../../../components/ui/EmptyState";
+import Loading from "../../../components/ui/Loading";
+import "./Curriculum.css";
 
 const TERMS = [1, 2, 3];
 
@@ -17,9 +20,8 @@ const Curriculum = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const teacher = JSON.parse(localStorage.getItem("teacher"));
-  const teacherId = teacher?.id;
-  const teacherType = teacher?.teacherType;
+  const [filter, setFilter] = useState("");
+  const teacherId = decodeToken()?.id;
 
   // ── Step 1: Fetch classes ────────────────────────────────────────────────
   const fetchClasses = useCallback(async () => {
@@ -132,186 +134,75 @@ const Curriculum = () => {
 
   const curriculumRows = getCurriculumRows();
 
-  // ── Render ────────────────────────────────────────────────────────────────
+  const q = filter.trim().toLowerCase();
+  const shownRows = !q ? curriculumRows : curriculumRows.filter((r) =>
+    `${r.week} ${r.subStrand} ${r.contentStandards} ${[].concat(r.indicators || []).join(" ")}`.toLowerCase().includes(q));
+
+  const title = step === "classes" ? "Curriculum" : step === "subjects" ? selectedClass?.className : selectedSubject?.subjectName;
+
   return (
-    <div className="curriculum-wrapper">
-      <Header />
-      <Sidebar />
+    <div className="page">
+      <PageHeader title={title} subtitle={step === "classes" ? "Pick a class to browse its scheme of work." : step === "subjects" ? "Choose a subject." : `${selectedClass?.className} · weekly scheme of work`} />
 
-      <div className="curriculum-container">
+      <nav className="cur-crumbs" aria-label="Breadcrumb">
+        <button className={step === "classes" ? "on" : ""} onClick={goToClasses}>Classes</button>
+        {selectedClass && <><ChevronRight size={14} /><button className={step === "subjects" ? "on" : ""} onClick={goToSubjects} disabled={step === "subjects"}>{selectedClass.className}</button></>}
+        {selectedSubject && <><ChevronRight size={14} /><span className="on">{selectedSubject.subjectName}</span></>}
+        {step !== "classes" && <button className="cur-back" onClick={goBack}>← Back</button>}
+      </nav>
 
-        {/* Breadcrumb */}
-        <div className="curriculum-breadcrumb">
-          <span
-            className={step === "classes" ? "crumb active" : "crumb clickable"}
-            onClick={goToClasses}
-          >
-            Classes
-          </span>
-          {selectedClass && (
-            <>
-              <span className="crumb-sep">›</span>
-              <span
-                className={step === "subjects" ? "crumb active" : "crumb clickable"}
-                onClick={goToSubjects}
-              >
-                {selectedClass.className}
-              </span>
-            </>
-          )}
-          {selectedSubject && (
-            <>
-              <span className="crumb-sep">›</span>
-              <span className="crumb active">{selectedSubject.subjectName}</span>
-            </>
-          )}
+      {error && <p className="alert error" role="alert">{error}</p>}
+      {loading && <Loading />}
+
+      {!loading && step === "classes" && (classes.length === 0 ? (
+        <div className="card"><EmptyState emoji="🏫" title="No classes assigned to you">Ask your admin to assign you to a class.</EmptyState></div>
+      ) : (
+        <div className="grid-cards">
+          {classes.map((cls) => (
+            <button key={cls._id} className="card card-hover cur-card" onClick={() => handleClassClick(cls)}>
+              <span className="avatar"><GraduationCap size={20} /></span><span><strong>{cls.className}</strong><small>{cls.level}</small></span><ChevronRight size={18} />
+            </button>))}
         </div>
+      ))}
 
-        {/* Back button */}
-        {step !== "classes" && (
-          <button className="back-btn" onClick={goBack}>← Back</button>
-        )}
-
-        {/* Title + badge */}
-        <div className="curriculum-title-row">
-          <h2 className="curriculum-heading">
-            {step === "classes" && "Select a Class"}
-            {step === "subjects" && `Subjects — ${selectedClass?.className}`}
-            {step === "curriculum" && "Curriculum"}
-          </h2>
+      {!loading && step === "subjects" && (subjects.length === 0 ? (
+        <div className="card"><EmptyState emoji="📚" title="No subjects found for this class" /></div>
+      ) : (
+        <div className="grid-cards">
+          {subjects.map((sub, idx) => (
+            <button key={sub.subjectId || idx} className="card card-hover cur-card" onClick={() => handleSubjectClick(sub)}>
+              <span className="avatar" style={{ background: "var(--blue-light)", color: "var(--blue)" }}><BookOpen size={20} /></span><span><strong>{sub.subjectName}</strong><small>View scheme of work</small></span><ChevronRight size={18} />
+            </button>))}
         </div>
+      ))}
 
-        {/* Error */}
-        {error && <div className="curriculum-error">{error}</div>}
-
-        {/* Loading */}
-        {loading && <div className="curriculum-loading">Loading...</div>}
-
-        {/* ── STEP 1: Classes ─────────────────────────────────────────────── */}
-        {!loading && step === "classes" && (
-          <div className="curriculum-grid">
-            {classes.length === 0 ? (
-              <p className="curriculum-empty">No classes assigned to you.</p>
-            ) : (
-              classes.map((cls) => (
-                <div
-                  key={cls._id}
-                  className="curriculum-card class-card"
-                  onClick={() => handleClassClick(cls)}
-                >
-                  <div className="card-icon">🏫</div>
-                  <h3>{cls.className}</h3>
-                  <p className="card-meta">{cls.level}</p>
-                </div>
-              ))
-            )}
-          </div>
-        )}
-
-        {/* ── STEP 2: Subjects ────────────────────────────────────────────── */}
-        {!loading && step === "subjects" && (
-          <div className="curriculum-grid">
-            {subjects.length === 0 ? (
-              <p className="curriculum-empty">No subjects found for this class.</p>
-            ) : (
-              subjects.map((sub, idx) => (
-                <div
-                  key={sub.subjectId || idx}
-                  className="curriculum-card subject-card"
-                  onClick={() => handleSubjectClick(sub)}
-                >
-                  <div className="card-icon">📚</div>
-                  <h3>{sub.subjectName}</h3>
-                  <p className="card-meta">Click to view curriculum</p>
-                </div>
-              ))
-            )}
-          </div>
-        )}
-
-        {/* ── STEP 3: Curriculum Table ─────────────────────────────────────── */}
-        {!loading && step === "curriculum" && (
-          <div className="curriculum-content">
-
-            {/* Class + Subject banner */}
-            <div className="curriculum-table-header">
-              <div className="cth-item">
-                <span className="cth-label">Class</span>
-                <span className="cth-value">{selectedClass?.className}</span>
-              </div>
-              <div className="cth-divider" />
-              <div className="cth-item">
-                <span className="cth-label">Subject</span>
-                <span className="cth-value">{selectedSubject?.subjectName}</span>
-              </div>
+      {!loading && step === "curriculum" && (
+        <>
+          <div className="toolbar">
+            <div className="tabs" role="tablist" aria-label="Term">
+              {TERMS.map((t) => <button key={t} role="tab" aria-selected={activeTerm === t} className={`tab ${activeTerm === t ? "active" : ""}`} onClick={() => setActiveTerm(t)}>Term {t}</button>)}
             </div>
-
-            {/* Term tabs */}
-            <div className="term-tabs">
-              {TERMS.map((term) => (
-                <button
-                  key={term}
-                  className={`term-tab ${activeTerm === term ? "active" : ""}`}
-                  onClick={() => setActiveTerm(term)}
-                >
-                  Term {term}
-                </button>
-              ))}
-            </div>
-
-            {/* Table or empty state */}
-            {curriculumRows.length === 0 ? (
-              <div className="curriculum-empty-box">
-                <span className="empty-icon">📄</span>
-                <p>
-                  No curriculum data yet for{" "}
-                  <strong>{selectedSubject?.subjectName}</strong> —{" "}
-                  <strong>{selectedClass?.className}</strong>, Term {activeTerm}.
-                </p>
-                <p className="empty-hint">
-                  {/* Add rows to <code>curriculumData.js</code> to populate this table. */}
-                </p>
-              </div>
-            ) : (
-              <div className="curriculum-table-wrap">
-                <table className="curriculum-table">
-                  <thead>
-                    <tr>
-                      <th className="col-week">Week</th>
-                      <th className="col-substrand">Sub-Strand</th>
-                      <th className="col-standards">Content Standards</th>
-                      <th className="col-indicators">Indicators</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {curriculumRows.map((row, idx) => (
-                      <tr key={idx} className={idx % 2 === 0 ? "row-even" : "row-odd"}>
-                        <td className="col-week">
-                          <span className="week-badge">{row.week}</span>
-                        </td>
-                        <td className="col-substrand">{row.subStrand}</td>
-                        <td className="col-standards">{row.contentStandards}</td>
-                        <td className="col-indicators">
-                          {Array.isArray(row.indicators) ? (
-                            <ul className="indicators-list">
-                              {row.indicators.map((ind, i) => (
-                                <li key={i}>{ind}</li>
-                              ))}
-                            </ul>
-                          ) : (
-                            row.indicators
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            {curriculumRows.length > 4 && <div className="search-input-wrap"><Search size={16} /><input className="input" placeholder="Search this term…" value={filter} onChange={(e) => setFilter(e.target.value)} aria-label="Search curriculum" /></div>}
           </div>
-        )}
-
-      </div>
+          {curriculumRows.length === 0 ? (
+            <div className="card"><EmptyState emoji="📄" title={`No curriculum for Term ${activeTerm} yet`}>
+              We don't have a scheme of work for <b>{selectedSubject?.subjectName}</b> in <b>{selectedClass?.className}</b> for this term.</EmptyState></div>
+          ) : shownRows.length === 0 ? (
+            <div className="card"><EmptyState emoji="🔍" title="Nothing matches your search" /></div>
+          ) : (
+            <div className="table-wrap"><table className="data-table cur-table">
+              <thead><tr><th style={{ width: 80 }}>Week</th><th>Sub-strand</th><th>Content standard</th><th>Indicators</th></tr></thead>
+              <tbody>{shownRows.map((row, idx) => (
+                <tr key={idx}>
+                  <td><span className="badge-pill">Wk {row.week}</span></td>
+                  <td><strong>{row.subStrand}</strong></td>
+                  <td>{row.contentStandards}</td>
+                  <td>{Array.isArray(row.indicators) ? <ul className="cur-ind">{row.indicators.map((ind, i) => <li key={i}>{ind}</li>)}</ul> : row.indicators}</td>
+                </tr>))}</tbody>
+            </table></div>
+          )}
+        </>
+      )}
     </div>
   );
 };

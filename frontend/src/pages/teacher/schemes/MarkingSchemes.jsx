@@ -1,147 +1,73 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import api from "../../../api/axios";
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
-import { Lock, Unlock, Download, Eye, ChevronLeft, BookOpenCheck, School } from "lucide-react";
-import "./MarkingSchemes.modules.css";
+import { ChevronRight, Download, Eye, Lock, School } from "lucide-react";
+import api from "../../../api/axios";
+import PageHeader from "../../../components/ui/PageHeader";
+import EmptyState from "../../../components/ui/EmptyState";
+import Loading from "../../../components/ui/Loading";
 
-const MarkingSchemes = () => {
-  const navigate = useNavigate();
+const fmt = (d) => new Date(d).toLocaleString(undefined, { weekday: "short", month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" });
+
+export default function MarkingSchemes() {
   const [classes, setClasses] = useState([]);
-  const [selectedClass, setSelectedClass] = useState(null);
+  const [selected, setSelected] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [accessingId, setAccessingId] = useState(null);
+  const [busy, setBusy] = useState(null);
 
   useEffect(() => {
-    const fetchScope = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        const res = await api.get("/api/marking-schemes/teacher/my-scope", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setClasses(res.data.classes);
-      } catch (err) {
-        console.error(err);
-        toast.error("Failed to load marking schemes.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchScope();
+    api.get("/api/marking-schemes/teacher/my-scope")
+      .then(({ data }) => setClasses(data.classes || []))
+      .catch(() => toast.error("Couldn't load marking schemes"))
+      .finally(() => setLoading(false));
   }, []);
 
-const handleAccess = async (schemeId, mode, className, subjectName) => {
-  try {
-    setAccessingId(schemeId);
-    const token = localStorage.getItem("token");
-    const res = await api.get(`/api/marking-schemes/teacher/access/${schemeId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    const { fileUrl, title } = res.data;
-    const cleanName = `${className}_${subjectName}`.replace(/\s+/g, "_");
-
-    if (mode === "open") {
-      window.open(fileUrl, "_blank", "noopener,noreferrer");
-    } else {
-      const link = document.createElement("a");
-      link.href = fileUrl;
-      link.setAttribute("download", `${cleanName}_${title || "marking-scheme"}`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    }
-  } catch (err) {
-    const msg = err.response?.data?.message || "Unable to access this marking scheme.";
-    toast.error(msg);
-  } finally {
-    setAccessingId(null);
-  }
-};
-
-  const formatDate = (d) =>
-    new Date(d).toLocaleString("en-US", {
-      weekday: "short", month: "short", day: "numeric",
-      year: "numeric", hour: "numeric", minute: "2-digit",
-    });
-
-  if (loading) {
-    return <div className="ms-page"><p className="ms-loading">Loading marking schemes…</p></div>;
-  }
+  const access = async (subj, mode) => {
+    setBusy(`${subj.schemeId}:${mode}`);
+    try {
+      const { data } = await api.get(`/api/marking-schemes/teacher/access/${subj.schemeId}`);
+      if (mode === "open") window.open(data.fileUrl, "_blank", "noopener,noreferrer");
+      else {
+        const a = document.createElement("a");
+        a.href = data.fileUrl;
+        a.download = `${selected.className}_${subj.subjectName}_${data.title || "marking-scheme"}`.replace(/\s+/g, "_");
+        a.target = "_blank"; a.rel = "noopener noreferrer";
+        document.body.appendChild(a); a.click(); a.remove();
+      }
+    } catch (err) { toast.error(err.response?.data?.message || "Unable to open this marking scheme"); } finally { setBusy(null); }
+  };
 
   return (
-    <div className="ms-page">
-      <div className="ms-header">
-        <button className="ms-back-btn" onClick={() => navigate("/teacher-dashboard")}>
-          <ChevronLeft size={18} /> Back to Dashboard
-        </button>
-        <h1 className="ms-title">
-          <BookOpenCheck size={22} /> End of Term Marking Schemes
-        </h1>
-      </div>
-
-      {classes.length === 0 ? (
-        <div className="ms-empty">
-          <p>No marking schemes have been assigned to your classes yet.</p>
-        </div>
-      ) : !selectedClass ? (
-        <div className="ms-class-grid">
-          {classes.map((cls) => (
-            <button
-              key={cls.classId}
-              className="ms-class-card"
-              onClick={() => setSelectedClass(cls)}
-            >
-              <span className="ms-class-icon"><School size={22} /></span>
-              <span className="ms-class-name">{cls.className}</span>
-              <span className="ms-class-count">{cls.subjects.length} subject(s)</span>
-            </button>
-          ))}
+    <div className="page page-narrow">
+      <PageHeader crumbs={selected ? [{ label: "Marking schemes", to: "/marking-schemes" }, { label: selected.className }] : undefined}
+        title={selected ? selected.className : "Marking schemes"} subtitle={selected ? "Schemes unlock automatically at the time set by your admin." : "End-of-term marking schemes for the classes you teach."} />
+      {loading ? <Loading /> : classes.length === 0 ? (
+        <div className="card"><EmptyState emoji="📝" title="Nothing here yet">No marking schemes have been shared for your classes and subjects.</EmptyState></div>
+      ) : !selected ? (
+        <div className="grid-cards">
+          {classes.map((c) => (
+            <button key={c.classId} className="cur-card card-hover" onClick={() => setSelected(c)} style={{ all: "unset", boxSizing: "border-box", cursor: "pointer", display: "flex", alignItems: "center", gap: ".9rem", background: "#fff", border: "1px solid var(--border)", borderRadius: "var(--r-lg)", padding: "1.1rem 1.2rem", boxShadow: "var(--shadow-sm)" }}>
+              <span className="avatar"><School size={20} /></span>
+              <span style={{ flex: 1 }}><strong style={{ display: "block", color: "var(--dark)" }}>{c.className}</strong><small className="muted">{c.subjects.length} subject{c.subjects.length === 1 ? "" : "s"}</small></span>
+              <ChevronRight size={18} color="var(--subtle)" />
+            </button>))}
         </div>
       ) : (
-        <div className="ms-subjects-section">
-          <button className="ms-back-btn ms-back-inline" onClick={() => setSelectedClass(null)}>
-            <ChevronLeft size={18} /> All Classes
-          </button>
-          <h2 className="ms-class-heading">{selectedClass.className}</h2>
-
-<div className="ms-subject-list">
-  {selectedClass.subjects.map((subj) => (
-    <div key={subj.subjectId} className={`ms-subject-card ${!subj.isUnlocked ? "locked" : ""}`}>
-      <div className="ms-subject-info">
-        <span className="ms-subject-class-tag">{selectedClass.className}</span>
-        <span className="ms-subject-name">{subj.subjectName}</span>
-        <span className="ms-subject-meta">{subj.term} · {subj.academicYear}</span>
-        {!subj.isUnlocked && (
-          <span className="ms-lock-note">
-            <Lock size={13} /> Unlocks {formatDate(subj.availableFrom)}
-          </span>
-        )}
-      </div>
-
-      <div className="ms-subject-actions">
-        {/* <button
-          disabled={!subj.isUnlocked || accessingId === subj.schemeId}
-          onClick={() => handleAccess(subj.schemeId, "open", selectedClass.className, subj.subjectName)}
-          className="ms-action-btn ms-open-btn"
-        >
-          {subj.isUnlocked ? <Unlock size={15} /> : <Lock size={15} />} Open
-        </button> */}
-        <button
-          disabled={!subj.isUnlocked || accessingId === subj.schemeId}
-          onClick={() => handleAccess(subj.schemeId, "download", selectedClass.className, subj.subjectName)}
-          className="ms-action-btn ms-download-btn"
-        >
-          <Download size={15} /> Download
-        </button>
-      </div>
-    </div>
-  ))}
-</div>
+        <div style={{ display: "flex", flexDirection: "column", gap: ".8rem" }}>
+          <button className="btn btn-ghost btn-sm" style={{ alignSelf: "flex-start" }} onClick={() => setSelected(null)}>← All classes</button>
+          {selected.subjects.map((s) => (
+            <article key={s.subjectId} className="card" style={{ display: "flex", alignItems: "center", gap: "1rem", flexWrap: "wrap", opacity: s.isUnlocked ? 1 : .85 }}>
+              <div style={{ flex: 1, minWidth: 200 }}>
+                <strong style={{ color: "var(--dark)", fontSize: "1.02rem" }}>{s.subjectName}</strong><br />
+                <small className="muted">{s.term} · {s.academicYear}</small>
+                {!s.isUnlocked && <div style={{ marginTop: ".4rem" }}><span className="badge-pill amber"><Lock size={12} /> Unlocks {fmt(s.availableFrom)}</span></div>}
+              </div>
+              <div className="row">
+                <button className="btn btn-outline btn-sm" disabled={!s.isUnlocked || busy === `${s.schemeId}:open`} onClick={() => access(s, "open")}><Eye size={15} /> View</button>
+                <button className="btn btn-sm" disabled={!s.isUnlocked || busy === `${s.schemeId}:download`} onClick={() => access(s, "download")}><Download size={15} /> Download</button>
+              </div>
+            </article>))}
         </div>
       )}
     </div>
   );
-};
-
-export default MarkingSchemes;
+}

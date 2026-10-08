@@ -1,5 +1,5 @@
 import express from "express";
-import { markAttendance, updateAttendance2, fetchAttendance, fetchUnmarkedDates, updateAttendance, markAttendanceBatch, fetchStudentAttendance, fetchTotalFeesBySchoolView, getFeedingDaily, getFeedingWeekly, getFeedingMonthly } from "../controllers/attendanceController.js";
+import { markAttendance, updateAttendance2, fetchAttendance, fetchUnmarkedDates, updateAttendance, markAttendanceBatch, fetchStudentAttendance, fetchTotalFeesBySchoolView, getFeedingDaily, getFeedingWeekly, getFeedingMonthly, getSchoolAttendanceToday, getMyAttendanceToday } from "../controllers/attendanceController.js";
 import { protect } from "../middleware/authMiddleware.js"; // If you have auth
 
 const router = express.Router();
@@ -12,6 +12,8 @@ router.get("/fetch", fetchAttendance); // Fetch attendance (by term, class, or s
 router.get("/student-total", fetchStudentAttendance);
 router.get("/feeding-total/school/:schoolId", fetchTotalFeesBySchoolView);
 router.put("/update/:attendanceId", updateAttendance); // Update attendance
+router.get("/school-today/:schoolId", protect, getSchoolAttendanceToday);
+router.get("/my-today", protect, getMyAttendanceToday);
 router.get("/feeding/daily", getFeedingDaily);
 router.get("/feeding/weekly", getFeedingWeekly);
 router.get("/feeding/monthly", getFeedingMonthly);

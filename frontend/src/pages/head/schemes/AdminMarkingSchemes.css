@@ -1,0 +1,14 @@
+.ams-list { display: flex; flex-direction: column; gap: .8rem; }
+.ams-item { display: flex; align-items: center; gap: 1rem; padding: 1rem 1.2rem; }
+.ams-ico { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: var(--amber-light); color: #b97800; flex-shrink: 0; }
+.ams-ico.open { background: var(--green-light); color: var(--green); }
+.ams-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: .25rem; align-items: flex-start; }
+.ams-info strong { color: var(--dark); }
+.ams-info small { color: var(--muted); }
+.ams-drop { display: flex; align-items: center; gap: .8rem; padding: 1rem 1.2rem; border: 2px dashed var(--border-strong); border-radius: 14px; background: var(--teal-50); color: var(--teal-deep); cursor: pointer; margin-top: .4rem; }
+.ams-drop.has { border-style: solid; background: #fff; }
+.ams-drop.bad { border-color: var(--danger); }
+.ams-drop:hover { border-color: var(--teal); }
+.ams-drop input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.ams-drop:focus-within { outline: 3px solid rgba(26,140,122,.35); outline-offset: 2px; }
+@media (max-width: 640px) { .ams-item { flex-wrap: wrap; } }

@@ -1,184 +1,92 @@
-import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { toast, Toaster } from "react-hot-toast";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import { Eye, EyeOff } from "lucide-react";
 import api from "../../../api/axios";
-import "./AddSchool.modules.css";
-import Header2 from "../../../components/SuperAdmin/Header3";
-import Sidebar from "../../../components/SuperAdmin/Sidebar2";
+import PageHeader from "../../../components/ui/PageHeader";
 
-function AddSchool() {
+const BLANK = { schoolName: "", headmasterName: "", email: "", phone: "", address: "", password: "", confirmPassword: "" };
+
+export default function AddSchool() {
   const navigate = useNavigate();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    schoolName: "",
-    email: "",
-    phone: "",
-    address: "",
-    headmasterName: "",
-    password: "",
-    confirmPassword: "",
-  });
+  const [form, setForm] = useState(BLANK);
+  const [errors, setErrors] = useState({});
+  const [show, setShow] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const set = (k) => (e) => { setForm((f) => ({ ...f, [k]: e.target.value })); setErrors((x) => ({ ...x, [k]: undefined })); };
 
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const validate = () => {
+    const v = {};
+    if (!form.schoolName.trim()) v.schoolName = "Enter the school's name";
+    if (!form.headmasterName.trim()) v.headmasterName = "Enter the head's name";
+    if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) v.email = "Enter a valid email address";
+    if (!/^[0-9+()\-\s]{7,20}$/.test(form.phone.trim())) v.phone = "Enter a valid phone number";
+    if (!form.address.trim()) v.address = "Enter the address";
+    if (form.password.length < 8) v.password = "Use at least 8 characters";
+    if (form.confirmPassword !== form.password) v.confirmPassword = "Passwords don't match";
+    setErrors(v);
+    return !Object.keys(v).length;
   };
 
-  const handleSubmit = async (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match!");
-      return;
-    }
-
-    setLoading(true);
-
+    if (!validate()) return;
+    setBusy(true);
+    const email = form.email.trim().toLowerCase();
     try {
-      const token = localStorage.getItem("token");
-
-      const response = await api.post(
-        "/api/schools/register",
-        {
-          name: formData.schoolName,
-          headmaster: formData.headmasterName,
-          email: formData.email,
-          phone: formData.phone,
-          address: formData.address,
-          city: "N/A",
-          state: "N/A",
-          country: "N/A",
-          website: "N/A",
-          establishedYear: "N/A",
-          numberOfStudents: 0,
-          numberOfTeachers: 0,
-          numberOfClasses: 0,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      console.log("School Registered:", response.data);
-      toast.success("School added successfully! 🎉");
-
+      // 1. the school's administrator account (reused if it already exists)
+      try {
+        await api.post("/api/users/register", { fullName: form.headmasterName.trim(), email, password: form.password });
+      } catch (err) {
+        if (!/already in use by a system user/i.test(err.response?.data?.message || "")) throw err;
+      }
+      // 2. the school itself, linked to that administrator
+      const { data } = await api.post("/api/schools/register", {
+        name: form.schoolName.trim(), headmaster: form.headmasterName.trim(), email, phone: form.phone.trim(), address: form.address.trim(),
+        numberOfStudents: 0, numberOfTeachers: 0, numberOfClasses: 0,
+      });
+      // 3. schools added by a super admin are trusted — approve straight away
+      if (data?.school?._id) await api.put(`/api/superschool/approve/${data.school._id}`).catch(() => {});
+      toast.success(`${form.schoolName.trim()} is ready to go 🎉`);
       navigate("/all-schools");
     } catch (err) {
-      console.error("Error adding school:", err.response?.data || err.message);
-      toast.error(err.response?.data?.message || "Something went wrong!");
-    } finally {
-      setLoading(false);
-    }
+      toast.error(err.response?.data?.message || "Couldn't add the school");
+    } finally { setBusy(false); }
   };
 
+  const Field = ({ id, label, type = "text", ...rest }) => (
+    <div className="field"><label htmlFor={id}>{label} *</label>
+      <input id={id} type={type} className={`input ${errors[id] ? "is-invalid" : ""}`} value={form[id]} onChange={set(id)} {...rest} />
+      {errors[id] && <span className="error">{errors[id]}</span>}</div>
+  );
+
   return (
-    <div className="superadmin-container">
-    {/* Sidebar */}
-    <Sidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
-
-    {/* Main Content */}
-    <div className="superadmin-main">
-      {/* Header */}
-      <Header2 toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
-
-    <div className="addschool-container">
-      <Toaster position="top-right" reverseOrder={false} />
-
-      <div className="addschool-form-container">
-        <h1>Add New School</h1>
-
-        <form onSubmit={handleSubmit} className="addschool-form">
-          <div className="input-group">
-            <label>School Name</label>
-            <input
-              type="text"
-              name="schoolName"
-              value={formData.schoolName}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="input-group">
-            <label>Email Address</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="input-group">
-            <label>Phone Number</label>
-            <input
-              type="tel"
-              name="phone"
-              value={formData.phone}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="input-group">
-            <label>School Address</label>
-            <input
-              type="text"
-              name="address"
-              value={formData.address}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="input-group">
-            <label>Headmaster's Name</label>
-            <input
-              type="text"
-              name="headmasterName"
-              value={formData.headmasterName}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="input-group">
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="input-group">
-            <label>Confirm Password</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <button type="submit" className="submit-button" disabled={loading}>
-            {loading ? "Adding..." : "Add School"}
-          </button>
-        </form>
-
-        <Link to="/all-schools" className="back-link">← Back to All Schools</Link>
-      </div>
-    </div>
-    </div>
+    <div className="page page-narrow">
+      <PageHeader crumbs={[{ label: "Schools", to: "/all-schools" }, { label: "Add school" }]} title="Add a school"
+        subtitle="Creates the school and its administrator login in one step. The school is approved immediately." />
+      <form className="card" onSubmit={submit} noValidate>
+        <div className="form-grid">
+          <Field id="schoolName" label="School name" autoComplete="organization" />
+          <Field id="headmasterName" label="Head of school" autoComplete="name" />
+          <Field id="email" label="Admin email" type="email" autoComplete="email" />
+          <Field id="phone" label="Phone" type="tel" autoComplete="tel" />
+        </div>
+        <Field id="address" label="Address" autoComplete="street-address" />
+        <div className="form-grid">
+          <div className="field"><label htmlFor="password">Password *</label>
+            <div className="search-input-wrap" style={{ flex: "none" }}>
+              <input id="password" type={show ? "text" : "password"} className={`input ${errors.password ? "is-invalid" : ""}`} value={form.password} onChange={set("password")} autoComplete="new-password" style={{ paddingLeft: ".9rem" }} />
+              <button type="button" className="btn btn-ghost btn-icon btn-sm" onClick={() => setShow((s) => !s)} aria-label={show ? "Hide password" : "Show password"} style={{ position: "absolute", right: 4, top: 4 }}>{show ? <EyeOff size={16} /> : <Eye size={16} />}</button>
+            </div>
+            {errors.password && <span className="error">{errors.password}</span>}</div>
+          <Field id="confirmPassword" label="Confirm password" type={show ? "text" : "password"} autoComplete="new-password" />
+        </div>
+        <p className="muted" style={{ fontSize: ".84rem" }}>If an administrator with this email already exists, they're linked to the new school and their password stays unchanged.</p>
+        <div className="row" style={{ justifyContent: "flex-end" }}>
+          <Link to="/all-schools" className="btn btn-outline">Cancel</Link>
+          <button className="btn" disabled={busy}>{busy ? "Creating…" : "Create school"}</button>
+        </div>
+      </form>
     </div>
   );
 }
-
-export default AddSchool;

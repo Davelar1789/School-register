@@ -1,65 +1,48 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import { jwtDecode } from "jwt-decode";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import api from "../api/axios";
+import { clearSession, decodeToken, isExpired, loginPathFor } from "../utils/auth";
 
-const UserContext = createContext();
+const UserContext = createContext({ currentUser: null, fetchUserDetails: async () => {}, logout: () => {} });
 
 export const UserProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
 
-  const logout = () => {
-    localStorage.clear();
+  const logout = useCallback(() => {
+    const role = decodeToken()?.role;
+    clearSession();
     setCurrentUser(null);
-    window.location.href = "/teacher-login"; // safer navigation
-  };
-
-  const fetchUserDetails = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        // console.log("No token found in local storage.");
-        return;
-      }
-      const decoded = jwtDecode(token);
-      const currentTime = Date.now() / 1000;
-     
-      if (decoded.exp < currentTime) {
-       
-        logout();
-        return;
-      }
-      // If user is not an admin, just use decoded info
-      if (decoded.role !== "admin") {
-        setCurrentUser(decoded);
-        return;
-      }
-      // For admin, fetch full profile
-      const response = await api.get("/api/users/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setCurrentUser(response.data);
-    } catch (error) {
-      // console.error("Error fetching user:", error?.response?.data || error.message);
-      // logout(); // comment this to test behavior
-    }
-  };
-  
-  useEffect(() => {
-    fetchUserDetails();
-
-    // Optional: auto-check every 30s if token expired
-    const interval = setInterval(() => {
-      fetchUserDetails();
-    }, 30000); // every 30s
-
-    return () => clearInterval(interval);
+    window.location.href = loginPathFor(role);
   }, []);
 
-  return (
-    <UserContext.Provider value={{ currentUser, fetchUserDetails }}>
-      {children}
-    </UserContext.Provider>
-  );
+  const fetchUserDetails = useCallback(async () => {
+    const decoded = decodeToken();
+    if (!decoded) { setCurrentUser(null); return; }
+
+    // Teachers may legitimately hold an expired token while offline; others must sign in again.
+    if (isExpired(decoded) && navigator.onLine) { logout(); return; }
+
+    if (decoded.role !== "admin") { setCurrentUser(decoded); return; }
+
+    try {
+      const { data } = await api.get("/api/users/profile");
+      setCurrentUser(data);
+    } catch {
+      setCurrentUser(decoded); // offline / transient failure: fall back to the token
+    }
+  }, [logout]);
+
+  useEffect(() => {
+    fetchUserDetails();
+    // cheap local expiry check — no network involved
+    const timer = setInterval(() => {
+      const decoded = decodeToken();
+      if (decoded && isExpired(decoded) && navigator.onLine) logout();
+    }, 60000);
+    return () => clearInterval(timer);
+  }, [fetchUserDetails, logout]);
+
+  const value = useMemo(() => ({ currentUser, fetchUserDetails, logout }), [currentUser, fetchUserDetails, logout]);
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };
 
 export const useUserContext = () => useContext(UserContext);

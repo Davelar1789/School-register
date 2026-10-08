@@ -1,193 +1,146 @@
-import React, { useEffect, useState } from "react";
-import api from "../../../api/axios";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
-import { UploadCloud, Trash2, FileText } from "lucide-react";
-import "./AdminMarkingSchemes.modules.css";
+import { FileText, Lock, LockOpen, Plus, Trash2, UploadCloud } from "lucide-react";
+import api from "../../../api/axios";
+import PageHeader from "../../../components/ui/PageHeader";
+import Modal from "../../../components/ui/Modal";
+import ConfirmDialog from "../../../components/ui/ConfirmDialog";
+import EmptyState from "../../../components/ui/EmptyState";
+import Loading from "../../../components/ui/Loading";
+import "./AdminMarkingSchemes.css";
 
-const AdminMarkingSchemes = () => {
+const TERMS = ["First Term", "Second Term", "Third Term"];
+const MAX_MB = 15;
+const BLANK = { classId: "", subjectId: "", term: "First Term", academicYear: "", title: "", availableFrom: "" };
+
+export default function AdminMarkingSchemes() {
+  const schoolId = useMemo(() => { try { return JSON.parse(localStorage.getItem("schoolData"))?._id; } catch { return null; } }, []);
   const [schemes, setSchemes] = useState([]);
-  const [classesList, setClassesList] = useState([]); // fetch from your existing /api/classes endpoint
-  const [subjectsList, setSubjectsList] = useState([]); // fetch from your existing /api/subjects endpoint
-  const [form, setForm] = useState({
-    classId: "", subjectId: "", term: "First Term",
-    academicYear: "", title: "", availableFrom: "",
-  });
+  const [classes, setClasses] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+  const [years, setYears] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState(BLANK);
   const [file, setFile] = useState(null);
-  const [uploading, setUploading] = useState(false);
-    const schoolDataRaw = localStorage.getItem("schoolData");
-  const schoolId = schoolDataRaw ? JSON.parse(schoolDataRaw)._id : null;
+  const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [toDelete, setToDelete] = useState(null);
 
-  const token = localStorage.getItem("token");
-
-  const fetchSchemes = async () => {
-    console.log("fetchSchemes: starting request");
+  const load = useCallback(async () => {
     try {
-      const res = await api.get("/api/marking-schemes/admin", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log("fetchSchemes: response received:", res.data);
-      setSchemes(res.data.schemes);
-    } catch (err) {
-      console.error("fetchSchemes: error:", err);
-      toast.error("Failed to load marking schemes.");
-    }
+      const { data } = await api.get("/api/marking-schemes/admin");
+      setSchemes(Array.isArray(data?.schemes) ? data.schemes : []);
+    } catch { toast.error("Couldn't load marking schemes"); } finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => {
+    load();
+    if (!schoolId) return;
+    Promise.all([
+      api.get(`/api/classes/school/${schoolId}`), api.get(`/api/subjects/school/${schoolId}`), api.get(`/api/terms/years/${schoolId}`),
+    ]).then(([c, s, y]) => {
+      setClasses(Array.isArray(c.data) ? c.data : []);
+      setSubjects(Array.isArray(s.data) ? s.data : []);
+      setYears((Array.isArray(y.data) ? y.data : []).sort().reverse());
+    }).catch(() => toast.error("Couldn't load classes and subjects"));
+  }, [load, schoolId]);
+
+  const subjectOptions = subjects.filter((s) => !form.classId || (s.classes || []).some((c) => (c._id || c) === form.classId));
+
+  const openNew = () => { setForm({ ...BLANK, academicYear: years[0] || "" }); setFile(null); setErrors({}); setOpen(true); };
+  const set = (k) => (e) => { setForm((f) => ({ ...f, [k]: e.target.value, ...(k === "classId" ? { subjectId: "" } : {}) })); setErrors((x) => ({ ...x, [k]: undefined })); };
+
+  const pickFile = (f) => {
+    if (!f) return;
+    if (!/\.(pdf|docx?)$/i.test(f.name)) { toast.error("Upload a PDF or Word file"); return; }
+    if (f.size > MAX_MB * 1024 * 1024) { toast.error(`Files can be at most ${MAX_MB} MB`); return; }
+    setFile(f); setErrors((x) => ({ ...x, file: undefined }));
   };
 
-useEffect(() => {
-  const fetchDropdownData = async () => {
-    console.log("fetchDropdownData: starting, schoolId =", schoolId);
-        if (!schoolId) return toast.error("School ID not found!");
-    try {
- const [classesRes, subjectsRes] = await Promise.all([
-  api.get(`/api/classes/school/${schoolId}`, { headers: { Authorization: `Bearer ${token}` } }),
-  api.get(`/api/subjects/school/${schoolId}`, { headers: { Authorization: `Bearer ${token}` } }),
-]);
-      setClassesList(classesRes.data.classes || classesRes.data);
-      setSubjectsList(subjectsRes.data.subjects || subjectsRes.data);
-    } catch (err) {
-      console.error("fetchDropdownData: error:", err);
-      toast.error("Failed to load classes/subjects.");
-    }
-  };
-  fetchSchemes();
-  fetchDropdownData();
-}, []);
-
-  const handleSubmit = async (e) => {
+  const save = async (e) => {
     e.preventDefault();
-    console.log("handleSubmit: form state:", form);
-    console.log("handleSubmit: file:", file);
-    if (!file) return toast.error("Please attach a file.");
-
+    const v = {};
+    if (!form.classId) v.classId = "Choose a class";
+    if (!form.subjectId) v.subjectId = "Choose a subject";
+    if (!form.academicYear.trim()) v.academicYear = "Enter the academic year";
+    if (!form.availableFrom) v.availableFrom = "Choose when teachers can open it";
+    if (!file) v.file = "Attach the marking scheme";
+    setErrors(v);
+    if (Object.keys(v).length) return;
+    setSaving(true);
     try {
-      setUploading(true);
       const fd = new FormData();
-      Object.entries(form).forEach(([k, v]) => fd.append(k, v));
+      Object.entries(form).forEach(([k, val]) => fd.append(k, k === "availableFrom" ? new Date(val).toISOString() : val));
       fd.append("file", file);
-
-      console.log("handleSubmit: submitting FormData entries:");
-      for (let pair of fd.entries()) {
-        console.log(" ", pair[0], ":", pair[1]);
-      }
-
-      const res = await api.post("/api/marking-schemes/admin/upload", fd, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      console.log("handleSubmit: upload success response:", res.data);
-      toast.success("Marking scheme uploaded.");
-      setForm({ classId: "", subjectId: "", term: "First Term", academicYear: "", title: "", availableFrom: "" });
-      setFile(null);
-      fetchSchemes();
-    } catch (err) {
-      console.error("handleSubmit: upload error:", err);
-      toast.error(err.response?.data?.message || "Upload failed.");
-    } finally {
-      setUploading(false);
-    }
+      await api.post("/api/marking-schemes/admin/upload", fd, { headers: { "Content-Type": "multipart/form-data" } });
+      toast.success("Marking scheme uploaded");
+      setOpen(false);
+      load();
+    } catch (err) { toast.error(err.response?.data?.message || "Upload failed"); } finally { setSaving(false); }
   };
 
-  const handleDelete = async (id) => {
-    console.log("handleDelete: attempting delete for id:", id);
-    if (!window.confirm("Delete this marking scheme?")) return;
-    try {
-      const res = await api.delete(`/api/marking-schemes/admin/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log("handleDelete: delete success response:", res.data);
-      toast.success("Deleted.");
-      fetchSchemes();
-    } catch (err) {
-      console.error("handleDelete: delete error:", err);
-      toast.error("Delete failed.");
-    }
+  const remove = async () => {
+    setSaving(true);
+    try { await api.delete(`/api/marking-schemes/admin/${toDelete._id}`); toast.success("Marking scheme deleted"); setToDelete(null); load(); }
+    catch { toast.error("Couldn't delete it"); } finally { setSaving(false); }
   };
 
-  console.log("Render: schemes:", schemes);
-  console.log("Render: classesList:", classesList);
-  console.log("Render: subjectsList:", subjectsList);
+  const now = Date.now();
 
   return (
-    <div className="ams-page">
-      <h1 className="ams-title">Marking Schemes — Upload</h1>
+    <div className="page page-narrow">
+      <PageHeader title="Marking schemes" subtitle="Upload schemes and choose exactly when teachers can open them."
+        actions={<button className="btn" onClick={openNew} disabled={!classes.length}><Plus size={16} /> Upload scheme</button>} />
 
-      <form className="ams-form" onSubmit={handleSubmit}>
-        <div className="ams-form-grid">
-          <select value={form.classId} onChange={(e) => { console.log("classId changed:", e.target.value); setForm({ ...form, classId: e.target.value }); }} required>
-            <option value="">Select Class</option>
-            {classesList.map((c) => <option key={c._id} value={c._id}>{c.className}</option>)}
-          </select>
-
-          <select value={form.subjectId} onChange={(e) => { console.log("subjectId changed:", e.target.value); setForm({ ...form, subjectId: e.target.value }); }} required>
-            <option value="">Select Subject</option>
-            {subjectsList.map((s) => <option key={s._id} value={s._id}>{s.name}</option>)}
-          </select>
-
-          <select value={form.term} onChange={(e) => { console.log("term changed:", e.target.value); setForm({ ...form, term: e.target.value }); }}>
-            <option>First Term</option>
-            <option>Second Term</option>
-            <option>Third Term</option>
-          </select>
-
-          <input
-            type="text" placeholder="Academic Year e.g. 2025/2026"
-            value={form.academicYear}
-            onChange={(e) => { console.log("academicYear changed:", e.target.value); setForm({ ...form, academicYear: e.target.value }); }}
-            required
-          />
-
-          <input
-            type="text" placeholder="Title (optional)"
-            value={form.title}
-            onChange={(e) => { console.log("title changed:", e.target.value); setForm({ ...form, title: e.target.value }); }}
-          />
-
-          <label className="ams-datetime-label">
-            Unlocks at:
-            <input
-              type="datetime-local"
-              value={form.availableFrom}
-              onChange={(e) => { console.log("availableFrom changed:", e.target.value); setForm({ ...form, availableFrom: e.target.value }); }}
-              required
-            />
-          </label>
+      {loading ? <Loading /> : schemes.length === 0 ? (
+        <div className="card"><EmptyState emoji="📝" title="No marking schemes yet" action={classes.length > 0 && <button className="btn" onClick={openNew}><UploadCloud size={16} /> Upload the first one</button>}>
+          {classes.length ? "Schemes stay locked until the date you set, so exams stay fair." : "Create classes and subjects first."}</EmptyState></div>
+      ) : (
+        <div className="ams-list">
+          {schemes.map((s) => {
+            const unlocked = new Date(s.availableFrom).getTime() <= now;
+            return (
+              <article key={s._id} className="card ams-item">
+                <span className={`ams-ico ${unlocked ? "open" : ""}`}><FileText size={20} /></span>
+                <div className="ams-info">
+                  <strong>{s.title}</strong>
+                  <small>{s.class?.className || "—"} · {s.subject?.name || "—"} · {s.term} · {s.academicYear}</small>
+                  <span className={`badge-pill ${unlocked ? "green" : "amber"}`}>{unlocked ? <LockOpen size={12} /> : <Lock size={12} />}
+                    {unlocked ? "Open to teachers" : `Unlocks ${new Date(s.availableFrom).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" })}`}</span>
+                </div>
+                <div className="icon-actions">
+                  <a className="btn btn-outline btn-sm" href={s.fileUrl} target="_blank" rel="noopener noreferrer">View</a>
+                  <button className="btn btn-ghost btn-icon btn-sm" style={{ color: "var(--danger)" }} onClick={() => setToDelete(s)} aria-label={`Delete ${s.title}`}><Trash2 size={16} /></button>
+                </div>
+              </article>
+            );
+          })}
         </div>
+      )}
 
-        <label className="ams-file-drop">
-          <UploadCloud size={20} />
-          {file ? file.name : "Click to attach PDF/DOCX"}
-          <input type="file" accept=".pdf,.doc,.docx" hidden onChange={(e) => { console.log("file selected:", e.target.files[0]); setFile(e.target.files[0]); }} />
-        </label>
-
-        <button type="submit" disabled={uploading} className="ams-submit-btn">
-          {uploading ? "Uploading…" : "Upload Marking Scheme"}
-        </button>
-      </form>
-
-      <div className="ams-list">
-        {schemes.map((s) => (
-          <div key={s._id} className="ams-list-item">
-            <FileText size={18} />
-            <div className="ams-list-info">
-              <span className="ams-list-title">{s.title}</span>
-              <span className="ams-list-meta">
-                {s.class?.name} · {s.subject?.name} · {s.term} · {s.academicYear}
-              </span>
-              <span className="ams-list-unlock">
-                Unlocks: {new Date(s.availableFrom).toLocaleString()}
-              </span>
-            </div>
-            <button className="ams-delete-btn" onClick={() => handleDelete(s._id)}>
-              <Trash2 size={16} />
-            </button>
+      <Modal open={open} onClose={() => setOpen(false)} size="lg" title="Upload a marking scheme"
+        footer={(<><button type="button" className="btn btn-outline" onClick={() => setOpen(false)}>Cancel</button><button type="submit" form="ams-form" className="btn" disabled={saving}>{saving ? "Uploading…" : "Upload"}</button></>)}>
+        <form id="ams-form" onSubmit={save} noValidate>
+          <div className="form-grid">
+            <div className="field"><label htmlFor="a-class">Class *</label><select id="a-class" className={`select ${errors.classId ? "is-invalid" : ""}`} value={form.classId} onChange={set("classId")}><option value="">Select class</option>{classes.map((c) => <option key={c._id} value={c._id}>{c.className}</option>)}</select>{errors.classId && <span className="error">{errors.classId}</span>}</div>
+            <div className="field"><label htmlFor="a-sub">Subject *</label><select id="a-sub" className={`select ${errors.subjectId ? "is-invalid" : ""}`} value={form.subjectId} onChange={set("subjectId")}><option value="">{form.classId && !subjectOptions.length ? "No subjects in this class" : "Select subject"}</option>{subjectOptions.map((s) => <option key={s._id} value={s._id}>{s.name}</option>)}</select>{errors.subjectId && <span className="error">{errors.subjectId}</span>}</div>
+            <div className="field"><label htmlFor="a-term">Term</label><select id="a-term" className="select" value={form.term} onChange={set("term")}>{TERMS.map((t) => <option key={t}>{t}</option>)}</select></div>
+            <div className="field"><label htmlFor="a-year">Academic year *</label>
+              {years.length ? <select id="a-year" className={`select ${errors.academicYear ? "is-invalid" : ""}`} value={form.academicYear} onChange={set("academicYear")}>{years.map((y) => <option key={y}>{y}</option>)}</select>
+                : <input id="a-year" className={`input ${errors.academicYear ? "is-invalid" : ""}`} value={form.academicYear} onChange={set("academicYear")} placeholder="2025/2026" />}
+              {errors.academicYear && <span className="error">{errors.academicYear}</span>}</div>
+            <div className="field"><label htmlFor="a-title">Title <span className="muted">(optional)</span></label><input id="a-title" className="input" value={form.title} onChange={set("title")} placeholder="End of term exam" /></div>
+            <div className="field"><label htmlFor="a-from">Unlocks at *</label><input id="a-from" type="datetime-local" className={`input ${errors.availableFrom ? "is-invalid" : ""}`} value={form.availableFrom} onChange={set("availableFrom")} />{errors.availableFrom && <span className="error">{errors.availableFrom}</span>}</div>
           </div>
-        ))}
-      </div>
+          <label className={`ams-drop ${file ? "has" : ""} ${errors.file ? "bad" : ""}`}>
+            <UploadCloud size={22} /><span>{file ? <><b>{file.name}</b> · {(file.size / 1024).toFixed(0)} KB</> : <>Click to attach a <b>PDF or Word</b> file (max {MAX_MB} MB)</>}</span>
+            <input type="file" accept=".pdf,.doc,.docx" onChange={(e) => pickFile(e.target.files?.[0])} />
+          </label>
+          {errors.file && <span className="error" style={{ color: "var(--danger)", fontSize: ".8rem" }}>{errors.file}</span>}
+        </form>
+      </Modal>
+      <ConfirmDialog open={!!toDelete} danger busy={saving} title="Delete marking scheme?" message={toDelete ? `“${toDelete.title}” will be removed and teachers will lose access.` : ""} confirmLabel="Delete" onConfirm={remove} onCancel={() => setToDelete(null)} />
     </div>
   );
-};
-
-export default AdminMarkingSchemes;
+}

@@ -189,9 +189,15 @@ export const addAcademicYear = async (req, res) => {
 
   export const createTermSession = async (req, res) => {
     const { schoolId, yearLabel, termName, startDate, endDate, classFees } = req.body;
-    await syncActiveTermFlags(newTerm.schoolId);
-  
+
     try {
+      if (!schoolId || !yearLabel || !termName || !startDate || !endDate) {
+        return res.status(400).json({ message: "School, year, term name and both dates are required." });
+      }
+      if (new Date(endDate) < new Date(startDate)) {
+        return res.status(400).json({ message: "The end date can't be before the start date." });
+      }
+
       const term = new TermSession({
         schoolId,
         yearLabel,
@@ -203,6 +209,7 @@ export const addAcademicYear = async (req, res) => {
       });
   
       await term.save();
+      await syncActiveTermFlags(schoolId);
       res.status(201).json({ message: "Term created successfully", term });
     } catch (error) {
       console.error("Error creating term session:", error);
@@ -379,7 +386,12 @@ export const updateTermDates = async (req, res) => {
     if (startDate) term.startDate = new Date(startDate);
     if (endDate) term.endDate = new Date(endDate);
 
+    if (term.endDate < term.startDate) {
+      return res.status(400).json({ message: "The end date can't be before the start date." });
+    }
+
     await term.save();
+    await syncActiveTermFlags(term.schoolId);
 
     res.status(200).json({
       message: "Term dates updated successfully",

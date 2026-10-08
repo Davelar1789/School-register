@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "../../../api/axios";
 import toast from "react-hot-toast";
-import { jwtDecode } from "jwt-decode";
-import { useNavigate } from "react-router-dom";
 import "./Attendance.modules.css";
 import {
-  GraduationCap,
-  LogOut,
   ClipboardCheck,
   CalendarDays,
   Users,
@@ -17,9 +13,6 @@ import {
   ChevronRight,
   RotateCcw,
 } from "lucide-react";
-import {
-  FaArrowLeft
-} from "react-icons/fa";
 
 // ── Token helpers ──────────────────────────────────────────────
 const getDataFromToken = () => {
@@ -49,13 +42,6 @@ const makeSubmissionKey = (classId, date) => {
 
 // ══════════════════════════════════════════════════════════════
 const Attendance = () => {
-  const navigate = useNavigate();
-
-  // ── User / school ──
-  const [user,        setUser]        = useState({ fullName: "", role: "" });
-  const [school,      setSchool]      = useState({ name: "" });
-  const [teacherType, setTeacherType] = useState("");
-
   // ── Core state ──
   const [classes,             setClasses]             = useState([]);
   const [showModal,           setShowModal]           = useState(false);
@@ -69,24 +55,11 @@ const Attendance = () => {
   const [existingAttendance,  setExistingAttendance]  = useState({});
   const [attendanceIds,       setAttendanceIds]       = useState({});
   const [isEditing,           setIsEditing]           = useState(false);
-  const [offlineMode,         setOfflineMode]         = useState(true);
+  const [offlineMode,         setOfflineMode]         = useState(() => !navigator.onLine);
   const [unmarkedDates,       setUnmarkedDates]       = useState([]);
   const [loadingUnmarked,     setLoadingUnmarked]     = useState(false);
 
   const token = localStorage.getItem("token");
-
-  // ── Decode token on mount ──
-  useEffect(() => {
-    const t           = localStorage.getItem("token");
-    const teacherData = JSON.parse(localStorage.getItem("teacher") || "null");
-    if (!t || !teacherData) { navigate("/sign-in"); return; }
-    try {
-      const decoded = jwtDecode(t);
-      setUser({ fullName: decoded.fullName, role: decoded.role });
-      setSchool({ name: decoded.schoolName });
-      setTeacherType(teacherData.teacherType || "");
-    } catch { navigate("/sign-in"); }
-  }, [navigate]);
 
   // ── Connectivity ──
   const checkOnlineStatus = async () => {
@@ -94,13 +67,6 @@ const Attendance = () => {
     catch { setOfflineMode(true); }
   };
   useEffect(() => { checkOnlineStatus(); }, []);
-
-  // ── Logout ──
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    toast.success("Logged out successfully");
-    navigate("/teacher-login");
-  };
 
   // ── Quick actions ──
   const handleMarkAllPresent = () => {
@@ -320,7 +286,7 @@ const Attendance = () => {
   useEffect(() => {
     const handleOnline = () => {
       setOfflineMode(false);
-      toast.info("Back online. Syncing...");
+      toast("Back online. Syncing…", { icon: "🔄" });
       syncOfflineAttendance();
     };
     window.addEventListener("online", handleOnline);
@@ -360,46 +326,8 @@ const Attendance = () => {
   return (
     <div className="att-page">
 
-      {/* ══ HEADER ══════════════════════════════════ */}
-      <header className="td-header">
-        <div className="td-header-brand">
-          <div className="td-header-logo">
-            <GraduationCap size={22} />
-          </div>
-          <div className="td-header-school">
-            <span className="td-header-school-name">{school.name || "School Name"}</span>
-            <span className="td-header-school-sub">School Management</span>
-          </div>
-        </div>
-
-        <div className="td-header-right">
-          {offlineMode && (
-            <span className="att-offline-badge">
-              <WifiOff size={13} /> Offline
-            </span>
-          )}
-          <div className="td-header-user">
-            <div className="td-header-avatar">
-              {user.fullName ? user.fullName.charAt(0).toUpperCase() : "T"}
-            </div>
-            <div className="td-header-user-info">
-              <span className="td-header-user-name">{user.fullName || "Teacher"}</span>
-              <span className="td-header-user-role">{teacherType || user.role || "Teacher"}</span>
-            </div>
-          </div>
-          <button className="td-logout-btn" onClick={handleLogout}>
-            <LogOut size={16} />
-            <span>Logout</span>
-          </button>
-        </div>
-      </header>
-
       {/* ══ MAIN ════════════════════════════════════ */}
       <main className="att-main">
-
-        <button className="tl-back" onClick={() => navigate("/teacher-dashboard")}>
-                <FaArrowLeft /> Back to Home
-              </button>
 
         {/* Page title row */}
         <div className="att-page-title-row">

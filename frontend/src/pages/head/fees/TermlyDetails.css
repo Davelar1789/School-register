@@ -1,0 +1,16 @@
+.term-grid { display: grid; gap: 1.1rem; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); }
+.term-card { display: flex; flex-direction: column; gap: 1rem; }
+.term-card.current { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(26,140,122,.15), var(--shadow-sm); }
+.term-card header { display: flex; justify-content: space-between; align-items: center; }
+.term-card h3 { margin: 0; font-size: 1.2rem !important; }
+.term-card dl { margin: 0; display: flex; flex-direction: column; }
+.term-card dl > div { display: flex; justify-content: space-between; padding: .6rem 0; border-bottom: 1px dashed var(--border-strong); }
+.term-card dl > div:last-child { border: 0; }
+.term-card dt { color: var(--muted); font-weight: 600; font-size: .88rem; }
+.term-card dd { margin: 0; color: var(--dark); }
+.term-actions { display: flex; gap: .6rem; margin-top: auto; }
+.term-actions .btn { flex: 1; }
+.fee-grid { display: grid; gap: .7rem 1.2rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); margin-bottom: 1rem; }
+.fee-line { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
+.fee-line label { font-weight: 700; }
+.fee-line .input { width: 140px; }

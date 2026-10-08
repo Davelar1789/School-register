@@ -1,6 +1,7 @@
 // routes/classRoutes.js
 import express from "express";
-import { createClass, patchStudentClasses, syncAllClassStudents, patchClassStudents, assignSubjectTeacher, assignSubjectTeacher2, getTotalFeedingPaid, restoreStudentClasses, recalculateClassesForSchool, updateTotalFeedingPaid, getSubjectsByClass, getClassesBySchool, getClassById, assignTeacherToClass, assignStudentToClass } from "../controllers/classController.js";
+import { createClass, patchStudentClasses, syncAllClassStudents, patchClassStudents, assignSubjectTeacher, assignSubjectTeacher2, getTotalFeedingPaid, restoreStudentClasses, recalculateClassesForSchool, updateTotalFeedingPaid, getSubjectsByClass, getClassesBySchool, getClassById, assignTeacherToClass, assignStudentToClass, updateClassDetails, deleteClass } from "../controllers/classController.js";
+import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
@@ -17,6 +18,8 @@ router.get("/school/:schoolId", getClassesBySchool);
 router.post('/assign-teacher', assignTeacherToClass);
 router.post('/assign-student', assignStudentToClass);
 router.get("/:id", getClassById);
+router.patch("/:id/details", protect, updateClassDetails);
+router.delete("/:id", protect, deleteClass);
 router.get("/:id/subjects", getSubjectsByClass);
 router.post("/assign-subject-teacher", assignSubjectTeacher);
 router.post("/assign-subject-teacher2", assignSubjectTeacher2);

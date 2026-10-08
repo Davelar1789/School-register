@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
+import jwt from "jsonwebtoken";
 import cors from "cors";
 import { createServer } from "http"; // ✅ For WebSocket support
 import { Server } from "socket.io"; // ✅ WebSocket server
@@ -47,6 +48,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dotenv.config();
+
+// Allowed browser origins — set CLIENT_ORIGINS="https://a.com,https://b.com" in production.
+const DEFAULT_ORIGINS = ["https://school-register-ruby.vercel.app", "https://jbrains.vercel.app", "http://localhost:5173"];
+const ALLOWED_ORIGINS = (process.env.CLIENT_ORIGINS ? process.env.CLIENT_ORIGINS.split(",").map((o) => o.trim()).filter(Boolean) : DEFAULT_ORIGINS);
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -54,35 +60,35 @@ const PORT = process.env.PORT || 5000;
 const server = createServer(app);
 const io = new Server(server, {
     cors: {
-        origin: ["https://school-register-ruby.vercel.app", "https://jbrains.vercel.app"],
+        origin: ALLOWED_ORIGINS,
         credentials: true,
     },
     pingTimeout: 60000, // ✅ Prevents auto-disconnects (60 sec timeout)
     pingInterval: 25000, // ✅ Sends a keep-alive message every 25 sec
 });
 
-// ✅ WebSocket Connection (Improved Stability)
+// ✅ WebSocket: every socket is authenticated and joins a private room per user,
+// so notifications are delivered only to the people they are meant for.
+io.use((socket, next) => {
+    try {
+        const token = socket.handshake.auth?.token;
+        if (!token) return next(new Error("Authentication required"));
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        socket.data.userId = String(decoded.id);
+        next();
+    } catch {
+        next(new Error("Invalid or expired token"));
+    }
+});
+
 io.on("connection", (socket) => {
-    console.log("✅ A user connected to real-time notifications:", socket.id);
-
-    // ✅ Send confirmation when connected
+    socket.join(`user:${socket.data.userId}`);
     socket.emit("connection-confirmed", { message: "WebSocket connection established!" });
-
-    // ✅ Listen for incoming notifications
-    socket.on("send-notification", (data) => {
-        console.log("🔔 Real-time notification received:", data);
-        io.emit("new-notification", data); // ✅ Broadcast notification to all clients
-    });
-
-    // ✅ Handle unexpected disconnects
-    socket.on("disconnect", (reason) => {
-        console.log(`❌ A user disconnected from notifications (${reason})`);
-    });
 });
 
 // Configure CORS
 const corsConfig = {
-    origin: ["https://school-register-ruby.vercel.app", "https://jbrains.vercel.app"],
+    origin: ALLOWED_ORIGINS,
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],

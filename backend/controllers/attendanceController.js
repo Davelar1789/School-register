@@ -544,7 +544,7 @@ export const fetchStudentAttendance = async (req, res) => {
 
     let students;
     if (classId === "all") {
-      students = await Students.find({}).select("_id name idno feedingFee");
+      students = await Students.find({ schoolId }).select("_id name idno feedingFee");
     } else {
       if (!mongoose.Types.ObjectId.isValid(classId)) {
         return res.status(400).json({ message: "Invalid class ID format." });
@@ -937,3 +937,78 @@ export const getFeedingMonthly = async (req, res) => {
 //         res.status(500).json({ error: error.message });
 //     }
 // };
+
+
+// ============================
+// "TODAY" SNAPSHOTS (admin dashboard + teacher dashboard)
+// ============================
+
+// A class counts as "marked" when at least one of its students has a record on that day.
+const buildTodaySnapshot = async (classes, dayString) => {
+  const start = new Date(dayString + "T00:00:00.000Z");
+  const end = new Date(dayString + "T23:59:59.999Z");
+
+  const studentIds = [...new Set(classes.flatMap((c) => (c.students || []).map(String)))];
+  const records = studentIds.length
+    ? await Attendance.find({ studentId: { $in: studentIds }, date: { $gte: start, $lte: end } })
+        .select("studentId present")
+        .lean()
+    : [];
+
+  const marked = new Set(records.map((r) => String(r.studentId)));
+  const present = records.filter((r) => r.present).length;
+
+  return {
+    date: dayString,
+    isWeekend: isWeekend(dayString),
+    present,
+    absent: records.length - present,
+    recorded: records.length,
+    classesTotal: classes.length,
+    classesMarked: classes.filter((c) => (c.students || []).some((s) => marked.has(String(s)))).length,
+    classes: classes.map((c) => ({
+      _id: c._id,
+      className: c.className,
+      marked: (c.students || []).some((s) => marked.has(String(s))),
+    })),
+  };
+};
+
+export const getSchoolAttendanceToday = async (req, res) => {
+  try {
+    const { schoolId } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(schoolId)) {
+      return res.status(400).json({ message: "Invalid school id" });
+    }
+    if (req.user.role !== "superadmin" && String(req.user.schoolId) !== String(schoolId)) {
+      return res.status(403).json({ message: "You can only view your own school." });
+    }
+
+    const day = normalizeDate(req.query.date || new Date());
+    const [classes, totalStudents] = await Promise.all([
+      Class.find({ school: schoolId }).select("className students").lean(),
+      Students.countDocuments({ schoolId }),
+    ]);
+
+    const snapshot = await buildTodaySnapshot(classes, day);
+    res.status(200).json({ ...snapshot, totalStudents });
+  } catch (error) {
+    console.error("Error building attendance snapshot:", error.message);
+    res.status(500).json({ message: "Could not load attendance snapshot" });
+  }
+};
+
+// The signed-in teacher's own classes (class teacher or subject teacher)
+export const getMyAttendanceToday = async (req, res) => {
+  try {
+    const teacherId = req.user._id;
+    const day = normalizeDate(req.query.date || new Date());
+    const classes = await Class.find({ $or: [{ teachers: teacherId }, { "subjects.teachers": teacherId }] })
+      .select("className students")
+      .lean();
+    res.status(200).json(await buildTodaySnapshot(classes, day));
+  } catch (error) {
+    console.error("Error building teacher attendance snapshot:", error.message);
+    res.status(500).json({ message: "Could not load attendance snapshot" });
+  }
+};

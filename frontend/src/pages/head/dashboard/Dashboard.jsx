@@ -1,608 +1,390 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-hot-toast";
-import api from "../../../api/axios";
-import Header2 from "../../../components/Admin/Header2";
-import Sidebar from "../../../components/Admin/Sidebar";
-import {
-  FaUserGraduate,
-  FaChalkboardTeacher,
-  FaUsers,
-  FaSpinner,
-  FaArrowRight,
-  FaTimes,
-  FaPlus,
-  FaEdit,
-  FaTrash,
-  FaArrowUp,
-  FaArrowDown,
-  FaBell,
-  FaCheckCircle,
-  FaExclamationTriangle,
-  FaClock,
-  FaChartLine,
-  FaGraduationCap,
-  FaClipboardList,
-} from "react-icons/fa";
-import {
-  CalendarDays,
-  BookOpen,
-  TrendingUp,
-  Activity,
-  Users2,
-  LayoutGrid,
-  Bell,
-  CheckCheck,
-  AlertCircle,
-  ChevronRight,
-  Sparkles,
-} from "lucide-react";
-import "./Dashboard.modules.css";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
+import {
+  Bell, CalendarDays, CalendarCheck, ChevronRight, ClipboardCheck, FileBarChart, GraduationCap,
+  Landmark, Pencil, Plus, School, Settings, Sparkles, Trash2, TrendingUp, Users, Wallet, FileSignature, Presentation,
+} from "lucide-react";
+import api from "../../../api/axios";
+import Modal from "../../../components/ui/Modal";
+import ConfirmDialog from "../../../components/ui/ConfirmDialog";
+import { decodeToken, readJSON } from "../../../utils/auth";
+import "../../../styles/dashboard.css";
 
-/* ── tiny animated counter hook ── */
-function useCounter(target, duration = 1200) {
-  const [count, setCount] = useState(0);
-  const raf = useRef(null);
+/* local (not UTC) yyyy-mm-dd so events never slip a day in other time-zones */
+const dayKey = (d) => {
+  const x = new Date(d);
+  return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, "0")}-${String(x.getDate()).padStart(2, "0")}`;
+};
+const money = (n) => `GH₵ ${Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+const timeAgo = (iso) => {
+  const s = Math.max(1, (Date.now() - new Date(iso).getTime()) / 1000);
+  if (s < 3600) return `${Math.round(s / 60)} min ago`;
+  if (s < 86400) return `${Math.round(s / 3600)} h ago`;
+  return `${Math.round(s / 86400)} d ago`;
+};
+
+const QUICK = [
+  { label: "Students",        to: "/students",        icon: GraduationCap, tone: "teal" },
+  { label: "Teachers",        to: "/teachers",        icon: Presentation,  tone: "purple" },
+  { label: "Report Cards",    to: "/view-reports",    icon: FileBarChart,  tone: "amber" },
+  { label: "Record Fees",     to: "/school-fees",     icon: Wallet,        tone: "coral" },
+  { label: "Marking Schemes", to: "/upload-scheme",   icon: FileSignature, tone: "blue" },
+  { label: "School Settings", to: "/school-settings", icon: Settings,      tone: "green" },
+];
+
+function useCountUp(target, ms = 900) {
+  const [v, setV] = useState(0);
   useEffect(() => {
-    const start = performance.now();
+    let raf;
+    const t0 = performance.now();
     const tick = (now) => {
-      const p = Math.min((now - start) / duration, 1);
-      const ease = 1 - Math.pow(1 - p, 3);
-      setCount(Math.round(ease * target));
-      if (p < 1) raf.current = requestAnimationFrame(tick);
+      const p = Math.min((now - t0) / ms, 1);
+      setV(Math.round((1 - (1 - p) ** 3) * target));
+      if (p < 1) raf = requestAnimationFrame(tick);
     };
-    raf.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf.current);
-  }, [target, duration]);
-  return count;
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [target, ms]);
+  return v;
 }
 
-/* ── stat card with animated counter ── */
-function StatCard({ title, value, icon: Icon, colorKey, trend, delay }) {
-  const animated = useCounter(value);
+function Stat({ icon: Icon, label, value, tone, to, prefix = "" }) {
+  const n = useCountUp(Number(value) || 0);
   return (
-    <div className={`ad-stat-card ad-stat-${colorKey}`} style={{ animationDelay: `${delay}ms` }}>
-      <div className="ad-stat-shine" />
-      <div className="ad-stat-top">
-        <div className="ad-stat-icon-wrap">
-          <Icon size={22} />
-        </div>
-        <div className={`ad-stat-trend ${trend >= 0 ? "up" : "down"}`}>
-          {trend >= 0 ? <FaArrowUp size={9} /> : <FaArrowDown size={9} />}
-          {Math.abs(trend)}%
-        </div>
-      </div>
-      <div className="ad-stat-value">{animated.toLocaleString()}</div>
-      <div className="ad-stat-label">{title}</div>
+    <Link to={to} className={`dash-stat tone-${tone}`}>
+      <span className="dash-stat-ico"><Icon size={22} /></span>
+      <span className="dash-stat-body">
+        <strong>{prefix}{n.toLocaleString()}</strong>
+        <small>{label}</small>
+      </span>
+      <ChevronRight size={16} className="dash-stat-go" />
+    </Link>
+  );
+}
+
+function Donut({ percent, size = 112, label, sub }) {
+  const r = 44, c = 2 * Math.PI * r;
+  return (
+    <div className="dash-donut" style={{ width: size, height: size }}>
+      <svg viewBox="0 0 100 100" width={size} height={size} role="img" aria-label={`${label} ${percent}%`}>
+        <circle cx="50" cy="50" r={r} fill="none" stroke="var(--teal-light)" strokeWidth="11" />
+        <circle cx="50" cy="50" r={r} fill="none" stroke="var(--teal)" strokeWidth="11" strokeLinecap="round"
+          strokeDasharray={c} strokeDashoffset={c * (1 - Math.min(percent, 100) / 100)}
+          transform="rotate(-90 50 50)" style={{ transition: "stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)" }} />
+      </svg>
+      <div className="dash-donut-mid"><strong>{label}</strong><small>{sub}</small></div>
     </div>
   );
 }
 
-/* ── mini donut chart (pure CSS/SVG) ── */
-function DonutChart({ percent, color, size = 72 }) {
-  const r = 28;
-  const circ = 2 * Math.PI * r;
-  const offset = circ * (1 - percent / 100);
-  return (
-    <svg width={size} height={size} viewBox="0 0 64 64" style={{ transform: "rotate(-90deg)" }}>
-      <circle cx="32" cy="32" r={r} fill="none" stroke="rgba(0,0,0,.06)" strokeWidth="7" />
-      <circle
-        cx="32" cy="32" r={r} fill="none"
-        stroke={color} strokeWidth="7"
-        strokeDasharray={circ}
-        strokeDashoffset={offset}
-        strokeLinecap="round"
-        style={{ transition: "stroke-dashoffset 1s cubic-bezier(.4,0,.2,1)" }}
-      />
-    </svg>
-  );
-}
-
-/* ── horizontal bar ── */
-function Bar({ label, value, max, color }) {
-  const pct = max ? (value / max) * 100 : 0;
-  return (
-    <div className="ad-bar-row">
-      <span className="ad-bar-label">{label}</span>
-      <div className="ad-bar-track">
-        <div className="ad-bar-fill" style={{ width: `${pct}%`, background: color }} />
-      </div>
-      <span className="ad-bar-val">{value}</span>
-    </div>
-  );
-}
-
-/* ────────────────────────────────── */
-const NOTICES = [
-  { id: 1, type: "warning", icon: FaExclamationTriangle, text: "3 teachers have not submitted this week's attendance.", time: "Today, 9:14 AM" },
-  { id: 2, type: "success", icon: FaCheckCircle, text: "Term 2 reports have been approved and are ready.", time: "Yesterday, 4:30 PM" },
-  { id: 3, type: "info", icon: FaClock, text: "PTA meeting scheduled for Friday at 3:00 PM.", time: "2 days ago" },
-  { id: 4, type: "warning", icon: FaExclamationTriangle, text: "Fee payment deadline is in 5 days.", time: "3 days ago" },
-];
-
-const QUICK_ACTIONS = [
-  { label: "Manage Students", path: "/students",  icon: FaUserGraduate,       color: "teal"   },
-  { label: "Manage Teachers", path: "/teachers",  icon: FaChalkboardTeacher,  color: "purple" },
-  { label: "View Reports",    path: "/view-reports", icon: FaChartLine,        color: "amber"  },
-  { label: "Class Schedule",  path: "/schedule",  icon: FaClipboardList,      color: "coral"  },
-  { label: "Announcements",   path: "/announcements", icon: FaBell,            color: "green"  },
-  { label: "School Settings", path: "/settings",  icon: FaGraduationCap,      color: "blue"   },
-  { label: "Marking Schemes", path: "/upload-scheme",  icon: FaGraduationCap,      color: "teal"   },
-];
-
-/* ── grade distribution mock — replace with real API data ── */
-const GRADE_DIST = [
-  { label: "A (80–100%)", value: 142, color: "#1a8c7a" },
-  { label: "B (65–79%)",  value: 218, color: "#22a896" },
-  { label: "C (50–64%)",  value: 176, color: "#f5a623" },
-  { label: "D (35–49%)",  value: 89,  color: "#f26b5b" },
-  { label: "F (0–34%)",   value: 31,  color: "#7c5cbf" },
-];
-
-/* ────────────────────────────────── */
 const Dashboard = () => {
-  const [user,         setUser]         = useState(null);
-  const [loading,      setLoading]      = useState(true);
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [events,       setEvents]       = useState({});
-  const [showEventModal, setShowEventModal] = useState(false);
-  const [eventType,    setEventType]    = useState("custom");
-  const [eventTitle,   setEventTitle]   = useState("");
-  const [eventDescription, setEventDescription] = useState("");
-  const [editingEvent, setEditingEvent] = useState(null);
-  const [loadingEvents, setLoadingEvents] = useState(false);
-  const [schoolStats,  setSchoolStats]  = useState({
-    numberOfStudents: 0,
-    numberOfTeachers: 0,
-    numberOfClasses: 0,
-  });
-  const [attendancePct, setAttendancePct] = useState(87); // replace with real data
-
   const navigate = useNavigate();
+  const decoded = useMemo(() => decodeToken(), []);
+  const firstName = (decoded?.fullName || readJSON("user", {})?.fullName || "Admin").split(" ")[0];
+
+  const [school, setSchool] = useState(() => readJSON("schoolData", null));
+  const [att, setAtt] = useState(null);
+  const [money$, setMoney] = useState({ fees: 0, feeding: 0, expenses: 0 });
+  const [notices, setNotices] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const [events, setEvents] = useState({});
+  const [loadingEvents, setLoadingEvents] = useState(false);
+  const [selected, setSelected] = useState(new Date());
+  const [modal, setModal] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const [form, setForm] = useState({ type: "custom", title: "", description: "" });
+  const [saving, setSaving] = useState(false);
+  const [confirmDel, setConfirmDel] = useState(false);
+
+  /* ── load everything in parallel; each panel degrades independently ── */
+  const loadEvents = useCallback(async () => {
+    setLoadingEvents(true);
+    try {
+      const { data } = await api.get("/api/events/my-school");
+      const map = {};
+      (data?.events || []).forEach((ev) => {
+        map[dayKey(ev.date)] = { id: ev._id, type: ev.type, title: ev.title, description: ev.description };
+      });
+      setEvents(map);
+    } catch { /* calendar is optional */ } finally { setLoadingEvents(false); }
+  }, []);
 
   useEffect(() => {
-    const init = async () => {
-      const storedUser = localStorage.getItem("user");
-      if (!storedUser) { toast.error("Please login first."); navigate("/sign-in"); return; }
-      const parsedUser = JSON.parse(storedUser);
-      setUser(parsedUser);
-      await fetchSchool(parsedUser._id);
-      await fetchEvents();
-      setLoading(false);
-    };
-    init();
-  }, [navigate]);
+    let alive = true;
+    (async () => {
+      let s = school;
+      try {
+        const { data } = await api.get(`/api/schools/user/${decoded?.id}`);
+        s = data?.school || data;
+        if (alive && s && !Array.isArray(s)) {
+          setSchool(s);
+          localStorage.setItem("schoolData", JSON.stringify(s));
+          window.dispatchEvent(new Event("schoolDataUpdated"));
+        }
+      } catch { /* use cache */ }
 
-  const fetchSchool = async (userId) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) throw new Error("No token");
-      const res = await api.get(`/api/schools/user/${userId}`, { headers: { Authorization: `Bearer ${token}` } });
-      if (res.data) {
-        const s = res.data.school || res.data;
-        setSchoolStats({
-          numberOfStudents: s.numberOfStudents || 0,
-          numberOfTeachers: s.numberOfTeachers || 0,
-          numberOfClasses:  s.numberOfClasses  || 0,
-        });
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to load school data");
-    }
-  };
-
-  const fetchEvents = async () => {
-    try {
-      setLoadingEvents(true);
-      const token = localStorage.getItem("token");
-      const res = await api.get("/api/events/my-school", { headers: { Authorization: `Bearer ${token}` } });
-      const obj = {};
-      res.data.events.forEach(ev => {
-        const key = new Date(ev.date).toISOString().split("T")[0];
-        obj[key] = { id: ev._id, type: ev.type, title: ev.title, description: ev.description };
+      const sid = s?._id || decoded?.schoolId;
+      const settle = (p) => p.then((r) => r.data).catch(() => null);
+      const [today, fees, feeding, exp, notes] = await Promise.all([
+        sid ? settle(api.get(`/api/attendance/school-today/${sid}`)) : null,
+        sid ? settle(api.get(`/api/fees/total-paid/${sid}`)) : null,
+        sid ? settle(api.get(`/api/classes/total-income/${sid}`)) : null,
+        sid ? settle(api.get(`/api/expenses/category-totals/${sid}`)) : null,
+        decoded?.id ? settle(api.get(`/api/notification/user/${decoded.id}`)) : null,
+      ]);
+      if (!alive) return;
+      setAtt(today);
+      setMoney({
+        fees: fees?.totalFeesPaid || 0,
+        feeding: feeding?.totalFeedingPaid || 0,
+        expenses: exp && typeof exp === "object" ? Object.values(exp).reduce((a, b) => a + (Number(b) || 0), 0) : 0,
       });
-      setEvents(obj);
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to load events");
-    } finally {
-      setLoadingEvents(false);
-    }
-  };
+      setNotices(Array.isArray(notes) ? notes.slice(0, 4) : []);
+      setLoading(false);
+    })();
+    loadEvents();
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handleDateClick = (date) => {
-    setSelectedDate(date);
-    const key = date.toISOString().split("T")[0];
-    const existing = events[key];
-    if (existing) {
-      setEditingEvent(existing);
-      setEventType(existing.type);
-      setEventTitle(existing.title === "Holiday" ? "" : existing.title);
-      setEventDescription(existing.description || "");
-    } else {
-      setEditingEvent(null);
-      setEventType("custom");
-      setEventTitle("");
-      setEventDescription("");
-    }
-    setShowEventModal(true);
+  /* ── calendar ── */
+  const openDay = (date) => {
+    setSelected(date);
+    const ev = events[dayKey(date)];
+    setEditing(ev || null);
+    setForm(ev
+      ? { type: ev.type, title: ev.title === "Holiday" ? "" : ev.title, description: ev.description || "" }
+      : { type: "custom", title: "", description: "" });
+    setModal(true);
   };
+  const closeModal = () => { setModal(false); setEditing(null); };
 
-  const handleSaveEvent = async () => {
+  const save = async () => {
+    if (form.type === "custom" && !form.title.trim()) { toast.error("Give the event a title"); return; }
+    setSaving(true);
     try {
-      const token = localStorage.getItem("token");
-      const key = selectedDate.toISOString().split("T")[0];
-      if (eventType === "custom" && !eventTitle.trim()) { toast.error("Please enter an event title"); return; }
-      const payload = { date: key, type: eventType, title: eventType === "holiday" ? "Holiday" : eventTitle, description: eventDescription };
-      if (editingEvent) {
-        await api.put(`/api/events/${editingEvent.id}`, payload, { headers: { Authorization: `Bearer ${token}` } });
-        toast.success("Event updated");
-      } else {
-        await api.post("/api/events", payload, { headers: { Authorization: `Bearer ${token}` } });
-        toast.success("Event created");
-      }
-      await fetchEvents();
-      handleCloseModal();
+      const payload = {
+        date: dayKey(selected), type: form.type,
+        title: form.type === "holiday" ? "Holiday" : form.title.trim(), description: form.description.trim(),
+      };
+      if (editing) await api.put(`/api/events/${editing.id}`, payload);
+      else await api.post("/api/events", payload);
+      toast.success(editing ? "Event updated" : "Event added");
+      await loadEvents();
+      closeModal();
     } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to save event");
-    }
+      toast.error(err.response?.data?.message || "Could not save the event");
+    } finally { setSaving(false); }
   };
 
-  const handleDeleteEvent = async () => {
-    if (!editingEvent || !window.confirm("Delete this event?")) return;
+  const remove = async () => {
+    setSaving(true);
     try {
-      const token = localStorage.getItem("token");
-      await api.delete(`/api/events/${editingEvent.id}`, { headers: { Authorization: `Bearer ${token}` } });
+      await api.delete(`/api/events/${editing.id}`);
       toast.success("Event deleted");
-      await fetchEvents();
-      handleCloseModal();
-    } catch (err) {
-      toast.error("Failed to delete event");
-    }
+      await loadEvents();
+      setConfirmDel(false);
+      closeModal();
+    } catch { toast.error("Could not delete the event"); } finally { setSaving(false); }
   };
 
-  const handleCloseModal = () => {
-    setShowEventModal(false);
-    setEventType("custom");
-    setEventTitle("");
-    setEventDescription("");
-    setEditingEvent(null);
-  };
+  const upcoming = useMemo(() => {
+    const today = dayKey(new Date());
+    return Object.entries(events).filter(([k]) => k >= today).sort(([a], [b]) => a.localeCompare(b)).slice(0, 5);
+  }, [events]);
+  const selectedEvent = events[dayKey(selected)];
 
-  const formattedDate  = selectedDate.toISOString().split("T")[0];
-  const selectedEvent  = events[formattedDate];
-  const totalStudents  = schoolStats.numberOfStudents;
-  const totalTeachers  = schoolStats.numberOfTeachers;
-  const totalClasses   = schoolStats.numberOfClasses;
-  const maxGrade       = Math.max(...GRADE_DIST.map(g => g.value));
-
-  if (!user || loading) {
-    return (
-      <div className="ad-loading-screen">
-        <FaSpinner className="ad-spinner" />
-      </div>
-    );
-  }
+  const students = school?.numberOfStudents || 0;
+  const pct = att && att.recorded > 0 ? Math.round((att.present / att.recorded) * 100) : null;
+  const net = money$.fees + money$.feeding - money$.expenses;
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
 
   return (
-    <div className="ad-page">
-      <Sidebar />
-
-      <div className="ad-body">
-        <Header2 />
-
-        <main className="ad-main">
-
-          {/* ── Welcome Banner ── */}
-          <section className="ad-welcome">
-            <div className="ad-welcome-blob" />
-            <div className="ad-welcome-blob2" />
-            <div className="ad-welcome-left">
-              <div className="ad-welcome-badge">
-                <Sparkles size={13} />
-                Admin Overview
-              </div>
-              <h1 className="ad-welcome-title">
-                Welcome back, {user.name?.split(" ")[0] || "Admin"} 👋
-              </h1>
-              <p className="ad-welcome-sub">
-                Here's a full snapshot of your school's performance today.
-              </p>
-            </div>
-            <div className="ad-welcome-date-pill">
-              <CalendarDays size={15} />
-              {new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
-            </div>
-          </section>
-
-          {/* ── Stat Cards ── */}
-          <section className="ad-stats-row">
-            <StatCard title="Total Students"  value={totalStudents}  icon={FaUserGraduate}      colorKey="teal"   trend={12}   delay={0}   />
-            <StatCard title="Total Teachers"  value={totalTeachers}  icon={FaChalkboardTeacher} colorKey="purple" trend={4}    delay={80}  />
-            <StatCard title="Active Classes"  value={totalClasses}   icon={Users2}              colorKey="amber"  trend={-2}   delay={160} />
-          </section>
-
-          {/* ── Middle Row ── */}
-          <section className="ad-mid-row">
-
-            {/* Attendance Overview */}
-            <div className="ad-card ad-attendance-card">
-              <div className="ad-card-header">
-                <Activity size={18} className="icon-teal" />
-                <h2>Attendance Overview</h2>
-                <span className="ad-card-badge teal">Today</span>
-              </div>
-
-              <div className="ad-att-donut-row">
-                <div className="ad-att-donut-wrap">
-                  <DonutChart percent={attendancePct} color="var(--teal)" size={88} />
-                  <div className="ad-att-donut-center">
-                    <span className="ad-att-pct">{attendancePct}%</span>
-                    <span className="ad-att-pct-label">Present</span>
-                  </div>
-                </div>
-                <div className="ad-att-legend">
-                  <div className="ad-att-legend-item">
-                    <span className="ad-att-legend-dot" style={{ background: "var(--teal)" }} />
-                    <span>Present <strong>{Math.round(totalStudents * attendancePct / 100)}</strong></span>
-                  </div>
-                  <div className="ad-att-legend-item">
-                    <span className="ad-att-legend-dot" style={{ background: "var(--coral)" }} />
-                    <span>Absent <strong>{Math.round(totalStudents * (100 - attendancePct) / 100)}</strong></span>
-                  </div>
-                  <div className="ad-att-legend-item">
-                    <span className="ad-att-legend-dot" style={{ background: "var(--amber)" }} />
-                    <span>Late <strong>{Math.round(totalStudents * 0.04)}</strong></span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="ad-att-classes">
-                <p className="ad-att-classes-label">By Class Level</p>
-                <Bar label="Grade 6" value={96} max={100} color="var(--teal)" />
-                <Bar label="Grade 7" value={88} max={100} color="var(--teal-mid)" />
-                <Bar label="Grade 8" value={82} max={100} color="var(--amber)" />
-                <Bar label="Grade 9" value={79} max={100} color="var(--coral)" />
-              </div>
-
-              <button className="ad-link-btn" onClick={() => navigate("/attendance")}>
-                Full Attendance Report <ChevronRight size={14} />
-              </button>
-            </div>
-
-            {/* Grade Distribution */}
-            <div className="ad-card ad-grades-card">
-              <div className="ad-card-header">
-                <TrendingUp size={18} className="icon-purple" />
-                <h2>Grade Distribution</h2>
-                <span className="ad-card-badge purple">Term 2</span>
-              </div>
-
-              <div className="ad-grade-donut-wrap">
-                <DonutChart percent={Math.round((GRADE_DIST[0].value + GRADE_DIST[1].value) / (GRADE_DIST.reduce((a, b) => a + b.value, 0)) * 100)} color="var(--teal)" size={88} />
-                <div className="ad-att-donut-center">
-                  <span className="ad-att-pct">
-                    {Math.round((GRADE_DIST[0].value + GRADE_DIST[1].value) / (GRADE_DIST.reduce((a, b) => a + b.value, 0)) * 100)}%
-                  </span>
-                  <span className="ad-att-pct-label">A & B</span>
-                </div>
-              </div>
-
-              <div className="ad-grade-bars">
-                {GRADE_DIST.map(g => (
-                  <Bar key={g.label} label={g.label} value={g.value} max={maxGrade} color={g.color} />
-                ))}
-              </div>
-
-              <button className="ad-link-btn" onClick={() => navigate("/view-reports")}>
-                Full Academic Report <ChevronRight size={14} />
-              </button>
-            </div>
-
-            {/* Notices */}
-            <div className="ad-card ad-notices-card">
-              <div className="ad-card-header">
-                <Bell size={18} className="icon-amber" />
-                <h2>Notices</h2>
-                <span className="ad-notices-count">{NOTICES.length}</span>
-              </div>
-
-              <div className="ad-notices-list">
-                {NOTICES.map(n => (
-                  <div key={n.id} className={`ad-notice-item ad-notice-${n.type}`}>
-                    <div className="ad-notice-icon-wrap">
-                      <n.icon size={13} />
-                    </div>
-                    <div className="ad-notice-body">
-                      <p className="ad-notice-text">{n.text}</p>
-                      <p className="ad-notice-time">{n.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <button className="ad-link-btn" onClick={() => navigate("/announcements")}>
-                Manage Announcements <ChevronRight size={14} />
-              </button>
-            </div>
-
-          </section>
-
-          {/* ── Bottom Row ── */}
-          <section className="ad-bottom-row">
-
-            {/* Quick Actions */}
-            <div className="ad-card ad-qa-card">
-              <div className="ad-card-header">
-                <LayoutGrid size={18} className="icon-teal" />
-                <h2>Quick Actions</h2>
-              </div>
-              <div className="ad-qa-grid">
-                {QUICK_ACTIONS.map((qa, i) => (
-                  <button
-                    key={i}
-                    className={`ad-qa-btn qa-${qa.color}`}
-                    onClick={() => navigate(qa.path)}
-                  >
-                    <div className="ad-qa-icon-wrap">
-                      <qa.icon size={18} />
-                    </div>
-                    <span className="ad-qa-label">{qa.label}</span>
-                    <ChevronRight size={13} className="ad-qa-arrow" />
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* School Calendar */}
-            <div className="ad-card ad-calendar-card">
-              <div className="ad-card-header">
-                <CalendarDays size={18} className="icon-teal" />
-                <h2>School Calendar</h2>
-                {loadingEvents && <span className="ad-loading-pill">Syncing…</span>}
-              </div>
-
-              <div className="ad-cal-wrap">
-                <Calendar
-                  onChange={handleDateClick}
-                  value={selectedDate}
-                  tileContent={({ date }) => {
-                    const iso = date.toISOString().split("T")[0];
-                    const ev  = events[iso];
-                    if (!ev) return null;
-                    return (
-                      <span
-                        className={`ad-event-dot ${ev.type === "holiday" ? "dot-holiday" : "dot-custom"}`}
-                        title={ev.title}
-                      />
-                    );
-                  }}
-                />
-              </div>
-
-              <div className="ad-event-detail">
-                <p className="ad-event-date-label">
-                  {selectedDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
-                </p>
-                {selectedEvent ? (
-                  <div className="ad-event-info">
-                    <span className={`ad-event-badge ${selectedEvent.type}`}>
-                      {selectedEvent.type === "holiday" ? "🏖️ Holiday" : "📅 Event"}
-                    </span>
-                    <p className="ad-event-title">{selectedEvent.title}</p>
-                    {selectedEvent.description && <p className="ad-event-desc">{selectedEvent.description}</p>}
-                    <button className="ad-edit-event-btn" onClick={() => handleDateClick(selectedDate)}>
-                      <FaEdit size={11} /> Edit Event
-                    </button>
-                  </div>
-                ) : (
-                  <div className="ad-no-event">
-                    <p className="ad-event-none-text">No events on this day</p>
-                    <button className="ad-add-event-btn" onClick={() => handleDateClick(selectedDate)}>
-                      <FaPlus size={11} /> Add Event
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Upcoming Events strip */}
-            <div className="ad-card ad-upcoming-card">
-              <div className="ad-card-header">
-                <CheckCheck size={18} className="icon-green" />
-                <h2>Upcoming Events</h2>
-              </div>
-              <div className="ad-upcoming-list">
-                {Object.entries(events)
-                  .filter(([k]) => new Date(k) >= new Date(new Date().toDateString()))
-                  .sort(([a], [b]) => new Date(a) - new Date(b))
-                  .slice(0, 5)
-                  .map(([dateKey, ev]) => (
-                    <div key={dateKey} className="ad-upcoming-item">
-                      <div className={`ad-upcoming-badge ${ev.type === "holiday" ? "holiday" : "event"}`}>
-                        {new Date(dateKey).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-                      </div>
-                      <div className="ad-upcoming-info">
-                        <p className="ad-upcoming-title">{ev.title}</p>
-                        <p className="ad-upcoming-type">{ev.type === "holiday" ? "School Holiday" : "Custom Event"}</p>
-                      </div>
-                    </div>
-                  ))}
-                {Object.keys(events).filter(k => new Date(k) >= new Date(new Date().toDateString())).length === 0 && (
-                  <div className="ad-empty-upcoming">
-                    <CalendarDays size={28} opacity={0.3} />
-                    <p>No upcoming events.<br />Add some to the calendar.</p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-          </section>
-        </main>
-      </div>
-
-      {/* ── Event Modal ── */}
-      {showEventModal && (
-        <div className="ad-modal-overlay" onClick={handleCloseModal}>
-          <div className="ad-modal" onClick={e => e.stopPropagation()}>
-            <div className="ad-modal-header">
-              <h3>{editingEvent ? "Edit Event" : "Add New Event"}</h3>
-              <button className="ad-modal-close" onClick={handleCloseModal}><FaTimes /></button>
-            </div>
-
-            <div className="ad-modal-body">
-              <label className="ad-form-label">Event Type</label>
-              <div className="ad-type-options">
-                <button className={`ad-type-btn ${eventType === "holiday" ? "active" : ""}`} onClick={() => setEventType("holiday")}>🏖️ Holiday</button>
-                <button className={`ad-type-btn ${eventType === "custom"  ? "active" : ""}`} onClick={() => setEventType("custom")}>📅 Custom Event</button>
-              </div>
-
-              {eventType === "custom" && (
-                <div className="ad-form-group">
-                  <label className="ad-form-label">Event Title <span className="req">*</span></label>
-                  <input
-                    className="ad-form-input"
-                    placeholder="e.g., Staff meeting, Parent-Teacher Conference"
-                    value={eventTitle}
-                    onChange={e => setEventTitle(e.target.value)}
-                  />
-                </div>
-              )}
-
-              <div className="ad-form-group">
-                <label className="ad-form-label">Description <span className="opt">(optional)</span></label>
-                <textarea
-                  className="ad-form-textarea"
-                  placeholder="Add more details about this event…"
-                  value={eventDescription}
-                  onChange={e => setEventDescription(e.target.value)}
-                  rows="3"
-                />
-              </div>
-
-              <div className="ad-modal-date-display">
-                <CalendarDays size={15} />
-                {selectedDate.toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
-              </div>
-            </div>
-
-            <div className="ad-modal-footer">
-              {editingEvent && (
-                <button className="ad-delete-btn" onClick={handleDeleteEvent}><FaTrash /> Delete</button>
-              )}
-              <div className="ad-modal-actions">
-                <button className="ad-cancel-btn" onClick={handleCloseModal}>Cancel</button>
-                <button className="ad-save-btn" onClick={handleSaveEvent}>
-                  {editingEvent ? "Update Event" : "Create Event"}
-                </button>
-              </div>
-            </div>
+    <div className="page dash">
+      {/* ── welcome ── */}
+      <section className="dash-hero">
+        <div className="dash-hero-text">
+          <span className="dash-chip"><Sparkles size={13} /> {school?.name || "Your school"}</span>
+          <h1>{greeting}, {firstName} 👋</h1>
+          <p>Here’s how your school is doing today.</p>
+          <div className="dash-hero-cta">
+            <button className="btn btn-warn" onClick={() => navigate("/students")}><Plus size={16} /> Admit a student</button>
+            <button className="btn dash-ghost" onClick={() => navigate("/view-attendance")}><CalendarCheck size={16} /> View attendance</button>
           </div>
         </div>
-      )}
+        <div className="dash-hero-date">
+          <CalendarDays size={16} />
+          {new Date().toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
+        </div>
+      </section>
+
+      {/* ── stats ── */}
+      <section className="dash-stats">
+        <Stat icon={GraduationCap} label="Students"   value={students}                        tone="teal"   to="/students" />
+        <Stat icon={Presentation}  label="Teachers"   value={school?.numberOfTeachers || 0}   tone="purple" to="/teachers" />
+        <Stat icon={School}        label="Classes"    value={school?.numberOfClasses || 0}    tone="amber"  to="/classes" />
+        <Stat icon={Landmark}      label="Fees collected" value={money$.fees + money$.feeding} tone="coral" to="/fees" prefix="GH₵ " />
+      </section>
+
+      {/* ── middle ── */}
+      <section className="dash-grid">
+        <div className="card dash-card">
+          <div className="card-head"><h2><ClipboardCheck size={18} /> Attendance today</h2>
+            <span className="badge-pill">{att?.isWeekend ? "Weekend" : "Today"}</span></div>
+          {loading ? <div className="skeleton" style={{ height: 130 }} /> : att && !att.isWeekend ? (
+            <>
+              <div className="dash-att">
+                <Donut percent={pct ?? 0} label={pct === null ? "—" : `${pct}%`} sub="present" />
+                <ul className="dash-legend">
+                  <li><i style={{ background: "var(--teal)" }} /> Present <b>{att.present}</b></li>
+                  <li><i style={{ background: "var(--coral)" }} /> Absent <b>{att.absent}</b></li>
+                  <li><i style={{ background: "var(--amber)" }} /> Not yet marked <b>{Math.max(att.totalStudents - att.recorded, 0)}</b></li>
+                </ul>
+              </div>
+              <div className="dash-progress" aria-label="Classes marked">
+                <div><span>Classes marked</span><b>{att.classesMarked} / {att.classesTotal}</b></div>
+                <progress value={att.classesMarked} max={Math.max(att.classesTotal, 1)} />
+              </div>
+            </>
+          ) : (
+            <p className="dash-note">{att?.isWeekend ? "It’s the weekend — no attendance is taken." : "Attendance data isn’t available right now."}</p>
+          )}
+          <Link to="/view-attendance" className="dash-link">Full attendance report <ChevronRight size={14} /></Link>
+        </div>
+
+        <div className="card dash-card">
+          <div className="card-head"><h2><TrendingUp size={18} /> Finance snapshot</h2><span className="badge-pill green">All time</span></div>
+          {loading ? <div className="skeleton" style={{ height: 130 }} /> : (
+            <ul className="dash-fin">
+              <li><span>School fees</span><b>{money(money$.fees)}</b></li>
+              <li><span>Feeding fees</span><b>{money(money$.feeding)}</b></li>
+              <li><span>Expenses</span><b className="neg">− {money(money$.expenses)}</b></li>
+              <li className="net"><span>Net position</span><b className={net < 0 ? "neg" : "pos"}>{net < 0 ? "− " : ""}{money(Math.abs(net))}</b></li>
+            </ul>
+          )}
+          <Link to="/income" className="dash-link">Income statement <ChevronRight size={14} /></Link>
+        </div>
+
+        <div className="card dash-card">
+          <div className="card-head"><h2><Bell size={18} /> Latest notices</h2>
+            {notices.length > 0 && <span className="badge-pill amber">{notices.length}</span>}</div>
+          {loading ? <div className="skeleton" style={{ height: 130 }} /> : notices.length ? (
+            <ul className="dash-notices">
+              {notices.map((n) => (
+                <li key={n._id} className={`type-${n.type}`}>
+                  <b>{n.title}</b>
+                  <p>{n.message}</p>
+                  <small>{timeAgo(n.createdAt)}</small>
+                </li>
+              ))}
+            </ul>
+          ) : <p className="dash-note">You’re all caught up — no notices yet.</p>}
+          <Link to="/notifications" className="dash-link">All notifications <ChevronRight size={14} /></Link>
+        </div>
+      </section>
+
+      {/* ── bottom ── */}
+      <section className="dash-bottom">
+        <div className="card dash-card">
+          <div className="card-head"><h2><Sparkles size={18} /> Quick actions</h2></div>
+          <div className="dash-qa">
+            {QUICK.map(({ label, to, icon: Icon, tone }) => (
+              <Link key={to} to={to} className={`dash-qa-item tone-${tone}`}>
+                <span><Icon size={18} /></span>{label}<ChevronRight size={14} />
+              </Link>
+            ))}
+          </div>
+          <div className="card-head" style={{ marginTop: "1.3rem" }}><h2><CalendarDays size={18} /> Upcoming</h2></div>
+          {upcoming.length ? (
+            <ul className="dash-upcoming">
+              {upcoming.map(([k, ev]) => (
+                <li key={k}>
+                  <time className={ev.type === "holiday" ? "holiday" : ""}>
+                    <b>{new Date(k + "T00:00").getDate()}</b>
+                    {new Date(k + "T00:00").toLocaleDateString(undefined, { month: "short" })}
+                  </time>
+                  <div><strong>{ev.title}</strong><small>{ev.type === "holiday" ? "School holiday" : "Event"}</small></div>
+                </li>
+              ))}
+            </ul>
+          ) : <p className="dash-note">Nothing scheduled. Click a date on the calendar to add something.</p>}
+        </div>
+
+        <div className="card dash-card dash-cal">
+          <div className="card-head"><h2><CalendarDays size={18} /> School calendar</h2>
+            {loadingEvents && <span className="badge-pill gray">Syncing…</span>}</div>
+          <Calendar
+            onClickDay={openDay}
+            value={selected}
+            tileContent={({ date, view }) => {
+              if (view !== "month") return null;
+              const ev = events[dayKey(date)];
+              return ev ? <span className={`dash-dot ${ev.type === "holiday" ? "holiday" : ""}`} title={ev.title} /> : null;
+            }}
+          />
+          <div className="dash-day">
+            <p>{selected.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric" })}</p>
+            {selectedEvent ? (
+              <div className="dash-day-event">
+                <span className={`badge-pill ${selectedEvent.type === "holiday" ? "coral" : ""}`}>{selectedEvent.type === "holiday" ? "🏖️ Holiday" : "📅 Event"}</span>
+                <strong>{selectedEvent.title}</strong>
+                {selectedEvent.description && <small>{selectedEvent.description}</small>}
+                <button className="btn btn-outline btn-sm" onClick={() => openDay(selected)}><Pencil size={13} /> Edit</button>
+              </div>
+            ) : (
+              <button className="btn btn-secondary btn-sm" onClick={() => openDay(selected)}><Plus size={14} /> Add event</button>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* ── event modal ── */}
+      <Modal
+        open={modal}
+        onClose={closeModal}
+        title={editing ? "Edit event" : "Add event"}
+        footer={(
+          <>
+            {editing && <button className="btn btn-danger-soft" style={{ marginRight: "auto" }} onClick={() => setConfirmDel(true)}><Trash2 size={15} /> Delete</button>}
+            <button className="btn btn-outline" onClick={closeModal}>Cancel</button>
+            <button className="btn" onClick={save} disabled={saving}>{saving ? "Saving…" : editing ? "Save changes" : "Add event"}</button>
+          </>
+        )}
+      >
+        <p className="muted" style={{ marginTop: 0 }}>
+          {selected.toLocaleDateString(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" })}
+        </p>
+        <div className="tabs" style={{ marginBottom: "1rem" }} role="tablist">
+          <button type="button" className={`tab ${form.type === "custom" ? "active" : ""}`} onClick={() => setForm({ ...form, type: "custom" })}>📅 Event</button>
+          <button type="button" className={`tab ${form.type === "holiday" ? "active" : ""}`} onClick={() => setForm({ ...form, type: "holiday" })}>🏖️ Holiday</button>
+        </div>
+        {form.type === "custom" && (
+          <div className="field">
+            <label htmlFor="ev-title">Title</label>
+            <input id="ev-title" className="input" placeholder="e.g. Parent–teacher meeting" value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} />
+          </div>
+        )}
+        <div className="field">
+          <label htmlFor="ev-desc">Description <span className="muted">(optional)</span></label>
+          <textarea id="ev-desc" className="textarea" rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+        </div>
+      </Modal>
+
+      <ConfirmDialog
+        open={confirmDel}
+        danger
+        busy={saving}
+        title="Delete this event?"
+        message="Teachers will no longer see it on their calendars."
+        confirmLabel="Delete"
+        onConfirm={remove}
+        onCancel={() => setConfirmDel(false)}
+      />
     </div>
   );
 };

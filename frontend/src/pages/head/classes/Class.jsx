@@ -1,238 +1,171 @@
-import React, { useEffect, useState } from "react";
-import axios from "../../../api/axios";
-import "./Class.modules.css";
-import Header from "../../../components/Admin/Header2";
-import { MdDelete, MdEdit } from "react-icons/md";
-import Sidebar from "../../../components/Admin/Sidebar";
-import { toast } from "react-hot-toast";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-hot-toast";
+import { BookOpen, GraduationCap, Pencil, Plus, Presentation, Search, Trash2 } from "lucide-react";
+import api from "../../../api/axios";
+import PageHeader from "../../../components/ui/PageHeader";
+import Modal from "../../../components/ui/Modal";
+import ConfirmDialog from "../../../components/ui/ConfirmDialog";
+import EmptyState from "../../../components/ui/EmptyState";
+import Loading from "../../../components/ui/Loading";
+import "./Class.css";
 
+const LEVELS = [
+  { value: "Creche", label: "Creche", numbers: [] },
+  { value: "Nursery", label: "Nursery", numbers: [1, 2] },
+  { value: "Kindergaten", label: "Kindergarten", numbers: [1, 2] },
+  { value: "Primary", label: "Primary", numbers: [1, 2, 3, 4, 5, 6] },
+  { value: "Junior High", label: "Junior High", numbers: [1, 2, 3] },
+  { value: "Senior High", label: "Senior High", numbers: [1, 2, 3] },
+];
+const LEVEL_TONE = { Creche: "coral", Nursery: "amber", Kindergaten: "amber", Primary: "", "Junior High": "purple", "Senior High": "blue" };
+const LEVEL_ORDER = LEVELS.map((l) => l.value);
 
-const CreateClassPage = () => {
- const [formData, setFormData] = useState({
-  description: "New class adding...",
-  level: "",
-  number: "",  // Add this
-  teachers: [],
-  students: [],
-});
-
-
-  const [teachers, setTeachers] = useState([]);
-  const [students, setStudents] = useState([]);
+export default function Classes() {
+  const schoolId = useMemo(() => { try { return JSON.parse(localStorage.getItem("schoolData"))?._id; } catch { return null; } }, []);
   const [classes, setClasses] = useState([]);
-  const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [modal, setModal] = useState(null); // "new" | class | null
+  const [form, setForm] = useState({ level: "", number: "", description: "" });
+  const [errors, setErrors] = useState({});
+  const [saving, setSaving] = useState(false);
+  const [toDelete, setToDelete] = useState(null);
 
-  const fetchAllData = async () => {
-    const schoolDataRaw = localStorage.getItem("schoolData");
+  const load = useCallback(async () => {
+    if (!schoolId) { setLoading(false); return; }
+    try {
+      const { data } = await api.get(`/api/classes/school/${schoolId}`);
+      setClasses(Array.isArray(data) ? data : []);
+    } catch { toast.error("Couldn't load classes"); } finally { setLoading(false); }
+  }, [schoolId]);
 
-    if (schoolDataRaw) {
-      const schoolData = JSON.parse(schoolDataRaw);
+  useEffect(() => { load(); }, [load]);
 
-      if (schoolData && schoolData._id) {
-        const schoolId = schoolData._id;
-        localStorage.setItem("schoolId", schoolId);
+  const groups = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    const list = classes.filter((c) => !term || c.className.toLowerCase().includes(term) || c.level.toLowerCase().includes(term));
+    const by = {};
+    list.forEach((c) => { (by[c.level] ||= []).push(c); });
+    Object.values(by).forEach((g) => g.sort((a, b) => (a.number || 0) - (b.number || 0)));
+    return LEVEL_ORDER.filter((l) => by[l]).map((l) => ({ level: l, items: by[l] }));
+  }, [classes, search]);
 
-        try {
-          const [teacherRes, studentRes, classRes] = await Promise.all([
-            axios.get(`/api/teachers/school/${schoolId}`),
-            axios.get(`/api/student/school/${schoolId}`),
-            axios.get(`/api/classes/school/${schoolId}`),
-          ]);
-          setTeachers(teacherRes.data);
-          setStudents(studentRes.data);
-          setClasses(classRes.data);
-        } catch (error) {
-          console.error("Error fetching data", error);
-        }
-      }
-    }
-  };
+  const level = LEVELS.find((l) => l.value === form.level);
+  const openNew = () => { setForm({ level: "", number: "", description: "" }); setErrors({}); setModal("new"); };
+  const openEdit = (c) => { setForm({ level: c.level, number: c.number || "", description: c.description || "" }); setErrors({}); setModal(c); };
 
-  useEffect(() => {
-    fetchAllData();
-  }, []);
-
-  useEffect(() => {
-    console.log("Classes fetched:", classes);
-  }, [classes]);
-
-  const handleChange = e => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleMultiSelect = (id, key) => {
-    setFormData(prev => {
-      const list = prev[key];
-      return {
-        ...prev,
-        [key]: list.includes(id) ? list.filter(i => i !== id) : [...list, id],
-      };
-    });
-  };
-
-  const handleSubmit = async e => {
+  const save = async (e) => {
     e.preventDefault();
-    const schoolId = localStorage.getItem("schoolId");
-
-    const payload = {
-      school: schoolId,
-      level: formData.level,
-      number: formData.number || undefined,  // optional, Creche has no number
-      description: formData.description,
-    };
-
-    if (formData.teachers.length > 0) payload.teachers = formData.teachers;
-    if (formData.students.length > 0) payload.students = formData.students;
-
-    try {
-      await axios.post("/api/classes", payload);
-     setFormData({
-        description: "New class adding...",
-        level: "",
-        number: "", // reset number too
-        teachers: [],
-        students: [],
-      });
-
-      setShowModal(false);
-      fetchAllData(); // refresh list
-      toast.success('Class added successfully!');
-    } catch (err) {
-      toast.error('Failed to add class. Please try again.');
-      console.error("Error creating class", err);
-      alert(err.response?.data?.message || "Failed to create class.");
+    const v = {};
+    if (modal === "new") {
+      if (!form.level) v.level = "Choose a level";
+      else if (level.numbers.length && !form.number) v.number = "Choose the class number";
     }
+    setErrors(v);
+    if (Object.keys(v).length) return;
+    setSaving(true);
+    try {
+      if (modal === "new") {
+        await api.post("/api/classes", { school: schoolId, level: form.level, number: form.number || undefined, description: form.description.trim() });
+        toast.success("Class created");
+      } else {
+        await api.patch(`/api/classes/${modal._id}/details`, { description: form.description.trim() });
+        toast.success("Class updated");
+      }
+      setModal(null);
+      load();
+    } catch (err) { toast.error(err.response?.data?.message || "Couldn't save the class"); } finally { setSaving(false); }
   };
 
-  const handleDelete = async classId => {
+  const remove = async () => {
+    setSaving(true);
     try {
-      await axios.delete(`/api/classes/${classId}`);
-      alert("Class deleted.");
-      fetchAllData();
-    } catch (err) {
-      console.error("Delete error", err);
-      alert("Failed to delete class.");
-    }
+      await api.delete(`/api/classes/${toDelete._id}`);
+      toast.success("Class deleted");
+      setToDelete(null);
+      load();
+    } catch (err) { toast.error(err.response?.data?.message || "Couldn't delete the class"); } finally { setSaving(false); }
   };
 
   return (
-    <div className="class-page">
-      <Header />
-      <div className="class-page2">
-        <Sidebar />
-        <div className="create-class-container">
-        <div className="class-table-container">
-  <div className="class-table-header">
-    <h2>All Classes</h2>
-    <button onClick={() => setShowModal(true)}>Add Class</button>
-  </div>
+    <div className="page">
+      <PageHeader
+        crumbs={[{ label: "Classes & Subjects", to: "/classes-main" }, { label: "Classes" }]}
+        title="Classes"
+        subtitle={loading ? "Loading…" : `${classes.length} class${classes.length === 1 ? "" : "es"} · ${classes.reduce((n, c) => n + (c.students?.length || 0), 0)} students enrolled`}
+        actions={<button className="btn" onClick={openNew}><Plus size={16} /> Add class</button>}
+      />
 
-  <div className="table-wrapper">
-    <table className="class-table">
-      <thead>
-        <tr>
-          <th>Class Name</th>
-          <th>Level</th>
-          <th>Teachers</th>
-          <th>Students</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {classes.map(cls => (
-          <tr key={cls._id}>
-            <td>
-              <Link to={`/classes/${cls._id}/subjects`} className="clickable-class-name">
-                {cls.className}
-              </Link>
-            </td>
-            <td>{cls.level}</td>
-            <td>{cls.teachers?.length || 0}</td>
-            <td>{cls.students?.length || 0}</td>
-            <td>
-              <button className="icon-btn">Edit</button>
-              <button
-                className="icon-btn delete"
-                onClick={() => handleDelete(cls._id)}
-              >
-                Delete
-              </button>
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  </div>
-</div>
+      {classes.length > 4 && (
+        <div className="toolbar"><div className="search-input-wrap"><Search size={16} />
+          <input className="input" placeholder="Search classes…" value={search} onChange={(e) => setSearch(e.target.value)} aria-label="Search classes" /></div></div>
+      )}
 
-          {/* Modal Form */}
-          {showModal && (
-            <div className="modal-overlay">
-              <div className="modal-content">
-              <h3>Create New Class</h3>
-              <form className="create-class-form" onSubmit={handleSubmit}>
+      {loading ? <Loading label="Loading classes…" /> : classes.length === 0 ? (
+        <div className="card"><EmptyState emoji="🏫" title="No classes yet" action={<button className="btn" onClick={openNew}><Plus size={16} /> Create your first class</button>}>
+          Classes hold your students, teachers and subjects.</EmptyState></div>
+      ) : groups.length === 0 ? (
+        <div className="card"><EmptyState emoji="🔍" title="No classes match your search" /></div>
+      ) : groups.map((g) => (
+        <section key={g.level} className="cls-group">
+          <h2 className="cls-group-title">{LEVELS.find((l) => l.value === g.level)?.label}<span className="badge-pill gray">{g.items.length}</span></h2>
+          <div className="grid-cards">
+            {g.items.map((c) => (
+              <article key={c._id} className="card card-hover cls-card">
+                <header>
+                  <div><h3>{c.className}</h3><span className={`badge-pill ${LEVEL_TONE[c.level] || ""}`}>{c.level}</span></div>
+                  <span className="icon-actions">
+                    <button className="btn btn-ghost btn-icon btn-sm" onClick={() => openEdit(c)} aria-label={`Edit ${c.className}`} title="Edit"><Pencil size={16} /></button>
+                    <button className="btn btn-ghost btn-icon btn-sm" style={{ color: "var(--danger)" }} onClick={() => setToDelete(c)} aria-label={`Delete ${c.className}`} title="Delete"><Trash2 size={16} /></button>
+                  </span>
+                </header>
+                {c.description && c.description !== "New class adding..." && <p className="cls-desc">{c.description}</p>}
+                <ul className="cls-stats">
+                  <li><GraduationCap size={16} /><b>{c.students?.length || 0}</b> students</li>
+                  <li><Presentation size={16} /><b>{c.teachers?.length || 0}</b> teacher{c.teachers?.length === 1 ? "" : "s"}</li>
+                </ul>
+                {c.teachers?.length > 0 && <p className="cls-teachers">{c.teachers.map((t) => t.name).join(", ")}</p>}
+                <Link to={`/classes/${c._id}/subjects`} className="btn btn-secondary btn-sm btn-block"><BookOpen size={15} /> Subjects & topics</Link>
+              </article>
+            ))}
+          </div>
+        </section>
+      ))}
 
-                 <label>Level</label>
-                <select
-                  name="level"
-                  value={formData.level}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select Level</option>
-                  <option value="Creche">Creche</option>
-                  <option value="Nursery">Nursery</option>
-                  <option value="Kindergaten">Kindergarten</option>
-                  <option value="Primary">Primary</option>
-                  <option value="Junior High">Junior High</option>
-                  <option value="Senior High">Senior High</option>
-                </select>
-
-                {formData.level && !["Creche"].includes(formData.level) && (
-            <>
-              <label>Class Number</label>
-              <select
-                name="number"
-                value={formData.number}
-                onChange={handleChange}
-                required
-              >
-                <option value="">Select Number</option>
-                {(() => {
-                  let options = [];
-                  if (formData.level === "Nursery") options = [1, 2];
-                  else if (formData.level === "Kindergaten") options = [1, 2];
-                  else if (formData.level === "Primary") options = [1, 2, 3, 4, 5, 6];
-                  else if (formData.level === "Junior High") options = [1, 2, 3];
-                  else if (formData.level === "Senior High") options = [1, 2, 3];
-                  return options.map(num => (
-                    <option key={num} value={num}>{num}</option>
-                  ));
-                })()}
-              </select>
-            </>
-          )}
-                <label>Description</label>
-                <textarea
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                />
-
-                <button type="submit">Create</button>
-                <button type="button" onClick={() => setShowModal(false)}>
-                  Cancel
-                </button>
-              </form>
-              </div>
+      <Modal
+        open={!!modal} onClose={() => setModal(null)} title={modal === "new" ? "Create a class" : `Edit ${modal?.className || ""}`}
+        footer={(<><button type="button" className="btn btn-outline" onClick={() => setModal(null)}>Cancel</button>
+          <button type="submit" form="class-form" className="btn" disabled={saving}>{saving ? "Saving…" : modal === "new" ? "Create class" : "Save"}</button></>)}
+      >
+        <form id="class-form" onSubmit={save} noValidate>
+          {modal === "new" && (
+            <div className="form-grid">
+              <div className="field"><label htmlFor="c-level">Level *</label>
+                <select id="c-level" className={`select ${errors.level ? "is-invalid" : ""}`} value={form.level} onChange={(e) => setForm({ ...form, level: e.target.value, number: "" })}>
+                  <option value="">Select level</option>{LEVELS.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}</select>
+                {errors.level && <span className="error">{errors.level}</span>}</div>
+              {level?.numbers.length > 0 && (
+                <div className="field"><label htmlFor="c-num">Class number *</label>
+                  <select id="c-num" className={`select ${errors.number ? "is-invalid" : ""}`} value={form.number} onChange={(e) => setForm({ ...form, number: e.target.value })}>
+                    <option value="">Select</option>{level.numbers.map((n) => <option key={n} value={n}>{n}</option>)}</select>
+                  {errors.number && <span className="error">{errors.number}</span>}</div>
+              )}
             </div>
           )}
-        </div>
-      </div>
+          <div className="field"><label htmlFor="c-desc">Description <span className="muted">(optional)</span></label>
+            <textarea id="c-desc" className="textarea" rows={3} value={form.description === "New class adding..." ? "" : form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} /></div>
+          {modal === "new" && form.level && (
+            <p className="alert info" style={{ margin: 0 }}>This class will be named <b>{form.level === "Creche" ? "Creche" : form.number ? `${{ Nursery: "Nursery", Kindergaten: "KG", Primary: "Basic", "Junior High": "JHS", "Senior High": "SHS" }[form.level]} ${form.number}` : "…"}</b>.</p>
+          )}
+        </form>
+      </Modal>
+
+      <ConfirmDialog
+        open={!!toDelete} danger busy={saving} title="Delete class?"
+        message={toDelete ? (toDelete.students?.length ? `${toDelete.className} still has ${toDelete.students.length} student(s). Move them to another class before deleting.` : `${toDelete.className} will be removed permanently.`) : ""}
+        confirmLabel="Delete class" onConfirm={remove} onCancel={() => setToDelete(null)}
+      />
     </div>
   );
-};
-
-export default CreateClassPage;
+}

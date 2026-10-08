@@ -2,18 +2,16 @@ import MarkingScheme from "../models/MarkingScheme.model.js";
 import Teacher from "../models/Teacher.model.js";
 import { v2 as cloudinary } from "cloudinary";
 
-// ⚠️ TEMPORARY fallback while auth middleware is disabled.
-// Remove this once protect/verifyAdmin is wired back in.
-const FALLBACK_SCHOOL_ID = "680e3a1b4798fa9e62db7ee8";
+// The school always comes from the authenticated admin — never from the request
+// body and never from a hard-coded fallback.
+const schoolOf = (req) => req.user?.schoolId || req.user?.school;
+const ownsScheme = (req, scheme) => String(scheme.school) === String(schoolOf(req));
 
 /* ══════════════════════════════════════════
    ADMIN — Upload a marking scheme
 ══════════════════════════════════════════ */
 export const uploadScheme = async (req, res) => {
-  console.log("🔥 uploadScheme HIT");
-  console.log("body:", req.body);
-  console.log("file:", req.file);
-  try {
+    try {
     const { classId, subjectId, term, academicYear, title, availableFrom } = req.body;
 
     if (!req.file) {
@@ -23,8 +21,9 @@ export const uploadScheme = async (req, res) => {
       return res.status(400).json({ message: "Missing required fields." });
     }
 
-    const schoolId = req.admin?.school || FALLBACK_SCHOOL_ID;
-    const uploadedById = req.admin?._id || null;
+    const schoolId = schoolOf(req);
+    if (!schoolId) return res.status(403).json({ message: "No school is linked to your account." });
+    const uploadedById = req.user?._id || null;
 
     const scheme = await MarkingScheme.create({
       school: schoolId,
@@ -40,7 +39,6 @@ export const uploadScheme = async (req, res) => {
       uploadedBy: uploadedById,
     });
 
-    console.log("✅ scheme created:", scheme._id);
     res.status(201).json({ message: "Marking scheme uploaded successfully", scheme });
   } catch (err) {
     console.error("❌ Upload marking scheme error:", err);
@@ -63,6 +61,7 @@ export const updateScheme = async (req, res) => {
 
     const scheme = await MarkingScheme.findById(id);
     if (!scheme) return res.status(404).json({ message: "Marking scheme not found." });
+    if (!ownsScheme(req, scheme)) return res.status(403).json({ message: "Not your school's marking scheme." });
 
     if (req.file) {
       await cloudinary.uploader.destroy(scheme.filePublicId, { resource_type: "raw" });
@@ -90,6 +89,7 @@ export const deleteScheme = async (req, res) => {
     const { id } = req.params;
     const scheme = await MarkingScheme.findById(id);
     if (!scheme) return res.status(404).json({ message: "Marking scheme not found." });
+    if (!ownsScheme(req, scheme)) return res.status(403).json({ message: "Not your school's marking scheme." });
 
     await cloudinary.uploader.destroy(scheme.filePublicId, { resource_type: "raw" });
     await scheme.deleteOne();
@@ -105,16 +105,15 @@ export const deleteScheme = async (req, res) => {
    ADMIN — List all schemes for the school
 ══════════════════════════════════════════ */
 export const getAllSchemesForSchool = async (req, res) => {
-  console.log("🔥 getAllSchemesForSchool HIT");
   try {
-    const schoolId = req.admin?.school || FALLBACK_SCHOOL_ID;
+    const schoolId = schoolOf(req);
+    if (!schoolId) return res.status(403).json({ message: "No school is linked to your account." });
 
     const schemes = await MarkingScheme.find({ school: schoolId })
-      .populate("class", "name")
+      .populate("class", "className")
       .populate("subject", "name")
       .sort({ createdAt: -1 });
 
-    console.log("✅ schemes found:", schemes.length);
     res.status(200).json({ schemes });
   } catch (err) {
     console.error("❌ Get all schemes error:", err);

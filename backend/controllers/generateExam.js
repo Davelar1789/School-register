@@ -2,6 +2,7 @@
 import ollama from 'ollama';
 import fs from 'fs';
 import path from 'path';
+import Subject from '../models/subject.model.js';
 
 export const generateExam = async (req, res) => {
   const {
@@ -13,18 +14,43 @@ export const generateExam = async (req, res) => {
     numObjective = 0,
     numSubjective = 0,
     numPractical = 0,
-    curriculumText,  // aggregated lesson notes/curriculum content
-    createdBy,
   } = req.body;
 
   const startTime = Date.now();
+
+  const clampCount = (n) => Math.max(0, Math.min(Number(n) || 0, 50));
+  if (!classId || !subjectId) {
+    return res.status(400).json({ error: 'Class and subject are required.' });
+  }
+
+  // Build the curriculum text from the topics the admin entered for this class & term
+  let curriculumText = '';
+  let subjectName = '';
+  try {
+    const subject = await Subject.findById(subjectId).lean();
+    if (!subject) return res.status(404).json({ error: 'Subject not found.' });
+    subjectName = subject.name;
+    const material = (subject.courseMaterials || []).find(
+      (m) => String(m.classId) === String(classId) && m.term === term
+    );
+    curriculumText = (material?.topics || [])
+      .map((t) => `${t.title}: ${String(t.description || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim()}`)
+      .join('\n');
+  } catch (err) {
+    console.error('Could not load curriculum for exam:', err.message);
+  }
+  if (!curriculumText) {
+    return res.status(400).json({
+      error: `No topics have been added for ${subjectName || 'this subject'} in ${term}. Add topics under Classes → Subjects first.`,
+    });
+  }
 
   // Build the flexible prompt
   const prompt = `
 You are an exam generator for schools. Based on the curriculum content below, generate an EXAM following these rules:
 - examType: ${examType}
 - level: ${level}
-- #objective: ${numObjective}, #subjective: ${numSubjective}, #practical: ${numPractical}
+- #objective: ${clampCount(numObjective)}, #subjective: ${clampCount(numSubjective)}, #practical: ${clampCount(numPractical)}
 - Objective questions: multiple choice. At beginner level use 2 options, easy = 3, hard/difficult = 4.
 - Subjective: based on the level complexity.
 - Practical: For science, include ${numPractical} diagrams labeled "Fig 1", "Fig 2", etc., each followed by 2–3 questions.
@@ -58,7 +84,9 @@ ${curriculumText}
 
     // Optionally create a file
     const fileName = `exam-${subjectId}-${Date.now()}.json`;
-    const filePath = path.join(process.cwd(), 'generated-exams', fileName);
+    const dir = path.join(process.cwd(), 'generated-exams');
+    fs.mkdirSync(dir, { recursive: true });
+    const filePath = path.join(dir, fileName);
     fs.writeFileSync(filePath, JSON.stringify(examData, null, 2));
 
     res.json({ 

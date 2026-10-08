@@ -1,0 +1,11 @@
+.exp-cats { display: flex; flex-direction: column; gap: .15rem; }
+.exp-cat { all: unset; box-sizing: border-box; display: grid; grid-template-columns: 170px 1fr 110px; align-items: center; gap: .9rem; padding: .45rem .6rem; border-radius: 10px; cursor: pointer; font-size: .88rem; font-weight: 600; color: var(--text); }
+.exp-cat:hover { background: var(--teal-50); }
+.exp-cat.on { background: var(--teal-light); }
+.exp-cat .track { height: 9px; background: var(--teal-50); border-radius: 9px; overflow: hidden; }
+.exp-cat.on .track { background: #fff; }
+.exp-cat i { display: block; height: 100%; border-radius: 9px; background: linear-gradient(90deg, var(--purple), #9b7fe0); }
+.exp-cat b { text-align: right; font-variant-numeric: tabular-nums; color: var(--dark); }
+.exp-date { display: inline-flex; align-items: center; gap: .5rem; font-size: .84rem; font-weight: 700; color: var(--muted); }
+.exp-date .input { width: auto; min-height: 40px; }
+@media (max-width: 640px) { .exp-cat { grid-template-columns: 1fr 90px; } .exp-cat .track { display: none; } }

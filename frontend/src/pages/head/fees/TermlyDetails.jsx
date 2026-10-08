@@ -1,525 +1,250 @@
-import React, { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { toast } from "react-hot-toast";
+import { CalendarDays, CalendarPlus, Coins, Pencil, Plus, Sparkles } from "lucide-react";
 import api from "../../../api/axios";
-import toast from "react-hot-toast";
-import Header from "../../../components/Admin/Header2";
-import Sidebar from "../../../components/Admin/Sidebar";
-import { MdEdit } from 'react-icons/md';
-import "./TermlyDetails.modules.css"; // Create and style accordingly
+import { cedi } from "../../../utils/fees";
+import PageHeader from "../../../components/ui/PageHeader";
+import Modal from "../../../components/ui/Modal";
+import EmptyState from "../../../components/ui/EmptyState";
+import Loading from "../../../components/ui/Loading";
+import "./TermlyDetails.css";
 
-const TermSessionsManager = () => {
-  const schoolData = JSON.parse(localStorage.getItem("schoolData"));
-  const schoolId = schoolData ? schoolData._id : null;
+const TERM_NAMES = ["Term 1", "Term 2", "Term 3"];
+const dayOnly = (d) => (d ? new Date(d).toISOString().slice(0, 10) : "");
+const fmt = (d) => (d ? new Date(d).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) : "—");
 
-  const [academicYears, setAcademicYears] = useState([]);
-  const [selectedYear, setSelectedYear] = useState(null);
+function termState(t) {
+  if (!t) return { label: "Not created", tone: "gray" };
+  const s = dayOnly(t.startDate), e = dayOnly(t.endDate), today = new Date().toISOString().slice(0, 10);
+  if (s === e) return { label: "Dates not set", tone: "amber" };
+  if (today < s) return { label: "Upcoming", tone: "blue" };
+  if (today > e) return { label: "Completed", tone: "gray" };
+  return { label: "In session", tone: "green" };
+}
+
+export default function TermlyDetails() {
+  const schoolId = useMemo(() => { try { return JSON.parse(localStorage.getItem("schoolData"))?._id; } catch { return null; } }, []);
+
+  const [years, setYears] = useState([]);
+  const [year, setYear] = useState("");
   const [terms, setTerms] = useState([]);
-  const [allClasses, setAllClasses] = useState([]);
-  const [showAddYearModal, setShowAddYearModal] = useState(false);
-  const [newYearLabel, setNewYearLabel] = useState("");
-  const [editingTerm, setEditingTerm] = useState(null);
-  const [editedClassFees, setEditedClassFees] = useState([]);
-  const [showCreateTermModal, setShowCreateTermModal] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isStartModalOpen, setIsStartModalOpen] = useState(false);
-  const [isEndModalOpen, setIsEndModalOpen] = useState(false);
-  const [newStartDate, setNewStartDate] = useState('');
-  const [newEndDate, setNewEndDate] = useState('');
-  const [selectedTermForDateEdit, setSelectedTermForDateEdit] = useState(null);
-const [newTermData, setNewTermData] = useState({
-  termName: "",
-  startDate: "",
-  endDate: "",
-  classFees: [],
-});
+  const [classes, setClasses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [termsLoading, setTermsLoading] = useState(false);
 
+  const [yearModal, setYearModal] = useState(false);
+  const [yearLabel, setYearLabel] = useState("");
+  const [yearError, setYearError] = useState("");
 
-  useEffect(() => {
-    if (schoolId) {
-      fetchAcademicYears();
-      fetchClasses();
-    }
+  const [datesFor, setDatesFor] = useState(null);
+  const [dates, setDates] = useState({ start: "", end: "" });
+  const [feesFor, setFeesFor] = useState(null); // existing term | { termName, isNew }
+  const [fees, setFees] = useState([]);
+  const [newDates, setNewDates] = useState({ start: "", end: "" });
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState("");
+
+  const loadTerms = useCallback(async (label) => {
+    if (!label) return;
+    setTermsLoading(true);
+    try {
+      const { data } = await api.get(`/api/terms/${schoolId}/${encodeURIComponent(label)}`);
+      setTerms(Array.isArray(data) ? data : []);
+    } catch { toast.error("Couldn't load the terms for that year"); } finally { setTermsLoading(false); }
   }, [schoolId]);
 
-  const fetchAcademicYears = async () => {
+  const loadYears = useCallback(async (select) => {
     try {
       const { data } = await api.get(`/api/terms/years/${schoolId}`);
-      setAcademicYears(data);
-    } catch (error) {
-      toast.error("Failed to fetch academic years.");
-    }
-  };
+      const list = (Array.isArray(data) ? data : []).sort().reverse();
+      setYears(list);
+      const pick = select || list[0] || "";
+      setYear(pick);
+      if (pick) await loadTerms(pick);
+    } catch { toast.error("Couldn't load academic years"); } finally { setLoading(false); }
+  }, [schoolId, loadTerms]);
 
-  const handleCreateTerm = (termName) => {
-    setNewTermData({
-      termName,
-      startDate: "",
-      endDate: "",
-      classFees: allClasses.map(cls => ({
-        classId: cls._id,
-        className: cls.className,
-        totalFees: 0,
-      })),
-    });
-    setShowCreateTermModal(true);
-  };
+  useEffect(() => {
+    if (!schoolId) { setLoading(false); return; }
+    loadYears();
+    api.get(`/api/classes/school/${schoolId}`).then(({ data }) => setClasses(Array.isArray(data) ? data : [])).catch(() => {});
+  }, [schoolId, loadYears]);
 
-  const handleSubmitNewTerm = async () => {
-    const { termName, startDate, endDate, classFees } = newTermData;
-  
-    if (!startDate || !endDate) {
-      toast.error("Start and end dates are required.");
-      return;
-    }
-  
+  const byName = Object.fromEntries(terms.map((t) => [t.termName, t]));
+
+  /* ── academic year ── */
+  const suggested = useMemo(() => {
+    const y = new Date().getFullYear();
+    return [`${y - 1}/${y}`, `${y}/${y + 1}`, `${y + 1}/${y + 2}`].filter((l) => !years.includes(l));
+  }, [years]);
+
+  const addYear = async (e) => {
+    e.preventDefault();
+    const m = yearLabel.trim().match(/^(\d{4})\s*[/-]\s*(\d{4})$/);
+    if (!m || Number(m[2]) !== Number(m[1]) + 1) { setYearError("Use two consecutive years, e.g. 2025/2026"); return; }
+    const label = `${m[1]}/${m[2]}`;
+    if (years.includes(label)) { setYearError("That academic year already exists"); return; }
+    setSaving(true);
     try {
-      await api.post("/api/terms/upsert-term", {
-        schoolId,
-        yearLabel: selectedYear,
-        termName,
-        startDate,
-        endDate,
-        classFees,
-      });
-      toast.success(`${termName} created successfully.`);
-      setShowCreateTermModal(false);
-      handleYearSelect(selectedYear); // Refresh term list
-    } catch (error) {
-      toast.error("Failed to create term.");
-    }
+      await api.post("/api/terms/add-academic-year", { schoolId, yearLabel: label });
+      toast.success(`${label} created — now set the dates and fees for each term`);
+      setYearModal(false); setYearLabel(""); setYearError("");
+      await loadYears(label);
+    } catch (err) { setYearError(err.response?.data?.message || "Couldn't add the year"); } finally { setSaving(false); }
   };
-  
-  
 
-  const fetchClasses = async () => {
+  /* ── dates ── */
+  const openDates = (t) => { setDatesFor(t); setDates({ start: dayOnly(t.startDate), end: dayOnly(t.endDate) }); setFormError(""); };
+  const saveDates = async (e) => {
+    e.preventDefault();
+    if (!dates.start || !dates.end) { setFormError("Choose both dates"); return; }
+    if (dates.end <= dates.start) { setFormError("The end date must come after the start date"); return; }
+    setSaving(true);
     try {
-      const { data } = await api.get(`/api/classes/school/${schoolId}`);
-      setAllClasses(data);
-    } catch (error) {
-      toast.error("Failed to fetch classes.");
-    }
+      await api.patch(`/api/terms/update-term-dates/${datesFor._id}`, { startDate: dates.start, endDate: dates.end });
+      toast.success("Term dates saved");
+      setDatesFor(null);
+      loadTerms(year);
+    } catch (err) { setFormError(err.response?.data?.message || "Couldn't save the dates"); } finally { setSaving(false); }
   };
 
-  const handleYearSelect = async (year) => {
-    setSelectedYear(year);
+  /* ── fees ── */
+  const openFees = (t, termName) => {
+    if (t) {
+      const base = classes.map((c) => ({ classId: c._id, className: c.className, totalFees: t.classFees?.find((f) => f.classId === c._id)?.totalFees ?? 0 }));
+      setFees(base);
+      setFeesFor(t);
+    } else {
+      setFees(classes.map((c) => ({ classId: c._id, className: c.className, totalFees: 0 })));
+      setNewDates({ start: "", end: "" });
+      setFeesFor({ termName, isNew: true });
+    }
+    setFormError("");
+  };
+  const setFee = (i, v) => setFees((f) => f.map((x, j) => (j === i ? { ...x, totalFees: v } : x)));
+  const applyToAll = () => { const v = fees.find((f) => Number(f.totalFees) > 0)?.totalFees; if (v) setFees((f) => f.map((x) => ({ ...x, totalFees: v }))); };
+
+  const saveFees = async (e) => {
+    e.preventDefault();
+    if (fees.some((f) => f.totalFees === "" || Number(f.totalFees) < 0 || Number.isNaN(Number(f.totalFees)))) { setFormError("Fees must be zero or more"); return; }
+    const classFees = fees.map((f) => ({ ...f, totalFees: Number(f.totalFees) }));
+    setSaving(true);
     try {
-      const encodedYear = encodeURIComponent(year); // <-- Encode here
-      const { data } = await api.get(`/api/terms/${schoolId}/${encodedYear}`);
-      setTerms(data);
-    } catch (error) {
-      toast.error("Failed to fetch terms for the selected year.");
-    }
-  };
-  
-
-  const handleAddYear = async () => {
-    if (!newYearLabel) {
-      toast.error("Year label cannot be empty.");
-      return;
-    }
-    try {
-      await api.post("/api/terms/add-academic-year", {
-        schoolId,
-        yearLabel: newYearLabel,
-      });
-      toast.success("Academic year added successfully.");
-      setShowAddYearModal(false);
-      setNewYearLabel("");
-      fetchAcademicYears();
-    } catch (error) {
-      console.error(error); // helpful for debugging
-      console.log("schoolId being sent:", schoolId);
-      toast.error(
-        error?.response?.data?.message || "Failed to add academic year."
-      );
-    }
-  };
-  
-
-  const handleEditFees = (term) => {
-    setEditingTerm(term);
-    const copiedFees = term.classFees.map(fee => ({ ...fee }));
-    setEditedClassFees(copiedFees);
-  };
-  
-  const handleFeeChange = (index, value) => {
-    const updatedFees = [...editedClassFees];
-    updatedFees[index].totalFees = value;
-    setEditedClassFees(updatedFees);
-  };
-  
-
-  const handleSaveFees = async () => {
-    setIsSaving(true); // Start loading animation
-    try {
-      await api.post(`/api/terms/upsert-term/${editingTerm._id}`, {
-        classFees: editedClassFees,
-      });
-      toast.success("Class fees updated successfully.");
-      setEditingTerm(null);
-      handleYearSelect(selectedYear);
-    } catch (error) {
-      toast.error("Failed to update class fees.");
-    } finally {
-        setIsSaving(false); // Stop loading animation
+      if (feesFor.isNew) {
+        if (!newDates.start || !newDates.end || newDates.end <= newDates.start) { setFormError("Enter a start date and a later end date"); setSaving(false); return; }
+        await api.post("/api/terms/create-term", { schoolId, yearLabel: year, termName: feesFor.termName, startDate: newDates.start, endDate: newDates.end, classFees });
+        const created = await api.get(`/api/terms/${schoolId}/${encodeURIComponent(year)}`);
+        const t = created.data.find((x) => x.termName === feesFor.termName);
+        if (t) await api.post(`/api/terms/upsert-term/${t._id}`, { classFees });
+      } else {
+        await api.post(`/api/terms/upsert-term/${feesFor._id}`, { classFees });
       }
+      toast.success("Fees saved — student balances were updated");
+      setFeesFor(null);
+      loadTerms(year);
+    } catch (err) { setFormError(err.response?.data?.message || "Couldn't save the fees"); } finally { setSaving(false); }
   };
 
-  const handleStartDateSave = async () => {
-    if (!newStartDate || !selectedTermForDateEdit?._id) {
-      toast.error("Start date or term is missing.");
-      return;
-    }
-  
-    try {
-      await api.patch(`/api/terms/update-term-dates/${selectedTermForDateEdit._id}`, {
-        startDate: newStartDate,
-      });
-  
-      toast.success("Start date updated!");
-      setIsStartModalOpen(false);
-      setSelectedTermForDateEdit(null);
-      handleYearSelect(selectedYear); // Refresh terms
-  
-    } catch (error) {
-      console.error("Failed to update start date:", error);
-      toast.error("Failed to update start date.");
-    }
-  };
-  
-  const handleEndDateSave = async () => {
-    if (!newEndDate || !selectedTermForDateEdit?._id) {
-      toast.error("End date or term is missing.");
-      return;
-    }
-  
-    try {
-      await api.patch(`/api/terms/update-term-dates/${selectedTermForDateEdit._id}`, {
-        endDate: newEndDate,
-      });
-  
-      toast.success("End date updated!");
-      setIsEndModalOpen(false);
-      setSelectedTermForDateEdit(null);
-      handleYearSelect(selectedYear); // Refresh terms
-  
-    } catch (error) {
-      console.error("Failed to update end date:", error);
-      toast.error("Failed to update end date.");
-    }
-  };
-  
-  
+  const expected = (t) => (t?.classFees || []).reduce((n, f) => n + (Number(f.totalFees) || 0) * (classes.find((c) => c._id === f.classId)?.students?.length || 0), 0);
 
-return (
-  <div className="termlyy-container">
-    <Sidebar />
+  if (loading) return <div className="page"><Loading /></div>;
 
-    <div className="termlyy-main">
-      <Header />
+  return (
+    <div className="page">
+      <PageHeader title="Termly details" subtitle="Set up each term's dates and the fees every class pays."
+        actions={<button className="btn" onClick={() => { setYearLabel(suggested[0] || ""); setYearError(""); setYearModal(true); }}><Plus size={16} /> Add academic year</button>} />
 
-      <div className="term-sessions-manager">
-        {/* HEADER */}
-        <div className="tsm-header">
-          <h2>Academic Sessions</h2>
-          <button
-            className="primary-btn"
-            onClick={() => setShowAddYearModal(true)}
-          >
-            + Add Academic Year
-          </button>
-        </div>
+      {years.length === 0 ? (
+        <div className="card"><EmptyState emoji="📅" title="No academic year yet"
+          action={<button className="btn" onClick={() => { setYearLabel(suggested[0] || ""); setYearModal(true); }}><Plus size={16} /> Add your first academic year</button>}>
+          An academic year creates Term 1–3 and sets up fee records for every student.</EmptyState></div>
+      ) : (
+        <>
+          <div className="tabs" role="tablist" aria-label="Academic year" style={{ marginBottom: "1.4rem" }}>
+            {years.map((y) => <button key={y} role="tab" aria-selected={year === y} className={`tab ${year === y ? "active" : ""}`} onClick={() => { setYear(y); loadTerms(y); }}>{y}</button>)}
+          </div>
 
-        {/* ACADEMIC YEARS */}
-        <div className="year-list">
-          {academicYears.map((year) => (
-            <button
-              key={year}
-              className={`year-pill ${selectedYear === year ? "active" : ""}`}
-              onClick={() => handleYearSelect(year)}
-            >
-              {year}
-            </button>
-          ))}
-        </div>
-
-        {/* TERMS */}
-        {selectedYear && (
-          <div className="terms-section">
-            <h3>Terms – {selectedYear}</h3>
-
-            <div className="term-list">
-              {["Term 1", "Term 2", "Term 3"].map((termName) => {
-                const term = terms.find((t) => t.termName === termName);
-
+          {termsLoading ? <Loading /> : (
+            <div className="term-grid">
+              {TERM_NAMES.map((name) => {
+                const t = byName[name];
+                const st = termState(t);
                 return (
-                  <div key={termName} className="term-card">
-                    <div className="term-card-header">
-                      <h4>{termName}</h4>
-                    </div>
-
-                    {term ? (
+                  <article key={name} className={`card term-card ${st.label === "In session" ? "current" : ""}`}>
+                    <header><h3>{name}</h3><span className={`badge-pill ${st.tone}`}>{st.label}</span></header>
+                    {t ? (
                       <>
-                        <div className="term-dates">
-                          <div>
-                            <span>Start Date</span>
-                            <p>
-                              {new Date(term.startDate).toLocaleDateString()}
-                              <MdEdit
-                                className="edit-icon"
-                                onClick={() => {
-                                  setSelectedTermForDateEdit(term);
-                                  setIsStartModalOpen(true);
-                                }}
-                              />
-                            </p>
-                          </div>
-
-                          <div>
-                            <span>End Date</span>
-                            <p>
-                              {new Date(term.endDate).toLocaleDateString()}
-                              <MdEdit
-                                className="edit-icon"
-                                onClick={() => {
-                                  setSelectedTermForDateEdit(term);
-                                  setIsEndModalOpen(true);
-                                }}
-                              />
-                            </p>
-                          </div>
+                        <dl>
+                          <div><dt>Starts</dt><dd>{fmt(t.startDate)}</dd></div>
+                          <div><dt>Ends</dt><dd>{fmt(t.endDate)}</dd></div>
+                          <div><dt>Expected fees</dt><dd><b>{cedi(expected(t))}</b></dd></div>
+                        </dl>
+                        {st.label === "Dates not set" && <p className="alert warn" style={{ margin: 0 }}><Sparkles size={16} /> Set the dates — attendance and the “current term” depend on them.</p>}
+                        <div className="term-actions">
+                          <button className="btn btn-outline btn-sm" onClick={() => openDates(t)}><CalendarDays size={15} /> Dates</button>
+                          <button className="btn btn-sm" onClick={() => openFees(t)}><Coins size={15} /> Fees</button>
                         </div>
-
-                        <button
-                          className="secondary-btn full"
-                          onClick={() => handleEditFees(term)}
-                        >
-                          Edit Fees
-                        </button>
                       </>
                     ) : (
                       <>
-                        <p className="muted-text">
-                          This term has not been created yet.
-                        </p>
-                        <button
-                          className="primary-btn full"
-                          onClick={() => handleCreateTerm(termName)}
-                        >
-                          Create Term
-                        </button>
+                        <p className="muted" style={{ margin: 0 }}>This term hasn't been created yet.</p>
+                        <button className="btn btn-secondary btn-block" onClick={() => openFees(null, name)} disabled={!classes.length}><CalendarPlus size={16} /> Create {name}</button>
                       </>
                     )}
-                  </div>
+                  </article>
                 );
               })}
             </div>
+          )}
+        </>
+      )}
+
+      <Modal open={yearModal} onClose={() => setYearModal(false)} title="Add academic year"
+        footer={(<><button type="button" className="btn btn-outline" onClick={() => setYearModal(false)}>Cancel</button>
+          <button type="submit" form="year-form" className="btn" disabled={saving}>{saving ? "Adding…" : "Add year"}</button></>)}>
+        <form id="year-form" onSubmit={addYear} noValidate>
+          <div className="field"><label htmlFor="yr">Academic year *</label>
+            <input id="yr" className={`input ${yearError ? "is-invalid" : ""}`} value={yearLabel} onChange={(e) => { setYearLabel(e.target.value); setYearError(""); }} placeholder="2025/2026" />
+            {yearError && <span className="error">{yearError}</span>}</div>
+          {suggested.length > 0 && <div className="row">{suggested.map((s) => <button type="button" key={s} className="badge-pill" style={{ border: 0, cursor: "pointer" }} onClick={() => { setYearLabel(s); setYearError(""); }}>{s}</button>)}</div>}
+          <p className="muted" style={{ fontSize: ".85rem" }}>Creates Term 1, 2 and 3 and adds the year to every student's record. You need at least one class first.</p>
+        </form>
+      </Modal>
+
+      <Modal open={!!datesFor} onClose={() => setDatesFor(null)} title={`${datesFor?.termName || ""} dates`}
+        footer={(<><button type="button" className="btn btn-outline" onClick={() => setDatesFor(null)}>Cancel</button>
+          <button type="submit" form="dates-form" className="btn" disabled={saving}>{saving ? "Saving…" : "Save dates"}</button></>)}>
+        <form id="dates-form" onSubmit={saveDates} noValidate>
+          <div className="form-grid">
+            <div className="field"><label htmlFor="d-start">Start date</label><input id="d-start" type="date" className="input" value={dates.start} onChange={(e) => setDates({ ...dates, start: e.target.value })} /></div>
+            <div className="field"><label htmlFor="d-end">End date</label><input id="d-end" type="date" className="input" min={dates.start} value={dates.end} onChange={(e) => setDates({ ...dates, end: e.target.value })} /></div>
           </div>
-        )}
+          {formError && <p className="alert error" role="alert">{formError}</p>}
+        </form>
+      </Modal>
 
-        {/* ===================== MODALS ===================== */}
-
-        {/* ADD YEAR */}
-        {showAddYearModal && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <h3>Add Academic Year</h3>
-
-              <input
-                type="text"
-                placeholder="e.g. 2025/2026"
-                value={newYearLabel}
-                onChange={(e) => setNewYearLabel(e.target.value)}
-              />
-
-              <div className="modal-actions">
-                <button className="primary-btn" onClick={handleAddYear}>
-                  Add Year
-                </button>
-                <button
-                  className="ghost-btn"
-                  onClick={() => setShowAddYearModal(false)}
-                >
-                  Cancel
-                </button>
-              </div>
+      <Modal open={!!feesFor} onClose={() => setFeesFor(null)} size="lg" title={feesFor?.isNew ? `Create ${feesFor.termName}` : `${feesFor?.termName || ""} fees`}
+        footer={(<><button type="button" className="btn btn-outline" onClick={() => setFeesFor(null)}>Cancel</button>
+          <button type="submit" form="fees-form" className="btn" disabled={saving}>{saving ? "Saving…" : feesFor?.isNew ? "Create term" : "Save fees"}</button></>)}>
+        <form id="fees-form" onSubmit={saveFees} noValidate>
+          {feesFor?.isNew && (
+            <div className="form-grid">
+              <div className="field"><label htmlFor="n-start">Start date *</label><input id="n-start" type="date" className="input" value={newDates.start} onChange={(e) => setNewDates({ ...newDates, start: e.target.value })} /></div>
+              <div className="field"><label htmlFor="n-end">End date *</label><input id="n-end" type="date" className="input" min={newDates.start} value={newDates.end} onChange={(e) => setNewDates({ ...newDates, end: e.target.value })} /></div>
             </div>
+          )}
+          <div className="card-head"><h3 style={{ fontSize: "1rem" }}>Fees per class (GH₵)</h3>
+            <button type="button" className="btn btn-ghost btn-sm" onClick={applyToAll}>Copy first amount to all</button></div>
+          <div className="fee-grid">
+            {fees.map((f, i) => (
+              <div key={f.classId} className="fee-line"><label htmlFor={`f-${f.classId}`}>{f.className}</label>
+                <input id={`f-${f.classId}`} type="number" min="0" step="0.01" inputMode="decimal" className="input" value={f.totalFees} onChange={(e) => setFee(i, e.target.value)} onWheel={(e) => e.target.blur()} /></div>
+            ))}
           </div>
-        )}
-
-        {/* CREATE TERM */}
-        {showCreateTermModal && (
-          <div className="modal-overlay">
-            <div className="modal large">
-              <h3>Create {newTermData.termName}</h3>
-
-              <label>Start Date</label>
-              <input
-                type="date"
-                value={newTermData.startDate}
-                onChange={(e) =>
-                  setNewTermData({
-                    ...newTermData,
-                    startDate: e.target.value,
-                  })
-                }
-              />
-
-              <label>End Date</label>
-              <input
-                type="date"
-                value={newTermData.endDate}
-                onChange={(e) =>
-                  setNewTermData({
-                    ...newTermData,
-                    endDate: e.target.value,
-                  })
-                }
-              />
-
-              <h4>Set Fees</h4>
-              {newTermData.classFees.map((fee, index) => (
-                <div key={fee.classId} className="fee-row">
-                  <span>{fee.className}</span>
-                  <input
-                    type="number"
-                    value={fee.totalFees}
-                    onChange={(e) => {
-                      const updatedFees = [...newTermData.classFees];
-                      updatedFees[index].totalFees =
-                        parseFloat(e.target.value) || 0;
-                      setNewTermData({
-                        ...newTermData,
-                        classFees: updatedFees,
-                      });
-                    }}
-                    onWheel={(e) => e.target.blur()}
-                  />
-                </div>
-              ))}
-
-              <div className="modal-actions">
-                <button
-                  className="primary-btn"
-                  onClick={handleSubmitNewTerm}
-                >
-                  Create Term
-                </button>
-                <button
-                  className="ghost-btn"
-                  onClick={() => setShowCreateTermModal(false)}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* EDIT FEES */}
-        {editingTerm && (
-          <div className="modal-overlay">
-            <div className="modal large">
-              <h3>Edit Fees – {editingTerm.termName}</h3>
-
-              {editedClassFees.map((fee, index) => (
-                <div key={fee.classId} className="fee-row">
-                  <span>{fee.className}</span>
-                  <input
-                    type="number"
-                    value={fee.totalFees}
-                    onChange={(e) =>
-                      handleFeeChange(
-                        index,
-                        parseFloat(e.target.value) || 0
-                      )
-                    }
-                    onWheel={(e) => e.target.blur()}
-                  />
-                </div>
-              ))}
-
-              <div className="modal-actions">
-                <button className="primary-btn" onClick={handleSaveFees}>
-                  Save Changes
-                </button>
-                <button
-                  className="ghost-btn"
-                  onClick={() => setEditingTerm(null)}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* START DATE */}
-        {isStartModalOpen && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <h3>Edit Start Date</h3>
-              <input
-                type="date"
-                value={newStartDate}
-                onChange={(e) => setNewStartDate(e.target.value)}
-              />
-              <div className="modal-actions">
-                <button
-                  className="primary-btn"
-                  onClick={handleStartDateSave}
-                >
-                  Save
-                </button>
-                <button
-                  className="ghost-btn"
-                  onClick={() => setIsStartModalOpen(false)}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* END DATE */}
-        {isEndModalOpen && (
-          <div className="modal-overlay">
-            <div className="modal">
-              <h3>Edit End Date</h3>
-              <input
-                type="date"
-                value={newEndDate}
-                onChange={(e) => setNewEndDate(e.target.value)}
-              />
-              <div className="modal-actions">
-                <button
-                  className="primary-btn"
-                  onClick={handleEndDateSave}
-                >
-                  Save
-                </button>
-                <button
-                  className="ghost-btn"
-                  onClick={() => setIsEndModalOpen(false)}
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* LOADING */}
-        {isSaving && (
-          <div className="loading-overlay">
-            <div className="spinner"></div>
-            <p>Saving changes…</p>
-          </div>
-        )}
-      </div>
+          {!feesFor?.isNew && <p className="muted" style={{ fontSize: ".85rem" }}>Saving recalculates every student's balance for this term. Existing payments are kept.</p>}
+          {formError && <p className="alert error" role="alert">{formError}</p>}
+        </form>
+      </Modal>
     </div>
-  </div>
-);
-};
-
-export default TermSessionsManager;
+  );
+}

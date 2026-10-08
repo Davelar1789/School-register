@@ -1,0 +1,11 @@
+.rc-card { display: flex; flex-direction: column; gap: 1rem; }
+.rc-step { display: flex; align-items: center; gap: .6rem; font-family: var(--font-display); font-weight: 800; color: var(--dark); margin-top: .4rem; }
+.rc-step span { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--teal); color: #fff; font-size: .8rem; }
+.rc-term { display: inline-flex; align-items: center; gap: .5rem; font: inherit; font-weight: 700; padding: .6rem 1.1rem; border-radius: 12px; border: 1.5px solid var(--border-strong); background: #fff; color: var(--text); cursor: pointer; }
+.rc-term:hover { border-color: var(--teal); }
+.rc-term.on { border-color: var(--teal); background: var(--teal-50); box-shadow: 0 0 0 3px rgba(26,140,122,.12); color: var(--teal-deep); }
+.rc-actions { display: flex; gap: .7rem; flex-wrap: wrap; margin-top: .4rem; }
+.rc-progress { height: 6px; border-radius: 6px; background: var(--teal-light); overflow: hidden; }
+.rc-progress i { display: block; height: 100%; width: 40%; border-radius: 6px; background: var(--teal); animation: rc-slide 1.2s ease-in-out infinite; }
+@keyframes rc-slide { 0% { margin-left: -40%; } 100% { margin-left: 100%; } }
+.rc-result { align-items: center; justify-content: space-between; flex-wrap: wrap; }

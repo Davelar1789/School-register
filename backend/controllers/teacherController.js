@@ -293,12 +293,12 @@ export const getTeacherClasses = async (req, res) => {
     // 1️⃣ Classes where teacher is CLASS TEACHER
     const classTeacherClasses = await Class.find({
       teachers: teacherId, // class teachers stored here
-    }).select("className level");
+    }).select("className level students");
 
     // 2️⃣ Classes where teacher is SUBJECT TEACHER
     const subjectTeacherClasses = await Class.find({
       "subjects.teachers": teacherId, // 🔥 THIS is the key fix
-    }).select("className level");
+    }).select("className level students");
 
     // 3️⃣ Merge & deduplicate
     const classMap = new Map();

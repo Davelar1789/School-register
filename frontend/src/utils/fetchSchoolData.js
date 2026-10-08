@@ -10,7 +10,7 @@ const fetchSchoolData = async () => {
   const schoolId = decoded?.schoolId;
 
   try {
-    const { data } = await api.get(`/api/school/${schoolId}`, {
+    const { data } = await api.get(`/api/schools/${schoolId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

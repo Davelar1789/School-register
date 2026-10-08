@@ -1,20 +1,32 @@
 import Notification from "../models/Notification.model.js";
 import { io } from "../server.js"; // ✅ WebSocket integration
 
+// A user may only act on their own notifications (super admins on anyone's)
+export const isSelf = (req, res, next) => {
+    const target = req.params.userId || req.params.teacherId;
+    if (target && String(target) !== String(req.user._id) && req.user.role !== "superadmin") {
+        return res.status(403).json({ message: "You can only access your own notifications." });
+    }
+    next();
+};
+
 // ✅ Create a new notification (supports multiple users & teachers)
 export const createNotification = async (userIds = [], teacherIds = [], title, message, type) => {
     try {
         const notification = new Notification({ userIds, teacherIds, title, message, type });
         await notification.save();
 
-        // ✅ Emit full notification object
-        io.emit("new-notification", {
-            _id: notification._id,
-            title: notification.title,
-            message: notification.message,
-            type: notification.type,
-            createdAt: notification.createdAt,
-        });
+        // ✅ Deliver only to the intended recipients' private rooms
+        const rooms = [...userIds, ...teacherIds].map((id) => `user:${id}`);
+        if (rooms.length) {
+            io.to(rooms).emit("new-notification", {
+                _id: notification._id,
+                title: notification.title,
+                message: notification.message,
+                type: notification.type,
+                createdAt: notification.createdAt,
+            });
+        }
 
         console.log(`🔔 Notification sent in real-time for ${userIds.length} admins & ${teacherIds.length} teachers: ${title}`);
         return notification;
@@ -50,7 +62,7 @@ export const getTeacherNotifications = async (req, res) => {
 // ✅ Mark notification as read
 export const markAsRead = async (req, res) => {
     try {
-        await Notification.findByIdAndUpdate(req.params.id, { $addToSet: { readBy: req.body.userId } });
+        await Notification.findByIdAndUpdate(req.params.id, { $addToSet: { readBy: req.user._id } });
         res.status(200).json({ message: "Notification marked as read" });
     } catch (error) {
         console.error("❌ Error updating notification:", error);
@@ -59,11 +71,13 @@ export const markAsRead = async (req, res) => {
 };
 
 // ✅ Mark all notifications as read for a teacher
+const forRecipient = (id) => ({ $or: [{ teacherIds: id }, { userIds: id }] });
+
 export const markAllRead = async (req, res) => {
     const { teacherId } = req.params;
     try {
         await Notification.updateMany(
-            { teacherIds: teacherId, readBy: { $not: { $elemMatch: { $eq: teacherId } } } },
+            { ...forRecipient(teacherId), readBy: { $ne: teacherId } },
             { $addToSet: { readBy: teacherId } }
         );
         res.json({ message: "All notifications marked as read" });
@@ -78,8 +92,8 @@ export const getUnreadCount = async (req, res) => {
     const { teacherId } = req.params;
     try {
         const unreadCount = await Notification.countDocuments({
-            teacherIds: teacherId,
-            readBy: { $not: { $elemMatch: { $eq: teacherId } } }
+            ...forRecipient(teacherId),
+            readBy: { $ne: teacherId },
         });
         res.json({ count: unreadCount });
     } catch (error) {
@@ -92,7 +106,7 @@ export const getUnreadCount = async (req, res) => {
 export const clearAllNotifications = async (req, res) => {
     const { teacherId } = req.params;
     try {
-        await Notification.deleteMany({ teacherIds: teacherId });
+        await Notification.deleteMany(forRecipient(teacherId));
         res.json({ message: "All notifications cleared successfully." });
     } catch (error) {
         console.error("❌ Error clearing notifications:", error);

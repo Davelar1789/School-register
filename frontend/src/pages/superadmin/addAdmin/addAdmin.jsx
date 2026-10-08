@@ -1,132 +1,50 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { FaArrowLeft } from "react-icons/fa";
-import api from "../../../api/axios";
+import { useState } from "react";
 import { toast } from "react-hot-toast";
-import "./addAdmin.modules.css";
-import Header2 from "../../../components/SuperAdmin/Header3";
-import Sidebar from "../../../components/SuperAdmin/Sidebar2";
+import { Eye, EyeOff, UserPlus } from "lucide-react";
+import api from "../../../api/axios";
+import PageHeader from "../../../components/ui/PageHeader";
 
-function UserSignUp() {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    fullName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
+const BLANK = { fullName: "", email: "", password: "", confirmPassword: "" };
 
-  const [loading, setLoading] = useState(false);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+export default function AddAdmin() {
+  const [form, setForm] = useState(BLANK);
+  const [errors, setErrors] = useState({});
+  const [show, setShow] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const set = (k) => (e) => { setForm((f) => ({ ...f, [k]: e.target.value })); setErrors((x) => ({ ...x, [k]: undefined })); };
 
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
+  const submit = async (e) => {
     e.preventDefault();
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match!");
-      return;
-    }
-
-    setLoading(true);
-
+    const v = {};
+    if (!form.fullName.trim()) v.fullName = "Enter the administrator's name";
+    if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) v.email = "Enter a valid email address";
+    if (form.password.length < 8) v.password = "Use at least 8 characters";
+    if (form.confirmPassword !== form.password) v.confirmPassword = "Passwords don't match";
+    setErrors(v);
+    if (Object.keys(v).length) return;
+    setBusy(true);
     try {
-      const response = await api.post("/api/users/register", {
-        fullName: formData.fullName,
-        email: formData.email,
-        password: formData.password,
-      });
-
-      toast.success("Account created successfully!");
-    } catch (err) {
-      console.error("Signup Error:", err);
-      toast.error("Signup failed. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+      await api.post("/api/users/register", { fullName: form.fullName.trim(), email: form.email.trim().toLowerCase(), password: form.password });
+      toast.success(`${form.fullName.trim()} can now sign in`);
+      setForm(BLANK);
+    } catch (err) { toast.error(err.response?.data?.message || "Couldn't create the account"); } finally { setBusy(false); }
   };
 
   return (
-    <div className="superadmin-container">
-    {/* Sidebar */}
-    <Sidebar isOpen={isSidebarOpen} toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
-
-    {/* Main Content */}
-    <div className="superadmin-main">
-      {/* Header */}
-      <Header2 toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
-
-    <div className="signup-container">
-      {/* Back Button */}
-      {/* <div className="back-button" onClick={() => navigate("/")}>
-        <FaArrowLeft className="back-icon" /> Back
-      </div> */}
-
-      <div className="signup-form-container">
-        <h2 className="signup-title">Create An Admin</h2>
-        {/* <p className="signup-subtitle">Sign up to start managing schools.</p> */}
-
-        <form onSubmit={handleSubmit} className="signup-form">
-          <div className="input-group">
-            <label>Full Name</label>
-            <input
-              type="text"
-              name="fullName"
-              value={formData.fullName}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="input-group">
-            <label>Email Address</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="input-group">
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <div className="input-group">
-            <label>Confirm Password</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-            />
-          </div>
-
-          <button type="submit" className="signup-button" disabled={loading}>
-            {loading ? "Signing Up..." : "Sign Up"}
-          </button>
-        </form>
-
-        {/* <p className="login-link">
-          Already have an account? <Link to="/sign-in">Login here</Link>
-        </p> */}
-      </div>
-    </div>
-    </div>
+    <div className="page page-narrow">
+      <PageHeader title="Add an administrator" subtitle="Creates a login. Link it to a school afterwards from “Add school”." />
+      <form className="card" onSubmit={submit} noValidate>
+        <div className="form-grid">
+          <div className="field"><label htmlFor="fullName">Full name *</label><input id="fullName" className={`input ${errors.fullName ? "is-invalid" : ""}`} value={form.fullName} onChange={set("fullName")} autoComplete="name" />{errors.fullName && <span className="error">{errors.fullName}</span>}</div>
+          <div className="field"><label htmlFor="email">Email *</label><input id="email" type="email" className={`input ${errors.email ? "is-invalid" : ""}`} value={form.email} onChange={set("email")} autoComplete="email" />{errors.email && <span className="error">{errors.email}</span>}</div>
+          <div className="field"><label htmlFor="pw">Password *</label>
+            <div className="search-input-wrap" style={{ flex: "none" }}><input id="pw" type={show ? "text" : "password"} className={`input ${errors.password ? "is-invalid" : ""}`} value={form.password} onChange={set("password")} autoComplete="new-password" style={{ paddingLeft: ".9rem" }} />
+              <button type="button" className="btn btn-ghost btn-icon btn-sm" onClick={() => setShow((s) => !s)} aria-label={show ? "Hide password" : "Show password"} style={{ position: "absolute", right: 4, top: 4 }}>{show ? <EyeOff size={16} /> : <Eye size={16} />}</button></div>
+            {errors.password && <span className="error">{errors.password}</span>}</div>
+          <div className="field"><label htmlFor="pw2">Confirm password *</label><input id="pw2" type={show ? "text" : "password"} className={`input ${errors.confirmPassword ? "is-invalid" : ""}`} value={form.confirmPassword} onChange={set("confirmPassword")} autoComplete="new-password" />{errors.confirmPassword && <span className="error">{errors.confirmPassword}</span>}</div>
+        </div>
+        <div className="row" style={{ justifyContent: "flex-end" }}><button className="btn" disabled={busy}><UserPlus size={16} /> {busy ? "Creating…" : "Create administrator"}</button></div>
+      </form>
     </div>
   );
 }
-
-export default UserSignUp;

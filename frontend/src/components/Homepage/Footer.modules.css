@@ -4,28 +4,7 @@
    Aesthetic: "Soft Prestige" — mirrors Header palette
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
-
 /* ── CSS Variables (same token set as Header) ── */
-:root {
-  --f-teal:        #1a6b6b;
-  --f-teal-mid:    #22857f;
-  --f-teal-dark:   #0f3f3f;
-  --f-teal-deeper: #08282a;
-  --f-teal-light:  rgba(212,238,236,.12);
-  --f-amber:       #e8a820;
-  --f-amber-soft:  rgba(232,168,32,.18);
-  --f-white:       #ffffff;
-  --f-ivory:       #f0f7f7;
-  --f-muted:       rgba(255,255,255,.55);
-  --f-border:      rgba(255,255,255,.09);
-
-  --f-shadow:      0 -4px 40px rgba(8,40,42,.20);
-  --f-radius:      14px;
-  --f-radius-sm:   8px;
-  --f-transition:  0.26s cubic-bezier(.4,0,.2,1);
-}
-
 /* ── Footer Shell ── */
 .footer {
   background:

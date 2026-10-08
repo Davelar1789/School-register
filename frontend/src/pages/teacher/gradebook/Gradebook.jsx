@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "../../../api/axios";
 import toast from "react-hot-toast";
-import { jwtDecode } from "jwt-decode";
-import {
-  FaArrowLeft
-} from "react-icons/fa";
-import { LogOut, GraduationCap, BookOpenCheck } from "lucide-react";
+import { BookOpenCheck, Save } from "lucide-react";
 import "./Gradebook.modules.css";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -182,12 +177,8 @@ const StudentTickCard = ({ student, ticks, onTick, activities }) => {
 // ─── Main Gradebook Component ─────────────────────────────────────────────────
 
 const Gradebook = () => {
-  const navigate = useNavigate();
-
-  // ── Header state ──
-  const [user, setUser]         = useState({ fullName: "", role: "" });
-  const [school, setSchool]     = useState({ name: "" });
-  const [teacherType, setTeacherType] = useState("");
+  const [dirty, setDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   // ── Gradebook state ──
   const [classes, setClasses]           = useState([]);
@@ -213,34 +204,13 @@ const Gradebook = () => {
   const classKey          = getClassKey(selectedClassName);
   const activities        = classKey ? ACTIVITIES_BY_CLASS[classKey] : [];
 
-  // ── Auth + decode token ──
+  // warn before leaving with unsaved marks
   useEffect(() => {
-    const storedToken   = localStorage.getItem("token");
-    const teacherStored = JSON.parse(localStorage.getItem("teacher"));
-
-    if (!storedToken || !teacherStored) {
-      toast.error("Please login first.");
-      navigate("/sign-in");
-      return;
-    }
-
-    try {
-      const decoded = jwtDecode(storedToken);
-      setUser({ fullName: decoded.fullName, role: decoded.role });
-      setSchool({ name: decoded.schoolName });
-      setTeacherType(teacherStored.teacherType || "");
-    } catch {
-      toast.error("Session expired. Please log in again.");
-      navigate("/sign-in");
-    }
-  }, [navigate]);
-
-  // ── Logout ──
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    toast.success("Logged out successfully");
-    navigate("/teacher-login");
-  };
+    if (!dirty) return undefined;
+    const warn = (e) => { e.preventDefault(); e.returnValue = ""; };
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
 
   // ── Fetchers ──────────────────────────────────────────────────────────────────
 
@@ -330,10 +300,15 @@ const Gradebook = () => {
   const handleGradeChange = (studentId, field, value) => {
     const numericValue = value === "" ? "" : Number(value);
     const maxValues = { test1: 10, test2: 10, test3: 10, test4: 20, exam: 100 };
+    if (numericValue !== "" && (Number.isNaN(numericValue) || numericValue < 0)) {
+      toast.error("Scores can't be negative");
+      return;
+    }
     if (numericValue !== "" && numericValue > maxValues[field]) {
       toast.error(`Maximum for ${field.toUpperCase()} is ${maxValues[field]}`);
       return;
     }
+    setDirty(true);
     setGrades((prev) => ({
       ...prev,
       [studentId]: { ...prev[studentId], [field]: numericValue },
@@ -341,6 +316,7 @@ const Gradebook = () => {
   };
 
   const handleTick = (studentId, activity, rating) => {
+    setDirty(true);
     setTicks((prev) => ({
       ...prev,
       [studentId]: { ...prev[studentId], [activity]: rating },
@@ -378,6 +354,7 @@ const Gradebook = () => {
       toast.error("Please select class, subject and make sure grades are available.");
       return;
     }
+    setSaving(true);
     try {
       const payload = {
         classId:   selectedClass,
@@ -393,11 +370,12 @@ const Gradebook = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Grades saved successfully!");
-      window.location.reload();
+      setDirty(false);
+      await fetchStudents(selectedClass, selectedSubject);
     } catch (error) {
       console.error("Error saving grades:", error);
-      toast.error("Failed to save grades.");
-    }
+      toast.error(error.response?.data?.message || "Failed to save grades.");
+    } finally { setSaving(false); }
   };
 
   const handleSaveEarlyYears = async () => {
@@ -405,6 +383,7 @@ const Gradebook = () => {
       toast.error("Please select a class.");
       return;
     }
+    setSaving(true);
     try {
       const payload = {
         classId: selectedClass,
@@ -418,10 +397,11 @@ const Gradebook = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success("Reports saved successfully!");
+      setDirty(false);
     } catch (error) {
       console.error("Error saving early-years reports:", error);
-      toast.error("Failed to save reports.");
-    }
+      toast.error(error.response?.data?.message || "Failed to save reports.");
+    } finally { setSaving(false); }
   };
 
   // ── Effects ───────────────────────────────────────────────────────────────────
@@ -467,47 +447,9 @@ const Gradebook = () => {
     <div className="td-page">
 
       {/* ══════════════════════════════════
-          DASHBOARD HEADER
-      ══════════════════════════════════ */}
-      <header className="td-header">
-        <div className="td-header-brand">
-          <div className="td-header-logo">
-            <GraduationCap size={22} />
-          </div>
-          <div className="td-header-school">
-            <span className="td-header-school-name">
-              {school.name || "School Name"}
-            </span>
-            <span className="td-header-school-sub">School Management</span>
-          </div>
-        </div>
-
-        <div className="td-header-right">
-          <div className="td-header-user">
-            <div className="td-header-avatar">
-              {user.fullName ? user.fullName.charAt(0).toUpperCase() : "T"}
-            </div>
-            <div className="td-header-user-info">
-              <span className="td-header-user-name">{user.fullName || "Teacher"}</span>
-              <span className="td-header-user-role">{teacherType || user.role || "Teacher"}</span>
-            </div>
-          </div>
-
-          <button className="td-logout-btn" onClick={handleLogout}>
-            <LogOut size={16} />
-            <span>Logout</span>
-          </button>
-        </div>
-      </header>
-
-      {/* ══════════════════════════════════
           MAIN CONTENT
       ══════════════════════════════════ */}
       <main className="td-main">
-
-        <button className="tl-back" onClick={() => navigate("/teacher-dashboard")}>
-        <FaArrowLeft /> Back to Home
-      </button>
 
         {/* ── Page Title ── */}
         <div className="td-welcome">
@@ -634,8 +576,8 @@ const Gradebook = () => {
                   </div>
 
                   <div className="gb-action-row">
-                    <button className="gb-save-btn" onClick={handleSaveEarlyYears}>
-                      Save All Reports
+                    <button className="gb-save-btn" onClick={handleSaveEarlyYears} disabled={saving}>
+                      <Save size={16} /> {saving ? "Saving…" : dirty ? "Save all reports •" : "Save all reports"}
                     </button>
                   </div>
                 </>
@@ -678,19 +620,19 @@ const Gradebook = () => {
                           <tr key={student.studentId}>
                             <td className="gb-student-name">{student.name}</td>
                             {(visibleColumn === "all" || visibleColumn === "test1") && (
-                              <td><input className="gb-input" type="number" max="10"  value={g.test1 || ""} onChange={(e) => handleGradeChange(student.studentId, "test1", e.target.value)} onWheel={(e) => e.target.blur()} /></td>
+                              <td><input className="gb-input" type="number" min="0" max="10"  value={g.test1 ?? ""} onChange={(e) => handleGradeChange(student.studentId, "test1", e.target.value)} onWheel={(e) => e.target.blur()} /></td>
                             )}
                             {(visibleColumn === "all" || visibleColumn === "test2") && (
-                              <td><input className="gb-input" type="number" max="10"  value={g.test2 || ""} onChange={(e) => handleGradeChange(student.studentId, "test2", e.target.value)} onWheel={(e) => e.target.blur()} /></td>
+                              <td><input className="gb-input" type="number" min="0" max="10"  value={g.test2 ?? ""} onChange={(e) => handleGradeChange(student.studentId, "test2", e.target.value)} onWheel={(e) => e.target.blur()} /></td>
                             )}
                             {(visibleColumn === "all" || visibleColumn === "test3") && (
-                              <td><input className="gb-input" type="number" max="10"  value={g.test3 || ""} onChange={(e) => handleGradeChange(student.studentId, "test3", e.target.value)} onWheel={(e) => e.target.blur()} /></td>
+                              <td><input className="gb-input" type="number" min="0" max="10"  value={g.test3 ?? ""} onChange={(e) => handleGradeChange(student.studentId, "test3", e.target.value)} onWheel={(e) => e.target.blur()} /></td>
                             )}
                             {(visibleColumn === "all" || visibleColumn === "test4") && (
-                              <td><input className="gb-input" type="number" max="20"  value={g.test4 || ""} onChange={(e) => handleGradeChange(student.studentId, "test4", e.target.value)} onWheel={(e) => e.target.blur()} /></td>
+                              <td><input className="gb-input" type="number" min="0" max="20"  value={g.test4 ?? ""} onChange={(e) => handleGradeChange(student.studentId, "test4", e.target.value)} onWheel={(e) => e.target.blur()} /></td>
                             )}
                             {(visibleColumn === "all" || visibleColumn === "exam") && (
-                              <td><input className="gb-input" type="number" max="100" value={g.exam  || ""} onChange={(e) => handleGradeChange(student.studentId, "exam",  e.target.value)} onWheel={(e) => e.target.blur()} /></td>
+                              <td><input className="gb-input" type="number" min="0" max="100" value={g.exam ?? ""} onChange={(e) => handleGradeChange(student.studentId, "exam",  e.target.value)} onWheel={(e) => e.target.blur()} /></td>
                             )}
                             {visibleColumn === "all" && <td className="gb-total">{total}</td>}
                             {visibleColumn === "all" && <td className="gb-position">{position}</td>}
@@ -709,8 +651,8 @@ const Gradebook = () => {
 
               {(selectedClass || selectedSubject) && (
                 <div className="gb-action-row">
-                  <button className="gb-save-btn" onClick={handleSaveGrades}>
-                    Save Grades
+                  <button className="gb-save-btn" onClick={handleSaveGrades} disabled={saving}>
+                    <Save size={16} /> {saving ? "Saving…" : dirty ? "Save grades •" : "Save grades"}
                   </button>
                 </div>
               )}

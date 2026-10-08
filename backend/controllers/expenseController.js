@@ -11,13 +11,16 @@ export const createExpense = async (req, res) => {
     if (!schoolId || !date || !description || !category || !amount) {
       return res.status(400).json({ message: "All fields are required." });
     }
+    if (!(Number(amount) > 0)) {
+      return res.status(400).json({ message: "Amount must be greater than zero." });
+    }
 
     const expense = new Expense({
       school: schoolId,
       date,
-      description,
+      description: String(description).trim(),
       category,
-      amount,
+      amount: Number(amount),
     });
 
     const savedExpense = await expense.save();
@@ -67,5 +70,24 @@ export const getExpensesByCategory = async (req, res) => {
   } catch (error) {
     console.error('Error fetching expenses by category:', error);
     res.status(500).json({ message: 'Server error' });
+  }
+};
+
+
+// DELETE /api/expenses/:id  — only the owning school may remove an expense
+export const deleteExpense = async (req, res) => {
+  try {
+    const expense = await Expense.findById(req.params.id);
+    if (!expense) return res.status(404).json({ message: "Expense not found" });
+
+    if (String(expense.school) !== String(req.user.schoolId)) {
+      return res.status(403).json({ message: "You can't delete another school's expense." });
+    }
+
+    await expense.deleteOne();
+    res.status(200).json({ message: "Expense deleted" });
+  } catch (error) {
+    console.error("Error deleting expense:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };

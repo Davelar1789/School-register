@@ -1,280 +1,165 @@
-import React, { useEffect, useState } from "react";
-import "./TeacherDetails.modules.css";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
-import Header from "../../../components/Admin/Header2";
-import Sidebar from "../../../components/Admin/Sidebar";
-import axios from "../../../api/axios";
 import { toast } from "react-hot-toast";
+import { BookOpen, CalendarDays, Mail, Phone, Plus, School, UserRound } from "lucide-react";
+import api from "../../../api/axios";
+import { initials } from "../../../utils/auth";
+import PageHeader from "../../../components/ui/PageHeader";
+import EmptyState from "../../../components/ui/EmptyState";
+import Loading from "../../../components/ui/Loading";
+import "../students/StudentDetails.css";
 
-const TeacherDetails = () => {
+const STATUS_TONE = { Active: "green", "On Leave": "amber", Retired: "gray" };
+
+export default function TeacherDetails() {
   const { id } = useParams();
+  const schoolId = useMemo(() => { try { return JSON.parse(localStorage.getItem("schoolData"))?._id; } catch { return null; } }, []);
 
   const [teacher, setTeacher] = useState(null);
+  const [classes, setClasses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [missing, setMissing] = useState(false);
+  const [tab, setTab] = useState("classes");
 
-  const [allClasses, setAllClasses] = useState([]);
-  const [assignedClasses, setAssignedClasses] = useState([]);
-  const [assignedSubjects, setAssignedSubjects] = useState([]);
+  const [classPick, setClassPick] = useState("");
+  const [subjectClass, setSubjectClass] = useState("");
+  const [subjects, setSubjects] = useState([]);
+  const [picked, setPicked] = useState([]);
+  const [busy, setBusy] = useState(false);
 
-  const [selectedTab, setSelectedTab] = useState("classAssign");
-
-  // For subject assignment
-  const [selectedClass, setSelectedClass] = useState("");
-  const [availableSubjects, setAvailableSubjects] = useState([]);
-  const [selectedSubjects, setSelectedSubjects] = useState([]);
-
-  useEffect(() => {
-    fetchTeacher();
-    fetchClasses();
-  }, []);
-
-  const fetchTeacher = async () => {
+  const load = useCallback(async () => {
     try {
-      const { data } = await axios.get(`/api/teachers/${id}`);
+      const [{ data }, cls] = await Promise.all([
+        api.get(`/api/teachers/${id}`),
+        schoolId ? api.get(`/api/classes/school/${schoolId}`).then((r) => r.data).catch(() => []) : [],
+      ]);
       setTeacher(data);
-      setAssignedClasses(data.classesAssigned || []);
-      setAssignedSubjects(data.subjectSpecialization || []);
-      setLoading(false);
-    } catch {
-      toast.error("Failed to load teacher info");
-    }
-  };
+      setClasses(Array.isArray(cls) ? cls : []);
+    } catch (err) {
+      if (err.response?.status === 404) setMissing(true); else toast.error("Couldn't load this teacher");
+    } finally { setLoading(false); }
+  }, [id, schoolId]);
 
-  const fetchClasses = async () => {
-    const raw = localStorage.getItem("schoolData");
-    if (!raw) return;
+  useEffect(() => { setLoading(true); load(); }, [load]);
 
-    const school = JSON.parse(raw);
+  const assigned = teacher?.classesAssigned || [];
+  const specialisations = teacher?.subjectSpecialization || [];
+  const unassigned = classes.filter((c) => !assigned.some((a) => a._id === c._id));
+  const canClass = teacher && ["Class Teacher", "Both"].includes(teacher.teacherType);
+  const canSubject = teacher && ["Subject Teacher", "Both"].includes(teacher.teacherType);
 
+  const assignClass = async () => {
+    if (!classPick) return;
+    setBusy(true);
     try {
-      const { data } = await axios.get(`/api/classes/school/${school._id}`);
-      setAllClasses(data);
-    } catch {
-      toast.error("Failed to load classes");
-    }
-  };
-
-  const handleAssignClass = async (classId) => {
-    try {
-      await axios.post(`/api/classes/assign-teacher`, {
-        teacherId: id,
-        classId,
-      });
-
+      await api.post("/api/classes/assign-teacher", { teacherId: id, classId: classPick });
       toast.success("Class assigned");
-      fetchTeacher();
-    } catch {
-      toast.error("Failed to assign class");
-    }
+      setClassPick("");
+      await load();
+    } catch (err) { toast.error(err.response?.data?.message || "Couldn't assign the class"); } finally { setBusy(false); }
   };
 
-  const loadSubjects = async (classId) => {
+  const pickSubjectClass = async (classId) => {
+    setSubjectClass(classId); setPicked([]); setSubjects([]);
+    if (!classId) return;
     try {
-      const { data } = await axios.get(`/api/classes/${classId}/subjects`);
-      setAvailableSubjects(data);
-    } catch {
-      toast.error("Failed to load class subjects");
-    }
+      const { data } = await api.get(`/api/classes/${classId}/subjects`);
+      setSubjects(Array.isArray(data) ? data : []);
+    } catch { toast.error("Couldn't load that class's subjects"); }
   };
 
   const assignSubjects = async () => {
-    if (!selectedClass || selectedSubjects.length === 0) {
-      toast.error("Select class and subjects first");
-      return;
-    }
-
+    if (!subjectClass || !picked.length) { toast.error("Choose a class and at least one subject"); return; }
+    setBusy(true);
     try {
-      await axios.post(`/api/classes/assign-subject-teacher2`, {
-        teacherId: id,
-        classId: selectedClass,
-        subjectIds: selectedSubjects,
-      });
-
+      await api.post("/api/classes/assign-subject-teacher2", { teacherId: id, classId: subjectClass, subjectIds: picked });
       toast.success("Subjects assigned");
-      fetchTeacher();
-
-      setSelectedClass("");
-      setAvailableSubjects([]);
-      setSelectedSubjects([]);
-    } catch {
-      toast.error("Error assigning subjects");
-    }
+      setSubjectClass(""); setSubjects([]); setPicked([]);
+      await load();
+    } catch (err) { toast.error(err.response?.data?.message || "Couldn't assign subjects"); } finally { setBusy(false); }
   };
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <div className="page"><Loading label="Loading teacher…" /></div>;
+  if (missing || !teacher) return <div className="page"><div className="card"><EmptyState emoji="🔍" title="Teacher not found">This teacher may have been removed.</EmptyState></div></div>;
+
+  const Fact = ({ icon: Icon, label, value }) => (
+    <div className="sd-fact"><span className="sd-fact-ico"><Icon size={17} /></span><div><small>{label}</small><strong>{value || "—"}</strong></div></div>
+  );
 
   return (
-    <div className="td-wrapper">
-      <Header />
-      <Sidebar />
-
-      <div className="td-content">
-
-        {/* TOP: Teacher Card */}
-        <div className="td-profile-card">
-          <img
-            src={teacher.image || "/default-profile.png"}
-            alt="Teacher"
-            className="td-avatar"
-          />
-
-          <div className="td-profile-info">
-            <h2>{teacher.name}</h2>
-            <p className="td-role-badge">{teacher.teacherType}</p>
-
-            <div className="td-info-grid">
-              <span><strong>Staff ID:</strong> {teacher.staffId}</span>
-              <span><strong>Email:</strong> {teacher.email}</span>
-              <span><strong>Phone:</strong> {teacher.phone}</span>
-              <span><strong>Gender:</strong> {teacher.gender}</span>
-              <span><strong>DOB:</strong> {new Date(teacher.dob).toLocaleDateString()}</span>
-              <span><strong>Status:</strong> {teacher.status}</span>
-            </div>
+    <div className="page">
+      <PageHeader crumbs={[{ label: "Teachers", to: "/teachers" }, { label: teacher.name }]} title="Teacher profile" />
+      <div className="sd-layout">
+        <aside className="card sd-side">
+          <div className="sd-avatar" style={{ background: "linear-gradient(135deg, var(--purple), #9b7fe0)", boxShadow: "0 10px 28px rgba(124,92,191,.35)" }}>{initials(teacher.name)}</div>
+          <h2>{teacher.name}</h2>
+          <div className="sd-chips">
+            <span className="badge-pill purple">{teacher.teacherType}</span>
+            <span className={`badge-pill ${STATUS_TONE[teacher.status] || "gray"}`}>{teacher.status}</span>
           </div>
-        </div>
+          <div className="sd-facts">
+            <Fact icon={UserRound} label="Staff ID" value={teacher.staffId} />
+            <Fact icon={Mail} label="Email" value={teacher.email} />
+            <Fact icon={Phone} label="Phone" value={teacher.phone} />
+            <Fact icon={CalendarDays} label="Joined" value={teacher.joinedDate ? new Date(teacher.joinedDate).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : ""} />
+          </div>
+        </aside>
 
-        {/* TABS */}
-        <div className="td-tabs">
-          <button
-            className={selectedTab === "classAssign" ? "active" : ""}
-            onClick={() => setSelectedTab("classAssign")}
-          >
-            Class Assignment
-          </button>
+        <section className="sd-main">
+          <div className="tabs" role="tablist">
+            <button role="tab" aria-selected={tab === "classes"} className={`tab ${tab === "classes" ? "active" : ""}`} onClick={() => setTab("classes")}>Classes ({assigned.length})</button>
+            <button role="tab" aria-selected={tab === "subjects"} className={`tab ${tab === "subjects" ? "active" : ""}`} onClick={() => setTab("subjects")}>Subjects ({specialisations.length})</button>
+          </div>
 
-          <button
-            className={selectedTab === "subjectAssign" ? "active" : ""}
-            onClick={() => setSelectedTab("subjectAssign")}
-          >
-            Subject Assignment
-          </button>
-        </div>
+          {tab === "classes" && (
+            <div className="card">
+              <div className="card-head"><h3><School size={18} style={{ verticalAlign: "-3px", marginRight: 8 }} />Class teacher of</h3></div>
+              {assigned.length ? (
+                <div className="row" style={{ marginBottom: "1.2rem" }}>{assigned.map((c) => <span key={c._id} className="badge-pill">{c.className}</span>)}</div>
+              ) : <p className="muted" style={{ marginBottom: "1.2rem" }}>No classes assigned yet.</p>}
+              {!canClass && <p className="alert warn">This teacher is registered as a <b>{teacher.teacherType}</b>. Change their role to “Class teacher” or “Both” to assign classes.</p>}
+              <div className="row">
+                <select className="select" style={{ flex: "1 1 220px", width: "auto" }} value={classPick} onChange={(e) => setClassPick(e.target.value)} disabled={!canClass} aria-label="Class to assign">
+                  <option value="">{unassigned.length ? "Choose a class…" : "All classes are assigned"}</option>
+                  {unassigned.map((c) => <option key={c._id} value={c._id}>{c.className}</option>)}
+                </select>
+                <button className="btn" onClick={assignClass} disabled={!classPick || busy || !canClass}><Plus size={16} /> Assign class</button>
+              </div>
+              <p className="muted" style={{ marginTop: ".8rem", fontSize: ".85rem" }}>A class teacher can mark attendance and see every subject for that class.</p>
+            </div>
+          )}
 
-        {/* TAB CONTENTS */}
-     {/* ================== CLASS ASSIGNMENT TAB ================== */}
-{selectedTab === "classAssign" && (
-  <div className="td-card">
-    <h3>Assign as Class Teacher</h3>
-
-    <div className="td-form-group">
-      <label>Select Class</label>
-      <select
-        className="td-select"
-        onChange={(e) => handleAssignClass(e.target.value)}
-      >
-        <option value="">-- Choose a class --</option>
-        {allClasses
-          .filter(cls => !assignedClasses.some(ac => ac._id === cls._id))
-          .map(cls => (
-            <option key={cls._id} value={cls._id}>
-              {cls.className}
-            </option>
-          ))}
-      </select>
-    </div>
-
-    <div className="td-divider" />
-
-    <div className="td-assigned-list">
-      <h4>Already Assigned Classes</h4>
-      {assignedClasses.length === 0 ? (
-        <p className="td-muted">No classes assigned yet.</p>
-      ) : (
-        <div className="td-chip-list">
-          {assignedClasses.map(c => (
-            <span className="td-chip filled" key={c._id}>
-              {c.className}
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
-
-    <p className="td-hint">
-      Assigning a class gives the teacher access to all subjects in that class.
-    </p>
-  </div>
-)}
-
-{selectedTab === "subjectAssign" && (
-  <div className="td-card">
-    <h3>Assign Subject Teacher</h3>
-
-    <div className="td-form-group">
-      <label>Select Class</label>
-      <select
-        className="td-select"
-        value={selectedClass}
-        onChange={(e) => {
-          setSelectedClass(e.target.value);
-          loadSubjects(e.target.value);
-        }}
-      >
-        <option value="">-- Choose a class --</option>
-        {allClasses
-          .filter(cls => cls.subjects?.length > 0)
-          .map(cls => (
-            <option key={cls._id} value={cls._id}>
-              {cls.className}
-            </option>
-          ))}
-      </select>
-    </div>
-
-    {availableSubjects.length > 0 && (
-      <>
-        <div className="td-divider" />
-
-        <div className="td_subjects">
-          {availableSubjects.map(sub => (
-            <label key={sub._id} className="td-chip selectable">
-              <input
-                type="checkbox"
-                value={sub._id}
-                checked={selectedSubjects.includes(sub._id)}
-                onChange={(e) => {
-                  const id = e.target.value;
-                  setSelectedSubjects(prev =>
-                    prev.includes(id)
-                      ? prev.filter(s => s !== id)
-                      : [...prev, id]
-                  );
-                }}
-              />
-              {sub.name}
-            </label>
-          ))}
-        </div>
-
-        <button className="td-btn" onClick={assignSubjects}>
-          Assign Selected Subjects
-        </button>
-      </>
-    )}
-
-    <div className="td-divider" />
-
-    <div className="td-assigned-list">
-      <h4>Subject Specialization</h4>
-
-      {assignedSubjects.length === 0 ? (
-        <p className="td-muted">No subjects assigned yet.</p>
-      ) : (
-        <div className="td-chip-list">
-          {assignedSubjects.map(sub => (
-            <span className="td-chip filled" key={sub._id}>
-              {sub.name}
-            </span>
-          ))}
-        </div>
-      )}
-    </div>
-  </div>
-)}
-
+          {tab === "subjects" && (
+            <div className="card">
+              <div className="card-head"><h3><BookOpen size={18} style={{ verticalAlign: "-3px", marginRight: 8 }} />Subject specialisation</h3></div>
+              {specialisations.length ? (
+                <div className="row" style={{ marginBottom: "1.2rem" }}>{specialisations.map((s) => <span key={s._id} className="badge-pill blue">{s.name}</span>)}</div>
+              ) : <p className="muted" style={{ marginBottom: "1.2rem" }}>No subjects assigned yet.</p>}
+              {!canSubject && <p className="alert warn">This teacher is registered as a <b>{teacher.teacherType}</b>. Change their role to “Subject teacher” or “Both” to assign subjects.</p>}
+              <div className="field">
+                <label htmlFor="sub-class">Class</label>
+                <select id="sub-class" className="select" value={subjectClass} onChange={(e) => pickSubjectClass(e.target.value)} disabled={!canSubject}>
+                  <option value="">Choose a class…</option>
+                  {classes.filter((c) => c.subjects?.length > 0).map((c) => <option key={c._id} value={c._id}>{c.className}</option>)}
+                </select>
+              </div>
+              {subjects.length > 0 && (
+                <>
+                  <div className="row" style={{ marginBottom: "1rem" }}>
+                    {subjects.map((s) => (
+                      <label key={s._id} className={`tab ${picked.includes(s._id) ? "active" : ""}`} style={{ cursor: "pointer", border: "1.5px solid var(--border-strong)", display: "inline-flex", gap: 8, alignItems: "center" }}>
+                        <input type="checkbox" checked={picked.includes(s._id)} onChange={() => setPicked((p) => (p.includes(s._id) ? p.filter((x) => x !== s._id) : [...p, s._id]))} />
+                        {s.name}
+                      </label>
+                    ))}
+                  </div>
+                  <button className="btn" onClick={assignSubjects} disabled={busy || !picked.length}>Assign {picked.length || ""} subject{picked.length === 1 ? "" : "s"}</button>
+                </>
+              )}
+            </div>
+          )}
+        </section>
       </div>
     </div>
   );
-};
-
-export default TeacherDetails;
+}

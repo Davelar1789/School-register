@@ -514,3 +514,51 @@ export const restoreStudentClasses = async (req, res) => {
     });
   }
 };
+
+
+// Update the editable details of a class (description only — name/level are structural)
+export const updateClassDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { description } = req.body;
+    const updated = await Class.findByIdAndUpdate(
+      id,
+      { description: typeof description === "string" ? description.trim() : "" },
+      { new: true }
+    );
+    if (!updated) return res.status(404).json({ message: "Class not found" });
+    res.status(200).json(updated);
+  } catch (err) {
+    console.error("Error updating class:", err.message);
+    res.status(500).json({ message: "Could not update the class" });
+  }
+};
+
+// Delete a class that has no students, and keep teachers / subjects / school counters consistent
+export const deleteClass = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const cls = await Class.findById(id);
+    if (!cls) return res.status(404).json({ message: "Class not found" });
+
+    if (cls.students?.length > 0) {
+      return res.status(400).json({
+        message: `${cls.className} still has ${cls.students.length} student(s). Move them to another class first.`,
+      });
+    }
+
+    await Promise.all([
+      Teacher.updateMany({ classesAssigned: id }, { $pull: { classesAssigned: id } }),
+      Subject.updateMany({ classes: id }, { $pull: { classes: id } }),
+    ]);
+    await cls.deleteOne();
+
+    const numberOfClasses = await Class.countDocuments({ school: cls.school });
+    await School.findByIdAndUpdate(cls.school, { numberOfClasses });
+
+    res.status(200).json({ message: "Class deleted" });
+  } catch (err) {
+    console.error("Error deleting class:", err.message);
+    res.status(500).json({ message: "Could not delete the class" });
+  }
+};

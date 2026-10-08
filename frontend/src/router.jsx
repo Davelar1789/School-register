@@ -1,82 +1,91 @@
-import { createBrowserRouter } from "react-router-dom";
-import HomePage from "./pages/general/homepage/HomePage";
-import Admission from "./pages/general/admission/Admission";
-import ApplyT from "./pages/general/admission/ApplyTeacher";
-import ApplyS from "./pages/general/admission/ApplyStudent";
-import Students from "./pages/head/students/Students";
-import ForgotPassword from "./pages/general/login/ForgotPassword";
-// import Dashboard from "./pages/admin2/dashboard/Dashboard";
-// import Events from "./pages/admin2/events/Events";
-import Fees from "./pages/head/fees/MainPage";
-import SchoolFees from "./pages/head/schoolfees/SchoolFees";
-import FeedingFee from "./pages/head/fees/FeedingFee";
-// import Cashbook from "./pages/admin2/cashbook/Cashbook";
-import TermlyDetails from "./pages/head/fees/TermlyDetails";
-// import TDashboard from "./pages/teacher/dashboard/Dashboard";
-// import TManageStudents from "./pages/teacher/manage_students/ManageStudents";
-// import TEditGrades from "./pages/teacher/manage_students/EditGrades";
-// import TAttendance from "./pages/teacher/attendance/Attendance";
-// import TReportCard from "./pages/teacher/manage_students/ReportCard";
-// import TGradeBook from "./pages/teacher/manage_students/Gradebook";
-import SignUp from "./pages/general/user/Sign-up";
-// import Inbox from "./pages/admin/inbox/Inbox";
-// import Settings from "./pages/admin2/setting/Settings";
-// import OrderLists from "./pages/admin2/reportcard/ReportCard";
-// import Table from "./pages/admin/table/Table";
-// import TeamForm from "./pages/admin2/stuff/TeamForm";
-// import Cart from "./pages/client/cart/CartPage";
-// import Checkout from "./pages/client/checkout/Checkout";
-// import Contact from "./pages/admin2/contact/Contact";
-// import Invoice from "./pages/admin2/invoice/Invoice";
+import { lazy, Suspense } from "react";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import App from "./App";
-// import Calendar from "./pages/admin2/calendar/Calendar";
-// import Admin from "./pages/admin2/Admin";
-// import Teacher from "./pages/teacher/Teacher";
-// import TopSellers from "./pages/admin2/top_sellers/TopSellers";
-import SignIn from "./pages/general/login/Sign-in";
-// import Stuff from "./pages/admin2/stuff/Stuff";
 import ErrorBoundary from "./components/General/ErrorBoundary";
 import NotFound from "./components/General/NotFound";
-// import ManageTeachers from "./pages/admin2/manage_teachers/ManageTeachers";
-// import ManageStudents from "./pages/admin2/manage_students/ManageStudents";
-import Welcome from "./pages/head/dashboard/Dashboard";
-import SuperDashboard from "./pages/superadmin/dashboard/SuperAdmin";
-import SuperAdmin from "./pages/superadmin/SuperAdmin";
-import Trial from "./pages/head/page2/Trial";
-import Teachers from "./pages/head/teachers/Teachers";
-import TeacherLogin from "./pages/general/login/TeacherLogin";
-import Welcome2 from "./pages/teacher/dashboard/Dashboard";
-import Classes from "./pages/head/classes/Class";
-import TeacherDetails from "./pages/head/teachers/TeacherDetails";
-import TeacherClasses from "./pages/teacher/classes/Classes";
-import ClassDetails from "./pages/teacher/classes/ClassDetails";
-import ProtectedRoute from "./components/General/ProtectedRoute"; // adjust path accordingly
-import SchoolSettings from "./pages/head/settings/AdminSettings";
-import AllSchools from "./pages/superadmin/schools/AllSchools";
-import AddSchool from "./pages/superadmin/schools/AddSchool";
-import AddAdmin from "./pages/superadmin/addAdmin/addAdmin";
-import Attendance from "./pages/teacher/attendance/Attendance";
-import Income from "./pages/head/income/Income";
-import Expenses from "./pages/head/expenses/ExpensePage";
-import Subjects from "./pages/head/classes/Subjects";
-import MainClasses from "./pages/head/classes/MainPage";
-import TeacherSubjects from "./pages/teacher/mysubjects/MySubjects";
-import StudentsTeachers from "./pages/head/students-teachers/MainPage";
-import TrackAttendance from "./pages/head/attendance/TrackAttendance";
-import Notifications from "./pages/head/notifications/Notifications";
-import Notifications2 from "./pages/teacher/notifications/Notifications";
-import Maintenance from "./pages/teacher/trial/Trial";
-import TGradebook from "./pages/teacher/gradebook/Gradebook";
-import AReport from "./pages/head/report/UploadReportTemplates";
-import StudentDetails from "./pages/head/students/StudentDetails";
-import AVReport from "./pages/head/report/GenerateClassReports";
-import AVReport2 from "./pages/head/report/Report2";
-import ClassSubjectsPage from "./pages/head/classes/ClassSubjectsPage";
-import TopicEditor from "./pages/head/classes/TopicsEditorPage";
-import ExamGenerator from "./pages/head/exams/ExamGenerator";
-import Curriculum from "./pages/teacher/curriculum/curriculum";
-import MarkingSchemes from "./pages/teacher/schemes/MarkingSchemes";
-import AdminMarkingSchemes from "./pages/head/schemes/AdminMarkingSchemes";
+import ProtectedRoute from "./components/General/ProtectedRoute";
+import AppShell from "./components/layout/AppShell";
+
+/* every page is code-split so first paint only downloads what it needs */
+const HomePage = lazy(() => import("./pages/general/homepage/HomePage"));
+const SignIn = lazy(() => import("./pages/general/login/Sign-in"));
+const TeacherLogin = lazy(() => import("./pages/general/login/TeacherLogin"));
+const ForgotPassword = lazy(() => import("./pages/general/login/ForgotPassword"));
+const SignUp = lazy(() => import("./pages/general/user/Sign-up"));
+const Admission = lazy(() => import("./pages/general/admission/Admission"));
+const ApplyTeacher = lazy(() => import("./pages/general/admission/ApplyTeacher"));
+const ApplyStudent = lazy(() => import("./pages/general/admission/ApplyStudent"));
+
+/* admin */
+const AdminDashboard = lazy(() => import("./pages/head/dashboard/Dashboard"));
+const StudentsTeachers = lazy(() => import("./pages/head/students-teachers/MainPage"));
+const Students = lazy(() => import("./pages/head/students/Students"));
+const StudentDetails = lazy(() => import("./pages/head/students/StudentDetails"));
+const Teachers = lazy(() => import("./pages/head/teachers/Teachers"));
+const TeacherDetails = lazy(() => import("./pages/head/teachers/TeacherDetails"));
+const MainClasses = lazy(() => import("./pages/head/classes/MainPage"));
+const Classes = lazy(() => import("./pages/head/classes/Class"));
+const Subjects = lazy(() => import("./pages/head/classes/Subjects"));
+const ClassSubjectsPage = lazy(() => import("./pages/head/classes/ClassSubjectsPage"));
+const TopicEditor = lazy(() => import("./pages/head/classes/TopicsEditorPage"));
+const TrackAttendance = lazy(() => import("./pages/head/attendance/TrackAttendance"));
+const Fees = lazy(() => import("./pages/head/fees/MainPage"));
+const SchoolFees = lazy(() => import("./pages/head/schoolfees/SchoolFees"));
+const FeedingFee = lazy(() => import("./pages/head/fees/FeedingFee"));
+const TermlyDetails = lazy(() => import("./pages/head/fees/TermlyDetails"));
+const Expenses = lazy(() => import("./pages/head/expenses/ExpensePage"));
+const Income = lazy(() => import("./pages/head/income/Income"));
+const UploadReport = lazy(() => import("./pages/head/report/UploadReportTemplates"));
+const ReportCards = lazy(() => import("./pages/head/report/ReportCards"));
+const ExamGenerator = lazy(() => import("./pages/head/exams/ExamGenerator"));
+const AdminMarkingSchemes = lazy(() => import("./pages/head/schemes/AdminMarkingSchemes"));
+const AdminNotifications = lazy(() => import("./pages/head/notifications/Notifications"));
+const SchoolSettings = lazy(() => import("./pages/head/settings/AdminSettings"));
+
+/* teacher */
+const TeacherDashboard = lazy(() => import("./pages/teacher/dashboard/Dashboard"));
+const TeacherClasses = lazy(() => import("./pages/teacher/classes/Classes"));
+const ClassDetails = lazy(() => import("./pages/teacher/classes/ClassDetails"));
+const TeacherSubjects = lazy(() => import("./pages/teacher/mysubjects/MySubjects"));
+const Attendance = lazy(() => import("./pages/teacher/attendance/Attendance"));
+const Gradebook = lazy(() => import("./pages/teacher/gradebook/Gradebook"));
+const Curriculum = lazy(() => import("./pages/teacher/curriculum/curriculum"));
+const MarkingSchemes = lazy(() => import("./pages/teacher/schemes/MarkingSchemes"));
+const TeacherNotifications = lazy(() => import("./pages/teacher/notifications/Notifications"));
+
+/* super admin */
+const SuperDashboard = lazy(() => import("./pages/superadmin/dashboard/SuperAdmin"));
+const AllSchools = lazy(() => import("./pages/superadmin/schools/AllSchools"));
+const AddSchool = lazy(() => import("./pages/superadmin/schools/AddSchool"));
+const AddAdmin = lazy(() => import("./pages/superadmin/addAdmin/addAdmin"));
+
+const PageLoader = () => (
+  <div className="loading-block" role="status" aria-live="polite">
+    <span className="spinner spinner-lg" /> Loading…
+  </div>
+);
+
+const s = (el) => <Suspense fallback={<PageLoader />}>{el}</Suspense>;
+
+const ADMIN = ["admin"];
+const TEACHER = ["Teacher", "teacher"];
+const SUPER = ["superadmin"];
+
+const adminShell = (
+  <ProtectedRoute allowedRoles={ADMIN}>
+    <AppShell variant="admin" />
+  </ProtectedRoute>
+);
+const teacherShell = (
+  <ProtectedRoute allowedRoles={TEACHER}>
+    <AppShell variant="teacher" />
+  </ProtectedRoute>
+);
+const superShell = (
+  <ProtectedRoute allowedRoles={SUPER}>
+    <AppShell variant="superadmin" />
+  </ProtectedRoute>
+);
 
 const router = createBrowserRouter([
   {
@@ -87,379 +96,83 @@ const router = createBrowserRouter([
       </ErrorBoundary>
     ),
     children: [
+      /* ── public ── */
+      { index: true, element: s(<HomePage />) },
+      { path: "sign-in", element: s(<SignIn />) },
+      { path: "teacher-login", element: s(<TeacherLogin />) },
+      { path: "sign-up", element: s(<SignUp />) },
+      { path: "forgot-password", element: s(<ForgotPassword />) },
+      { path: "admission", element: s(<Admission />) },
+      { path: "apply-teacher", element: s(<ApplyTeacher />) },
+      { path: "apply-student", element: s(<ApplyStudent />) },
+
+      /* ── school administrator ── */
       {
-        path: "",
-        element: <HomePage />,
+        element: adminShell,
+        children: [
+          { path: "dashboard", element: s(<AdminDashboard />) },
+          { path: "students-teachers", element: s(<StudentsTeachers />) },
+          { path: "students", element: s(<Students />) },
+          { path: "student/:id", element: s(<StudentDetails />) },
+          { path: "teachers", element: s(<Teachers />) },
+          { path: "teachers/:id", element: s(<TeacherDetails />) },
+          { path: "classes-main", element: s(<MainClasses />) },
+          { path: "classes", element: s(<Classes />) },
+          { path: "subjects", element: s(<Subjects />) },
+          { path: "classes/:classId/subjects", element: s(<ClassSubjectsPage />) },
+          { path: "classes/:classId/subjects/:subjectId/topics", element: s(<TopicEditor />) },
+          { path: "view-attendance", element: s(<TrackAttendance />) },
+          { path: "fees", element: s(<Fees />) },
+          { path: "school-fees", element: s(<SchoolFees />) },
+          { path: "feeding-fee", element: s(<FeedingFee />) },
+          { path: "termly-details", element: s(<TermlyDetails />) },
+          { path: "expenses", element: s(<Expenses />) },
+          { path: "income", element: s(<Income />) },
+          { path: "upload-report", element: s(<UploadReport />) },
+          { path: "view-reports", element: s(<ReportCards />) },
+          { path: "view-reports2", element: s(<ReportCards />) },
+          { path: "exam", element: s(<ExamGenerator />) },
+          { path: "upload-scheme", element: s(<AdminMarkingSchemes />) },
+          { path: "notifications", element: s(<AdminNotifications />) },
+          { path: "school-settings", element: s(<SchoolSettings />) },
+        ],
       },
+
+      /* ── teacher ── */
       {
-        path: "dashboard",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <Welcome />
-          </ProtectedRoute>
-        ),
+        element: teacherShell,
+        children: [
+          { path: "teacher-dashboard", element: s(<TeacherDashboard />) },
+          { path: "my-classes", element: s(<TeacherClasses />) },
+          { path: "class/:id", element: s(<ClassDetails />) },
+          { path: "my-subjects", element: s(<TeacherSubjects />) },
+          { path: "attendance", element: s(<Attendance />) },
+          { path: "gradebook", element: s(<Gradebook />) },
+          { path: "curriculum", element: s(<Curriculum />) },
+          { path: "marking-schemes", element: s(<MarkingSchemes />) },
+          { path: "notifications2", element: s(<TeacherNotifications />) },
+        ],
       },
+
+      /* ── platform super admin ── */
       {
-        path: "exam",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <ExamGenerator />
-          </ProtectedRoute>
-        ),
+        element: superShell,
+        children: [
+          { path: "superadmin", element: s(<SuperDashboard />) },
+          { path: "all-schools", element: s(<AllSchools />) },
+          { path: "add-school", element: s(<AddSchool />) },
+          { path: "add-admin", element: s(<AddAdmin />) },
+        ],
       },
-          {
-        path: "/classes/:classId/subjects",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <ClassSubjectsPage />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "classes/:classId/subjects/:subjectId/topics",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <TopicEditor />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "teacher-dashboard2",
-        element: <Maintenance />,
-      },
-       {
-        path: "teacher-dashboard",
-        element: <Welcome2 />,
-      },
-             {
-        path: "marking-schemes",
-        element: <MarkingSchemes />,
-      },
-       {
-        path: "notifications",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <Notifications />
-          </ProtectedRoute>
-        ),      
-      },
-      {
-        path: "upload-report",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <AReport />
-          </ProtectedRoute>
-        ),      
-      },
-        {
-        path: "upload-scheme",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <AdminMarkingSchemes />
-          </ProtectedRoute>
-        ),      
-      },
-       {
-        path: "view-reports",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <AVReport />
-          </ProtectedRoute>
-        ),      
-      },
-       {
-        path: "view-reports2",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <AVReport2 />
-          </ProtectedRoute>
-        ),      
-      },
-      {
-        path: "/student/:id",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <StudentDetails />
-          </ProtectedRoute>
-        ),      
-      },
-       {
-        path: "notifications2",
-        element: <Notifications2 />,
-      },
-      {
-        path: "attendance",
-        element: <Attendance />,
-      },
-       {
-        path: "gradebook",
-        element: <TGradebook />,
-      },
-      {
-        path: "students",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <Students />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "students-teachers",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <StudentsTeachers />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "view-attendance",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <TrackAttendance />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "all-schools",
-        element: (
-          <ProtectedRoute allowedRoles={["superadmin"]}>
-            <AllSchools />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "add-admin",
-        element: (
-          <ProtectedRoute allowedRoles={["superadmin"]}>
-            <AddAdmin />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "add-school",
-        element: (
-          <ProtectedRoute allowedRoles={["superadmin"]}>
-            <AddSchool />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "teachers",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <Teachers />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "expenses",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <Expenses />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "school-settings",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <SchoolSettings />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "termly-details",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <TermlyDetails />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "my-classes",
-        element: <TeacherClasses />,
-      },
-      {
-        path: "curriculum",
-        element: <Curriculum />,
-      },
-      {
-        path: "my-subjects",
-        element: <TeacherSubjects />,
-      },
-      {
-        path: "/class/:id",
-        element: <ClassDetails />,
-      },
-      {
-        path: "/teachers/:id",
-        element: (
-        <ProtectedRoute allowedRoles={["admin"]}>
-          <TeacherDetails />
-        </ProtectedRoute>
-        ),
-      },
-      {
-        path: "classes",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <Classes />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "classes-main",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <MainClasses />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "subjects",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <Subjects />
-          </ProtectedRoute>
-        ),
-      },
-    
-      {
-        path: "school-fees",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <SchoolFees />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "feeding-fee",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <FeedingFee />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "fees",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <Fees />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "income",
-        element: (
-          <ProtectedRoute allowedRoles={["admin"]}>
-            <Income />
-          </ProtectedRoute>
-        ),
-      },
-      {
-        path: "sign-up",
-        element: <SignUp />,
-      },
-      {
-        path: "teacher-login",
-        element: <TeacherLogin />,
-      },
-      {
-        path: "admission",
-        element: <Admission />,
-      },
-      {
-        path: "apply-teacher",
-        element: <ApplyT />,
-      },
-      {
-        path: "apply-student",
-        element: <ApplyS />,
-      },
-      {
-        path: "sign-in",
-        element: <SignIn />,
-      },
-      {
-        path: "forgot-password",
-        element: <ForgotPassword />,
-      },
-      {
-        path: "trial",
-        element: <Trial />,
-      },
-      // {
-      //   path: "cart",
-      //   element: <Cart />,
-      // },
-      // {
-      //   path: "checkout",
-      //   element: <Checkout />,
-      // },
-      
-      {
-        path: "*",
-        element: <NotFound />,
-      },
+
+      /* ── legacy paths ── */
+      { path: "teacher-dashboard2", element: <Navigate to="/teacher-dashboard" replace /> },
+      { path: "trial", element: <Navigate to="/" replace /> },
+      { path: "announcements", element: <Navigate to="/notifications" replace /> },
+      { path: "settings", element: <Navigate to="/school-settings" replace /> },
+      { path: "*", element: <NotFound /> },
     ],
   },
-  // Admin Routes
-  {
-    path: "/superadmin",
-    element: (
-      <ErrorBoundary>
-        <SuperAdmin />
-      </ErrorBoundary>
-    ),
-    children: [
-      {
-        path: "",
-        element: <SuperDashboard />,
-      },
-      {
-        path: "*",
-        element: <NotFound />,
-      },
-    ],
-  },
-  // {
-  //   path: "/teacher",
-  //   element: (
-  //     <ErrorBoundary>
-  //       <Teacher />
-  //     </ErrorBoundary>
-  //   ),
-  //   children: [
-  //     // {
-  //     //   path: "",
-  //     //   element: <TDashboard />,
-  //     // },
-  //     // {
-  //     //   path: "manage-students",
-  //     //   element: <TManageStudents />,
-  //     // },
-  //     // {
-  //     //   path: "grade-book",
-  //     //   element: <TGradeBook />,
-  //     // },
-  //     // {
-  //     //   path: "edit-grades",
-  //     //   element: <TEditGrades />,
-  //     // },
-  //     // {
-  //     //   path: "report-card",
-  //     //   element: <TReportCard />,
-  //     // },
-  //     // {
-  //     //   path: "attendance",
-  //     //   element: <TAttendance />,
-  //     // },
-  //     {
-  //       path: "*",
-  //       element: <NotFound />,
-  //     },
-  //   ],
-  // },
 ]);
 
 export default router;

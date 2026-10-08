@@ -1,190 +1,93 @@
-import React, { useEffect, useState } from "react";
-import { MdEdit } from "react-icons/md";
-import api from "../../../api/axios.js";
-import "./AdminSettings.modules.css";
-import Sidebar from "../../../components/Admin/Sidebar.jsx";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
-import Header2 from "../../../components/Admin/Header2.jsx";
+import { Building2, Globe, Mail, MapPin, Phone, Save, UserRound } from "lucide-react";
+import api from "../../../api/axios";
+import PageHeader from "../../../components/ui/PageHeader";
+import Loading from "../../../components/ui/Loading";
+import EmptyState from "../../../components/ui/EmptyState";
+import { decodeToken } from "../../../utils/auth";
 
-const AdminSettings = () => {
-  const [school, setSchool] = useState(null);
-  const [editingField, setEditingField] = useState(null);
-  const [editedData, setEditedData] = useState({});
+const FIELDS = [
+  { key: "name", label: "School name", icon: Building2, required: true },
+  { key: "headmaster", label: "Head of school", icon: UserRound, required: true },
+  { key: "phone", label: "Phone", icon: Phone, type: "tel", required: true },
+  { key: "address", label: "Street address", icon: MapPin, required: true },
+  { key: "city", label: "City / town", icon: MapPin },
+  { key: "state", label: "Region / state", icon: MapPin },
+  { key: "country", label: "Country", icon: Globe },
+  { key: "website", label: "Website", icon: Globe, type: "url", placeholder: "https://" },
+  { key: "establishedYear", label: "Year established", icon: Building2, type: "number" },
+];
+
+const pick = (s) => Object.fromEntries(FIELDS.map((f) => [f.key, s?.[f.key] ?? ""]));
+
+export default function AdminSettings() {
+  const userId = useMemo(() => decodeToken()?.id, []);
+  const [school, setSchool] = useState(() => { try { return JSON.parse(localStorage.getItem("schoolData")); } catch { return null; } });
+  const [form, setForm] = useState(() => pick(school));
+  const [loading, setLoading] = useState(!school);
+  const [saving, setSaving] = useState(false);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
-    const getSchoolFromCache = async () => {
-      try {
-        const cachedSchoolData = localStorage.getItem('schoolData');
-        if (cachedSchoolData) {
-          const schoolData = JSON.parse(cachedSchoolData);
-          setSchool(schoolData);
-          setEditedData(schoolData);
-        } else {
-          // Optionally, fetch from API if not cached
-          const token = localStorage.getItem("token");
-          const userId = localStorage.getItem("userId"); // Ensure this is being set on login
-          if (!token || !userId) throw new Error("Missing credentials");
+    if (school || !userId) { setLoading(false); return; }
+    api.get(`/api/schools/user/${userId}`).then(({ data }) => {
+      const s = data?.school || data;
+      localStorage.setItem("schoolData", JSON.stringify(s));
+      setSchool(s); setForm(pick(s));
+    }).catch(() => toast.error("Couldn't load school details")).finally(() => setLoading(false));
+  }, [school, userId]);
 
-          const response = await api.get(`/api/schools/user/${userId}`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
+  const dirty = school && FIELDS.some((f) => String(form[f.key] ?? "") !== String(school[f.key] ?? ""));
+  const set = (k) => (e) => { setForm((f) => ({ ...f, [k]: e.target.value })); setErrors((x) => ({ ...x, [k]: undefined })); };
 
-          const schoolData = response.data.school || response.data;
-          localStorage.setItem('schoolData', JSON.stringify(schoolData));
-          setSchool(schoolData);
-          setEditedData(schoolData);
-        }
-      } catch (err) {
-        console.error("Error retrieving school data:", err);
-      }
-    };
-
-    getSchoolFromCache();
-  }, []);
-
-  const handleEditClick = (field) => {
-    setEditingField(field);
-  };
-
-  const handleInputChange = (e) => {
-    setEditedData({ ...editedData, [e.target.name]: e.target.value });
-  };
-
-  const handleSave = async () => {
+  const save = async (e) => {
+    e.preventDefault();
+    const v = {};
+    FIELDS.forEach((f) => { if (f.required && !String(form[f.key]).trim()) v[f.key] = "This field is required"; });
+    if (form.website && !/^https?:\/\/\S+\.\S+/.test(form.website.trim())) v.website = "Start with http:// or https://";
+    if (form.establishedYear && !/^\d{4}$/.test(String(form.establishedYear))) v.establishedYear = "Enter a 4-digit year";
+    if (form.phone && !/^[0-9+()\-\s]{7,20}$/.test(form.phone.trim())) v.phone = "Enter a valid phone number";
+    setErrors(v);
+    if (Object.keys(v).length) return;
+    setSaving(true);
     try {
-      const token = localStorage.getItem("token");
-  
-      const response = await api.put(
-        `/api/schools/${school._id}`,
-        editedData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-  
-      const updatedSchool = {
-        ...school,
-        ...response.data,
-      };
-  
-      setSchool(updatedSchool);
-      setEditedData(updatedSchool);
-      localStorage.setItem("schoolData", JSON.stringify(updatedSchool));
+      const body = Object.fromEntries(Object.entries(form).map(([k, val]) => [k, typeof val === "string" ? val.trim() : val]));
+      const { data } = await api.put(`/api/schools/${school._id}`, body);
+      const next = { ...school, ...(data?.school || data) };
+      localStorage.setItem("schoolData", JSON.stringify(next));
       window.dispatchEvent(new Event("schoolDataUpdated"));
-  
-      toast.success("Changes saved! They will reflect after next login.");
-    } catch (err) {
-      console.error("Error updating school data:", err);
-      toast.error("Failed to update school info.");
-    }
+      setSchool(next); setForm(pick(next));
+      toast.success("School details saved");
+    } catch (err) { toast.error(err.response?.data?.message || "Couldn't save your changes"); } finally { setSaving(false); }
   };
-  
-  if (!school) return <div className="loading">Loading...</div>;
+
+  if (loading) return <div className="page"><Loading /></div>;
+  if (!school) return <div className="page"><div className="card"><EmptyState emoji="🏫" title="No school found for this account" /></div></div>;
 
   return (
-    <div>
-    <Header2  />
-    <Sidebar />
-    <div className="admin-settings-container">
-      <Header2 />
-      <Sidebar />
-      <h2 className="admin-settings-heading">School Settings</h2>
-
-      <div className="settings-row">
-        <label>School Name:</label>
-        {editingField === "name" ? (
-          <input name="name" value={editedData.name} onChange={handleInputChange} />
-        ) : (
-          <div className="value-display">
-            <span>{school.name}</span>
-            <MdEdit className="edit-icon" onClick={() => handleEditClick("name")} />
-          </div>
-        )}
-      </div>
-
-      <div className="settings-row">
-        <label>Headmaster:</label>
-        {editingField === "headmaster" ? (
-          <input name="headmaster" value={editedData.headmaster} onChange={handleInputChange} />
-        ) : (
-          <div className="value-display">
-            <span>{school.headmaster}</span>
-            <MdEdit className="edit-icon" onClick={() => handleEditClick("headmaster")} />
-          </div>
-        )}
-      </div>
-
-      <div className="settings-row">
-        <label>Email:</label>
-        <span>{school.email}</span>
-      </div>
-
-      <div className="settings-row">
-        <label>Phone:</label>
-        {editingField === "phone" ? (
-          <input name="phone" value={editedData.phone} onChange={handleInputChange} />
-        ) : (
-          <div className="value-display">
-            <span>{school.phone}</span>
-            <MdEdit className="edit-icon" onClick={() => handleEditClick("phone")} />
-          </div>
-        )}
-      </div>
-
-      <div className="settings-row">
-        <label>Address:</label>
-        {editingField === "address" ? (
-          <input name="address" value={editedData.address} onChange={handleInputChange} />
-        ) : (
-          <div className="value-display">
-            <span>{school.address}</span>
-            <MdEdit className="edit-icon" onClick={() => handleEditClick("address")} />
-          </div>
-        )}
-      </div>
-
-      <div className="settings-row">
-        <label>City:</label>
-        <span>{school.city || "N/A"}</span>
-      </div>
-
-      <div className="settings-row">
-        <label>State:</label>
-        <span>{school.state || "N/A"}</span>
-      </div>
-
-      <div className="settings-row">
-        <label>Country:</label>
-        <span>{school.country || "N/A"}</span>
-      </div>
-
-      <div className="settings-row">
-        <label>Website:</label>
-        {editingField === "website" ? (
-          <input name="website" value={editedData.website} onChange={handleInputChange} />
-        ) : (
-          <div className="value-display">
-            <span>{school.website || "N/A"}</span>
-            <MdEdit className="edit-icon" onClick={() => handleEditClick("website")} />
-          </div>
-        )}
-      </div>
-
-      <div className="settings-row">
-        <label>Established:</label>
-        <span>{school.establishedYear || "N/A"}</span>
-      </div>
-
-      {editingField && (
-        <button className="save-btn" onClick={handleSave}>
-          Save Changes
-        </button>
-      )}
-    </div>
+    <div className="page page-narrow">
+      <PageHeader title="School settings" subtitle="These details appear on report cards, receipts and your dashboard." />
+      <form className="card" onSubmit={save} noValidate>
+        <div className="field">
+          <label htmlFor="s-email">Email <span className="muted">(used to sign in — can't be changed here)</span></label>
+          <div className="search-input-wrap" style={{ flex: "none" }}><Mail size={16} /><input id="s-email" className="input" value={school.email || ""} disabled /></div>
+        </div>
+        <div className="form-grid">
+          {FIELDS.map(({ key, label, icon: Icon, type = "text", required, placeholder }) => (
+            <div className="field" key={key}>
+              <label htmlFor={`s-${key}`}>{label}{required && " *"}</label>
+              <div className="search-input-wrap" style={{ flex: "none" }}><Icon size={16} />
+                <input id={`s-${key}`} type={type} className={`input ${errors[key] ? "is-invalid" : ""}`} value={form[key]} onChange={set(key)} placeholder={placeholder} /></div>
+              {errors[key] && <span className="error">{errors[key]}</span>}
+            </div>
+          ))}
+        </div>
+        <div className="row" style={{ justifyContent: "flex-end", marginTop: ".5rem" }}>
+          {dirty && <button type="button" className="btn btn-ghost" onClick={() => { setForm(pick(school)); setErrors({}); }}>Discard changes</button>}
+          <button className="btn" disabled={!dirty || saving}><Save size={16} /> {saving ? "Saving…" : "Save changes"}</button>
+        </div>
+      </form>
     </div>
   );
-};
-
-export default AdminSettings;
+}

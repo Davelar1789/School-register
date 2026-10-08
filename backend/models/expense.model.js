@@ -27,7 +27,8 @@ const expenseSchema = new mongoose.Schema(
         "Depreciation",
         "Transport",
         "Feeding cost",
-        "Maintenance"
+        "Maintenance",
+        "Other"
       ],
             required: true,
     },

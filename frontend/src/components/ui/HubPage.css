@@ -1,0 +1,14 @@
+.hub-grid { display: grid; gap: 1.25rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); max-width: 880px; }
+.hub-card { position: relative; display: flex; flex-direction: column; gap: .5rem; padding: 1.75rem; border-radius: var(--r-lg); background: var(--white); border: 1px solid var(--border); text-decoration: none; color: var(--text); overflow: hidden; box-shadow: var(--shadow-sm); }
+.hub-card::after { content: ""; position: absolute; right: -40px; top: -40px; width: 140px; height: 140px; border-radius: 50%; background: var(--hub-soft, var(--teal-light)); opacity: .55; transition: transform .4s ease; }
+.hub-card:hover::after { transform: scale(1.35); }
+.hub-card > * { position: relative; z-index: 1; }
+.hub-ico { width: 56px; height: 56px; border-radius: 18px; display: grid; place-items: center; background: var(--hub-soft, var(--teal-light)); color: var(--hub, var(--teal)); margin-bottom: .6rem; }
+.hub-card h2 { margin: 0; font-size: 1.3rem; }
+.hub-card p { margin: 0; color: var(--muted); }
+.hub-go { margin-top: .9rem; display: inline-flex; align-items: center; gap: .3rem; font-weight: 800; color: var(--hub, var(--teal)); font-size: .9rem; }
+.hub-teal   { --hub: var(--teal);   --hub-soft: var(--teal-light); }
+.hub-amber  { --hub: #b97800;       --hub-soft: var(--amber-light); }
+.hub-purple { --hub: var(--purple); --hub-soft: var(--purple-light); }
+.hub-coral  { --hub: var(--coral);  --hub-soft: var(--coral-light); }
+.hub-blue   { --hub: var(--blue);   --hub-soft: var(--blue-light); }

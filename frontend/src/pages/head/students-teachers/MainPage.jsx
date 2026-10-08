@@ -1,47 +1,15 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import Header from "../../../components/Admin/Header2";
-import Sidebar from "../../../components/Admin/Sidebar";
-import { toast } from "react-hot-toast";
-import "./MainPage.modules.css";
+import { GraduationCap, Presentation } from "lucide-react";
+import HubPage from "../../../components/ui/HubPage";
 
-const Fees = () => {
-  const navigate = useNavigate();
+const StudentsTeachers = () => (
+  <HubPage
+    title="Students & Teachers"
+    subtitle="Everyone who learns and teaches at your school."
+    items={[
+      { to: "/students", label: "Students", text: "Admissions, profiles, promotion and records.", icon: GraduationCap, tone: "teal" },
+      { to: "/teachers", label: "Teachers", text: "Staff accounts, assignments and status.", icon: Presentation, tone: "purple" },
+    ]}
+  />
+);
 
-
-  const handleNavigate = (route) => {
-
-    navigate(route);
-  };
-
-  return (
-    <div className="main-page-container">
-      <Sidebar />
-      <div className="fees-main2">
-        <Header />
-        <div className="fees-content">
-          <h1 className="fees-title">Students and Teachers</h1>
-          <div className="fees-options">
-            <div
-              className="fees-box school-fees"
-              onClick={() => handleNavigate("/students")}
-            >
-              <h2>Students</h2>
-              <p>Manage and view all students</p>
-            </div>
-
-            <div
-              className="fees-box feeding-fee"
-              onClick={() => handleNavigate("/teachers")}
-            >
-              <h2>Teachers</h2>
-              <p>Track and manage teachers</p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Fees;
+export default StudentsTeachers;

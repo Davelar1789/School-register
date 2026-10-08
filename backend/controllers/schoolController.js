@@ -76,6 +76,10 @@ export const registerSchool = async (req, res) => {
 
 export const getSchoolByUserId = async (req, res) => {
   try {
+    const isOwner = String(req.user?._id) === String(req.params.userId);
+    if (!isOwner && req.user?.role !== "superadmin") {
+      return res.status(403).json({ message: "You can only view your own school." });
+    }
     const school = await School.findOne({ user: req.params.userId });
 
     if (!school) {
@@ -91,9 +95,12 @@ export const getSchoolByUserId = async (req, res) => {
 
 
 
-// Get all schools
+// Get all schools (platform-wide — super admins only)
 export const getAllSchools = async (req, res) => {
   try {
+    if (req.user?.role !== "superadmin") {
+      return res.status(403).json({ message: "Access denied. SuperAdmin only." });
+    }
     const schools = await School.find();
     res.status(200).json(schools);
   } catch (error) {
@@ -102,11 +109,19 @@ export const getAllSchools = async (req, res) => {
 };
 
 // Get a single school by ID
+const canAccessSchool = (req, school) =>
+  req.user?.role === "superadmin" ||
+  String(school.user) === String(req.user?._id) ||
+  String(req.user?.schoolId || req.user?.school) === String(school._id);
+
 export const getSchoolById = async (req, res) => {
   try {
     const school = await School.findById(req.params.id);
     if (!school) {
       return res.status(404).json({ message: "School not found" });
+    }
+    if (!canAccessSchool(req, school)) {
+      return res.status(403).json({ message: "You can't view another school." });
     }
     res.status(200).json(school);
   } catch (error) {
@@ -115,12 +130,28 @@ export const getSchoolById = async (req, res) => {
 };
 
 // Update a school
+const EDITABLE_SCHOOL_FIELDS = ["name", "headmaster", "phone", "address", "city", "state", "country", "website", "establishedYear"];
+
 export const updateSchool = async (req, res) => {
   try {
-    const school = await School.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!school) {
+    const existing = await School.findById(req.params.id);
+    if (!existing) {
       return res.status(404).json({ message: "School not found" });
     }
+    if (!canAccessSchool(req, existing)) {
+      return res.status(403).json({ message: "You can't edit another school." });
+    }
+
+    // Whitelist: status, owner and counters are never client-controlled
+    const updates = {};
+    EDITABLE_SCHOOL_FIELDS.forEach((k) => {
+      if (req.body[k] !== undefined) updates[k] = typeof req.body[k] === "string" ? req.body[k].trim() : req.body[k];
+    });
+    if (updates.name === "" || updates.headmaster === "") {
+      return res.status(400).json({ message: "School name and head of school are required." });
+    }
+
+    const school = await School.findByIdAndUpdate(req.params.id, updates, { new: true, runValidators: true });
     res.status(200).json({ message: "School updated successfully", school });
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -1,91 +1,60 @@
-import React, { useEffect, useState } from "react";
-import axios from "../../../api/axios";
-import Sidebar from "../../../components/Teacher/TeacherSidebar";
-import Header from "../../../components/Teacher/TeacherHeader";
-import "./MySubjects.modules.css";
+import { useEffect, useMemo, useState } from "react";
+import { BookOpen, ChevronDown } from "lucide-react";
+import api from "../../../api/axios";
+import { decodeToken } from "../../../utils/auth";
+import PageHeader from "../../../components/ui/PageHeader";
+import EmptyState from "../../../components/ui/EmptyState";
+import Loading from "../../../components/ui/Loading";
 
-const MySubjects = () => {
-  const [subjectsGrouped, setSubjectsGrouped] = useState({});
+export default function MySubjects() {
+  const teacherId = useMemo(() => decodeToken()?.id, []);
+  const [groups, setGroups] = useState({});
   const [loading, setLoading] = useState(true);
-  const [openSubjects, setOpenSubjects] = useState([]);
-
-  const teacher = JSON.parse(localStorage.getItem("teacher"));
-  const teacherId = teacher?.id;
+  const [failed, setFailed] = useState(false);
+  const [open, setOpen] = useState([]);
 
   useEffect(() => {
-    if (!teacherId) return;
-
-    const fetchSubjects = async () => {
-      try {
-        const { data } = await axios.get(`/api/teachers/${teacherId}/subjects`);
-        const grouped = data.subjects.reduce((acc, item) => {
-          const key = item.subjectName;
-          if (!acc[key]) acc[key] = [];
-          acc[key].push(item);
-          return acc;
-        }, {});
-        setSubjectsGrouped(grouped);
-      } catch (error) {
-        // console.error("Failed to fetch subjects:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSubjects();
+    if (!teacherId) { setLoading(false); return; }
+    api.get(`/api/teachers/${teacherId}/subjects`).then(({ data }) => {
+      const g = {};
+      (data.subjects || []).forEach((item) => { (g[item.subjectName] ||= []).push(item); });
+      setGroups(g);
+      setOpen(Object.keys(g).slice(0, 1));
+    }).catch(() => setFailed(true)).finally(() => setLoading(false));
   }, [teacherId]);
 
-  const toggleDropdown = (subject) => {
-    setOpenSubjects((prev) =>
-      prev.includes(subject)
-        ? prev.filter((s) => s !== subject)
-        : [...prev, subject]
-    );
-  };
+  const toggle = (name) => setOpen((o) => (o.includes(name) ? o.filter((x) => x !== name) : [...o, name]));
+  const entries = Object.entries(groups);
 
   return (
-    <div className="my-subjects-page2">
-      <Sidebar />
-      <Header />
-      <div className="my-subjects-page">
-        <div className="main-content">
-          <div className="subjects-container">
-            <h2 className="whiten">My Subjects</h2>
-            {loading ? (
-              <p>Loading...</p>
-            ) : Object.keys(subjectsGrouped).length === 0 ? (
-              <p className="yet">No subjects assigned yet.</p>
-            ) : (
-              <div className="subject-groups">
-                {Object.entries(subjectsGrouped).map(([subject, classes], index) => (
-                  <div className="subject-group" key={index}>
-                    <div
-                      className="subject-header"
-                      onClick={() => toggleDropdown(subject)}
-                    >
-                      <h3>{subject}</h3>
-                      <span className={`dropdown-icon ${openSubjects.includes(subject) ? "open" : ""}`}>
-                        ▼
-                      </span>
-                    </div>
-                    {openSubjects.includes(subject) && (
-                      <ul className="class-list">
-                        {classes.map((item, idx) => (
-                          <li key={idx}>
-                            {item.subjectName} - {item.className}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+    <div className="page page-narrow">
+      <PageHeader title="My subjects" subtitle={entries.length ? `${entries.length} subject${entries.length === 1 ? "" : "s"} across your classes.` : ""} />
+      {loading ? <Loading /> : entries.length === 0 ? (
+        <div className="card"><EmptyState emoji="📚" title={failed ? "Couldn't load your subjects" : "No subjects assigned yet"}>
+          {failed ? "Check your connection and try again." : "Ask your school admin to assign subjects to you."}</EmptyState></div>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: ".8rem" }}>
+          {entries.map(([name, items]) => {
+            const isOpen = open.includes(name);
+            return (
+              <section key={name} className="card" style={{ padding: 0, overflow: "hidden" }}>
+                <button type="button" onClick={() => toggle(name)} aria-expanded={isOpen}
+                  style={{ all: "unset", boxSizing: "border-box", width: "100%", display: "flex", alignItems: "center", gap: ".9rem", padding: "1rem 1.2rem", cursor: "pointer" }}>
+                  <span className="avatar" style={{ width: 42, height: 42, borderRadius: 12, background: "var(--blue-light)", color: "var(--blue)" }}><BookOpen size={19} /></span>
+                  <strong style={{ flex: 1, fontSize: "1.05rem", color: "var(--dark)" }}>{name}</strong>
+                  <span className="badge-pill">{items.length} class{items.length === 1 ? "" : "es"}</span>
+                  <ChevronDown size={18} style={{ transition: "transform .2s", transform: isOpen ? "rotate(180deg)" : "none", color: "var(--muted)" }} />
+                </button>
+                {isOpen && (
+                  <div className="row" style={{ padding: "0 1.2rem 1.2rem" }}>
+                    {items.map((it, i) => <span key={i} className="badge-pill blue">{it.className}</span>)}
                   </div>
-                ))}
-              </div>
-            )}
-          </div>
+                )}
+              </section>
+            );
+          })}
         </div>
-      </div>
+      )}
     </div>
   );
-};
-
-export default MySubjects;
+}

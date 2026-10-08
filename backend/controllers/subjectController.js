@@ -63,7 +63,7 @@ export const getSubjectsBySchool = async (req, res) => {
     }
 
     const subjects = await Subject.find(query)
-      .populate("classes", "name") // populate the array of classes
+      .populate("classes", "className") // populate the array of classes
       .sort({ name: 1 });
 
     res.status(200).json(subjects);

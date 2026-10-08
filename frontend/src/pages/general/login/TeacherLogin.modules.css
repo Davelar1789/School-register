@@ -5,37 +5,7 @@
    soft amber accents, Nunito + DM Sans
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=DM+Sans:wght@400;500;600&display=swap');
-
 /* ── Tokens ── */
-:root {
-  --tl-teal:        #1a8c7a;
-  --tl-teal-mid:    #22a896;
-  --tl-teal-dark:   #0e4f47;
-  --tl-teal-deeper: #08312d;
-  --tl-teal-light:  #d1f0eb;
-  --tl-amber:       #f5a623;
-  --tl-amber-light: #fef3d7;
-  --tl-coral:       #f26b5b;
-  --tl-ivory:       #f8faf9;
-  --tl-white:       #ffffff;
-  --tl-dark:        #0e2a26;
-  --tl-text:        #1c3835;
-  --tl-muted:       #5a7a76;
-  --tl-border:      rgba(26,140,122,.14);
-
-  --tl-shadow-sm:   0 2px 12px rgba(26,140,122,.10);
-  --tl-shadow-md:   0 8px 36px rgba(26,140,122,.16);
-  --tl-shadow-lg:   0 24px 64px rgba(14,79,71,.22);
-
-  --tl-r:           16px;
-  --tl-r-lg:        24px;
-  --tl-t:           0.26s cubic-bezier(.4,0,.2,1);
-
-  --font-d: 'Nunito',  sans-serif;
-  --font-b: 'DM Sans', sans-serif;
-}
-
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* ── Page ── */

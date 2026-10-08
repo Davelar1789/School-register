@@ -9,6 +9,17 @@ const api = axios.create({
   withCredentials: true,
 });
 
+// Attach the stored JWT to every request unless the caller already did.
+api.interceptors.request.use((config) => {
+  try {
+    const token = localStorage.getItem("token");
+    if (token && !config.headers?.Authorization) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  } catch { /* storage unavailable */ }
+  return config;
+});
+
 // Intercept responses
 api.interceptors.response.use(
   (response) => response,
@@ -37,9 +48,14 @@ api.interceptors.response.use(
         error.response.data?.message === "User not logged in" ||
         error.response.data?.message === "Token has expired")
     ) {
+      const wasTeacher = (() => {
+        try { return JSON.parse(atob(localStorage.getItem("token").split(".")[1])).role === "Teacher"; }
+        catch { return false; }
+      })();
       localStorage.removeItem("user");
       localStorage.removeItem("offlineAdmin");
-      window.location.href = "/login"; // Redirect to appropriate login page
+      localStorage.removeItem("token");
+      window.location.href = wasTeacher ? "/teacher-login" : "/sign-in";
     }
 
     return Promise.reject(error);

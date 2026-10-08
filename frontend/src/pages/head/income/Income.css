@@ -1,0 +1,13 @@
+.statement { padding: 1.6rem clamp(1rem, 3vw, 2rem); }
+.statement h2 { margin: 1.4rem 0 .4rem !important; font-size: .78rem !important; text-transform: uppercase; letter-spacing: .1em; color: var(--teal) !important; }
+.statement h2:first-child { margin-top: 0 !important; }
+.st-row { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: .7rem 0; border-bottom: 1px dashed var(--border-strong); color: var(--text); }
+.st-row b { font-variant-numeric: tabular-nums; color: var(--dark); }
+.st-row.total { border-bottom: 2px solid var(--dark); font-weight: 800; }
+.st-row.result { margin-top: 1.4rem; font-size: 1.05rem; font-weight: 800; border-bottom: 0; background: var(--teal-50); padding: .9rem 1rem; border-radius: 12px; }
+.st-row.grand { margin-top: .8rem; padding: 1.1rem 1rem; border-radius: 14px; border: 0; color: #fff; background: linear-gradient(120deg, var(--teal-deep), var(--teal)); font-size: 1.15rem; font-weight: 800; }
+.st-row.grand b { color: #fff !important; font-family: var(--font-display); font-size: 1.4rem; }
+.pos { color: var(--success) !important; } .neg { color: var(--danger) !important; }
+.tax-input { width: 140px; text-align: right; min-height: 38px; padding: .3rem .6rem; }
+.print-only { display: none; }
+@media print { .print-only { display: inline; } .stat-grid { display: none; } .card { box-shadow: none; border: 0; } }

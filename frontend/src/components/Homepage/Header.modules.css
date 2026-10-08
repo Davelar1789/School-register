@@ -4,28 +4,7 @@
    Aesthetic: "Soft Prestige" — warm ivory + deep teal + golden amber
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600&display=swap');
-
 /* ── CSS Variables ── */
-:root {
-  --h-teal:       #1a6b6b;
-  --h-teal-mid:   #22857f;
-  --h-teal-light: #d4eeec;
-  --h-amber:      #e8a820;
-  --h-amber-glow: #fde68a;
-  --h-ivory:      #fafaf7;
-  --h-dark:       #0f2e2e;
-  --h-text:       #1e3a3a;
-  --h-muted:      #5a7a7a;
-  --h-white:      #ffffff;
-
-  --h-shadow-sm:  0 2px 12px rgba(26,107,107,.10);
-  --h-shadow-md:  0 8px 32px rgba(26,107,107,.16);
-  --h-radius:     14px;
-  --h-radius-sm:  8px;
-  --h-transition: 0.28s cubic-bezier(.4,0,.2,1);
-}
-
 /* ── Base ── */
 *,
 *::before,
